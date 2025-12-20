@@ -1,0 +1,2578 @@
+#keyword: VSCode.yaml, Visual Studio Code, VSCode
+#ref: ${programming}/プログラミング言語、環境/VisualC++/VisualStudioCode.svg
+手順:
+    インストール:
+        Windows に Visual Studio Code をインストールします:  #// （言語非依存部分） #keyword: VSCode install
+            - https://code.visualstudio.com/
+            - ダウンロードしたファイル（例：VSCodeUserSetup-x64-1.50.1.exe）を開きます
+            - インストール オプションはデフォルトを使用。ファイルやフォルダーに関連付けるとよいでしょう
+            - （推奨）VSCode (Visual Studio Code をタスクバーにピン止めします:
+            - （推奨）Ctrl + S キーを押したときに全てのファイルを保存するように設定します: |
+                VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >> save all （と入力） >>
+                    File: Save All Files（をダブルクリック） >> Ctrl + S キー >> Enter キー
+            - 下記の拡張機能(Extensions)をインストールします:
+              -
+                #// 以下は推奨
+                - Copy Relative Path Posix  #// Copy Relative Path (POSIX) というメニューが追加されます
+            - VSCode の右下に下記をインストールするよう勧められたらインストールします:
+                - Linter pylint
+            - #search: VSCode extension
+              #search: VSCode recommended initialize
+        mac に Visual Studio Code をインストールします:  #keyword: VSCode mac install
+            ダウンロードして開きます:
+                - https://code.visualstudio.com/download >> Mac  #// Mac のページを開くとダウンロードも始まります
+                - Mac の Dock の右から２番目にある ダウンロード >> Visual Studio Code をクリック
+                - 開く ボタン（ダウンロード警告を無視します。Visual Studio Code はよく使われているため）
+            （必要なら）Visual Studio Code のアイコンを Dock に常に表示させるようにします:
+                - Dock にある新しいアイコンを右から２つ目の区切り線より左へ移動
+            （必要なら）code コマンドを使えるようにします:  #keyword: VSCode code command for mac
+                #// code コマンドはシェルから Visual Studio Code を開くときのコマンドです。
+                #// パラメーターは、フォルダーまたはファイルのパスです。
+                zsh: |
+                    new_path="\$HOME/Downloads/Visual Studio Code.app/Contents/Resources/app/bin"
+                    cat ~/.zshrc | grep \"$new_path: > /dev/null ||  echo "export PATH=\"$new_path:\$PATH\"" >> ~/.zshrc
+                    cat ~/.zshrc
+            （必要なら）YAML ファイルを Visual Studio Code で開くようにします:
+                メニュー: ファイルを右クリック >> 情報を見る >> このアプリケーションで開く >>
+                    （使うアプリケーション）>> 全てを変更
+                参考: snote >> ファイルの関連付け、拡張子 (mac)
+        CentOS に Visual Studio Code をインストールします:
+            Windows に Visual Studio Code をインストールして CentOS + VirtualBox に SSH で接続します:  #keyword: CentOS+VSCode
+                参考: https://onoredekaiketsu.com/install-centos7-on-virtualbox/
+                設定: #settings:
+                    __GuestIP__: 192.168.56.101  #// ゲストOS(CentOS 7)のIPアドレス。下記手順内でメモする値
+                    __GuestUser__: user1  #// SSH接続に使うゲストOSのユーザー名
+                CentOS + VirtualBox をインストールします:  #search: VirtualBox+CentOS
+                仮想的にローカル接続する ネットワーク アダプター を VM に追加します:
+                    VM の電源をオフにします:
+                    メニュー: VirtualBox >> （対象のVM）>> 設定（上）>> ネットワーク >>
+                        アダプター 2 >> ネットワークアダプターを有効化 >> 割り当て＝ホストオンリーアダプター
+                    VM を起動します:
+                    ゲストOSのIPアドレスをメモします:
+                        CentOS >> shell:
+                            ip a
+                            #// enp0s8 （の IP アドレス、inet の行）
+                        __GuestIP__: 192.168.56.101  #template: __GuestIP__
+                        トラブルシューティング:
+                            inet の行が表示されない。nmcli device status で disconnected:
+                                bash: nmcli connection add type ethernet con-name enp0s8 ifname enp0s8
+                                参考: https://www.kakiro-web.com/memo/centos-network-setting-nat-hostonly-2.html
+                ホストOS に Visual Studio Code をインストールします:
+                （初回のみ）SSH 接続の設定をします:  #keyword: Remote Development steps
+                    Remote Development 拡張機能 をインストールします:
+                        VSCode >> 拡張機能 ボタン（左） >> Remote Development
+                    Remote Explorer（アイコン：左）:
+                        REMOTE EXPLORER（上）: SSH Targets
+                        ホスト名 192.168.56.101 が表示されていないとき:  #template: __GuestIP__
+                            リロードします:
+                                VSCode >> Remote Explorer ボタン（左）>> リロード ボタン（Remote Explorer ビュー の右上）
+                            ~/.ssh/config ファイルを編集する場合:
+                                メニュー: VSCode >> Remote Explorer ボタン（左）>> 歯車 ボタン（SSH の右）
+                                （どちらかを開いて編集します）:
+                                    - C:\Users\m-toda\.ssh\config
+                                    - C:\ProgramData\ssh\ssh_config
+                                    #// 両方表示されない場合、上記 歯車 ボタン >> Settings >> Remote.SSH: Config File =（空欄にします）
+                            VSCode から入力する場合:
+                                SSH TARGETS: + ボタン
+                                Enter SSH Connection Command: ssh user1@192.168.56.101  #template: __GuestIP__
+                                    #template: __GuestUser__@__GuestIP__
+                                Select SSH configuration file to update:
+                                    C:\Users\____\.ssh\config
+                                （もし）ログインするユーザー名を変えるときや、古いターゲットを消すとき:
+                                    C:\Users\____\.ssh\config を開いて編集します
+                        ホスト名 192.168.56.101 （の右のフォルダー）ボタン を押します:  #template: __GuestIP__
+                    新しい Visual Studio Code ウィンドウが開きます: #keyword: Remote Development steps after open
+                        （接続できなかったら）Retry ボタン または トラブルシューティング:  #search: VSCode SSH trouble
+                        （初回のみ）ゲストOS の種類を選びます:
+                        （初回のみ）fingerprint に対して Continue を選びます:
+                        ゲストOSのユーザーのパスワードを入力します(2回):
+                            #// ログインに成功すると左下に緑色でサーバー名が表示されます
+                        ゲストOSのフォルダーを開きます:
+                            開いた VSCode ウィンドウ >> File >> Open Folder >> /home/user1/
+                                #template: /home/__GuestUser__/
+                        ゲストOSのユーザーのパスワードを入力します:
+                （２回目以降）サーバーのフォルダーを開きます:
+                    - タスクバーの VSCode を右クリック >> __Folder__ [SSH:__Server__]  #// または
+                    - VSCode >> File >> Open Recent >> __Folder__ [SSH:__Server__]  #// または
+                    - VSCode >> Remote Explorer ボタン（左）>> REMOTE EXPLORER= SSH Targets >> __Server__ >> __Folder__
+                （必要なら）git clone します:
+                    メニュー: VSCode >> Terminal >> New Terminal
+                    bash: sudo yum install git
+                最新の Git のインストールを勧められて、Update Git ボタン が表示された場合:
+                    エラー: You seem to have git 1.8.3.1 installed. Code works best with git >= 2 [Update Git]
+                    参考: https://qiita.com/d-dai/items/3cc0c8c81911d5b6cce5
+                    リモート接続している VSCode の bash を開きます:
+                        VSCode >> Terminal >> New Terminal
+                    既存の Git をアンインストールします:
+                        sudo yum remove git
+                    IUS リポジトリ（yum のリポジトリ）の設定を追加します:
+                        参考: https://ius.io/setup >> RHEL/CentOS 7
+                        bash:
+                            sudo yum install \
+                                https://repo.ius.io/ius-release-el7.rpm \
+                                https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+                    最新の Git をインストールします:
+                        - sudo yum install git --enablerepo=ius --disablerepo=base,epel,extras,updates
+                        - git --version  #// 2.24.4 in 2021-04-08
+                    IUS リポジトリの設定を削除します:
+                        sudo yum-config-manager --disable ius
+                    メモ）使っている Git がある場所を表示します:
+                        リモート接続している VSCode >> 歯車アイコン（左下）>> Settings >> git.path （と入力）
+            CentOS の中に Visual Studio Code をインストールします:
+                #// CentOS7
+                メニュー: FireFox >> https://code.visualstudio.com/download >> .rpm >> 64 bit >>
+                    ファイルに保存する
+                shell:
+                    - cd ${HOME}/ダウンロード
+                    - sudo yum -y install  code-____.rpm 
+                    - code  #// 起動
+                参考: https://qiita.com/kusanoiskuzuno/items/c323446f2707f9950ebb
+        VSCode をダウングレードします:
+            本体:  #keyword: downgrade VSCode
+                注意: ダウングレード後、自動的にアップグレードされてしまいます
+                古いバージョンをダウンロードします:
+                    https://code.visualstudio.com/updates/ >> （月＝バージョン）（左）>>
+                    (Windows) User
+                VSCode を閉じます:  #// このファイルをメモ帳などにコピーします
+                    File（メニュー）>> Exit
+                インストールします:
+                    例） VSCodeUserSetup-x64-1.65.2.exe をダブルクリック
+                PC を再起動します:
+                VSCode を起動します:
+            拡張機能:  #search: downgrade VSCode extension
+        JavaScript:
+            Node.js:
+                #search: VSCode Node.js Jest
+                #search: VSCode Node.js
+            Jest:
+                #search: VSCode Node.js Jest
+                #search: VSCode Jest command
+            React:
+                #ref: ${GitHub}/Trials/try_Jest_TypeScript_React_VisualStudioCode/steps.yaml
+        Python:
+            #search: VSCode pytest
+        Go:
+            #search: VSCode Go install
+        バージョン番号:  #search: code --version
+        古いバージョン: #keyword: VSCode previous versions,  VSCode old version
+            表示:  #// 現在のバージョンを表示します
+                Window: VSCode >> Help >> About
+                CLI: #search: code --version
+            インストール:  #// メインで使うバージョンをインストールします
+                ダウンロードします: |
+                    https://code.visualstudio.com/updates/  >> （年月：左、バージョン番号は一覧されていません）>>
+                    Downloads: Windows: x64 （など）
+                自動アップデートをオフにします: |  #// 古いバージョンをインストールするとすぐに更新を始めるため、このタイミングで設定します
+                    VSCode >> 歯車アイコン（左下）>> Settings >> "Update: Mode"（を検索）>> manual（に設定）
+                最新バージョンをアンインストールします:
+                    Windows >> 設定 >> アプリ >> studio code
+                    関連するコンポーネントの削除するを選びます
+                古いバージョンをインストールします:
+                    ダウンロードした .exe をダブルクリック
+                注意:
+                    VSCode >> 歯車アイコン（左下）>> Check for Updates... を選ばないでください。
+                    チェックするだけでなく自動的に更新されてしまいます
+                後日、最新版をチェックします:  #// 不具合が解消されるのを待つ場合
+                    https://code.visualstudio.com/updates/
+                VSCode のバージョンと OS の相性:  #search: VSCode SSH trouble Remote Linux
+            複数のバージョン:  #// 複数バージョンを並列してインストールした状態にします  #search: VSCode portable mode
+        ポータブル モード: #keyword: VSCode portable mode  #// ダウングレードすることもできます  #search: VSCode downgrade
+            インストール:
+                #// 以下は VSCode 1.85.2 の場合
+                VSCode-win32-x64-1.85.2.zip をダウンロードします:
+                    https://update.code.visualstudio.com/1.85.2/win32-x64-archive/stable
+                    #// 参考 https://code.visualstudio.com/docs/supporting/faq#_previous-release-versions
+                    #// 関連 >> ポータブル モード ではない古いバージョン:  #search: VSCode previous versions
+                zip を展開します: |
+                    "${HOME}\AppData\Local\Programs\Microsoft VS Code 1.85.2\Code.exe" ができるように展開します。他の場所でも構いません
+                data フォルダーを作成します: |  #// 空のフォルダーを作ります
+                    "${HOME}\AppData\Local\Programs\Microsoft VS Code 1.85.2\data"
+                起動スクリプトを作ります:  #keyword: code85 ps1
+                    ${HOME}\AppData\Local\Microsoft\WindowsApps\code85.ps1 : |  #// PATH が通ったフォルダーに作ります
+                        ${VSCodeVersion} = "1.85.2"
+                        if ( ${args}.Length -eq 0  -or  ${args}[0] -ne "-Sync" ) {
+                            Start-Job  -FilePath ${MyInvocation}.MyCommand.Path  -ArgumentList (@("-Sync") + ${args})
+                        } else {
+                            ${VSCodeFolder} = "${HOME}\AppData\Local\Microsoft\VSCode\${VSCodeVersion}"
+                            ${CodeArgs} = ${args}[1..${args}.Length]
+                            if ( ${CodeArgs}.Length -eq 0 ) {
+                                Start-Process  -FilePath  "${VSCodeFolder}\Code.exe"  `
+                                    -ArgumentList @( "--extensions-dir", "${HOME}\.vscode\extensions" )
+                            } else {
+                                Start-Process  -FilePath  "${VSCodeFolder}\Code.exe"  `
+                                    -ArgumentList ( @( "--extensions-dir", "${HOME}\.vscode\extensions" ) + ${CodeArgs} )
+                            }
+                        }
+                Users （settings.json など）コピーします:
+                    通常モード: ${HOME}\AppData\Roaming\Code\User
+                    ポータブル モード: ${HOME}\AppData\Local\Programs\Microsoft VS Code 1.85.2\data\user-data\User
+                        #// --user-data-dir オプションは、なぜか機能しません  #ref: https://code.visualstudio.com/docs/editor/command-line#_advanced-cli-options
+                起動します:  #// code コマンドの代わりに code85 コマンドを使います  #keyword: code85
+                    code85  --remote ssh-remote+__SshConfigName__  home/__User__
+                更新を無効にします:
+                    VSCode >> 歯車アイコン（左下）>> Settings >> "Update Mode"（を検索）= none
+            場所, 設定:
+                場所:  #// VSCode の実行ファイルや設定が入ったフォルダーの場所
+                    ${VSCodeFolder} = ${HOME}\AppData\Local\Programs\Microsoft VS Code 1.85.2 など  #keyword: VSCodeFolder
+                拡張機能の場所: #keyword: VSCode --extensions-dir
+                    通常モード: ${HOME}\.vscode\extensions
+                    ポータブル モード:
+                        オプション: --extensions-dir __Path__  #// 通常モードの場所を指定することもできます
+                        デフォルト: ${VSCodeFolder}\data\extensions
+                settings.json の場所: #keyword: VSCode --user-data-dir
+                    通常モード: ${HOME}\AppData\Local\Code\User\settings.json  #ref: ~/AppData/Local/Code/User/settings.json
+                    ポータブル モード:
+                        オプション: --user-data-dir __Path__
+                        デフォルト:
+                            --user-data-dir オプション: ${VSCodeFolder}\data
+                            settings.json の場所:      ${VSCodeFolder}\data\user-data\User\settings.json  #ref: __Path__/user-data/User/settings.json
+                    #ref: https://stackoverflow.com/questions/70396384/vscode-what-exactly-user-data-dir-is-specifiying
+        続き:
+            拡張機能:  #search: VSCode extension
+            推奨初期設定:  #search: VSCode recommended initialize
+    vscode.dev: #ref: https://insiders.vscode.dev/  #keyword: VSCode クラウド  #// ブラウザーで実行する軽量版 Visual Studio Code
+        GitHub リポジトリを開きます:
+            ブラウザーに URL を入力します:
+                codediff: #ref: https://insiders.vscode.dev/github/Takakiriy/codediff
+        0_memo を共有する場合:  #search: 0_memo 自動アップロード
+    プロジェクトを開きます: #keyword: VSCode open folder,  VSCode open  #// Visual Studio Code でプロジェクトのフォルダーを開きます
+        マウスを使う方法: #copy: open VSCode
+            Visual Studio Code を右クリック（Windows の タスク バー または mac の Dock）>>
+            New Window >> プロジェクト フォルダー を Visual Studio Code へドラッグ＆ドロップします
+        ターミナルを使う方法: #search: VSCode CLI
+            #// 以下のいずれか
+            - code __ProjectPath__
+            - code -n __ProjectPath__  #// 新しいウィンドウで開きます
+            - code -r __ProjectPath__  #// 現在のウィンドウを再利用します（閉じて開きます）
+        メニューから選ぶ方法:
+            - VSCode >> File >> Open Folder ... >> __Project__  #または
+            - (shell) code __Project__
+        WSL2 接続: #keyword: open WSL2 Docker VSCode,  code wsl
+            code --remote wsl+Rocky9  "home/user1"
+        WSL2 内 Docker 接続: #keyword: open WSL2 Docker VSCode
+            Docker ホストである Linux を開きます:
+                code --remote wsl+Rocky9  "home/user1"
+            （初回のみ）DevContainers 拡張機能をインストールします:
+                参考 >> Remote Develop 拡張機能をインストールします:  #search: Remote Development steps
+            手動で開く場合:  #ref: https://code.visualstudio.com/docs/devcontainers/attach-container
+                コンテナ―を起動します:
+                    (@Linux)
+                        docker container run  --name rocky9con  -it rockylinux:9.3 /bin/bash  #ref: https://hub.docker.com/_/rockylinux/tags?page=1&name=9
+                    #// The container name "/rocky9con" is already in use by container エラーになったら docker stop rocky9con; docker rm rocky9con してから
+                コンテナ―の中を VSCode で開きます:
+                    Remote Explorer を使う場合:
+                        VSCode >> Remote Explorer >> Dev Containers（最も上のプルダウン）>> __ContainerID__（にマウスを合わせて Attach in new Window ボタン）
+                    F1 コマンド を使う場合: |
+                        F1 >> Dev Containers: Attach to Running Container...
+                    （参考）使えない方法: |
+                        #// WSL の Linux で
+                        code --remote containers+rocky9    #// WSL の Linux で実行しても、Windows から開こうとして、接続に失敗します
+                        code --remote wsl+Rocky9+containers+rocky9  "home/user1"   #// Rocky9+containers+rocky9 という distro 名になってしまいます
+                    #// 前回開いた場所が開きます
+                フォルダーを開きます:  #// Remote Explorer を使ってフォルダーを開いた場合は次へ
+                    #// 開いた VSCode でコマンドを入力します
+                    code __FolderPath__   #// 指定したフォルダーを新しい VSCode ウィンドウで開きます
+                dnf コマンドを実行します: |
+                    export http_proxy="http://____:8080"   #// プロキシ環境の場合のみ実行します
+                    export https_proxy="http://____:8080"  #// プロキシ環境の場合のみ実行します
+                    dnf install -y  langpacks-ja.noarch
+            Dev Containers を使う場合: #keyword: Docker Dev Containers  #ref: https://code.visualstudio.com/docs/devcontainers/tutorial
+                Dev Containers: #keyword: VSCode Dev Containers,  Dev Containers  #// WSL2 の Linux が起動しているコンテナー
+                    一覧, 起動状況:
+                        開く: WSL2 の Linux で開いている VSCode >> Remote Explorer ビュー（左）>> Dev Containers（上のプルダウン）
+                        起動状況:
+                            Remote Explorer ビュー:
+                                Dev Containers にあるコンテナ―のアイコンに、再生マークが付いていると、コンテナ―は起動しています。
+                            docker ps コマンド:
+                                コンテナ―が起動していれば、WSL2 の Linux の docker ps -a コマンドで見えます。
+                                #// docker ps コマンド（-a オプションなし）では、stop しているコンテナーは一覧されません  #search: docker ps
+                    起動, 終了:
+                        コンテナ―のアイコンを右クリックして Start Container を選ぶと、コンテナ―は起動します。
+                        Attach in New Window を選んでも起動します。
+                Windows の VSCode で WSL2 内の Docker コンテナ―を開くには:
+                    Docker Desktop（条件により有料）のインストールが必要らしい
+                実験中:
+                    ファイルを作ります:
+                        devcontainer.json:  #ref: __ProjectInDockerHost__/.devcontainer/devcontainer.json  #ref: https://containers.dev/implementors/json_reference/
+                            サンプル:
+                                公式サンプル:  #ref: https://github.com/devcontainers/images/tree/main/src/javascript-node
+                                少し動いたサンプル: |  #// 起動したコンテナ―は VSCode で開けない
+                                    {
+                                        "name": "Rocky9",  // ?. VSCode の Reomote Explorer にも表示されない
+                                        "runArgs": ["--name", "rocky9"],  // コンテナー名
+                                        "image": "rockylinux:9.3",
+                                        "postCreateCommand": "mkdir -p /workspaces/user1"
+                                    }
+                            1つのコンテナ―の場合:
+                                Dockerfile を書かない場合:
+                                    image フィールドを書きます
+                            複数のコンテナーの場合:
+                                dockerComposeFile フィールドを書き、docker-compose.yml ファイルを作ります
+                            ポート: |  #// 未確認
+                                "portsAttributes": {
+                                    "3000": {
+                                        "label": "Hello Remote World",
+                                        "onAutoForward": "notify"
+                            インストールする VSCode の拡張機能?: |  #// 未確認
+                                "customizations": {
+                                    "vscode": {
+                                        "settings": {},
+                                        "extensions": ["streetsidesoftware.code-spell-checker"]
+                        Dockerfile:          #ref: __ProjectInDockerHost__/.devcontainer/Dockerfile
+                        docker-compose.yml:  #ref: __ProjectInDockerHost__/.devcontainer/docker-compose.yml
+                    コンテナ―を起動します:
+                        devcontainer up
+                        docker ps
+                        devcontainer exec  pwd
+                    コンテナ―の中を VSCode で開きます:
+                        エラーになります
+        SSH 接続: #keyword: open remote VSCode,  VSCode SSH,  code ssh,  VSCode Remote-SSH  #// SSH 接続した先のフォルダーを開く場合
+            （準備）Remote Development 拡張機能をインストールします:  #search: Remote Development steps
+            VSCode のウィンドウから開く場合:  #search: Remote Development steps
+            PowerShell から開く場合: #keyword: open VSCode SSH
+                コマンド:  #// 以下のいずれか
+                    - code --remote ssh-remote+192.168.100.101              #// パスを省略したときは、前回開いていたフォルダーが開きます
+                    - code --remote ssh-remote+192.168.100.101 home/user1   #// フルパスの先頭に / を付けません
+                        #template_: code --remote ssh-remote+__Server__ __FullPathWithoutRoot__
+                __Server__:  #// 以下のいずれか
+                    - IP アドレス
+                    - ~/.ssh/config の Host の値
+                新しい Visual Studio Code ウィンドウが開きます:
+                    #search: Remote Development steps after open
+                #ref: https://code.visualstudio.com/docs/remote/troubleshooting#_connect-to-a-remote-host-from-the-terminal
+            ホスト名をコピーする場合:  #// ~/.ssh/config の Host の値をコピーします
+                VSCode >> Remote Explorer >> SSH（にマウスを合わせる）>>（歯車アイコン）>> __Home__/.ssh/config >>
+                    Ctrl + K, 0（折りたたむ）>>（必要ならホスト名の一部をキーワードにして検索）>> ホスト名を選択 >> コピー
+            関連 >> 拡張機能:  #search: VSCode extension settings.json
+            接続できないとき:  #search: VSCode SSH trouble
+        SSH 経由 Docker 接続: #keyword: open remote container VSCode,  open VSCode SSH Docker
+            インストール:
+                本体: Extention >> Dev Containers 拡張機能 >> Install
+                言語: Extention >> (Python など）>> Install  #// コンテナ―にインストールが必要です
+            開きます:
+                GUI:
+                    Remote Explorer >> Dev Containers >>（コンテナー名の）Attach in New Window >>
+                    File >> Open Folder >> __Path__
+                CLI:  #// 未確認
+                    bash:
+                        code --remote ssh-remote+ci-local_centos7_52  home/vagrant/system
+                        code --remote ssh-remote+__SSHConfig__  __FolderPath__
+                    devcontainer cli: |  #// 未確認
+                        F1 >> Remote-Containers: Install devcontainer CLI
+                        VSCode 再起動
+                        devcontainer --help
+                            エラー
+        信頼チェック: #keyword: VSCode workspace trust
+            #ref: https://code.visualstudio.com/docs/editor/workspace-trust
+            信頼するフォルダーの切り替え:
+                VSCode >> 歯車（左下）>> Manage Workspace Trust
+            制限付きモード:
+                一部の機能は使えませんが、安全に作業できます。
+                制限付きモードが有効な状態では、VSCode の上部にバナーが表示されます
+    ターミナル (シェル) を開きます: #keyword: open VSCode terminal
+        開く:
+            VSCode >> Terminal メニュー >> New Terminal
+        Git bash シェルを開きます:  #keyword: VSCode Git bash
+            VSCode >> Terminal >> New Terminal >> ＋の右の↓（シェルの右上）>> Git bash
+            #// 関連: デフォルトで Git bash を開くようにします:  #search: VSCode set default bash
+        その他:  #search: VSCode terminal
+    拡張機能: #keyword: VSCode extension
+        （プロキシがある環境の場合）:  #keyword: VSCode proxy extension  #// プロキシがある環境で拡張機能を検索します
+            VSCode にプロキシの設定をします:
+                Windows:
+                    settings.json : |  #ref: ${HOME}/AppData/Roaming/Code/User/settings.json
+                        {
+                            "http.proxy": "http://my-http-proxy-server.com:123",
+                            "https.proxy": "https://my-https-proxy-server.com:124"
+                Linux:
+                    http_proxy, https_proxy 環境変数を設定します
+        （CLI や settings.json で管理します）:  #// 拡張機能のインストールなど
+            Extension ID:  #keyword: VSCode Extension ID  #// 拡張機能の ID
+                GUI から取得:  VSCode >> Extentions（左）>>（ID を調べるエクステンションを右クリック）>> Copy Extension ID
+                一覧: code --list-extensions  #search: VSCode extension command
+            settings.json: #keyword: VSCode extension settings.json,  remote.SSH.defaultExtensions,  install VSCode extension
+                SSH 接続の場合:
+                    ~/AppData/Roaming/Code/User/settings.json : |  #// __Project__/.vscode/settings.json に設定することはできません
+                        {
+                            "remote.SSH.defaultExtensions": [
+                                "eamodio.gitlens",
+                                "rogalmic.bash-debug",
+                                "mads-hartmann.bash-ide-vscode"
+                            ],
+                    または:  #search: install remote VSCode extension
+                    #ref: https://code.visualstudio.com/docs/remote/ssh#_always-installed-extensions
+                    #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/README.yaml#defaultExtensions
+                WSL の場合:
+                    補足: remote.WSL.defaultExtensions は機能しません  #search: install remote VSCode extension
+                    #ref: https://github.com/microsoft/vscode-remote-release/issues/2704
+            CLI: #keyword: VSCode extension command  #ref: https://code.visualstudio.com/docs/editor/extension-marketplace#_command-line-extension-management
+                一覧:
+                    code --list-extensions  #search: VSCode Extension ID
+                インストール: #keyword: VSCode extension install command
+                    Visual Studio Marketplace にある場合:
+                        code --install-extension  __Publisher__.__Extension__
+                    Visual Studio Marketplace にない場合:
+                        ローカルにダウンロードして .vsix ファイルをインストールします:
+                            typrm 拡張機能 の場合:  #search: typrm VSCode extension
+                                -   cd  __GitHubFolder__  #ref: ${GitHub}
+                                -   git clone https://github.com/Takakiriy/typrm-vscode
+                                -   code --install-extension  typrm-vscode/typrm-0.0.1.vsix
+                    #search: bash debug install command
+            拡張機能のプリインストール:
+                #ref: https://code.visualstudio.com/updates/v1_96#_set-up-vs-code-with-preinstalled-extensions
+        Remote Development 拡張機能: #keyword:
+            リモートへのインストール:  #// SSH または WSL で接続した先では、別途拡張機能をインストールする必要があります
+                ローカルと同様: #keyword: install remote VSCode extension  #// ローカルにインストール済みの拡張機能と同じものを接続先でも使えるようにします
+                    VSCode >> (WSL のフォルダーを開きます) >> Extensions ビュー（左）>> ↓（WSL - INSTALLED バー の右）
+        GitLens: #keyword:
+            概要: 設定ページを見るとビジュアルに用語がわかります
+            初期設定: #keyword: GitLens 初期設定
+                メニュー: VSCode >> Extentions（左）>> GitLens の歯車ボタン >> Open Settings
+                オフ: Git CodeLens, Hovers
+            基本:
+                1つ前のコミット: ←◯ ボタン（テキスト エディター の右上）
+                現在の行のコミットの詳細:  #// 以下のいずれか
+                    - Current Line Blame にカーソルを合わせる
+                    - Status Bar Blame にカーソルを合わせる
+            変更した人:
+                GitLens 拡張機能をインストールした VSCode でコードの行をクリックして右に
+                変更した人、コミットメッセージ、コミットID が薄く表示されます。
+            ファイルや行の履歴の一覧:
+                メニュー: GitLens ビュー（左）>> FILE HISTORY または LINE HISTORY
+                （必要なら）file と line を切り替えます:
+                    FILE HISTORY または LINE HISTORY のタイトルの右にある右から３つ目のボタン
+                ピン止めします:  #// 開いているファイルやキャレットがある行を変えても履歴を変えません
+                    FILE HISTORY または LINE HISTORY のタイトルの右にある右から４つ目のボタン
+            コードやコミットID ⇒ プルリクエスト: #search: GitHub Commit ID Pull Request
+            トラブルシューティング:
+                シンボリックリンクのフォルダー内のファイルで履歴（blame）が表示されない: #keyword: VSCode Git lens symbolic link blame
+                    #ref: https://github.com/gitkraken/vscode-gitlens/issues/3081
+                    対処:
+                        リンク先を開けば履歴は表示されます:
+                            ターミナル
+                                readlink -f __FilePath__
+                            検索ボックス（上）>> 貼り付け >> 選ぶ
+                            行番号へ飛ぶ
+        Git Graph: #keyword:
+            開く:
+                VSCode >> Source Control ビュー（左）>> View Git Graph ボタン（上）
+            最新の情報に更新:
+                fetch あり: 雲↓ ボタン（右上）
+                fetch なし: リロード ボタン（右上）
+            リベース:
+                ベースを変えるブランチを check out >> 新しいベースにするブランチを右クリック >> Rebase current branch on Branch
+        TODO Hightlight: | #keyword: TODO Hightlight,  ToDo
+            FIXME: TODO: をハイライトします。パスワードを一時的にメモしたとき fixme を付けると良いでしょう。キーワード fixme: をtyprm で検索できます
+        Bookmarks:  #keyword: VSCode Bookmarks
+            トグル:
+                Kindle がインストールされていない場合:
+                    Windows: Ctrl + Alt + K
+                    mac: option + command + K
+                Kindle がインストールされている場合: Alt + K  #// 下記設定変更が必要
+            キーボードの設定変更:  #// Alt + K
+                メニュー: VSCode >> Manage（歯車ボタン、左下）>> Keyboard Shortcuts >>
+                検索キーワード: |
+                    bookmarks: toggle
+                キーを変更します:
+                    bookmarks.toggle の行をダブルクリック >> ALt + K キー
+                既存の Alt+K を削除します:
+        Remote Develpoment: #keyword: VSCode Remote Develpoment, VSCode remote
+            SSH 接続した先のフォルダーを開く場合:  #search: open remote VSCode
+            CentOS7 >> SSH 接続の設定をします:  #search: Remote Development steps
+            Vagrant で作った VM に接続します:  #search: Vagrant SSH
+            リモートの $HOME/.vscode-server フォルダー:  #keyword: .vscode-server
+                リモートで code コマンド実行:  #// できなさそう
+                    (@SSH) which code
+                        $HOME/.vscode-server/bin/ee2b180d582a7f601fa6ecfdad8d9fd269ab1884/bin/remote-cli/code
+                    ssh vagrant@GoCD_51_centos7_51  echo '$PATH'
+                        .vscode-server は 含まれない
+                    ssh vagrant@GoCD_51_centos7_51  '$HOME/.vscode-server/bin/ee2b180d582a7f601fa6ecfdad8d9fd269ab1884/bin/remote-cli/code' --install-extension  rogalmic.bash-debug
+                        Command is only available in WSL or inside a Visual Studio Code terminal.
+        Preview (Haixin Chen): #keyword: Haixin Chen Preview  #// Shift + Ctrl + V  #// .rst, mermaid in .md
+            reStructuredText:  #search: reStructuredText
+                .rst ファイルを開き、Shift + Ctrl + V キーを押します
+            mermaid:  #search: mermaid
+                mermaid が含まれている .md ファイルを開き、Shift + Ctrl + V キーを押します
+        draw.io: #keyword: VSCode draw.io  #ref: https://www.draw.io/
+            インストール:
+                Extensions (左) >> Draw.io Integration
+                .drawio ファイルを開くと、エディターが開きます。
+            操作: #search: draw.io
+        JSON Table Viewer 拡張機能（lengmo 製）: #keyword: VSCode JSON table  #// JSON ファイルをテーブル形式で表示します
+            開く: VSCode >> Explorer >> (.json ファイル) >> F1 キー >> JSON Table View:;; Open View
+            テキストのコピー: 選択して Ctrl + C
+            検索: できないようです
+        HCL:
+            HashiCorp HCL
+        hexdump for VSCode: #keyword: binary file hexdump for VSCode  #// deprecated  #search: Hex Editor
+            Extensions (左) >> hexdump for VSCode（を検索してインストール）>>
+            Explorer（VSCode 左上）>>（ファイルを右クリック）>> Show Hexdump
+        Hex Editor:  #keyword VSCode Hex Editor,  VSCode binary,  edit binary file
+            手順:
+                インストールします:
+                    VSCode >> 拡張機能 ビュー（左）>> Hex Editor (microsoft)
+                Hex Editor で開きます:
+                    対象ファイルを開く >> F1 キー >> Hex Editor; Open Active File in Hex Editor
+                編集します:
+                改行コードを確認します:
+                    sakura エディターで開いて確認します: | #keyword: sakura editor CR+LF
+                        ←↓: CR+LF, ↓: LF, ←: CR
+        GlassIt-VSC:  #// 半透明  #keyword: VSCode GlassIt-VSC
+        SSH FS:  #keyword: VSCode SSH FS
+            注意: SSH FS で接続した状態は、VSCode が直接 SSH の先のフォルダーを開きません。
+                SSH FS 拡張機能が開きます。
+                そのため、ターミナルを表示してもローカルになったり、Terminal（メニュー）>> Run Task が使えなかったりします。
+            手順:
+                SSH FS をインストールします:
+                    VSCode >> Extensions（左）>> SSH FS >> Install
+                設定を保存します:
+                    メニュー: （CONFIGURATIONS（左上）の）Create a SSH FS Configuration ボタン
+                    Name: connection1
+                    Save ボタン:
+                    Host: 192.168.___.___ (例）
+                    Root: /home/____
+                    Username: ____
+                    Save ボタン（最も下）:
+                接続します:
+                    メニュー: （CONFIGURATIONS（左上）の下にある connection1 の右にある）Add as Workspace folder
+                    パスワード: ____
+        Go 言語:  #keyword: VSCode Go,  VSCode Go language extension
+            インストールを始めた場合、下記が表示されるまで待ってください:
+                All tools successfully installed. You are ready to Go. :)
+            各種ツールのインストール状況:
+                Go のプロジェクトのフォルダーを VSCode で開き、Explorer ビュー（左）の Go（最も下）を開きます
+            go 1.18.x 以前がインストールされた Linux 環境の場合:
+                ログ:
+                    VSCode >> output >> Go: |
+                        2024-08-08 09:15:01.264 [info] Try to start language server - activation (enabled: true)
+                        2024-08-08 09:15:03.795 [info] Running language server gopls(v0.15.2/go1.18.10)
+                    VSCode >> output >> Go (2): |  #// アンインストールして mv ~/go ~/go_bk して再インストールしたとき
+                        ...
+                        2024-08-08 09:30:09.318 [info] gopls: failed to install gopls(golang.org/x/tools/gopls@latest): Error: Command failed: /usr/bin/go install -v golang.org/x/tools/gopls@latest
+                        /home/vagrant/go/pkg/mod/golang.org/x/tools/gopls@v0.16.1/internal/golang/comment.go:12:2: package go/doc/comment is not in GOROOT (/usr/lib/golang/src/go/doc/comment)
+                    shell: |
+                        [vagrant@localhost system]$ ps aux | grep gopls
+                        vagrant   8462  4.3  0.2 834912 22548 ?        Sl   09:15   0:00 /home/vagrant/go/bin/gopls -mode=stdio
+                対処: |
+                    VM 再起動
+                    VSCode で ${HOME} を開く
+                    mv ~/go ~/go_back_up  #// または sudo -rf ~/go
+                    export GOPATH=~/go
+                    /usr/bin/go install -v golang.org/x/tools/gopls@v0.14.0   #ref: https://pkg.go.dev/golang.org/x/tools/gopls/release?tab=versions
+                    拡張機能 Install another version >> 0.40.2  #ref: https://github.com/golang/vscode-go/releases
+                    go 言語のフォルダーを開きなおす
+        learn-yaml:
+            YamlMime: YAML ファイルの行頭で a を押すと learn-yaml の機能によって何かがサジェストされます。不要なら larn-yaml をアンインストールしてください
+        （開発）: #keyword: VSCode extension development  #ref: https://code.visualstudio.com/api/get-started/your-first-extension
+            手順:  #// Visual Studio Code の拡張機能を開発します
+                セットアップ: #keyword: VSCode extension development example  #// 開発環境のインストール
+                    各種インストールします:
+                        Node.js をインストールします:
+                            #search: install Node.js
+                        Yeoman と VS Code Extension Generator をインストールします:
+                            Windows:
+                                PowerShell:
+                                    npm install -g yo generator-code
+                            mac:  #// インストール後の動作までは、未確認
+                                sudo npm install -g yo generator-code
+                    プロジェクトを新規作成します:  #// yo code を実行し、いくつかの質問に答えます
+                        #// カレント フォルダー の直下に指定したシンボルのプロジェクトを作ります
+                        PowerShell:  #focus: __Name__
+                            cd  __ParentOfProject__
+                            yo code
+                            # ? What type of extension do you want to create? New Extension (TypeScript)
+                            # ? What's the name of your extension? __Name__   #// e.g.) HelloWorld
+                            ### 以下は Enter だけ押せばよい
+                            # ? What's the identifier of your extension? helloworld
+                            # ? What's the description of your extension? LEAVE BLANK
+                            # ? Initialize a git repository? Yes
+                            # ? Bundle the source code with webpack? No
+                            # ? Which package manager to use? npm
+                            # ? Do you want to open the new folder with Visual Studio Code? Open with `code`
+                    起動します:
+                        プログラムの起動:  #// 拡張機能が組み込まれた VSCode を新しく開きます
+                            VSCode:  #// 開発に使っている VSCode から
+                                F5 キー >>（初回のみ）VS Code Extension Development
+                        コマンドの起動:  #search: VSCode F1
+                            拡張機能が組み込まれた VSCode:
+                                F1 キー >> Hello World (Enter)
+                        拡張機能によってデバッグ表示されます:  #// 下記のメッセージが拡張機能にハードコーディングされているものとします
+                            プロジェクトの VSCode >> DEBUG CONSOLE:
+                                Congratulations, your extension "helloworld" is now active!
+                        メッセージを変えます:
+                            __Project__/src/extension.ts :  #// このファイルを編集して、拡張機能が組み込まれた VSCode を再起動します
+                                console.log(____);
+                    #// 書きかけ
+                リリース: #keyword: release VSCode extension
+                    パッケージを作ります:
+                        vsce をインストールします:
+                            npm install -g vsce
+                        パッケージ (.vsix) を作ります:
+                            (Connect your PC to internet.)
+                            cd  __Project__
+                            vsce package
+                    ローカルにインストールします:
+                        code --install-extension  ____.vsix
+                        #search: VSCode extension install command
+                        #// インストールしたら、Extensions ビュー（左）に表示されます
+                    （必要なら）ショートカット キー を設定します:
+                        インストールした拡張機能のコマンド（コマンド名）とキーを対応付けします  #search: VSCode keyboard
+                    VSCode Marketplace に公開します:  #ref: https://code.visualstudio.com/api/working-with-extensions/publishing-extension
+                        Microsoft アカウントの作成:
+                        Visual Studio Marketplace へのサインアップ:
+                        パブリッシャー アカウントの作成:
+                        Personal Access Token の作成:
+                        vsce パッケージのインストール:
+                        拡張機能のパッケージング:
+                        拡張機能の公開:
+                インストール:
+                    #search: VSCode extension install command
+            概念:
+                プロジェクト:
+                    新規作成:  #search: VSCode extension development example
+                    サンプル:
+                        typrm VSCode 拡張機能:  #search: typrm VSCode extension
+                コマンド名:  #focus: typrm.paste,  typrm: Paste Search Tag
+                    package.json : |
+                        {
+                            "contributes": {
+                                "commands": [
+                                    {
+                                        "command": "typrm.paste",             // コマンド名
+                                        "title": "typrm: Paste Search Tag"    // VSCode >> F1 に入力する・表示されるタイトル
+                    src/extension.ts : |
+                        vscode.commands.registerCommand('typrm.paste'         // コマンド名。package.json に書かれたコマンド名に合わせること
+                操作対象:
+                    ユーザー インターフェイス >> 通知:  #// 右下に表示されます
+                        vscode.window.showInformationMessage("OK!");
+                    クリップボード: #keyword: clipboard VSCode extension development
+                        内容を見る:
+                            let clipboardContent = await vscode.env.clipboard.readText();
+                        置き換えた内容を貼り付ける: |  #focus: replace
+                            export function activate(context: vscode.ExtensionContext) {
+                                let disposable = vscode.commands.registerCommand('typrmsearchtag.paste', async (textEditor, edit) => {
+                                    const clipboardText = await vscode.env.clipboard.readText();
+                                    const pasteText = clipboardText.replace(/#keyword:/g, '#search:');
+                                    const editor = vscode.window.activeTextEditor!;
+                                    const workspaceEdit = new vscode.WorkspaceEdit();
+
+                                    workspaceEdit.replace(editor.document.uri, editor.selection, pasteText);
+                                    await vscode.workspace.applyEdit(workspaceEdit);
+                                });
+
+                                context.subscriptions.push(disposable);
+                            }
+        トラブルシューティング（拡張機能）: #keyword: VSCode extension trouble
+            問題があるバージョン:
+                YAML (Red Hat): #search: RedHat YAML folding bug
+            拡張機能をダウングレードします:  #keyword: downgrade VSCode extension
+                （拡張機能をインストールしていない場合）任意のバージョンをインストールします:
+                現在のバージョンを確認します:
+                    拡張機能の一覧の中の対象の拡張機能にマウスを合わせます
+                古いバージョンをインストールします:
+                    拡張機能の一覧の中の対象の拡張機能を右クリック >> Install Another Version
+            ログを表示します: #keyword: VSCode extension log
+                F1 キー >> Show Logs >> Extension Host
+            バグ報告:
+                VSCode >> 拡張機能ビュー（左）>>（拡張機能）>> Repository（拡張機能のページの右上）
+                #// 報告文は #search: バグ報告文
+    推奨初期設定: #keyword: VSCode recommended initialize
+        自動インデントを大人しくさせます:
+            - VSCode >> 歯車ボタン（左下）>> Settings >>
+            - "Editor: Auto indent": keep
+        右端で折り返したときにインデントさせます: #keyword: VSCode editor.wrappingIndent
+            - VSCode >> 歯車ボタン（左下）>> Settings >>
+            - editor.wrappingIndent: deepIndent
+        全角の記号を警告しないように設定します:
+            settings.json : |  #search: VSCode user settings.json file path  #ref: ~/AppData/Roaming/Code/User/settings.json
+                {
+                    "editor.unicodeHighlight.allowedCharacters": {
+                        "（": true, "）": true, "　": true, "～": true, "×": true, "：": true, "？": true
+                    }
+                }
+        全角の句読点を設定します: #keyword: 区切り文字, VSCode 句読点 区切り記号
+            効果: ダブルクリックして単語を選択しようとしたときに、全角の句読点やカッコを含めないようになります
+            settings.json : |  #search: VSCode user settings.json file path
+                {
+                    "editor.wordSeparators": "`~!^&*#()=+[{]}\\|;:%@'\",.<>/?　、。（）「」【】🌟💤❗❓🟢🔴⇒⬭"
+                }
+        コピー時にスタイルをコピーしないようにします: #keyword: VSCode copyWithSyntaxHighlighting,  VSCode copy without style
+            VSCode >> 歯車 ボタン（左下）>> Settings >> editor.copyWithSyntaxHighlighting = オフ
+        スティッキー スクロール を無効にします:  #keyword: スティッキー スクロール, VSCode ツリー表示 折り畳み breadcrumb tree menu
+            エディター: VSCode >> View メニュー >> Appearance >> Sticky Scroll（やや下）
+            Explorer ビュー: VSCode >> 歯車アイコン（左下）>> Settings >> workbench enable sticky scroll
+            ターミナル:      VSCode >> 歯車アイコン（左下）>> Settings >> terminal.integrated.stickyScroll.enabled
+        Terminal のサジェストを無効にする:  #keyword: VSCode Terminal インテリセンス
+            _: Ctrl + space キー でサジェストできます
+            settings.json: |  #search: VSCode settings.json
+                "terminal.integrated.suggest.suggestOnTriggerCharacters": false,
+                "editor.quickSuggestions": {
+                    "other": "off"
+                },
+                "terminal.integrated.suggest.quickSuggestions": {
+                    "commands": "off",
+                    "arguments": "off",
+                    "unknown": "off"
+                }
+            議論: #ref: https://github.com/microsoft/vscode/issues/282268#issuecomment-3641970672
+        Terminal の中の URL などのリンクに「Follow Link」をポップアップ表示させない:  #// よくそれにフォーカスを取られてしまうため
+            settings.json : |
+                {
+                    "terminal.integrated.showLinkHover": false
+            #// または
+            VSCode >> 歯車アイコン（左下）>> Settings >> terminal show link hover = オフ
+        Terminal の情報を表示するホバー機能を無効にする:
+            現在、詳細部分だけを隠すことしかできません:
+                （ホバー表示させる）>> Hide Details
+            改良チケット:
+                #ref: https://github.com/microsoft/vscode/issues/221531  #// closed
+                #ref: https://github.com/microsoft/vscode/issues/239404
+                #ref: https://github.com/microsoft/vscode/pull/246659
+        Terminal の最大行数:  #keyword: VSCode terminal max lines,  VSCode 5000 items log size buffer
+            #// スクロールで戻れる最大行数を大きくします。Temimal の出力を最も上にスクロールして、もっと上を見たいとき
+            settings.json : |
+                {
+                    "terminal.integrated.scrollback": 9999  #// or 40000
+        typrm 拡張機能をインストールします:
+            #search:
+        フォントを等幅に設定します:
+            #search: VSCode font
+        ツリーの展開と折りたたみに関する ショートカット キー を設定します: #keyword: VSCode folding customize
+            メニュー:
+                VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >> Unfold or Fold
+            設定するキー:
+                1つ開きます: Ctrl + ]  #// Unfold
+                1つ閉じます: Ctrl + [  #// Fold
+            （参考）設定する前の機能:  #// 下記のキーを検索して、前の機能の キー バインド を削除します
+                インデントを深くする: Ctrl + ]  #// Tab キーでできます
+                インデントを浅くする: Ctrl + [  #// Shift + Tab キーでできます
+        JSON with Comments をデフォルトにします: #keyword: VSCode JSONC setting  #// Visual Studio Code の JSON 構文チェックにコメントを警告しないモードに切り替えます
+            一時的に切り替える場合: VSCode >> Select Language Mode（右下）>> JSON with Comments  #// 開きなおすを切り替え前のモードに戻ります
+                #ref: https://code.visualstudio.com/docs/languages/json#_json-with-comments
+            .json ファイルに関連付ける場合: #keyword: VSCode file extension
+                settings.json : |
+                    {
+                        "files.associations": {
+                            "*.json": "jsonc"
+                #ref: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
+        diff 表示を改善します:
+            settings.json の場合: |
+                {
+                    "diffEditor.diffAlgorithm": "advanced",
+            VSCode の場合:
+                VSCode >> settings >> diffEditor.diffAlgorithm  #ref: https://code.visualstudio.com/updates/v1_78#_diff-algorithm-improvements
+        YAML でサジェストさせないようにします:
+            settings.json : |
+                {
+                    "editor.suggest.showWords": false
+        YAML の folding のバグを回避します:
+            #search: RedHat YAML folding bug
+        YAML の最大アイテム数: |
+                {
+                    "yaml.maxItemsComputed": 5000  #// より増やす。30000
+        ファイル名タブ幅: #keyword: VSCode tab width  #ref: https://code.visualstudio.com/updates/v1_79#_new-tab-sizing-option-fixed
+            VSCode >> 歯車 ボタン（左下）>> 検索 = tabSizing（など）
+            tabSizing = fixed, tabSizingFixedMaxWidth =, tabSizingFixedMinWidth = 130
+        空行もコメントアウトするようにします:  #// VSCode >> Edit >> Toggle Line Comment (Ctrl + /) のオプション
+            settings.json : |  #search: user settings.json file path  #keyword: comments.ignoreEmptyLines
+                {
+                    "editor.comments.ignoreEmptyLines": false
+            注意: ただし、空行にタブの空白は入らないので、インデントを浅くしてから Ctrl + / キーを押してください
+        全ブレークポイントを一時的に無効にする ショートカット キー を設定します: #keyword: VSCode Toggle Activate Breakpoints  #search: customize VSCode shortcuts
+            - VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >>
+            - "View: Focus Next Part（と入力）>>"
+            - （右クリックして）Remove Keybinding >>
+            - Toggle Activate Breakpoints（と入力し、見つかった行をダブルクリック）>> F6 キー >> Enter キー
+        GitLens 初期設定:  #search:
+        Markdown のスタイルを設定します:  #keyword: VSCode markdown
+            ローカル設定:  #// Visual Studio Code を開いたフォルダーに対する設定
+                #ref: ${typrm_files}/Qiita下書き/.vscode
+            ユーザー設定:  #// ローカル設定が無いときの設定
+                #// 未確認  settings.json をユーザー設定の場所に書いても認識しないみたい 2023-05-21
+                #search: settings.json
+        workbench.editor.showTabs:
+        editor.multiDocumentOccurrencesHighlight:  #// 分割したエディターのすべてで選択を強調表示します
+        VSCode の検索バーの幅:  #keyword: VSCode search bar width
+            以下は非推奨になった様子: |  #ref: https://stackoverflow.com/questions/58896453/change-the-width-of-the-search-bar-in-vscode
+                "customizeUI.stylesheet": { ".quick-input-widget": "width: 1000px !important; left: calc(50% - 200px);" } in settings.json
+            #ref: https://github.com/microsoft/vscode/issues/85374
+    オプション初期設定:
+        日本語表示, 言語切り替え: #keyword: VSCode Japanese language
+            F1 キー >> Configure Display Language（と入力）
+        Git bash シェルをデフォルトで開くようにします:  #keyword: VSCode set default Git bash
+            VSCode >> Terminal >> New Terminal >> ＋の右の↓（シェルの右上）>>
+            Select Default Profile >> Git bash >> ゴミ箱 ボタン（シェルの右上）
+    Linux 形式のパス:  #keyword: VSCode Linux path, VSCode POSIX path
+        拡張機能 >> Copy Relative Path Posix
+    言語:  #// 表示言語, 文字コード
+        UI の表示言語を変更します:  #keyword: VSCode language
+            初回: F1 キー >> Configure Display Language >> Install additional languages >>（表示したい言語）
+            2回目以降: F1 キー >> Configure Display Language >>（表示したい言語）
+            Restart:  #// Restart するまでは、新しいウィンドウを作っても新しい言語で表示されません
+        開くファイルの文字コード: |  #keyword: VSCode character code  #// デフォルトで開く文字コード（プロジェクト内）
+            VSCode >> 歯車アイコン（左下）>> Settings >> Files: Encoding（を検索）>>
+            Workspace タブ >> Japanese (EUC-JP)（など）
+        フォント: #keyword: VSCode font,  VSCode 等幅フォント
+            インストール:
+                メニュー: VSCode >> 歯車ボタン（左下）
+                Editor Font Family:
+                    __NewFontName__, __DefaultFontNames__
+            フォント:
+                -   BIZ UDゴシック  #// BIZ UDゴシック は Windows 10 にプリインストールされています
+            サンプル:
+                font:     1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ あいうえお
+                依頼内容: バグ改修
+                状況:     バグ改修
+    リリース ノート 日本語版: #keyword: VSCode Japanese release note
+        リリース ノート のページにある Update をクリックしてブラウザーで表示させ、ブラウザーの機能で日本語にします
+画面:  #ref: https://code.visualstudio.com/docs/getstarted/userinterface
+    タイトル バー, Command Palette: #keyword: VSCode title bar, Command Palette
+        入力ボックス:  #// F1 キー,  Ctrl + P キー を押すと表示され、キーボードから入力することができます
+            F1 キー, Ctrl + Shift + P キー, Show and Run Commands: #keyword: VSCode F1,  VSCode Show and Run Commands
+                最初の > を消したとき: Ctrl + P キー を押したときと同じ状態になります
+            Ctrl + P キー, Search files by name: #keyword: VSCode Ctrl+P,  VSCode Search files by name
+                最初に(>)を入力したとき: F1 キー を押したときと同じ状態になります
+                最初に(:)を入力したとき: Ctrl + G キー を押したときと同じ状態になります
+                最初に(%)を入力したとき: クイック検索。ファイル名検索＋全文検索  #ref: https://code.visualstudio.com/updates/v1_89#_quick-search
+            Ctrl + G キー, Open a text editor first to go to a line:
+        クリックしたとき:
+            F1 キー,  Ctrl + P,  Ctrl + Shift + P などのメニュー項目と、Ctrl + P を押したときの項目が表示されます。
+            続けてキーボードを入力したときは、Ctrl + P キー を押したときと同じ動きをします。F1 キーを押したときの動き（Ctrl + Shift + P と同じ Show and Run Commands）ではありません。
+    エディター: #keyword: VSCode editor
+        キーボード ショートカット:  #search: VSCode keyboard
+        フローティング ウィンドウ:  #ref: https://code.visualstudio.com/docs/editor/custom-layout#_floating-editor-windows
+            エディターのタブをウィンドウの外にドラッグ＆ドロップすることで、新しい別のウィンドウを作ります
+        Git ブランチ別の配置:  #// 開いているファイル（エディター）やタブの順序をブランチごとに記憶します
+            #ref: https://code.visualstudio.com/updates/v1_89#_saverestore-open-editors-when-switching-branches
+            v1.89 から使えます
+            機能の有効化：scm.workingSets.enabled
+            初めてブランチにcheckoutしたときの設定：scm.workingSets.default
+        マージ エディター: #keyword: VSCode merge editor
+            双方の編集内容を確認します:
+                左上: 相手。受け入れようとした内容。コンフリクト発生前から編集した差分
+                右上: 自分。マージする直前の内容。  コンフリクト発生前から編集した差分
+                下半分: 自動マージ後の内容。 編集できます
+                __ Conflicts Remaining（右）: 次の競合にジャンプします
+            競合を解決します:
+                自分または相手を採用します: （左上または右上の）Accept（差分の上）  #// 下半分にコピーします
+                下半分を採用します: （左上の）Ignore（差分の上）>>（右上の）Ignore
+                下半分を編集します:  #// コンフリクト状態ではなくなります
+                編集を完了します: Source Control ビュー の ＋ を押します
+    ターミナル:
+        開く:  #search: open VSCode terminal
+        その他: #search: VSCode terminal
+    Zen モード: #keyword: VSCode Zen mode,  VSCode シンプル 全画面 集中モード  #ref: https://code.visualstudio.com/docs/getstarted/userinterface#_zen-mode
+        開始: Ctrl + K, Z
+        終了: Esc, Esc
+検索, 編集, エディター: #keyword: VSCode editor
+    キーボード ショートカット:  #keyword: VSCode keyboard,  VSCode shortcuts
+        共通:
+            テキスト エディター 内:
+                表示:
+                    右端で表示を折り返します: メニュー >> View >> Toggle Word Wrap
+                    カーソル（キャレット）の点滅表示を抑制します:
+                        ホバリングすると表示されるポップアップで点滅を隠します
+                ツリーの展開と折りたたみ: #keyword: VSCode folding, VSCode tree expand collapse
+                    すべて折りたたみます:  Ctrl + ( K, 0 )  #// Ctrl キーを押しながら k, 0
+                    現在位置の外をすべて折りたたみます: Ctrl + ( K, - )
+                    現在位置から最も深くまで開きます: Shift キーを押しながらクリック、または Ctrl + ( K, ] )
+                    現在位置から深いノードをすべて折りたたみます: Shift キーを押しながら 2回クリック、または Ctrl + ( K, [ )
+                    すべてをルートから深さ＝２にする: Ctrl + ( K, J, K, 2 )  #// Ctrl + ( K, 2 ) だけの場合、外側を深さ＝２にします
+                        #// 現在位置から+2深いノードまで展開することはできません。拡張機能で作れるかもしれません
+                    1つ開きます: Ctrl + Shift + ]  #search: VSCode folding customize
+                    1つ閉じます: Ctrl + Shift + [  #search: VSCode folding customize
+                    折りたたみコピー: #keyword: Column selection mode copy   #// 折りたたんで見えている行だけコピーします
+                        VSCode >> Selection メニュー >> Column Selection Mode >>（右下へドラッグ）>> Ctrl + C >> Column Selection Mode（をオフに）
+                    （トラブルシューティング）:
+                        （パンくずリストが表示されないとき）:  #keyword: VSCode パンくずリスト,  VSCode breadcrumb list,  topic path
+                            YAML 拡張機能 をインストールします:
+                            問題がある文字を探します:  #keyword: VSCode パンくずリスト trouble,  VSCode YAML trouble
+                                コロン（無名キー）を探す場合:
+                                    (  :) 行頭まで空白を検索します（正規表現なら "^ *:"）>>
+                                        その親の行のコロンの右に | を追加します（キーではなくします）
+                                    (- :) ハイフンと空白とコロン を検索します >>
+                                        その親の行のコロンの右に | を追加します（キーではなくします）
+                                    ("":) 空文字のキーを検索します >>
+                                        「空文字」などに表現を変える、
+                                        または、その親の行のコロンの右に | を追加します（キーではなくします）
+                                    (]:) 角カッコ閉じとコロン を検索します >>
+                                        値または子要素を書きます。
+                                        または [] を "[]" のように囲みます。
+                                        シーケンス（角カッコ）の代わりに文字列にします。
+                                    (}:) 山カッコ閉じとコロン を検索します >>
+                                        [] と同様
+                                2分法で探す場合:
+                                    作業するファイルをバックアップします。
+                                    最もインデントが浅い行について、2分法のように狭めていきます。
+                                        すべて折りたたむ >> 上半分、または下半分を削除
+                                        パンくずリストが表示されたら、削除しなかった部分（問題ない部分）を削除します。
+                                        パンくずリストが表示するまで 3秒かかります（問題がある文字が削除されても）。
+                                    インデントを浅くしていきます。
+                            （参考）パンくずリスト:  #keyword: パンくずリスト,  breadcrumb  #// breadclumb ではない
+                                読み方: ブレッドクラム。breadcrumb（breadcolmn, breadcomb, breadcumb ではない）
+                                意味: ウェブサイトで、利用者の閲覧履歴・ページの階層関係などを道順として示したもの
+                                語源: ヘンゼルとグレーテルで、ヘンゼルが、帰り道の目印としてパンのかけらを落としながら歩くことから。
+                                関連:  #search: shell script breadcrumb
+                        （折りたためないとき, 折りたたみ表示が崩れるとき）:  #keyword: RedHat YAML folding bug
+                            状況:
+                                問題があるバージョン: 1.6.0, 1.5.1
+                                問題: 一部のコメント行が folding できなくなります  #// バグ報告（下記）を参照
+                            対処A:
+                                RedHat YAML 拡張機能 を 1.4.0 にダウングレードします:
+                                    #search: downgrade VSCode extension
+                                注意:
+                                    エディターをすべて閉じてから VSCode を再起動しないと正常に戻りません  #// 最新では 拡張機能を reload すればよさそう
+                            対処B:
+                                拡張機能のキャッシュをクリアします:
+                                    #search: VSCode clear file fold cache
+                            バグ報告 >> RedHat:  #keyword: VSCode RedHat YAML folding issues
+                                チケット ステータス: open
+                                チケット:
+                                    #ref: https://github.com/redhat-developer/vscode-yaml/issues/763  #// opening 2023-03-19
+                                    #ref: https://github.com/redhat-developer/vscode-yaml/issues/737  #// closed
+                                    #ref: https://github.com/microsoft/vscode/issues
+                        （VSCode で折りたたんだテキストをマウスで移動したときに開いてしまう問題）: #search: vscode/issues/201031
+                            回避策:
+                                移動したら、↑（カーソルキー）を押し、移動先で折りたたみます
+                    関連:  #// breadcrumb タグ
+                        breadcrumb タグ: #keyword: 関数内 (#breadcrumb:)
+                            breadcrumb タグを書く場所:
+                                コメントなどの行末:
+                                    // Main  #breadcrumb:
+                                関数やクラスと同じ行の行末:
+                                    function  FunctionHasBreacrumb() {  // #breadcrumb:
+                            breadcrumb をパンくずリストに表示します:  #// できません
+                            breadcrumb を検索: #breadcrumb: を検索します
+                        推奨初期設定:  #search: VSCode recommended initialize
+                ジャンプ: #keyword: VSCode jump keyboard
+                    最も上へ:
+                        Windows: Ctrl + Home
+                        mac: command + ↑
+                    対応するカッコに移動します: Ctrl + Shift + \  #keyword: VSCode kakko jump
+                    シンボルを検索します: Ctrl + T >>（シンボル）
+                        #// または Ctrl + P >> # >>（シンボル）
+                    定義にジャンプします: F12  #keyword: VSCode jump define
+                    実装にジャンプします:  #keyword: VSCode jump implementations,  VSCode jump sub class method find all implementations
+                        #// 以下のいずれか
+                        - Ctrl + F12
+                        - 右クリック >> Find All Implementations
+                    最後の子フィールドへジャンプします:  #keyword: jump to last VSCode sticky schroll
+                        Shift キーを押しながら スティッキー スクロール によって上に表示された行をクリック
+                    戻ります:
+                        マウス: 戻るボタン
+                        Windows キーボード: Alt + ←
+                        mac キーボード: Ctrl + -
+                    進みます: #// 戻るのアンドゥ
+                        マウス: 進むボタン
+                        Windows キーボード: Alt + →
+                        mac キーボード: Ctrl + _
+                    ツリーの親へジャンプします:
+                        ツリーを閉じてツリーの親へジャンプしてツリーを閉じます:
+                            キャレットがある行が開いている場合: 2回閉じます #search: VSCode fold
+                            キャレットがある行が閉じている場合: もう一度閉じます #search: VSCode fold
+                    Bookmarks:  #search: VSCode Bookmarks
+                        Kindle がインストールされていない場合: Ctrl + Alt + K
+                        Kindle がインストールされている場合: Alt + K
+                    その他:  #search: VSCode search
+                編集, 選択:
+                    コメントアウトします: Ctrl + /  #search: comments.ignoreEmptyLines
+                    単語を選択します:
+                        マウス: ダブルクリック
+                        Windows キーボード: Ctrl + D
+                        mac キーボード: command + D
+                    矩形選択: #keyword: VSCode 矩形選択,  VSCode rectagnle select
+                        Windows マウス: Shift + Alt + マウス クリック
+                        Windows キーボード: Shift + Ctrl + Alt + カーソル キー
+                        mac キーボード: shift + option + command + カーソル キー
+                        通常のキャレットに戻します: Esc
+                        コピペします: 貼り付けるときは、コピーした行数と同じ行数だけ矩形選択してから Ctrl + V
+                    行を上下に移動します:
+                        Windows キーボード: Alt + ↑/↓
+                        mac キーボード: option + ↑/↓
+                        #// 複数選択してから上下に移動することもできます
+                    置き換え >> 選択範囲の中でマッチする全ての文字列を置き換えます:
+                        Ctrl + F >> Find（に置き換える前を入力）>> Replace（に置き換えた後を入力）>>
+                        （置き換える範囲のテキストを選択）>> 三（Find in selection：右上）>>
+                        Replace all ボタン（Replace の右）>>
+                        Esc キー
+                        #// 最後に Esc キーを押さないと検索範囲がファイル全体にリセットされません
+                        #// 先に Find の内容を入力してから置き換える範囲を選択しないとうまくいきません
+                    CSV の１行を縦に並べます: #keyword: VSCode CSV transpose
+                        CSV を VSCode の新しい テキスト エディター に貼り付け >>
+                        Ctrl + F >> >（右上）（で置き換えた後の入力領域を表示）>>
+                            Find= ,
+                            Replace= （Shift キーを押しながら改行）
+                            Replace ボタンまたは Replace All ボタン（右上）
+                        #// 関連: #search: VSCode replace \n 改行
+                    整形します: #keyword: VSCode format,  VSCode JSON format  #// XML のインデントなど
+                        Windows: Shift + Alt + f
+                        mac: Shift + Option + f
+                        初回のみ: VSCode >> 拡張機能（左）>> XML Tools（をインストール）
+                        JSON の空白と改行を除いて 1行にする:
+                            Ctrl + F キー:
+                            正規表現を使う ボタン:
+                            編集前: (^[ \t]+)|([\r\n]+)
+                            編集後: #// なし
+                            Replace All ボタン:
+                タブを切り替えます:  #search: VSCode keyboard change tab
+            ジャンプ:  #search: VSCode jump keyboard
+            新しいファイル: #keyword: VSCode new file
+                基本: タブの無い場所をダブルクリックします
+                タブの無い場所が無いとき: 既存のファイルを ダブルクリック ドラッグ して別のファイルにドロップします
+            別のビューに切り替えます:
+                テキスト エディター とターミナルを切り替えます:
+                    Windows: Ctrl + J
+                    mac: command + J
+                テキスト エディター やターミナルのタブを切り替えます: #keyword: VSCode keyboard change tab
+                    Windows:
+                        前: Ctrl + Page Up
+                        次: Ctrl + Page Down
+                    mac:
+                        前: shift + command + [
+                        次: shift + command + ]
+                    #ref: https://stackoverflow.com/questions/48440673/how-to-switch-between-terminals-in-visual-studio-code
+                別のファイルに切り替えます: Ctrl + Tab
+                別の Split されたビューに切り替えます: Ctrl + 1,2,3,...
+            ターミナル内: #keyword: VSCode terminal keyboard
+                ターミナルを表示・非表示します: Ctrl + J または メニュー >> View >> Terminal
+                パスをコピーします: パスをダブルクリック >> Ctrl + C
+                (GPD3) Terminal で再検索します:
+                    キーワードにダミーの文字を追加して削除します
+                    #// 次を検索するボタンをタップしても効きません。クリックは効きます
+                タブを切り替えます:  #search: VSCode keyboard change tab
+                前に実行したコマンドにジャンプします:  Ctrl + ↑  #ref: https://code.visualstudio.com/updates/v1_78#_terminal
+                スクロール: Shift + Page Up|Down
+            コマンド パレット: #keyword: VSCode コマンド パレット
+                F1 キー または Ctrl+Shift+P
+            プログラムを再起動します:  #keyword: VSCode JavaScript debug
+                押し方: エディターを選択 >> F6 >> F5 >>（ソース ファイル を保存して実行完了待ち）>> F6 >> Terminal を選択 >> F
+                F6 キーの設定:
+                    #search: VSCode Toggle Activate Breakpoints
+            参考: #ref: https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf
+        GPD: #search: GPD VSCode
+        mac: #search: VSCode mac keyboard
+        設定変更:  #keyword: customize VSCode shortcuts
+            メニュー: VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >>（拡張機能名を入力して検索）>>
+                （コマンド名をダブルクリック）>>（設定するキーを押す）>> Enter キー
+            サンプル: #search: VSCode Toggle Activate Breakpoints
+            効かないとき: すでに別の機能に割り当てられていないか確認してください
+        参考:
+            mac: #ref: https://qiita.com/naru0504/items/99495c4482cd158ddca8
+        公式:
+            mac: #ref: https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf
+    エディターを連続して閉じる:
+        マウス ホイール で最も右のタブを表示し、右から閉じていきます
+    検索する, ジャンプする:  #keyword: VSCode search,  VSCode grep
+        ファイル名で検索する:
+            F1 キー >> Back Space キー >> ファイル名の一部
+        検索対象を ファイル パス で絞り込む:
+            メニュー: VSCode >> Search（左上の虫眼鏡アイコン）>> …（キーワード入力ボックスの右下）
+            files to include:
+                ファイル名やフォルダー名の全体に含む文字列:  #// __Name__
+                ファイル名やフォルダー名の一部に含む文字列:  #// *__Name__*
+                VSCode が開いているフォルダーの直下の src フォルダー以下:  #// ./src
+                src 直下の全フォルダーの直下の README.md:      #// ./src/*/README.md
+                src の全サブ フォルダーの README.md:          #// ./src/**/README.md   // * は / にマッチしないため ** を使います
+            files to exclude:  #// パスの一部に含まない文字列
+            .gitignore の対象ファイルも検索対象にするには: #keyword: VSCode .gitignore grep
+                files to exclude の右にある Use Exclude Settings and Ignore File ボタンをオフにします
+        ファイル パスと行番号を貼り付けて開く:  #keyword: code --goto
+            VSCode の端末を使う場合:  #// 下記の形式のコメントを入力して Enter を押した後、コメントに マウス カーソル を移動して Ctrl キー + クリックします
+                - # __FilePath__
+                - # __FilePath__:__LineNum__
+                - # __FilePath__:__LineNum__:__ColumnNum__
+            VSCode 以外の端末を使う場合:
+                - code __FilePath__
+                - code --goto  __FilePath__:__LineNum__
+                - code -g      __FilePath__:__LineNum__
+                - code -g      __FilePath__:__LineNum__:__ColumnNum__
+            フォルダーを開く場合:  #search: VSCode open folder
+        置き換える:  #search: VSCode editor replace
+        git 関連: #keyword: VSCode Source Control,  VSCode Git
+            リポジトリを閉じます・再度開きます:
+                閉じます: （リポジトリ名を右クリック）>> Close Repository
+                再度開きます: F1 キー >> >git reopen (Git:Reopen Closed Repositories...)
+            git diff 相当:  #// 過去の git コミットの内容と比較します  #search: VSCode source control old commit
+            git add 相当:
+                git add する前の変更したファイルを一覧します:
+                    VSCode >> Source Control（左上）>> Changes
+                git add した後の変更したファイルを一覧します:
+                    VSCode >> Source Control（左上）>> Staged Changes
+                git add をキャンセルします:
+                    #search: git reset
+            git log 相当: #keyword: VSCode commit graph
+                1列:
+                    左のビューに表示する場合:
+                        メニュー: Visual Studio Code >> Source Control（左）>> COMMITS
+                        凡例: #glossary: Git VSCode
+                            #// カーソルを合わせて完全なブランチ名を見てください
+                            origin: 現在のブランチのリモートの位置
+                            orig: いろいろなブランチのリモートの位置
+                            deve: develop ブランチ
+                            rele: release ブランチ
+                    ターミナルと同じ位置に表示する場合:
+                        Visual Studio Code >> Source Control（左）>> COMMITS >> Commit Graph ボタン  #// グラフではありません
+                グラフ:
+                    ターミナルと同じ位置に表示する場合:
+                        #search: gitlog
+                    エディターと同じ位置に表示する場合:
+                        #search: Git Graph
+        その他:
+            ジャンプ: #search: VSCode jump keyboard
+            #ref: %programming%\プログラミング言語、環境\VisualC++\VisualStudioCode.svg#jump_search
+        トラブルシューティング（VSCode 検索）:
+            - #// 検索結果に見つからない
+                原因:
+                    .gitignore ファイルによって無視されるファイルは、デフォルトでは検索対象外です。
+                対処A:
+                    files to exclude の右にある Use Exclude Settings and Ignore File ボタンをオフにします
+                対処B:
+                    .gitignore ファイルによって無視されるファイルも検索対象にします:
+                        メニュー: VSCode >> File >> Preferences
+                        検索: |
+                            Search: Use Ignore Files
+                        Use Ignore Files: チェックを外します
+    インテリセンス, JSON schema:  #keyword: vscode intellisence JSON schema,  YAML schema ではない
+        JSON schema:
+            調査中: #ref: https://www.google.com?q=vscode json+schema+override
+            JSON Schema Store: #ref: https://www.schemastore.org/json/
+            Ansible schema:
+                Ansible の文法エラーの対処法:  #keyword: VSCode Ansible syntax error
+                    原因:
+                        Ansible Tasks File が become; yes に対応していない。 become; true は対応している
+                    調査中:
+                        スキーマの種類を修正します:
+                            VSCode >> Ansible Playbook（など：右下）
+                        再設定します:
+                            VSCode settings schema:
+                                JSON › Schema Download: Enable  #//（チェックを外して入れる）
+                                Yaml: Schemas  #//（チェックを外して入れる）
+            YAML lint:  #// 汎用的な YAML のスキーマ
+                スキーマをダウンロードする場合:
+                    __Project__/.vscode/settings.json : |
+                        {
+                            "yaml.schemas": {
+                                "https://json.schemastore.org/yamllint.json": [
+                                    "__YamlRelativePathFromProject__",
+                                    ...
+                スキーマをプロジェクトに入れる場合: #keyword: vscode yamllint JSON schema in project
+                    bash:
+                        cd  __Project__
+                        mkdir -p  ".vscode/schemas"
+                        curl https://json.schemastore.org/yamllint.json > ".vscode/schemas/yamllint.json"
+                    __Project__/.vscode/settings.json : |
+                        {
+                            "yaml.schemas": {
+                                ".vscode/schemas/yamllint.json": [
+                                    "__YamlRelativePathFromProject__",
+                                    ...
+            YAML 拡張機能 (RedHat) Associating a schema to a glob pattern via yaml.schemas:
+                ファイルとの関連付け:
+                    #ref: https://github.com/redhat-developer/vscode-yaml#associating-a-schema-to-a-glob-pattern-via-yamlschemas
+                特定のファイルの関連付けを無効にしたい:
+                    YAML lint に関連付けます:
+                        メニュー: VSCode >>（歯車ボタン：左下）>> Settings >> yaml.schemas（と入力）>> User（タブ）>> Edit in settings.json
+                        設定サンプル: |
+                            "yaml.schemas": {
+                                "https://json.schemastore.org/yamllint.json": "file:///c%3A/Users/____.yml"
+                    #ref: https://github.com/redhat-developer/vscode-yaml/issues/245
+                    #ref: https://stackoverflow.com/questions/71765669/dont-use-json-schema-when-edition-yaml-file-in-visual-studio-code
+        静的と動的？: #keyword: static type programming or dynamic programming, 動的 型 プログラミング
+            React など非同期では呼び出し元がコールスタックから分からない問題
+    比較:  #// ファイルやフォルダーを比較します
+        比較対象別:
+            フォルダーを比較します:  #keyword: VSCode diff compare folders,  diff folder,  compare folder
+                codediff コマンド:  #search: codediff
+                Visual Studio Code の Compare Folders:  #keyword: VSCode llgcode compare folders  #ref: https://github.com/llgcode/vscode-compare-folders
+                    2つのフォルダーのパスをメモします:
+                        (A): __ComparingFolderAPath__
+                        (B): __ComparingFolderBPath__
+                    初回、または Compare Folders ボタン（左）がないとき:
+                        拡張機能をインストールします:
+                            VSCode >> 拡張機能 >> Compare Folders
+                    比較する２つのフォルダーを指定します:
+                        my folder (A):
+                            (shell): code __ComparingFolderAPath__
+                        compared folder (B):
+                            Compare Folders ボタン（左）>> Click to select a folder（左上）>>
+                            （mac の場合 Shift + Command + G キー）>> __ComparingFolderBPath__  #search: mac open by path
+                        （選び直す場合）:
+                            my folder (A):  shell >> code __ComparingFolderAPath__
+                            compared folder (B): DIFFERENCES（左上）>> Click to select a folder（左上）
+                    ファイルの違いを表示します:
+                        DIFFERENCES（左上）>>（ファイル名をクリック）>> （開いたファイルの左半分が my folder、右半分が compared folder）
+                    ファイルの内容を編集します:
+                        テキスト エディター を使うように手動で編集します。
+                        右クリック メニューで左右にコピーするようなメニュー項目はありません。
+                    片方のフォルダーにしかないファイルをコピーします:
+                        ONLY IN MY FOLDER（左）や ONLY IN COMPARED FOLDER（左下）のファイルを右クリックして
+                        コピーを選びます
+                    ヘルプ:
+                        比較を始めます:
+                            Command Palette:
+                                F1 キー >> Compare a folder against workspace:
+                                    フォルダーをワークスペースと比較する フォルダーを選択して、ワークスペースのフォルダーと比較します (ワークスペースが空でない場合)
+                                F1 キー >> Choose 2 folders and compare:
+                                    2 つのフォルダーを選択して比較 （OS フォルダー チューザーを 2 回開きます）
+                            Compare Folders Panel:  #// Click on the icon in the Activity Bar
+                                - Click to select a folder see 1st item
+                                - Click to select folders see 2nd item
+                            File explorer:
+                                2 つのフォルダーを選択し、右クリックして [選択したフォルダーの比較] をクリックします。2 番目の項目を参照してください。
+                            From history:
+                                最近の比較から選択 過去に比較したペアの 1 つを選択します
+                                (リストは最近の比較をクリアすることでリセットできます)
+                        設定 __Project__/.vscode/settings.json :  #// VSCode >> 歯車 ボタン（左下）>> Settings >> @ext:moshfeu.compare-folders
+                            パス:
+                                includeFilter:  #// 対象にするパスを設定します。glob string 型
+                                    Example: |  #// フィルターをかけても、あまり速くなりません
+                                            "compareFolders.includeFilter": [
+                                                "*.py"
+                                            ]
+                                        #// 空 [ ] を設定した場合、すべてのファイルが比較対象になります
+                                    リロード: #keyword: reload VSCode llgcode compare folders
+                                        settings.json ファイルを保存します:
+                                            #// __Project__/.vscode/settings.json
+                                        リロードします:
+                                            時計ボタン（Compare Folders ビューの右上）>>（最も上のパス）
+                                            #// 処理に時間がかかると VSCode の右下に進捗状況が表示されます
+                                excludeFilter:  #// 対象外のパスを設定します。glob string 型
+                                    Example: |  #// 未確認
+                                        "compareFolders.excludeFilter": [
+                                            "**/node_modules",
+                                            "**/.svn",
+                                            "**/.git"
+                                        ]
+                                ignoreFileNameCase:  #// 大文字小文字の違いがあっても同じパスとするかどうか。boolean - Compare files with the same name but different case
+                                ignoreExtension:  #// 一部の拡張子の違いを無視します。
+                                    #// 両方のファイル拡張子が同じグループにある場合、比較中にファイルのペアが同じファイルと見なされるように、拡張子のグループを設定します。
+                                    #// 注: 各拡張機能は、このリストに一度だけ表示できます
+                                    Example: |
+                                        "compareFolders.ignoreExtension": [
+                                            ["php", "cs"]
+                                        ]
+                                    以下の設定は高速になりせん: |
+                                        "compareFolders.excludeFilter": [
+                                            "*.*"
+                                        ],
+                                        "compareFolders.includeFilter": [
+                                            "*.yml"
+                                        ]
+                            表示:
+                                diffViewTitle:  #// パスの表示形式。One of the options: "name only", "compared path", "full path"
+                                diffLayout:  #// 比較表示の左右を交換するかどうか。One of the options: "local <> compared" or "compared <> local"
+                                showIdentical:  #// boolean - Whether or not show the identical files panel
+                                useDiffMerge:  #// boolean - Whether or not using Diff & Merge extension as the Diff viewer. In order to use this option, you should install the extension
+                                folderLeft:   #// デフォルト
+                                folderRight:  #// デフォルト。strings - paths of 2 folders, compare them on the extension load.
+                            内容:
+                                compareContent:  #// 内容を比較するかどうか。boolean - Compares files by content
+                                ignoreLineEnding:  #// 改行文字の違いを無視するかどうか。boolean - ignore crlf/lf line ending differences
+                                ignoreWhiteSpaces:  #// 行頭と行末の空白の違いを無視するかどうか。boolean - ignore white spaces at the beginning and ending of a line (similar to diff -b)
+                                ignoreAllWhiteSpaces:  #// 空白の違いを無視するかどうか。boolean - ignore all white space differences (similar to diff -w)
+                                ignoreEmptyLines:  #// 空行の違いを無視するかどうか。boolean - ignore differences caused by empty lines (similar to diff -B)
+                            設定を変えて再比較:  #search: reload VSCode llgcode compare folders
+                        CLI:
+                            注意:
+                                相対パスから、folder1 か folder2 かが分からないため、非推奨
+                            コマンド:  #// ターミナル/コマンド ラインから次のコマンドを呼び出すことで、vscode の読み込み時に拡張機能が呼び出され、差分ビューが表示されます。
+                                COMPARE_FOLDERS=DIFF  code  path/to/folder1  path/to/folder2
+                mac の場合:  #search: mac compare folders
+                Linux の場合:  #search: Linux diff folder
+            2つのファイルを比較します(Compare Active File With...):
+                すでに開いている場合:
+                    - 1つ目のファイルをダブルクリックして開きます  （正解、比較時の左、または上。inline View のときに編集やコピーができません。inline View をオフにすればできます）
+                    - 2つ目のファイルをダブルクリックして開きます  （結果、比較時の右、または下）
+                    - 1つ目のファイルをアクティブにします
+                    - F1キー >> compare with... >> （上から 2つ目のファイル）
+                編集する場合:
+                    - 編集するファイルを Explorer ビュー の中でクリックします
+                    - 参照するファイルを Explorer ビュー の中でクリックします
+                    - F1キー >> compare with... >> （上から 2つ目のファイル）
+                コマンドから開く場合:  #search: code --diff
+            クリップボードとファイルを比較します(Compare Active File with Clipboard): #keyword: VSCode compare clipboard text
+                基本:
+                    - 比較するファイルを普通に開きます
+                    - F1キー >> compare clip
+                ２つのテキストをコピーして比較します(Compare Active File with Clipboard の応用):
+                    - １つ目のテキストをコピーします
+                    - 保存しない新規ファイルを作り、１つ目のテキストを貼り付けます:
+                        - VSCode >> File >> New File  #// または
+                        - ファイル名タブの右の空欄をダブルクリック
+                    - ２つ目のテキストをコピーします
+                    - １つ目のテキストを貼り付けたビューをアクティブにします
+                    - F1キー >> compare clip
+            過去の git コミットの内容と比較します:  #keyword: VSCode source control old commit,  git diff VSCode
+                関連 >> codediff:  #search: codediff
+                #// diff HEAD（今日の差分）のビューと diff feature（ブランチの差分）のビューを使い分ける。
+                対 HEAD:  #// 編集中（Working Tree + Untracked）と HEAD を比較します
+                    VSCode >> Source Control（左）>> SOURCE CONTROL（ビュー）
+                対 コミット: #keyword: VSCode git diff commit  #// 編集完了（Working Tree）と古いコミットを比較します
+                    前のコミットと比較する場合:
+                        #// GitLens が必要です
+                        Untracked なファイルがあれば git add します:
+                            #// 以下は Untracked なファイルを含まないため
+                        古いコミットを指定します:
+                            VSCode >> Source Control（左）>> COMMITS（ビュー）>>（対象のブランチを右クリック）>>
+                            Compare with Working Tree >>
+                            FILES CHANGED（のファイル）
+                        #// GitLens ビューにの最も上比較が追加されます  #search: GitLens Inspect SEARCH & COMPARE
+                    VSCode で 1つのコミットの一部をコピペする場合: #keyword: copy VSCode git diff commit
+                        コミットの編集内容（差分リスト）を表示します:  #search: VSCode git show commit
+                            #snip:
+                            コミット ID から:
+                                コミット ID をコピーします >> VSCode >> F1 >> git lens show >>（コミットID）>> Inspect Commit Details
+                        差分リストのビュー（左）を表示します:
+                            置き換わらないようにします:
+                                ピンのボタンを押して、ピン止め状態にします
+                            View as List 表示:
+                                ビューの右上の トグル ボタン
+                                #// 差分ツリーを閉じても、閉じた状態が消えることがあります。 チェックリスト的にツリーを閉じても、その情報は失われます。
+                                #// なので、現在位置が分かりやすい View as List 表示がオススメです。
+                        コミットの編集内容を表示します >> タブの内容が置き換わらないようにします:
+                            - 差分リストの項目（ファイル）をダブルクリックします  #// または、開いたファイルのタブをダブルクリックします
+                        編集する場所を表示します >> 開きます:
+                            - Open File ボタン  #// 差分リストの項目にマウスを合わせるとボタンが表示されます
+                            - 左右または上下に並べます  #// コミットの編集内容と、編集する場所
+                            - 編集する行を表示します  #// 既存のコードをコピーして検索するなど
+                        編集内容をコピペします:
+                        編集したら、前のコミットとの差分を表示して再確認します:
+                            #search: git lens previous commit
+                    別のブランチのコミットの一部をマージする場合:  #search: VSCode git diff branch commit merge  #// 別のブランチの最新版と比較します。1つのコミットではありません
+                    1つのファイルだけ過去と比較する場合: #keyword: VSCode git diff 1-file
+                        GitHub で過去のコミットのファイルを表示して、コピーして、クリップボードと現在のファイルを比較します
+                    コミット自体が持つ変更内容を比較する場合: #keyword: git diff commit patch
+                        git diff  __CommitHashA__^!  __CommitHashB__^!
+                対 ブランチ: #keyword: VSCode git diff branch  #// 編集完了（Working Tree）と他のブランチを比較します
+                    マージ ベース から比較する場合:  #keyword: VSCode git merge-base,  Git diff common,  Git common commit  #// 枝分かれしてしたコミット（共通の祖先コミット）からの差分を表示します
+                        git merge-base コマンドを使う場合:
+                            #// GitLens が必要です
+                            マージ ベース ID を表示します:
+                                - git merge-base HEAD __BaseBranch__  #search: git merge-base  #search: Git base branch
+                                # もし、まだブランチをダウンロードしていないときは
+                                - git merge-base HEAD origin/__BaseBranch__
+                                    #// 表示された コミット ID を __BaseCommitID__ とします
+                            マージ ベース にブランチを作ります:
+                                git branch  __BaseBranchName__  __BaseCommitID__ 
+                            マージ ベース との差分を表示します:
+                                BRANCHES（ビュー）>> __BaseBranchName__（ブランチを右クリック）>> Compare with Working Tree
+                            #// GitLens ビューにの最も上比較が追加されます
+                            #//     使い方 → #search: GitLens Inspect SEARCH & COMPARE
+                            比較が終わったら、一時的なブランチを削除します:
+                                git branch -D __BaseBranchName__
+                        Compare Ancestry with Working Tree メニューを使う場合:  #// 非推奨に変わりそう
+                            メニュー:
+                                VSCode >> Source Control（左）>> BRANCHES（ビュー）>>（対象のブランチを右クリック）>>
+                                Compare Ancestry with Working Tree
+                            注意:
+                                #// GitHubがプルリクエストで示すものと一致しています  #ref: https://github.com/gitkraken/vscode-gitlens/issues/309
+                                #// ChatGPT によると マージ ベース との差分ではないらしい？
+                    最新と比較する場合: #keyword: VSCode git diff branch new  #// 他のブランチの最新コミットと比較します。または更新があったブランチと比較します
+                        新しい方法:
+                            #// GitLens が必要です
+                            #// マージできないときは、チェリーピックする方法もあります  #search: git cherry-pick
+                            git add します:  #// Untracked なファイルがあれば git add します
+                                #// 以下は Untracked なファイルを含まないため
+                            現在のブランチにスイッチします:  #// 現在のブランチを編集するブランチにスイッチします
+                            他のブランチを指定します:  #// または更新があったブランチ
+                                新:
+                                    VSCode >> Source Control（左）>> REPOSITORIES（ビュー）>> Branches >>（対象のブランチを右クリック）>>
+                                    Compare with Working Tree または Compare Working Tree to Here >>
+                                    （表示されないときは）SEARCH & COMPARE（にマウスを合わせる）>>（リロード）
+                                旧:
+                                    VSCode >> Source Control（左）>> BRANCHES（ビュー）>>（対象のブランチを右クリック）>>
+                                    Compare with Working Tree または Compare Working Tree to Here >>
+                                    （表示されないときは）SEARCH & COMPARE（にマウスを合わせる）>>（リロード）
+                            #keyword: Compare with Working Tree
+                            #// GitLens ビューの最も上に比較が追加されます  #search: GitLens Inspect SEARCH & COMPARE
+                            #// 左が比較対象のブランチ, 右が Working Tree
+                            他のブランチの更新内容も見る場合: #keyword: VSCode git diff branch commit merge  #// 別のブランチの最新コミットの一部をマージする場合
+                                現在のブランチを他のブランチに一時的に変更します:
+                                    #search: VSCode current branch
+                                新しいコミットを指定します:
+                                    VSCode >> Source Control（左）>> COMMITS（ビュー）>>（プロジェクトを展開）>>
+                                    （新しいコミットを右クリック）>> Select for Compare
+                                古いコミットを指定します:
+                                    VSCode >> Source Control（左）>> COMMITS（ビュー）>>（プロジェクトを展開）>>
+                                    （古いコミットを右クリック）>> Compare with Selected
+                                    #// 1つのコミットの差分を表示するときは、1つ前のコミットを指定します
+                                    #// 2つのコミットの差分を表示するときは、2つ前のコミットを指定します
+                                    #// Compare with HEAD を選ぶと、後で現在のブランチを変更したときに差分の表示内容が変わってしまいます
+                                #// GitLens ビュー の最も上に比較が追加されます  #search: GitLens Inspect SEARCH & COMPARE
+                                現在のブランチを編集するブランチに戻します:
+                                    #search: VSCode current branch
+                                追加された 2つの比較を確認しながらマージします:
+                                    内容の確認:
+                                        他のブランチの更新内容＝更新内容候補（上）: 左＝他のブランチの古いもの, 右＝他のブランチの最新、これを上半分に表示します
+                                        最新ブランチ同士の比較（下）: 左＝他のブランチの最新, 右＝Working、これを下半分に表示します
+                                    受け入れる場合の操作:  #// 基本的にコピペは不要です。→ ボタン を押します
+                                        - 最新ブランチ同士の比較（1つ目、下）を表示して、該当箇所の行番号へジャンプします
+                                        - 左右の差分の間の → ボタンを押します
+                                リベースのようにグラフを作る場合:
+                                    #search: git diff merge
+                        古い方法:
+                            BRANCHES（ビュー）を使う場合:
+                                GitLens を使う場合:
+                                    VSCode >> Source Control（左）>> BRANCHES（ビュー）>>
+                                    Compare with HEAD ボタン（__LeftBranch__ の右）>> Ahead（を閉じる）>>
+                                    __N__ files changed
+                                GitLens を使わない場合:  #// __LeftBranch__, __RightBranch__ 比較時に左半分または右半分に表示するブランチ
+                                    VSCode >> Source Control（左）>> BRANCHES（ビュー）>>
+                                    __RightBranch__（を開く）>>
+                                    Compare __Branch__ with <branch> または × >> __LeftBranch__ >>（同じツリー項目）>> Ahead（を閉じる）>>
+                                    __N__ files changed
+                            COMMITS（ビュー）を使う場合:
+                                比較対象のブランチを選びます:
+                                    VSCode >> Source Control（左）>> COMMITS（ビュー）>> Compare Working Tree with >>
+                                    <branch, tag or ref> または 双方向矢印 ボタン または 鉛筆ボタン >>（ブランチを選ぶか、HEAD^ などを入力）>>
+                                    Compare Working Tree with（のツリーを展開）
+                                #// 左が比較対象、右が現在のコミットです
+                                ブランチの最新と比較する場合:  #// 比較対象から最新までのすべてのコミットをまとめた差分
+                                    Compare Working Tree with >> __Number__ files changed >>（ファイル名）
+                                Ahead >> ブランチが追加したコミットごとの内容を見る場合: #keyword: VSCode source control ahead
+                                    Ahead >> __Number__ files changed >>（ファイル名）
+                                Behind >> ブランチ以外が追加したコミットごとの内容を見る場合:
+                                    Behind >> __Number__ files changed >>（ファイル名）
+                WIP ブランチがあるとき:  #// 編集完了したワークと feature ブランチとの差分を表示します  #search: VSCode git diff branch
+                前のコミットが変更した差分を一覧します:  #// 現在の ワーキング フォルダー との比較ではありません
+                    VSCode >> Source Control（左）>> COMMITS（ビュー）>>（コミットを展開：紫色のアイコン）
+            （非推奨）git diff の差分を VSCode で表示します:  #keyword: VSCode git difftool
+                非推奨:  #// 下記は使いにくいため
+                    代わり:  #search: VSCode source control old commit
+                （初回のみ）~/.gitconfig に追記します: |  #search: .gitconfig file
+                    [diff]
+                        tool = default-difftool
+                    [difftool "default-difftool"]
+                        cmd = code --wait --diff $LOCAL $REMOTE
+                git difftool を実行:
+                    開始します:
+                        git difftool  #// git diff ではありませんがパラメーターは同じです
+                    1つ目のファイルを開きます:
+                        Launch 'default-difftool' [Y/n]? y
+                    1つ目のファイルを閉じます:
+                        VSCode で表示しているファイルを（タブから）閉じます
+                    2つ目のファイルを開きます:
+                        Launch 'default-difftool' [Y/n]? y
+                    2つ目のファイルを閉じます:
+                    ...:
+                #ref: https://code.visualstudio.com/docs/editor/versioncontrol#_vs-code-as-git-diff-tool
+        表示方法の変更:
+            Inline view, 左右分割表示と行分割表示を切り替えます: #keyword: VSCode compare inline view
+                メニュー: …（右上）>> Inline View
+                ショートカット: |  #search: customize VSCode shortcuts
+                    Compare: Toggle inline View
+                編集:
+                    （赤い背景のテキストをクリック）:
+                        Copy Changed Line: 赤い背景の行をクリップボードにコピーします
+                        Revert This Change: 赤い背景の行を採用します。inline view ではないときの左の内容を右へ採用します
+            Show Moved Code Blocks:  #// 移動した矢印を表示します
+                -   ブロック内で1文字でも違うと矢印は表示されません
+                -   inline view のときは矢印は表示されません
+        補足:
+            GitLens Inspect SEARCH & COMPARE ビュー:  #keyword: GitLens Inspect SEARCH & COMPARE
+                削除:  #// 新しい比較を開くたびに上書きされるのではなく、古い比較と並べられます
+                    古い比較を消すには、×（最右のボタン）を押します。
+                表示, 操作:  #// 比較ツリーの中の操作方法
+                    アイコンの意味: ±:編集あり。＋:相手のみにある。－:相手には無い
+                    差分:  #//内容の差分を表示します。左が比較相手。右が現在。Open File（下記）で現在の内容がどちらか分かります
+                        表示のみする場合:
+                            ファイル名をクリック
+                        マージする場合:  #// 差分を受け入れることがボタン 1つでできるようになります
+                            - ファイル名にマウスを合わせる
+                            - Open Changes with Working File ボタン（2番目）
+                    すべて受け入れる:
+                        - ファイル名にマウスを合わせる >> 右クリック >> Restore (Checkout)
+                        - Open File ボタン を押して結果を確認
+                    開く:  #// 差分があったファイルを普通に開きます
+                        方法A: ファイル（のタブを右クリック）>> Open File
+                        方法B: Open File ボタン（ファイル名にマウスを合わせて表示されるボタンの最も左）
+                追加:  #// 比較（比較パターン）を追加します
+                    - （参考）: #search: VSCode source control old commit
+                    #// 比較するペアが決まったら、このビューが表示されて比較（比較パターン）が追加されます。
+                    #// ❗注意：Untracked なファイルは含みません。含めるときは git add してください
+                    - （比較）>>       #// 最近追加した比較は最も上に追加されます。
+                    - Ahead（を閉じる）>>
+                    - __N__ files changed （を右クリック） >>
+                    - Expand           #// 最も深いファイルまで開きます
+                    #// Source Control ビューは HEAD との比較、GitLens Inspector ビューは ブランチ との比較と使い分けてください。
+                    #search: VSCode source control old commit
+    置き換え: #keyword: VSCode editor replace  #// 自動編集
+        \n を改行に置き換えます:  #search: VSCode replace \n 改行
+        マッチした行を削除します:
+            メニュー: VSCode >> Ctrl+F >> 正規表現 ボタン = オン
+            置換前: ^.*__Pattern__.*\n  #// 行頭から行末の改行文字までが置き換えられます
+            置換後: （空）  #// 空に置き換えることは削除に相当します
+        一部をそのまま残す:  #// キャプチャー グループ, バック リファレンス
+            メニュー: VSCode >> Ctrl+F >> 正規表現 ボタン = オン
+            置換前: abc(123)def   #focus: (123)  #// そのまま残す部分をカッコで囲みます
+            置換後: ABC$1DEF      #focus: $1
+        大文字小文字を維持して置き換えます, Preserve Case:  #keyword: VSCode replace preserve case
+            処理設定:
+                置換前: CatalogItem
+                置換後: ProductName
+                大文字小文字の区別 (Match Case): オフ
+                大文字小文字の維持 (Preserve Case): オン
+            処理対象:
+                置換前: CatalogItem, catalogItem
+                置換後: ProductName, productName
+            処理対象外:  #// スネークケースからキャメルケースなどへは置き換えません
+                置換前: catalog_item
+                置換後: catalog_item
+            #ref: https://devblogs.microsoft.com/visualstudio/keep-your-casing-with-case-preserving-find-and-replace/        CI test の failure 対応:
+    開きなおす: #keyword: VSCode revert file,  VSCode reload editor
+        VSCode でファイルをリロードするには、VSCode ウィンドウの外をクリックしてから、VSCode ウィンドウをクリックします。もしくは File メニュー >> Revert File
+ファイル:
+    新しいファイル:  #search: VSCode new file
+    保存時のコンフリクト:  #search: VSCode compare before overwrite file changed
+    VSCode settings: #keyword:  #// 設定 GUI
+        保存場所:  #search: settings.json
+        メニュー: VSCode >> 歯車アイコン（左下）>> Settings >> "____"（を検索）
+        設定値を書くときのサンプル:
+            "Suggest: Show Words": off  #search: VSCode settings
+    settings.json:  #keyword: settings.json,  VSCode settings.json  #snippet-depth: 2
+        場所:
+            Workspace 設定:  #// フォルダー設定
+                ${workspaceFolder}/.vscode/settings.json
+            ユーザー設定:  #keyword: VSCode user settings.json file path  #// すべてのプロジェクトに適用されます
+                _: ↓接続元  #//  Remote Development 拡張機能 を使っている場合、接続元の設定が適用されます
+                Windows: #ref: ~/AppData/Roaming/Code/User/settings.json
+                mac:     #ref: ~/Library/Application Support/Code/User/settings.json
+                Linux:   #ref: ~/.config/Code/User/settings.json
+        手順 >> 開きます:
+            ファイルを開く場合:
+                VSCode >> F1 キー >> settings.json >>（場所を選びます）
+            設定ページを開く場合:
+                VSCode >> 歯車アイコン（左下）>> Settings >> __Symbol__（と入力）>> __Value__
+        内容:
+            yaml.schemas: #keyword: settings.json yaml.schemas
+                ネットに接続しない場合:
+                    #↓ 手順
+                    ダウンロードします:
+                        mkdir -p  __Project__/.vscode/schemas
+                        curl __URL__  > __Project__/.vscode/schemas/____.json  #// URL はエラー メッセージ に表示されます
+                    settings.json : |
+                        "yaml.schemas": {
+                            ".vscode/schemas/ansible.json": [
+                                "*/tasks/*.yml",
+                            ".vscode/schemas/yamllint.json": [
+                                "*.yaml",
+                    No JSON Schema を適用させる場合:
+                        yaml.schemas のどれにもマッチしないようにします。
+        トラブルシューティング:
+            - #// nable to load schema
+                手順: VSCode コード自動解析
+                エラー: |
+                    Unable to load schema from 'https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks': Request vscode/content failed unexpectedly without providing any details.
+                対処:
+                    #search: settings.json yaml.schemas
+    launch.json:  #keyword: launch.json
+        場所: __Project__/.vscode/launch.json
+        手順:
+            タスクを連携させます: #keyword: tasks.json preLaunchTask dependsOn
+                #// task1 → task2 → debug の順の場合
+                書式:  #focus: task1, task2
+                    launch.json: |
+                        "configurations": [{
+                            "preLaunchTask": "task2",
+                    tasks.json: |
+                        "tasks": [{
+                            "label": "task1",
+                        },{
+                            "label": "task2",
+                            "dependsOn": ["task1"]
+                サンプル:
+                    TypeScript の tasks.json: | #keyword: TypeScript tasks.json
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "TypeScript Compile Task",
+                                    "type": "shell",
+                                    "command": "cd  '${workspaceFolder}';  node_modules/.bin/tsc  -p tsconfig.json --watch",
+                                    "isBackground": true,
+                                    "problemMatcher": [
+                                        "$tsc-watch"
+                                    ]
+                                },
+                                {
+                                    "label": "Run support_node.cjs",
+                                    "type": "shell",
+                                    "command": "node support_node.cjs",
+                                    "dependsOn": ["TypeScript Compile Task"]
+                                }
+                            ]
+                        }
+            DEBUG CONSOLE に表示を切り替えます: |  #// 先行するタスクがあるとき、そのタスクが表示されますが、そのタスクが終わったときに DBUG CONSOLE を表示します
+                    "configurations": [
+                        {
+                            "internalConsoleOptions": "openOnSessionStart"
+                #ref: ${GitHub}/typrm/.vscode/launch.json#openOnSessionStart
+            その他 tasks.json の手順:  #search: tasks.json
+        ファイルの内容:  #// 言語共通
+            args:  #keyword: launch.json args
+                配列以外を指定できません https://stackoverflow.com/questions/46340968/specifying-arguments-in-launch-json-for-python
+            env: #keyword: VSCode launch.json env
+                PATH を追加します: |
+                    "configurations": [{
+                        "env": {
+                            "PATH": "${workspaceFolder}/bin:${env:PATH}"
+                Bash Debug の場合: |
+                    - env に設定しないと、WSL2 の環境変数が使われます
+                    - env に ${env:____} を設定すると、Windows の環境変数の値が使われます
+                        "env": {
+                            "HTTP_PROXY": "${env:HTTP_PROXY}"
+            outputCapture:  #keyword: VSCode outputCapture
+                概要: VSCode の Debug Console に表示する内容。標準出力など
+                __Project__/.vscode/launch.json: |
+                    {
+                        "version": "0.2.0",
+                        "configurations": [
+                            {
+                                "outputCapture": "std"
+            preLaunchTask:  #keyword: VSCode preLaunchTask  #// デバッグを開始する前の処理をするタスク名
+                #search: tasks.json
+        言語別サンプル:
+            bash:
+                #search: Bash Debug launch.json
+            Node.js, TypeScript:
+                基本: |  #keyword: Node.js TypeScript launch.json
+                    {
+                        "version": "0.2.0",
+                        "configurations": [
+                            {
+                                "type": "node",
+                                "request": "launch",
+                                "name": "Run TypeScript",
+                                "preLaunchTask": "TypeScript Compile Task",            // #search: TypeScript tasks.json
+                                "program": "${workspaceFolder}/src/_______.ts",
+                                "runtimeArgs": ["--experimental-specifier-resolution=node"],    // Node.js v18
+                                "args": [],
+                                "cwd": "${workspaceFolder}/src",
+                                "smartStep": true,
+                                "outFiles": [
+                                    "${workspaceFolder}/build/**/*.js"
+                                ]
+                            }
+                        ]
+                    }
+            Python:
+                基本:  #keyword: Python launch.json
+                    VSCode でフォルダーを開きます:
+                        VS Code >> File >> Open Folder >> Python を実行するときの カレント フォルダー など
+                    __Project__/.vscode/launch.json : |
+                        {
+                            "version": "0.2.0",
+                            "configurations": [
+                                {
+                                    "name": "Python: Debug",
+                                    "type": "debugpy",
+                                    "request": "launch",
+                                    "console": "integratedTerminal",
+                                    "cwd": "${workspaceFolder}",
+                                    "program": "__main__.py",
+                                    "args": ["__parameter__", __Options__ ],
+                                    "justMyCode": false
+                                }
+                            ]
+                        }
+                    launch.json の中のどの設定を使うかを設定します: |
+                        VSCode >> Run and Debug ボタン（左）>> 歯車アイコンの左＝ "Python: Debug"
+                    使う Python のバージョンを選びます:
+                        #search: VSCode Python Select Interpreter
+                    F5 キーを押します:
+                Django:  #keyword: Django launch.json
+                    VS Code >> File >> Open Folder >> manage.py ファイルがあるフォルダー:
+                    __Project__/.vscode/launch.json: |
+                        {
+                            "version": "0.2.0",
+                            "configurations": [
+                                {
+                                    "name": "Python: Django",
+                                    "type": "debugpy",
+                                    "request": "launch",
+                                    "console": "integratedTerminal",
+                                    "cwd": "${workspaceFolder}",
+                                    "program": "manage.py",
+                                    "args": ["runserver", __Options__ ]
+                                }
+                            ]
+                        }
+                    launch.json の中のどの設定を使うかを設定します: |
+                        VSCode >> Run and Debug ボタン（左）>> 歯車アイコンの左＝ "Python: Django"
+                    F5 キーを押します:
+                pytest:  #keyword: pytest launch.json,  pytest debugger
+                    新しい方法:
+                        Testing ビューを使う場合:  #// launch.json は不要です  #search: pytest VSCode
+                        pytest コマンドを使う場合:
+                            pytest コマンドを使えるようにします:
+                                .venv/bin/pytest
+                            __Project__/.vscode/launch.json : |
+                                {
+                                    "version": "0.2.0",
+                                    "configurations": [
+                                        {
+                                            "name": "Python: pytest",
+                                            "type": "debugpy",
+                                            "request": "launch",
+                                            "module": "pytest",
+                                            "python": "${workspaceFolder}/.venv/bin/python",
+                                            "cwd": "${workspaceFolder}",
+                                            "args": ["-v","./test_app.py","-k","test_get_customers"],
+                                            "justMyCode": false
+                                        }
+                                    ]
+                                }
+                    （関連）:  #search: pytest debug
+            Go:
+                基本:  #search: Go VSCode debugger
+    tasks.json: #keyword: tasks.json
+        場所: __Project__/.vscode/tasks.json
+        概要: 1行のコマンドを実行します。1行に複数のコマンドを書くこともできます
+        サンプル:
+            tasks.json: |  #search: TypeScript tasks.json
+                {
+                    "version": "2.0.0",
+                    "tasks": [
+                        {
+                            "label": "TypeScript Compile Task",
+                            "type": "shell",
+                            "command": "cd  '${workspaceFolder}';  node_modules/.bin/tsc  -p tsconfig.json --watch",
+                            "isBackground": true,
+                            "problemMatcher": [
+                                "$tsc-watch"
+                            ]
+                        }
+                    ]
+                }
+        手順:
+            タスクを起動します: VSCode >> Terminal >> Run Task >> __Task__
+            処理中にぐるぐるを表示します:  #search: VSCode isBackground problemMatcher 
+            タスクを連携させます:  #search: tasks.json preLaunchTask dependsOn
+            その他 launch.json の手順:  #search: launch.json
+        ファイルの内容:
+            tasks:
+                label: タスク名。タスクを指定するときに使われます
+                type: shell
+                command: bash コマンド
+                dependsOn: 先行するタスクの label
+                isBackground:
+                    true: command がバックグラウンドで継続して実行されるときに指定します。おそらく起動中なら command を実行しません
+                    false: command が終了するときに指定します。デバッガーの開始などをするたびに command を実行します
+                problemMatcher:  #keyword: VSCode problemMatcher
+                    処理の開始と終了の判定: #keyword: VSCode isBackground problemMatcher  #// isBackground == true のときのみ有効
+                        #// 常駐型タスクの「処理が完了」する条件など。「タスクの終了」ではありません。
+                        処理中はぐるぐるします
+                        #search: tasks.json endsPattern
+                    エラー、警告、情報メッセージの判定:
+                        ハイライトします
+        トラブルシューティング (tasks.json):
+            - #// ターミナルから実行すると成功するが、タスクを起動（tasks.sh から起動）するとエラーになる
+                手順: タスクを起動します
+                ログ: |
+                    何らかのエラー
+                対処A:  #// arg
+                    - パラメーター部分は command フィールドではなく arg フィールドに書きます
+                    - 一時的に変数を値に展開したリテラルに置き換えます
+                対処B:  #// pwd
+                    カレント フォルダー
+                対処C:  #// env
+                    環境変数
+            - #// トランスパイルが再開してしまう
+                手順: VSCode のデバッガーを動かす  #// コード変更時ではない
+                問題: トランスパイルが再開してしまう
+                対処: デバッグするプログラムが自動的に編集するファイルがある場所を
+                    tsconfig.json の exclude に設定します
+    .env:  #keyword: VSCode .env,  VSCode .env 環境変数
+        場所: __Project__/.env
+        概要: Python 関連のコマンドに渡す環境変数
+            #search: .envrc 環境変数
+            #ref: https://code.visualstudio.com/docs/python/environments#_environment-variable-definitions-file
+        設定:
+            __Project__/.envrc ファイルがある場合、.envrc ファイルから環境変数を設定している部分だけ .env ファイルにコピーします
+            .env ファイルの変更内容は、Visual Studio Code を再起動しないと反映されません。
+        サンプル:
+            VARIABLE="true"
+        PATH 変数:
+            #// 下記の書き方で、既存の PATH の左にパスを追加します。既存の PATH が /home/user1/bin なら __AppendingPath__:/home/user1/bin になります。
+            PATH = "__AppendingPath__"
+        値を確認します:
+            最初に実行する .py ファイルの先頭で:
+                import os
+                print(os.environ['VARIABLE'])
+            値を変更したとき:
+                デバッガーの Restart ボタンではなく、Stop ボタンを押して F5 キーを押してください
+        参照:
+            Linux の場合 .env の中に指定する値に ${env:PS1}:${development}:$development を指定しても、どれも値に置き換わりません
+            （右記公式文書と違う） https://code.visualstudio.com/docs/python/environments#_variable-substitution
+        注意 >> Terminal:
+            VSCode の Terminal（メニュー）>> New Terminal から起動したシェルは、
+            .env の環境変数が定義されません。
+        関連:
+            Python で環境変数を操作します: #search: Python 環境変数
+    変数:  #keyword: VSCode environment variable
+        ${workspaceFolder}
+コマンド, Terminal: #keyword: VSCode CLI
+    Terminal: #keyword: VSCode terminal  #// Visual Studio Code の中の Terminal ビュー
+        キーボード ショートカット:  #search: VSCode terminal keyboard
+        開く:  #search: open VSCode terminal
+        Terminal の一覧のタブ:  #// シェルが多いときに便利  #keyword: VSCode terminal show tabs
+            表示: VSCode >> Terminal（メニュー）>> New Terminal >>（シェル名の右の↓）（Terminalの右上）>> Show Tabs
+            非表示: ＋（Terminalの右上）>>（シェル名の一覧の下の空欄を右クリック）>> Hide Tabs
+            シェルの表示名の変更: （シェル名を右クリック）>> Rename
+            split, 左右分割: #keyword: VSCode split terminal
+                右半分にターミナルを開きます:  #// 以下のいずれか
+                    - 窓の形のボタンを押します
+                    - 右クリック >> Split Terminal
+                分割をやめます:  #// 切り替え式に変えます
+                    右クリック >> Unsplit Terminal
+                既存のターミナルを別のターミナルと分割して表示します:
+                    （不明）
+            関連:
+                上下に並べます:  #search: VSCode move terminal
+                複数の端末を開いて実行します:  #search: VSCode multi terminal tasks.json
+        並べて表示する:
+            左右分割: #search: VSCode split terminal
+            上下に並べる: #keyword: VSCode move terminal  #// エディターのエリアに移動する
+                エディターのエリアに移動する:
+                    対象のターミナルのタブを右クリック >> Move Terminal into Editor Area
+                ターミナルのパネルに戻す:
+                    対象のタブを右クリック >> Move Terminal into Panel
+        tasks.json で複数の端末を開いて実行します:  #keyword: VSCode multi terminal tasks.json
+            tasks.json:  #keyword: tasks.json
+                実行:
+                    サンプル:  #// 新しく複数の端末を開いてコマンドを実行します:
+                        __Project__/.vscode/tasks.json : |
+                            {
+                                "version": "2.0.0",
+                                "tasks": [
+                                    {
+                                        "label": "1: Run in 2 terminals",
+                                        "detail": "2つの端末を VSCode で開きます",
+                                        "dependsOrder": "parallel",
+                                        "dependsOn": [  // #search: tasks.json dependsOn
+                                            "Hello World",
+                                            "Hello World2",
+                                        ],
+                                        "problemMatcher": []     // これがないと入力を求められます
+                                    },
+                                    {
+                                        "label": "Hello World",
+                                        "type": "shell",
+                                        "command": "echo",
+                                        "args": ["Hello World"],
+                                        "problemMatcher": []
+                                    },  
+                                    {
+                                        "label": "Hello World2",
+                                        "type": "shell",
+                                        "command": "cd ${workspaceFolder}; pwd",
+                                        "problemMatcher": []
+                                    }
+                                ]
+                            }
+                        メニュー: VSCode >> Terminal >> Run Task... >> Run in 2 terminals
+                    ビジー表示（Task is running 表示）をなくす:  #search: tasks.json endsPattern
+                編集:
+                    type = shell: |
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "1. Hello World",  // 名前。dependOn に指定されることがあります
+                                    "detail": "サンプルです",    // 説明文
+                                    "type": "shell",
+                                    "command": "cd ${HOME}; pwd",
+                                    "problemMatcher": []     // これがないと入力を求められます "Select for which kind of errors and warnings to scan the task output" 
+                    type = shell の詳細:
+                        args: |
+                                    "args": ["Hello World"]  // 各要素が ' ' で囲まれたコマンドラインになります
+                        pwd:        // "pwd" （カレント フォルダー）はありません
+                    type = npm: |
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "npm: start",
+                                    "type": "npm",
+                                    "script": "start",  // npm start
+                    ビジー表示（Task is running 表示）をなくす: #keyword: tasks.json endsPattern  #// Show tabs した端末でビジー状態を表す回転表示をなくします
+                        サンプル tasks.json: |
+                            {
+                                "version": "2.0.0",
+                                "tasks": [
+                                    {
+                                        "label": "endsPattern development",
+                                        "type": "shell",
+                                        "command": "echo  'task is starting';  sleep 2;  echo  'end of task';  sleep infinity",
+
+                                        "problemMatcher": {
+                                            "background": {
+                                                "beginsPattern": ".",
+                                                "endsPattern": "task"
+                                            },
+                                            "pattern": [{"regexp": ".", "file": 0, "location": 0, "message": 0}]
+                                        },
+                                        "isBackground": true
+                                    }
+                                ]
+                            }
+                        説明:
+                            isBackground, regexp など: 必須。上記は何もしていしないことと同じ意味です。
+                            beginsPattern:  #// ビジー状態を開始、または再開する出力内容にマッチする正規表現
+                                endsPattern にマッチした後で beginsPattern にマッチするとビジー状態を再開します
+                            endsPattern:  #// ビジー状態を終了する出力内容にマッチする正規表現
+                                サンプル >> 1行目:
+                                    最初の出力行が endsPattern にマッチしても無視されます。
+                                    おそらく beginsPattern を判定しているためです。
+                                    上記サンプルのように、目的の処理の前にダミーの echo 出力を入れます。
+                                サンプル >> "":
+                                    比較対象のログ: warning ("Used unsupported options")
+                                    __EndsPattern__: "\"Used"
+                                    説明: |
+                                        - " で囲まれた部分は " をパターンに含める必要があります
+                            プロセス終了時:
+                                endsPattern の値に関わらず、ビジー状態が終了します
+                            Show tabs した端末: #search: VSCode terminal show tabs
+                        エラーになる場合:  #// endsPattern にマッチしたらエラーと判定される場合
+                            pattern の設定を下記のように変更します: |
+                                "pattern": [{"regexp": "DummyErrorPattern"
+                    プロセスが終了した端末を再利用させない:
+                        "command": "____;  echo 'Done';  sleep infinity"
+                    依存関係: #keyword: tasks.json dependsOn
+                        兄弟関係:
+                            動き:
+                                - 依存先タスクを並列または順次起動します
+                                - 依存先もターミナルが開きます
+                                - 依存先も同時に起動しても、１つの依存先だけ起動します
+                            書式: |
+                                "tasks": [
+                                    {
+                                        "dependsOrder": "parallel",
+                                        "dependsOn": [
+                                            "child A task",
+                                            "child B task",
+                            dependsOrder: #keyword: tasks.json dependsOrder
+                                dependsOn の中の実行順序 parallel or sequence
+                        親子関係:  #// 非推奨, 依存先も同時に起動すると、２つの依存先が起動してしまうため
+                            動き:
+                                - 依存先（子）タスクが起動してから、ここのタスクを起動します
+                                - 依存先と同じターミナルで実行します
+                                - 依存先も同時に起動すると、２つの依存先が起動してしまいます
+                                    代わりは dependsOrder sequence  #search: tasks.json dependsOrder
+                            書式: |
+                                "tasks": [
+                                    {
+                                        "dependsOn": [
+                                            "child task",
+                    その他のオプション: |
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "group": {
+                                        "kind": "build",      // ビルドタスクとして認識させる。省略すると一般タスクのみ
+                                        "isDefault": true     // Cmd + Shift + B で即実行
+                                    },
+                                    "presentation": {
+                                        "reveal": "always",  // Terminal パネルを必ず開く
+                                        "clear": true,       // 実行前に Terminal をクリア
+                                        "echo": false        // タスク名をエコー表示しない
+                                    },
+                                    "problemMatcher": []     // これがないと入力を求められます
+                参考:
+                    公式: #ref: https://code.visualstudio.com/docs/editor/tasks#_background-watching-tasks
+                    参考: #ref: https://stackoverflow.com/questions/44242048/how-to-make-vscode-not-wait-for-finishing-a-prelaunchtask
+                関連:  #search: tasks.sh
+        名前変更(mac): #keyword: rename VSCode terminal  #// 端末の名前を変更します(mac)
+            コマンドID: workbench.action.terminal.rename  #// F1 キーを押してからコマンドIDを入力すると実行できます
+            option + R キーで変更できるようにします:
+                - VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >>
+                - "workbench.action.terminal.rename（と入力）>>"
+                - （見つかった行をダブルクリック）>> option + R キー >> Enter キー
+            参考: #ref: https://code.visualstudio.com/docs/editor/integrated-terminal
+        タブ文字をコピーします:
+            タブ文字を \t に置き換えることでタブ文字をコピーできます（取り出せます）
+            #search: escape tab character
+        手順書テンプレート: #keyword: VSCode terminal example  #// 手順メモに書く Terminal で入力する内容のサンプル
+            (@CentOS7):
+                cd ____
+            #// または
+            VSCode Terminal (____):
+                cd ____  
+    code コマンド: #keyword: VSCode code command,  code  #// Visual Studio Code の中または外から実行できます
+        基本: #// プロジェクトを開きます
+            #// 以下のいずれか
+            - code __ProjectPath__
+            - code -n __ProjectPath__  #// 新しいウィンドウで開きます
+            - code -r __ProjectPath__  #// 現在のウィンドウを再利用します（閉じて開きます）
+            - code --remote ssh-remote+__SshConfigName__  __FolderPath__   #search: code --remote
+            - code --remote wsl+__DistroName__  __FolderPath__   #search: code --remote
+            #// ファイルを開くときは、VSCode の上の検索ボックスにパスの一部を入力します
+        オプション: #keyword: VSCode code option
+            --diff: #keyword: code --diff  #// ファイルを比較します
+                ファイルを比較します:
+                    code --diff  __FileA__ __FileB__
+                フォルダーを比較します:
+                    codediff:  #search:
+                    compare folders:  #search: VSCode diff compare folders
+                    #// code --diff コマンドではフォルダーの比較ができません
+                Git のコミットを比較します:  #search: git diff VSCode
+                参考:  #ref: https://code.visualstudio.com/docs/editor/command-line
+            --goto:  #search: code --goto  #// 行番号を貼り付けて開きます
+            -n:  #// 新しいウィンドウで開きます
+            -r:  #// 現在のウィンドウを再利用します（閉じて開きます）
+            --remote: #keyword: code --remote  #// リモートのフォルダーを開きます
+                #search: open remote VSCode
+                #snip:  SSH: code --remote ssh-remote+__SshConfigName__  __FolderPath__
+                #snip:  WSL: code --remote wsl+__DistroName__  __FolderPath__
+            --version: #keyword: code --version
+                表示例: |
+                    $ code --version
+                    1.91.0
+                    ea1445cc7016315d0f5728f8e8b12a45dc0a7286
+                    x64
+                WSL2 で初めて code コマンドを実行したとき: |  #// __VersionHash__ は Windows（Desktop）に入っている VSCode のバージョンのものです
+                    $ code .
+                    Updating VS Code Server to version __VersionHash__
+                    Removing previous installation...
+                    Installing VS Code Server for x64 (__VersionHash__)
+                    Downloading: 100%
+                    Unpacking: 100%
+                    Unpacked 1707 files and folders to /home/user1/.vscode-server/bin/ea1445cc7016315d0f5728f8e8b12a45dc0a7286.
+                    Looking for compatibility check script at /home/user1/.vscode-server/bin/ea1445cc7016315d0f5728f8e8b12a45dc0a7286/bin/helpers/check-requirements.sh
+                    Running compatibility check script
+                    Compatibility check successful (0)
+                公式から無くなったとき: |
+                    $ code .
+                    ...
+                    Downloading: 100%
+                    Failed
+        操作:
+            ファイル パスと行番号を貼り付けて開きます:  #search: code --goto
+            リモートのフォルダーを開きます:  #search: code --remote
+ネットワーク:
+    SSH リモート接続: #keyword: VSCode SSH
+        インストール:
+            #search: multi_vm_ansible
+            #search: CentOS+VSCode
+        中継サーバー経由:
+            #ref: ${typrm_files}/ref/VSCode-AI.yaml#label: SSH intermediate-host
+            #ref: https://blog.masuyoshi.com/【vscode使用者注意】サーバーリソース食い散らかす/
+        フォルダーを開きます:  #search: open remote VSCode
+        ファイル転送:
+            Git bash の scp を使います:  #search: scp
+    ポートフォワーディング:  #keyword: VSCode port forwarding
+        自動:
+            TCP/IP でアクセスするアプリケーションを動かすと、
+            自動的にホストOSへのポートフォワーディングが作られます。
+            ホストOS から http://127.0.0.1:10080/ にアクセスできてしまうのは、
+            VSCode が自動的にポートフォワーディングしたためです。
+            自動的にポートフォワーディングしたポート番号は、ターミナルのポート タブに一覧されます。
+            #ref: ${programming}/プログラミング言語、環境/VisualC++/VisualStudioCode.svg#port_forwarding
+        手動:  #// 自動的にポートフォワーディングが作られない場合
+            ポートフォワーディングを作ります:  #// サーバーから localhost へポートフォワーディングします
+                VSCode >> Terminal >> PORTS タブ >> Add Port ボタン >>（VSCode が開いているサーバーのポート番号） 
+            localhost にアクセスします:
+                http(s)://localhost:__PortNum__/____
+        #search: SSH port forwarding
+デバッグ: #search: VSCode debug
+Testing: #keyword: VSCode Testing view  #// Visual Studio Codde の Testing ビュー
+    #search: start Python testing view
+ライブラリ:
+    Visual C++:
+        Microsoft Visual C++ Redistributable Package: #keyword:
+            #ref: https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
+            #ref: https://aka.ms/vs/17/release/vc_redist.x64.exe
+トラブルシューティング:
+    サポート:  #keyword: VSCode support,  VSCode community
+        #ref: https://github.com/microsoft/vscode/issues
+        報告内容:
+            vscode/issues/201031, VSCode で折りたたんだテキストをマウスで移動したときに開いてしまう問題: #keyword:
+                #ref: https://github.com/microsoft/vscode/issues/201031
+            Allow more than 9 items in the title bar:  #ref: https://github.com/microsoft/vscode/issues/226423
+    接続:
+        SSH 接続できない (Remote Development 拡張機能):  #keyword: VSCode SSH trouble
+            解析スクリプト debug-vscode-ssh:  #keyword: debug-vscode-ssh  #ref: ${GitHub}/MyPrivateCode/bash/debug-vscode-ssh/debug-vscode-ssh
+                リモートで開こうとした VSCode >> Output タブ（ターミナルの左上）>>（ターミナルの右上のドロップダウンを）Remote - SSH
+                SSH クライアント のターミナルで実行してください。
+                SSH の接続で止まる場合、Windows の再起動をしてください  #// これもスクリプトへ
+            状況を調べます:  #// 下記対策の各項目に書かれた状況と比較します
+                エラーのポップアップが開いたとき:  #// 中央にポップアップが表示されます。状況＝すぐにエラー
+                    VSCode のログを開きます:  #// 新しく開いたけど接続できない VSCode のログを開きます
+                        エラーのポップアップ >> More Actions ボタン（右）>> Open SSH Configuration File >> C:\Users\__User__\.ssh\config >>
+                        Output タブ（下半分）>> Ctrl + F >> cmd.exe
+                    ログの日時をカットしたいとき:
+                        VSCode で正規表現 ^\[[0-9:.]*\]  を空文字列に置き換えます
+                    ログに書かれたエラーメッセージについて調べます:
+                        #search: debug-vscode-ssh
+                ビジー状態になったとき:  #// 右下にポップアップが表示されます。状況＝ビジー状態
+                    1分近く待ちます（1回目のみ）>> △（右）>> 右クリック >> Copy Text
+                        または
+                    ~/.ssh/known_hosts の古いホストを削除します
+                ssh コマンドの詳細を表示する場合:  #keyword: VSCode SSH verbose
+                    (Windows Git bash):
+                        ssh -v __SshConfigName__
+                        ssh -vvv __SshConfigName__
+                ログインします:  #keyword: VSCode Vagrant log in
+                    Vagrant VM:  #// Vagrant を使って作られた VM の場合
+                        VirtualBox を使う場合:  #// VM の画面からログインすることに相当します。SSH を使いません
+                            ユーザーは vagrant、パスワードは vagrant です。
+                            #// 以下に続きます
+                        SSH を使う場合:
+                            ユーザーは vagrant です。SSH キーを使います。
+                            ssh -vvv __SshConfigName__
+                            #search: SSH log in
+                            #// 以下に続きます
+                        ユーザーを変更します:
+                            sudu su または su -
+                            su - __User___
+                VSCode のバージョンと OS の相性: #keyword: VSCode SSH trouble Remote Linux
+                    CentOS7: #keyword: VSCode SSH trouble CentOS7
+                        VSCode 1.88.0: NG  #search: code85
+                        VSCode 1.87.2: OK
+                        VSCode 1.86.1: OK  #// 警告されますが使えます
+                        VSCode 1.86.0: NG  #search: code85
+                    #search: VSCode previous versions
+                #// 下記対処の各項目に書かれた状況と比較します
+            対処集:  #ref: ${typrm_files}/ref/VSCode-AI.yaml#SSH trouble
+                VM の電源を入れます:  #// 状況＝すぐにエラー
+                    状況: |  #focus: port __PortNum__  #// Connection refused
+                        (Git bash) $ ssh -vvv __SshConfigName__
+                        OpenSSH_9.2p1, OpenSSL 1.1.1t  7 Feb 2023
+                        debug1: Reading configuration data /c/Users/__User__/.ssh/config
+                        debug1: /c/Users/__User__/.ssh/config line 95: Applying options for __SshConfigName__
+                        debug1: Reading configuration data /etc/ssh/ssh_config
+                        debug2: resolve_canonicalize: hostname 127.0.0.1 is address
+                        debug3: expanded UserKnownHostsFile '~/.ssh/known_hosts' -> '/c/Users/__User__/.ssh/known_hosts'
+                        debug3: ssh_connect_direct: entering
+                        debug1: Connecting to 127.0.0.1 [127.0.0.1] port __PortNum__.
+                        debug3: set_sock_tos: set socket 4 IP_TOS 0x48
+                        debug1: connect to address 127.0.0.1 port __PortNum__: Connection refused
+                        ssh: connect to host 127.0.0.1 port __PortNum__: Connection refused
+                    対処:
+                        -   開こうとしている VM の名前（SSH コンフィグ名）が正しいことを確認してください。
+                        -   開こうとしている VM のポート番号（~/.ssh/config 内 または CLI のオプション）が正しいことを確認してください。
+                            その際、ポートフォワーディングも考慮してください
+                    その他の対処:
+                        状況: ログインして ip addr コマンドを入力し 192.168._._ のアドレスが無い
+                        対処A: VM のバックアップからリストアしてください
+                        対処B:  #// 未確認
+                            sudo systemctl restart network
+                            journalctl -xe | grep network
+                vscode-server の作業フォルダーを削除します:  #// 状況＝ビジー状態
+                    対処:
+                        フォルダーを削除します:  #search: VSCode Vagrant log in
+                            -   rm -rf ~/.vscode-server  #keyword: ~/.vscode-server
+                ~/.ssh/known_hosts の古いホストを削除します:  #// 状況＝すぐにエラー
+                    状況: |  #keyword: WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
+                        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                        @    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+                        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                        Failed to set up socket for dynamic port forward to remote port 38043: connect ECONNREFUSED 127.0.0.1:55266. TCP port forwarding may be disabled, or the remote server may have crashed. See the VS Code Server log above for details.
+                    対処:
+                        クライアントの ~/.ssh/known_hosts の該当ホストの行を削除します
+                DNS の VM があるときは、その VM も起動し、時計も現在日時に合わせます:  #// 状況＝ビジー状態から成功
+                    状況: 1分近くビジー状態が続いたあとで接続できる
+                    対処:
+                        #search: DNS timeout
+                PC を再起動します:
+                ssh コマンドの詳細を表示する場合:  #keyword: VSCode SSH verbose
+                    状況: 1分近くビジー状態が続いたあとでエラーになる
+                    対処: もう一度、VSCode を開きなおします。それでも接続できなければもう一度状況を調べます
+                SSH サーバーのユーザーのパスワードを入力しない設定にします:
+                    対処:
+                        PasswordAuthentication を no に設定します  #search: sshd PasswordAuthentication
+                        #// SSH キー（を使うとき）のパスフレーズはあってもなくても構いません。あったら入力を求められますが接続できます
+                ~/.ssh/config の設定を使って、Windows から SSH サーバーにログインできることを確認します:
+                    対処:
+                        ssh  localhost_5022
+                        #search: ssh port
+                        #search: SSH Permission denied
+                        #// ~/.ssh/config の Hosts にコロンを含めることはできません。接続時の内部で実行する scp に失敗します
+                scp が使えることを確認します:
+                vscode-server プロセスを終了させます:
+                    対処:
+                        -   (Git bash の ssh コマンドでログイン)  #search: SSH log in
+                        -   ps aux | grep vscode-server
+                            kill -9 __PID__
+                No space left on device:
+                    状況: VSCode の Output の一部に No space left on device
+                    対処: VSCode と接続するモジュールを作るためのディスク領域が足りないので、
+                        VSCode 以外の方法でログインし、不要なフォルダーを削除するか、ディスクを増やします
+                VSCode をダウングレードします: #keyword: VSCode downgrade
+                    状況:
+                        Waiting for server log... が Output ビュー に大量に表示される場合: |  #ref: https://github.com/microsoft/vscode/issues/203967  
+                            Output ビューに
+                                [09:32:04.906] > Waiting for server log...
+                                [09:32:04.951] > Waiting for server log...
+                            が 300近く並ぶ
+                    対処:  #ref: https://code.visualstudio.com/docs/remote/faq#_can-i-run-vs-code-server-on-older-linux-distributions
+                        VSCode 1.85.2 を ポータブル モード で使います:
+                            VSCode-win32-x64-1.85.2.zip
+                            #search: VSCode portable mode
+                ~/.ssh/config の LogLevel FATAL:
+                    LogLevel FATAL をコメントアウトしないと接続できない場合があった
+    デバッグ:  #keyword: VSCode debug,  VSCode debugger
+        launch.json ファイル: #search:
+        ブレーク ポイント:  #keyword: VSCode break point
+            全ブレークポイント:
+                全ブレークポイントの無効化をオフにします:
+                    BREAK POINT ビュー（左下）の右上2番目
+                状態の表示内容:
+                    灰色の ● : 無効
+                    灰色の ○ : 有効だがブレークできない。Jest(npm test)の再起動が必要かもしれません
+                    赤い ● : 有効
+                ショートカット キー を設定します:  #search: VSCode Toggle Activate Breakpoints
+            Triggered breakpoints:  #// 先行するブレークポイントに止まったら有効にするブレークポイント
+                （ブレークポイントを右クリック）>> Edit breakpoint >>（左のプルダウン）>>
+                Wait for breakpoint >>（中央のプルダウン）>>（先行するブレークポイントの位置）>> OK ボタン
+                #// ブレークポイントの位置を選ぶ際に下にコードが表示されます
+                #// 先行するブレークポイントを無効にしたら、それに続くブレークポイントも無効に設定されます
+            一部のブレークポイント:
+                複数のブレークポイントをまとめて disable します:
+                    できません  #ref: https://github.com/microsoft/vscode/issues/146511
+            ブレークしない場合:  #search: VSCode break point trouble
+            通過回数:
+                表示:  #// ブレーク ポイント の通過回数を表示します
+                    Python:  #keyword: Python debug counter
+                        #// ブレーク ポイント では表示できないため、表示するコードを書きます
+                        追加コード: |
+                            globals().update(_debug_counter=globals().get('_debug_counter', 0) + 1) or print(f"Count: {globals()['_debug_counter']}") or False
+                        標準出力: |
+                            Count: 1
+                            Count: 2
+                            Count: 3
+                            ...
+        ウォッチ: #keyword: VSCode watch
+            配列要素の値をまとめてコピーします:
+                手順: 最初の要素をクリック >> Shift キーを押しながら最後の要素をクリック >> 右クリック >> Copy Value
+                確認済み: Python
+            変数名をコピーします:
+                クイック ウォッチ を表示します:
+                    エディターの中の変数名にマウスを合わせます
+                変数名を選択します:
+                    ドラッグします
+                コピーします:
+                    Ctrl + C
+        基本, 言語共通:
+            - #// 失敗したテストを探します  #keyword: failed test,  test failure error
+                × を検索します
+                もしくは、最後のテスト名を検索します
+            - #// デバッグを開始しようとしても開始されない。ビジー状態になる
+                手順: |
+                    launch.json の env を変えて、デバッグ開始
+                    "configurations": [{
+                        "env": {
+                            "PATH": "${workspaceFolder}/bin:${env:Path}"
+                対処: |
+                    環境変数名を正しくしてください
+                        "PATH": "${workspaceFolder}/bin:${env:PATH}"
+            - #// ウォッチやエラーメッセージに表示される改行文字が \n  #keyword: VSCode replace \n 改行
+                手順: ウォッチの中の変数（を右クリック）>> Copy Value >> VSCode の新しい テキスト エディター に貼り付け
+                エラー: ウォッチに表示される改行文字が \n
+                対処: Ctrl + F >> >（右上）（で置き換えた後の入力領域を表示）>> Shift + Enter（改行を入力）>>
+                    Replace ボタンまたは Replace All ボタン（右上）
+                （関連）:
+                    CSV の１行を縦に並べます: #search: VSCode CSV transpose
+            - #// ウォッチに設定した配列変数の複数要素の値をコピーする
+                手順: ウォッチの中の配列変数の左の ＞ を押して展開 >>
+                    コピーする範囲の最初をクリック >>
+                    コピーする範囲の最後を Shift キーを押しながらクリック >>
+                    右クリック >> Copy Value
+            - #// 標準出力の内容が Debug Console に表示されない
+                手順: プログラムの実行
+                エラー: 標準出力の内容が VSCode の Debug Console に表示されない
+                対処:  #search: VSCode outputCapture
+            - #// バイナリ >> Variables ビューに表示されているデータのバイナリ（ダンプ）を表示します
+                #// ウォッチ ビュー や文字列には使えません
+                (JavaScript) var a = Buffer.from(this.label);
+            - #// 1度ブレークすることはできるが、後にブレークできなくなる
+                手順: VSCode デバッガー起動
+                エラー: なし
+                対処:
+                    API の関数の最後で終了できるようにします:
+                        #// これをしないと、再度ブレークさせるには VM の再起動が必要になります
+                        API の関数の最後にブレークポイントを張ります:
+                    f5 キー で起動:
+                    API の関数の最後でブレークしたらデバッガーを終了します:
+        Node.js:  #// JavaScript, TypeScript
+            #search: TypeScript VSCode debugger
+            - #// プログラムを再起動する  #search: VSCode JavaScript debug
+            - #// SyntaxError: missing ) after argument list
+                手順: VSCode F5 キー
+                エラー: |
+                    __Project__\node_modules\.bin\jest:2
+                    basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+                    .         ^^^^^^^
+                    SyntaxError: missing ) after argument list
+                対処:
+                    __Project__/.vscode/launch.json : |
+                        {
+                            "version": "0.2.0",
+                            "configurations": [
+                            {
+                                "name": "Debug Windows Jest Tests",
+                                "type": "node",
+                                "request": "launch",
+                                "runtimeArgs": [
+                                    "--inspect-brk",
+                                    "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                                    "--runInBand",
+                                    "--coverage", "false"
+                                ],
+                                "console": "integratedTerminal",
+                                "internalConsoleOptions": "neverOpen"
+            - #// デバッガーを起動中の Node.js スクリプトにアタッチします
+                手順:
+                    __Project__/.vscode/launch.json ファイルを作ます: |
+                        {
+                            "version": "0.2.0",
+                            "configurations": [
+                                {
+                                    "type": "node",
+                                    "request": "attach",
+                                    "name": "Attach a process",
+                                    "processId": "${command:PickProcess}"
+                                }
+                            ]
+                        }
+                    F5 キー:  #// VSCode をアクティブにした状態で
+                    （プロセスを選びます）:
+            - #// 普段使っている環境変数を設定してデバッグします  #keyword: VSCode environment variable debug,  typrm debug
+                手順:
+                    環境変数を設定するスクリプトの最後で code コマンドを実行してプロジェクトのフォルダーを開きます: |
+                        #// bash
+                        export __Variables__=__Value__
+                        # node __Options__  __Project__\build\typrm.js  __Parameters__     #// ここは typrm の起動コマンドをコメントアウトした部分です
+                        code __Project__
+                    launch.json を編集します: |
+                        "program": "${workspaceFolder}/src/typrm_test.ts",
+                        "args": [],
+                        "cwd": "${workspaceFolder}/src",
+                #ref: ${GitHub}/typrm/specifications.yaml#debug:
+            - #// ブレークしない  #keyword: VSCode break point trouble
+                手順: デバッガーを起動
+                症状: ブレークしない
+                対処: #// パス
+                    ソース ファイル を保存します:
+                    コンパイル時エラーを対処します:
+                    全てブレークポイントの無効化をオフにします:
+                    npm test を再起動します:
+                    実行時エラーが発生したとき:
+                        エラーが発生したコードにブレークポイントを張ってみてください:
+                        #// テスト関数にまだ到達していない可能性があります。
+                    コピーしたパスと上記「__TargetPath__」を比較してください:
+                        VSCode >> ブレークポイントを配置したファイルのタブを右クリック >> Copy Relative Path
+                    上記「__TargetPath__」を省略して試してみてください:
+            - #// ブレークして再開すると標準出力の内容が変わる
+                原因:
+                    main タスクでブレークすると、非同期タスクでブレークしなくなることと、出力が止まるようです。
+                    このため、ばら撒いたブレークポイントにブレークした順番で、処理の順番を確認することはできないようです。
+                対処法:
+                    const dd = console.log;
+                    を ソース ファイル の先頭に書くと、簡単に print することができ、
+                    また print のコードを削除するときにアプリケーションで使う console.log
+                    を誤検索しなくなります。
+                    値を設定しているコードに print を書くだけでもタイミングが分かります。
+                    値を設定する条件となる値（二分法的な位置にある値）を設定しているコードに
+                    print を書いて値の状況やタイミングが分かります。
+            - #// Node.js の非同期処理のデバッグ:
+                bluebird:  #keyword: JavaScript bluebird  #// 効果未確認
+                    参考:
+                        公式: http://bluebirdjs.com/docs/getting-started.html
+                        npm: https://www.npmjs.com/package/@types/bluebird
+                        その他: https://stackoverflow.com/questions/41359585/how-to-use-bluebird-in-typescript-2-1
+                    JavaScript の bluebird:
+                        インストール:
+                            npm install bluebird  --save-dev
+                        サンプル:
+                            var Promise = require("bluebird");
+                    TypeScript の bluebird:
+                        インストール:
+                            npm install bluebird  @types/bluebird-global  --save-dev
+                        サンプル:
+                            コード: |  #// Promise を blurbird に置き換える import をします
+                                import * as Promise from "bluebird";
+                                global.Promise = Promise
+                                Promise.longStackTraces();
+                                Promise.resolve().then(function outer() {
+                                    return Promise.resolve().then(function inner() {
+                                        return Promise.resolve().then(function evenMoreInner() {
+                                            a.b.c.d()
+                                        });
+                                    });
+                                });
+                            出力: |
+                                ReferenceError: a is not defined
+                                    at evenMoreInner (<anonymous>:6:13)
+                                From previous event:
+                                    at inner (<anonymous>:5:24)
+                                From previous event:
+                                    at outer (<anonymous>:4:20)
+                                From previous event:
+                                    at <anonymous>:3:9
+                                    at Object.InjectedScript._evaluateOn (<anonymous>:581:39)
+                                    at Object.InjectedScript._evaluateAndWrap (<anonymous>:540:52)
+                                    at Object.InjectedScript.evaluate (<anonymous>:459:21)
+                    トラブル シューティング:
+                        - #// Duplicate identifier 'Promise'
+                            手順: import * as Promise from "bluebird";
+                            エラー: |
+                                Duplicate identifier 'Promise'.
+                                Compiler reserves name 'Promise' in top level scope of a module containing async functions.
+                                ts(2529)
+                            対処:
+                                https://stackoverflow.com/questions/39958914/typescript-promise-ts2304-ts2529/40025904
+                call stack:  #keyword: VSCode asynchronous call stack
+                    概要: 非同期処理の呼び出しの部分は コール スタック からたどることはできません
+                    手順:
+                        コール スタック から最も呼び出し元の方向の関数を表示します:
+                            最も呼び出し元の方向の関数をクリックします
+                        その関数の呼び出し元を表示します:
+                            その関数を Ctrl キーを押しながらクリックします
+                        すべての呼び出し元に ブレーク ポイント を貼ります:
+                            - 右半分から呼び出し元の 1つをクリックします
+                            - 左半分に表示されたコードの行番号の左をクリックして ブレーク ポイント を貼ります
+                            - 以上をすべての呼び出し元に対して繰り返します
+                        プログラムを再起動します:
+        Python:  #search: pytest Testing error
+        DevToys: #keyword:  #// YAML <==> JSON 変換 など
+            公式: #ref: https://github.com/veler/DevToys
+            インストール:
+                Microsoft Store から検索してインストールします
+            できること:
+                YAML <==> JSON 変換
+                など
+            参考: #ref: https://forest.watch.impress.co.jp/docs/news/1382919.html
+    ビルド:
+        - #// Select for which kind of errors and warnings to scan the task output
+            手順: Run Task...
+            エラー: |
+                Select for which kind of errors and warnings to scan the task output
+            対処:
+                tasks.json に下記を追加します:
+                    "problemMatcher": []
+    コーディング:
+        定義元を参照できない:
+            Python プロジェクト内のコードから定義元を参照できない:
+                - VSCode の拡張機能「Python」をインストールします
+                - pyproject.toml ファイルがあるフォルダーより親方向のフォルダーを開いても機能します
+            Go 言語プロジェクト内のコードから定義元を参照できない:
+                - VSCode の拡張機能「Go」をインストールします
+                - go.mod ファイルがあるフォルダーを開きます
+        YAML のパンくずリストが表示されない:
+            コロンだけの行を無くしてください。たとえば、... に置き換ます。
+            コロンだけの行を見つけるには、いくつかのスペースとコロンをキーワードにして検索します。
+            #search: パンくずリスト
+        折りたたみ位置がおかしい, キャッシュのクリア: #keyword: VSCode clear file fold cache
+            対処A:
+                mac:
+                    $ cd  "${HOME}/Library/Application Support/Code/User/workspaceStorage"
+                    $ grep -rl "__FileFullPath__"  "."  |  grep  bp-predict.json
+                    __Hash__/ms-vscode.js-debug/bp-predict.json
+                    $ rm -rf __Hash__
+                Windows:  #// 書きかけ
+                    Git bash: |
+                        $ cd  ~/AppData/Roaming/Code/User/workspaceStorage
+                        $ grep -rl "__RepairingFilePath__"  "."  "${PWD}"  |  grep  bp-predict.json  |  sed -E 's|^/c/|c:/|'
+                            #// e.g.) grep -rl 'build\\\\lib.test.js'  "${PWD}"  |  grep  bp-predict.json  |  sed -E 's|^/c/|c:/|'
+                            #// __RepairingFilePath__ は c:\\\\Users\\\\ 形式
+                        $ grep -rl '__FilePath__'  "."
+                            #// または
+                        $ grep -rl '__FilePath__'  "${PWD}"  |  grep  bp-predict.json  |  sed -E 's|^/c/|c:/|'
+                            __Hash__/ms-vscode.js-debug/bp-predict.json
+                        $ rm -rf __Hash__
+            対処B:  #ref: ${typrm_files}/ref/VSCode-AI.yaml#label: folding strategy
+                問題があるファイルを開き、すべて展開します（折りたたみを解除します）:
+                ファイルを閉じます:
+                折りたたみ戦略を変えます: |
+                    Editor: Folding Strategy = indentation
+                    #// ただし、auto にしないと、デバッグ用に行頭に書いたコードの影響を受けてしまいます
+                ファイルを開き、折りたたみます:
+        保存前にファイルの更新があったとき:  #search: VSCode compare before overwrite file changed
+    エラー:
+        - #// Failed to save '__Path__': The content of the file is newer. Please compare your version with the file contents or overwrite the content of the file with your changes.
+            手順: ファイルの保存
+            ログ: |
+                （右下に）
+                Failed to save '__Path__': The content of the file is newer. Please compare your version with the file contents or overwrite the content of the file with your changes.
+            原因: #keyword: VSCode compare before overwrite file changed
+                保存前にファイルの更新があったため
+            対処:
+                ファイルを保存しようとする:
+                    Ctrl + S キー
+                Compare ボタン（を押す）:
+                Compare ビューで 編集する:
+                    左側: ファイルの内容。編集できません
+                    右側: VSCode のメモリーの内容。編集が終わったら保存する内容
+                    Inline View にする場合:  #search: VSCode compare inline view
+                #↓右側が保存する内容になったら
+                Compare ビューを閉じる:  #// 保存前でも内容は失われません
+                ファイルを保存する:
+                    Ctrl + S キー >> Overwrite ボタン
+        - #// tokenization, wrapping, folding, codelens, word highlighting and sticky scroll have been turned off for this large file
+            手順: 大きい YAML ファイルを開く
+            ログ: |
+                log.yaml: tokenization, wrapping, folding, codelens, word highlighting and sticky scroll have been turned off for this large file in order to reduce memory usage and avoid freezing or crashing.
+            対処:
+                全てのエディターを閉じてから開きなおします。エクスプローラーからドラッグ＆ドロップしたほうがいいかもしれません
+        - #// Unable to load schema from 'https://json.schemastore.org/yamllint.json':
+            手順: YAML ファイルを開く
+            エラー: |
+                Unable to load schema from 'https://json.schemastore.org/yamllint.json': Request vscode/content failed unexpectedly without providing any details.YAML(768)
+            対処:
+                YAML lint スキーマをダウンロードして設定します  #search: vscode yamllint JSON schema in project
+        - #// ssh: Could not resolve hostname __SSH_ConfigName__:
+            手順: SSH の接続先のフォルダーを VSCode で開こうとしたとき
+            エラー: |
+                > ssh: Could not resolve hostname __SSH_ConfigName__:
+            対処:
+                接続元の ~/.ssh/config ファイルを __SSH_ConfigName__ で検索して内容を調べます
+        - #// ENOSPC: System limit for number of file watchers reached
+            手順: Run Task...
+            エラー: |
+                Error from chokidar (/home/vagrant/react1ts_jest/src):
+                Error: ENOSPC: System limit for number of file watchers reached, watch '___.tsx'
+            対処:
+                OSに設定されている監視するファイルの最大数を変更します:  #search: max_user_watches
+            参考: #ref: https://stackoverflow.com/questions/55763428/react-native-error-enospc-system-limit-for-number-of-file-watchers-reached
+        - #// Visual Studio Code is unable to watch for file changes in this large workspace
+            警告: Visual Studio Code is unable to watch for file changes in this large workspace
+            内容: 開いているフォルダーに大量のファイルがあるため、フォルダー内のファイルの更新が検出できないことがあります
+            参考:
+                - https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc
+                - https://serv-ops.com/knowledge/open.knowledge/view/15
+            対処法:
+                ライブラリのフォルダーを監視対象から除外します:
+                    #// node_modules フォルダーはデフォルトで除外しています
+                    ${workspaceFolder}/.vscode/settings.json : |
+                        {
+                            "files.watcherExclude": {
+                                "**/.git/objects/**": true,
+                                "**/.git/subtree-cache/**": true,
+                                "**/node_modules/**": true,
+                                "**/.cache/**": true
+                            }
+                        }
+                ファイルの数を一覧します（直下のフォルダー）:
+                    du -a | cut -d/ -f2 | sort | uniq -c | sort -nr
+                OSに設定されている監視するファイルの最大数を変更します:  #keyword: max_user_watches
+                    現在の最大数を表示します:
+                        cat /proc/sys/fs/inotify/max_user_watches
+                    最大数を変更します:
+                        - 1回目:
+                            - echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf
+                        - 2回目以降:
+                            - cat /etc/sysctl.conf
+                            - sudo tee /etc/sysctl.conf > /dev/null 
+                            - （ファイル全体のテキストを貼り付け。最後は改行文字であること）
+                            - （Ctrl+C キー）
+                        - sudo /sbin/sysctl -p
+                        - cat /proc/sys/fs/inotify/max_user_watches
+    Electron:
+        VSCode は Electron で作られています
+        HTML、CSS、JavaScript(npm) を使ってデスクトップアプリが作れます
+        クロスプラットフォーム対応（Windows、macOS、Linux）です
+        VSCodeのUIはHTMLとCSSで構築されています
+        Node.jsの機能を使ってファイルシステムにアクセスします
+        ネイティブアプリのような高いパフォーマンスを実現しています

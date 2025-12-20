@@ -1,0 +1,1664 @@
+#keyword: SoftwareDesign.yaml, 設計
+アーキテクチャー:  #keyword:
+    MVC: #keyword: MVC,  model view controller
+        Model: データ、ビジネス ロジック
+        View: 状態（値）を持つ。ほとんどはライブラリが提供
+        Controller: マウス位置からUI部品へのイベント伝達
+        実装: Win32 API, MFCより前?
+        参考: https://ja.wikipedia.org/wiki/Model_View_Controller
+        関連: #search: Swift MVC
+    データ型の位置づけ:
+        Model のデータ型と View のデータ型は MVC とは別に存在します。
+        そのデータ型とは、int string などの基本型、バイナリ型、画像型、音声型など。
+        列挙型も Model と View の両方で共有する場合は MVC とは別の場所に定義します。
+    Document-View:
+        概要: MVC の View と Controller を分けないアーキテクチャー。 Django の views
+        参考: https://ja.wikipedia.org/wiki/Model_View_Controller
+    Presentation Model パターン:
+        Model: データ
+        View: MVVM と同じだが、XAMLに未対応
+        Presentation Model: ModelView と同じ
+        参考: #ref: https://ja.wikipedia.org/wiki/Model_View_ViewModel
+    MVVM: #keyword:
+        Model: データ
+        View: 状態（値）は持たない。ModelView から渡される。ほとんどはライブラリが提供。ModelView へ delegate する
+            ViewはViewModelを参照し、ViewModelの状態変更を監視します
+            ViewModelが更新されると、Viewは自動的に更新されます
+            ユーザーの入力はViewで受け取り、ViewModelに委譲（delegate）されます
+            ViewModelはModelとの通信を担当し、ビジネスロジックを処理します
+            #keyword: MVVM delegate
+        ModelView: イベントの応答。View と Model の伝達
+        実装: WPF, Vue.js, AngilarJS
+        参考: #ref: https://ja.wikipedia.org/wiki/Model_View_ViewModel
+    ドメイン駆動設計, DDD: #keyword:
+        概要:
+            ドメインの専門家からの入力に従ってドメインに一致するようにソフトウェアをモデル化。
+            ローンの申し込みを処理するソフトウェアには、LoanApplication や Customerなどのクラスと、
+            AcceptOffer や Withdraw どのメソッドが含まれる。
+        用語, ユビキタス言語:  #keyword:
+            ドメイン駆動設計において、コードにドメインの用語を使用することは非常に重要です。
+            これは「ユビキタス言語（Ubiquitous Language）」と呼ばれる概念の中心的な部分です。
+        レイヤード アーキテクチャ:
+            UserInterface: プレゼンテーション層 = クライアントとの入出力をする層
+            Application: ビジネスロジック層 = ユースケースの実現をする層
+            Domain: ビジネスロジック層 = ルールや制約などのドメイン知識の実現をする層
+            Infrastructure: データアクセス層 = データベースとの入出力をする層
+            #ref: https://zenn.dev/ayumukob/articles/ff183004d09ede
+        依存性逆転の法則, DIP:
+            逆転: 通常、通常、高レベルのモジュール（ビジネスロジックなど）は、
+                低レベルのモジュール（データアクセスロジック、ユーティリティ、ライブラリなど）に依存します。
+                それを逆転させます
+            方針: クラスの詳細がインターフェイスに依存すべきである  #// ただし不要なインターフェースが多い
+    TERASOLUNA Server Framework for Java: #keyword:
+        予想される効果:
+            UI と DB の素結合。抽象化（新たなデータ構造）ではない。
+        警告とそれに対する意見:
+            警告: 「開発規模が大きくなった際に、修正の影響範囲が分かりにくくなったり、横断的な共通処理を追加しにくくなる」
+            （意見）: 
+                コンポーネントの置き換えとサービスの メジャー バージョン アップ は同時に行われることが殆どだから、
+                素結合させても効果が出ることはほぼ無い
+        構成:  #ref: http://terasolunaorg.github.io/guideline/current/ja/Overview/ApplicationLayering.html
+            アプリケーション層: #keyword: TERASOLUNA アプリケーション層
+                #// 薄い
+                Controller:
+                    - UI イベント
+                    - 画面遷移
+                    - Service へのアクセス
+                View:
+                    Spring MVC:
+                        - View クラス
+                        - HttpMessageConverterクラスがViewの役割を担う #// これは良くない。View を無くすべき
+                Form:
+                    - HTML の <form>
+                Helper:
+                    - 同じフィールドに対する View と Domain Object の変換
+            ドメイン層: #keyword: TERASOLUNA ドメイン層
+                Service: 業務処理
+                Domain Object: 業務処理の対象やイベント
+                Repository: Domain Object の CRUD のインターフェース。処理は RepositoryImpl へ。
+                    チーム体制によっては、データアクセスの共通化が難しい場合は無くても良い。O/R Mapper を呼ぶ
+            インフラストラクチャ層:  #// データストア, メッセージ通信
+                RepositoryImpl:
+                    - CRUD 処理。DB。インターフェースは Repository へ
+                    - 自動生成される #// MyBatis3, Spring Data JPA などによって
+                O/R Mapper:
+                    MyBatis3: Mapperインタフェース や SqlSession
+                    JPA: EntityManager
+                    Spring JDBC: JdbcTemplate
+                Integration System Connector:  #// データベース以外のデータストア
+                    メッセージングシステム、Key-Value-Store、Webサービス、既存システム、外部システムなど
+        メモ:
+            アプリケーション層、ドメイン層、インフラストラクチャー層は Eric Evansの”Domain-Driven Design
+             (2004, Addison-Wesley)”で説明されている用語
+    クリーン アーキテクチャー:
+        中心:
+            Entities:
+        その外1:
+            Use Cases:
+        その外2:
+            Controllers:
+            Gateways:
+            Presenters:
+        その外3:
+            Web:
+            UI:
+            DB:
+            Devices:
+            External Interfaces:
+    オニオン アーキテクチャー:
+        階層構造を円で表現するため、玉ねぎに見える。
+        外） { UI, Infrastructure, Test } => Application Service => Domain Service => Domain Model　（内
+        #ref: https://qiita.com/cocoa-maemae/items/e3f2eabbe0877c2af8d0
+    フレームワーク: #keyword:
+        スキャフォールド: #keyword: Scaffold,  フレームワーク サンプル
+            サンプル プロジェクト
+    非同期通信: #keyword: 非同期通信, イベント駆動, メッセージ パッシング, イベント ハンドラー, タスク, リアクティブ システム, メッセージ通信, メッセージング システム, ワークフロー
+        通知: #keyword:
+            リッスン, ロング ポーリング
+        メッセージ ブローカー: #keyword: message broker
+            メッセージの配信を仲介するシステム（RabbitMQ、Apache Kafka等）
+        デバッグ: #keyword: debug 非同期通信
+            ログ: #keyword: ログ, メッセージ ログ, メッセージ ブローカー ログ
+                コード: | #keyword: MESSAGE_BROKER_LOG
+                    if os.environ.get('MESSAGE_BROKER_LOG', '') == "all":
+                        logger.info(f'MessageBrokerLog.publish: {handler}')
+                記録する内容:  #glossary:
+                    workflow type, 処理種別識別子:
+                        - trace ID とは別のフィールドにする。trace ID は、
+                    trace ID, トレース ID, 追跡識別子:
+                        - 一連のビジネス処理全体を追跡
+                        - workflow type のインスタンス
+                        - システム進化により処理境界が変化。処理全体が一部になることもある
+                        - 複数のサービス、複数のメッセージにまたがって同じIDを使用
+                        - 例：１つの「注文処理」全体で同じ trace ID を使用
+                    correlation ID, コリレーションID, 相関 ID:
+                        - 1回の リクエスト と レスポンス の全体に対する ID
+                    メッセージ ID:
+                        - 個別のメッセージ
+                        - リクエストとレスポンスは別
+                    タイムスタンプ:
+                        - ログに記録された順番と、処理が行われた時間の順番が異なる可能性があります（通常、ソートされて異なることはあまりないです）
+                記録するタイミング:
+                    - 送信時
+                    - 受信時
+                有効無効:
+                    - ログ出力のコードは本番用コードに入れても大丈夫です。むしろ現代的なシステムでは必須です。
+                    - 重要なのは「出力するかどうかの制御」と「出力内容の適切性」です。
+                    - 本番環境では、時間制限付き、抜き打ち方式、切り替え ダイアグ API（要パスワード）
+                    - 静的、再起動時、動的（API、ファイル、Consul Key-Value、Redis Pub/Sub、Unix シグナル、RabbitMQ/SQS、データベース、CLI)
+            分散トレーシング: #keyword:
+                ログとの違い:
+                    ログ（フラットな点の時系列）: |  #keyword: 時系列 データ
+                        10:00:01 - Service-A: Order received
+                        10:00:02 - Service-B: Payment started  
+                        10:00:05 - Service-B: Payment completed
+                        10:00:06 - Service-C: Shipping started
+                        10:00:08 - Service-C: Shipping completed
+                    トレーシング（階層構造、スパン）: |
+                        Root Span: "Order Processing" (5秒)
+                        ├── Child Span: "Validate Order" (1秒)
+                        ├── Child Span: "Payment Processing" (2秒)
+                        │   ├── Grandchild: "Check Credit Card" (0.5秒)
+                        │   └── Grandchild: "Charge Payment" (1.5秒)
+                        └── Child Span: "Update Inventory" (1秒)
+                    syslog-ng などのログ転送システム:
+                        分散トレーシングではなく、ログの範疇に分類されます。
+            Append-only Log, Commit log (Kafka):  #// 追加だけ行うデータベースでも状態遷移はできる
+                State Sourcing vs Temporal State vs Event Sourcing: #keyword:
+                    #ref: https://zenn.dev/shmi593/articles/56c890962bb807
+                    #ref: https://learn.microsoft.com/ja-jp/azure/architecture/patterns/event-sourcing
+                    #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
+            リプレイ機能:
+                ログを元に再現（リプレイ）できる可能性があります
+            メトリクス監視:
+                ログや分散トレーシングでは見えない「システム全体の健全性」を継続的に把握できる
+    複数 OS サポート: #keyword: multi OS support  #// 複数の メジャー バージョン をサポートするときも同様
+        _:
+            - ファイル名にバージョン名を含める。シンボリック リンク を使う  #// 全比較しやすいように
+            - 内容にバージョン名を含め、無効にするほうをコメントアウトなどする  #// ファイル名が変えられないとき
+            - 環境変数や API などで自動的にバージョン判定を行う
+            - なるべくブランチを統合する。統合できなくても、見分けやすくすることで、同期がしやすくなる
+            - ブランチ間を同期するときは、双方向マージする  #search: git mutual merge
+            - 未テストのブランチは __OsName__-wip ブランチ（develop-wip 相当のブランチ）にする  #search: develop-wip branch
+        環境変数:
+            Ansible なら group_vars 変数
+        OS 判定 API:
+            WINDIR 環境変数:  #keyword:  #// Windows かそれ以外（Linux や mac など）の判定に使えます 
+            OS のバージョン表示:  #search: Linux OS version
+        双方向マージ:  #search: git mutual merge
+        ターゲット別ブランチ: #keyword: specific target branch  #// develop ブランチの メジャー バージョン アップ など
+    ビューとデータの区別がなかった場合: #keyword: new view layer,  newFieldView  #// 新しくビューを区別します
+        _: バック エンド のデータ構造が フロント エンド に出ているとき、バックエンドの実装変更があったときにフロントエンドのデータを恒久化する方法
+        #focus: newFieldView
+        データ構造:
+            フロント エンド:
+                意味: newFieldView   #// フロント エンド で定義されるものであることを明示するため、名前に View を付けます。 newFieldView はコメントにのみ現れます
+                コード: oldField     #// 実装（古い意味）  #// as "newFieldView"
+            バック エンド:
+                new_field
+                old_field
+        処理実装:
+            transferFromView(): |
+                new_field = oldField;  #// as "newFieldView"
+                old_field = oldField;
+            transferToView():
+                oldField = new_field;
+        （参考）>> 中間 DTO の禁止:  #search: middle DTO
+    OSPL 普及問題: #keyword:
+        目的は好感: 自分がいないときにされる作成物の評価を上げること。承認が義務なら普及まではしない
+        イノベーター理論: #keyword:
+            イノベーター: 面白さ
+            アーリーアダプター: 機能面。現状比較？。仲間意識が強い。インフルエンサーを使う
+            アーリーマジョリティ: 周りの評価。導入する合理性。安心感
+        拒否理由:
+            そもそもレビューしたくない: 勉強会？ そのメリット
+            難しいという言い訳: 待っていたらハリボテにすら負ける。
+                フォローアップと教育をしていく
+        レビュー前:
+            ライブラリ化:
+                知らなくていい実装部分は分ける
+            ドキュメント:
+                オープンソースへのリンク: URL。既存技術との比較
+                READMEへの記載:
+                市場、流行:
+        レビュー: #keyword:
+            インスペクション: 公式。第三者が指摘する。法務などが参加することもある。形式的な概要チェック。好感は関係ない
+            チームレビュー:
+            ウォークスルー: 作成者が主体的に開催する
+            ピアレビュー: OJTを兼ねる。ピア=同僚
+            パスアラウンド: 個々がオンラインでチェック。承認されても好感は持たれない可能性があるので注意
+            #ref: https://www.shukuzawa.com/diary/diary071001.html
+            #search: 指摘と承認の心理
+        カール・E・ウィーガーズによるレビュー:  #// Karl E.Wiegers「ピアレビュー 高品質ソフト開発のために」
+            教育レビュー:
+            マネジメントレビュー: プロジェクトの継続判断
+            ピアレビュー: 品質
+            終了後レビュー: 品質
+            ステータスレビュー: 進捗
+        #ref: https://qiita.com/mima_ita/items/c3490ad1ccc12ad853f1
+アルゴリズム: #keyword:  #// algorithm
+    排他制御: #keyword:
+        TOCTOU 競合: #keyword:
+            ロックファイルをチェックした後にロックファイルを作るとその隙に割り込まれること
+    バックトラック法: #keyword:
+        総当たり法ではなく、対象外となる条件を検査しないこと
+        #ref: https://e-words.jp/w/%E3%83%90%E3%83%83%E3%82%AF%E3%83%88%E3%83%A9%E3%83%83%E3%82%AF%E6%B3%95.html
+オブジェクト指向: #keyword:
+    メタモデル:  #// モデルを定義するためのモデル
+        メタ階層: #keyword: メタモデル 4階層
+            M3: MOF(Meta Object Facility)。UML の仕様書作成に使用できる要素や文法。メタメタモデル
+            M2: メタモデル。UML の仕様。M1 を定義するクラスとインスタンス
+            M1: モデル。UML で書いたもの。クラスとインスタンス
+            M0: 現実世界
+        #ref: https://www.ogis-ri.co.jp/otc/hiroba/technical/Jouhoushori-UML/UML7.html
+        #rer: https://www.itmedia.co.jp/im/articles/0802/19/news130.html
+    抽象クラス: #keyword: abstract class
+    具象クラス: #keyword: concrete class
+    派生属性: #keyword: derived attribute
+        JavaScript >> computed, 算出プロパティ:  #search: JavaScript computed property
+    委譲: #keyword: 委譲, delegate
+        delegate (method pointer): メソッドとオブジェクトをまとめたオブジェクト
+        delegate (Delegation pattern, forwarding): 所有子の同じ名前のメソッドを呼び出すこと
+    GUID, UUID: #keyword:
+        uuidgen:  #// Linux コマンド。UUID を生成します。Git bash では使えません
+        ReplaceUUID (bashlib):  #search: ReplaceUUID
+デザイン パターン:  #keyword: design pattern
+    GoF:  #ref: ${programming}/方法論/オブジェクト指向.svg#gof
+        Abstract Factory パターン: #keyword:
+            _: パラメーターによって異なるサブクラスのオブジェクトを生成する
+                create(name)
+                #ref: ${programming}/方法論/オブジェクト指向.svg#AbstractFactory
+                #ref: https://xtech.nikkei.com/it/article/COLUMN/20051202/225609/
+            Abstract Factory の続きの処理:  #keyword: Abstract Factory next operation,  event service privider DI
+                デメリット:
+                    返したオブジェクトがサービス一覧やイベント管理などの場合、
+                    Abstract Factory で行う（初期化）処理の後の処理が追えなくなる。
+                    なぜなら、サービス一覧はオブジェクトを渡すことしかしないため。
+                対処:
+                    - 返したオブジェクトのメソッドを追う
+                    - （初期化）処理中に書かれているコールバックされる無名関数などを追う
+            関連:
+                #search: DI
+                #search: Factory Method パターン
+        Adapter パターン: #keyword:
+            Target Interface - Adapter - Adaptee
+            #ref: https://qiita.com/shoheiyokoyama/items/bd1c692db480b640c976
+        Facade パターン: #keyword:  #// ファサード
+            概要: 大きなプログラムを使って処理を行う場合、 関係しあっているたくさんのクラスを適切に制御しなくてはいけません。
+                その処理を行うための「窓口」を用意しておくと、 個別にたくさんのクラスを制御しなくても、「窓口」に対して、要求するだけですみます。
+                サブシステムを１つのクラスとみなし、構成するクラスによる分類の否定に相当します。
+            注意: #search: 過剰設計
+                Facade は構造体ではなく、オリジナルの computed プロパティ（getter＋メモ化）にすること。そうしないとデータのソースがどこにあるのかかなり分かりにくくなります。
+                追加の情報が欲しいときに、Facade も変更しなければならなくなってしまいます。
+            Wikipadiaより:  #ref: https://ja.wikipedia.org/wiki/Facade_パターン
+                - Facadeクラスはあくまでサブシステム内部に仕事を投げるだけで複雑な実装は持たない。
+                - Facadeパターンはサブシステムの直接使用を妨げない。
+            サンプル:
+                コンパイラー = 字句解析器, 構文解析器, ... の Facade  #ref: https://ja.wikipedia.org/wiki/Facade_パターン
+        Factory Method パターン: #keyword:
+            _: 関連するオブジェクトを生成するメソッド
+                #ref: ${programming}/方法論/オブジェクト指向.svg#FactoryMethod
+                #ref: https://xtech.nikkei.com/it/article/COLUMN/20051202/225609/
+            メリット: 関連するクラスが一覧できる。関連を持ったオブジェクトを返せる
+            関連するオブジェクトを生成する:
+                ClassA.createB()
+            関連するオブジェクト一式を生成する:
+                ClassA.createObjects()
+            関連:
+                #search: Abstract Factory パターン
+                #search: JavaScript from
+        Mediator パターン: #keyword:
+            概要: 調停者。親に自分に関する状態を決めてもらう。n対n の関係を 1対n にする
+            概念図: #ref: ${my_images}/2021/mediator_pattern.png
+            Mediator インターフェース:  #// 調停者、親、相談を受けるオブジェクト。例：フォーム
+                consultation():
+            Collegue インターフェース:  #// 同僚、子、相談を依頼するオブジェクト。例：ボタン
+                mediator: Mediator
+            参考: https://www.techscore.com/tech/DesignPattern/Mediator.html/
+        Observer パターン: #keyword:  #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: observer pattern
+            - 図  #ref: ${my_images}/2025/observer_pattern.png
+            - サブジェクト --(通知)→ オブザーバー
+            - サブジェクトは１つまたは複数のオブザーバーを管理します
+                管理はスーパークラス「など」のライブラリにできますが、
+                管理相手を固定にするほうが簡単な実装になりそうです
+            - オブザーバーのスーパークラスは、サブジェクトの具象クラスから要求されたインターフェイスです
+            - オブザーバーは import 相互依存における親側です。子→親に通知を行うため、インターフェースが必要です
+    その他:
+        DI: #search:
+        DTO: #search:
+        Shim: #keyword:
+            古い環境で新しいAPIを使うためのライブラリ。Adapter パターン。
+            es5-shim npm パッケージは、ECMAScript 5 (ES5) をサポートしていないブラウザーで ES5 を動かせるようにする Shim です。
+            #ref: https://qiita.com/ybiquitous/items/3104beb84b78ca15f407
+            #ref: https://stackoverflow.com/questions/6599815/what-is-the-difference-between-a-shim-and-a-polyfill
+        Polyfill: #keyword:
+            Web (Browser) API の Shim
+            #ref: https://qiita.com/ybiquitous/items/3104beb84b78ca15f407
+抽象化, 概念化: #keyword:
+    プログラミングにおける概念化:
+        概要:
+            コマンドの実行と結果の確認、ネット検索
+            ==[抽象化]==> パラメーターとユースケースの理解
+            ==[概念化]=>> ユースケースの整理（CRUDなど）、暗記、基本的な操作の訓練、宣伝
+            ==[具体化]==> 業務における別のユースケースでの実施
+    一般的な概念化:
+        参考: #ref: https://studyhacker.net/conceptual-skill
+    クラスの依存関係: #keyword: クラスの依存関係,  include 親子関係 階層構造 オブジェクト指向
+        継承関係: #keyword:
+            スーパー クラス: #keyword:
+            サブ クラス: #keyword:
+            インターフェース: #keyword:
+            実装クラス: #keyword:
+            UML: super class △-- sub class または interface class ◯-- implement class
+        所有関係: #keyword: 所有関係,  while - part,  包含関係
+            コンテナー: #keyword:
+            コンポーネント: #keyword:
+            UML: container class ◇-- component class
+            #search: (ChatGPT-GPT4) Classes that have an inheritance relationship are called super class and sub class, but how do you say the ownership relationship?
+            #ref: https://www.google.com/search?q=container+class+component+class
+        方針: #keyword: import 循環参照,  import 相互参照
+            #// import 元 → import 先。import 元のファイルに import 文を書きます
+            - 所有親 → 所有子
+                画面 → サービス(Web API, サービスをロード) → ドメイン（データ） → 利用サービス
+                Facade → オリジナル データ  （Facade 自体は非推奨）
+            - 継承子→継承親
+                A←→B はできないので、A→「Bのインターフェース」と、B→「Aのインターフェース」にする
+                #search: Observer パターン
+        対処法: #keyword: import 相互依存,  circular import  #// 相互依存しなようにする方法。相互依存するとエラーになる場合。 mutual import ではない
+            一般:
+                相互依存する位置を特定します:
+                    A → A → B → B → B → A （A, B は画面、サービスなどの種類） の場合、
+                    A → B の import、または B → A の import のうち、最近変更したコードに注目します。
+                import 先を小さい共通部分として抽出する場合:
+                    抽出したファイルを import する。
+                    または、定義があるファイルだけ import する。（大きな import をしない）
+                上記の→に合うように定義位置を移動する場合:
+                    たとえば、親の兄弟を引数で取るオブジェクトの初期化コードは、親で子オブジェクトの初期化をするコードに変える。
+            コールバック関数:  #// 所有子にくるイベントを親で処理するために、親が定義する関数
+            グローバル変数:  #search: declare global dependency
+            弱参照:  #search: weak reference
+            Go: #ref: ${programming}/プログラミング言語、環境/go_language.svg#import_cycle_not_allowed
+            Python: #search: Python 相互 import
+            Swift:
+                弱参照: |  #keyword: weak reference
+                    weak var documentBrowserViewController: UIDocumentBrowserViewController?
+                    参照されているオブジェクトが解放された場合に自動的にnilになります。
+                    #ref: ${typrm_files}/ref/Swift-AI.yaml#label: weak reference
+            その他: プロジェクト名 + import で検索
+    過度な抽象化, 早すぎる抽象化: #keyword: Over-abstraction,  Premature Abstraction,  将来を見越して抽象的なモジュールを開発したけど、いざその時になったら使い物にならなかった
+        _: 実際に共通化ができるまでは、公式化しないでください。
+        #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: Over-abstraction
+        3回ルール: #keyword: rule of three,  3回ルール  #ref: https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)
+            _: 類似コードの2つのインスタンスはリファクタリングを必要としないが、類似したコードが3回使われた場合は新しい手続きに抽出すべき
+                DRY 原則 よりも YAGNI 原則（You Aren't Gonna Need It）を優先
+        YAGNI 原則: #keyword:  #ref: https://ja.wikipedia.org/wiki/YAGNI
+            実際に必要となるまで機能を追加しない方が良い
+図解:
+    UML: #keyword:  #glossary: UML  #ref: ${programming}/方法論/UML.svg
+        クラス図:
+        ユースケース図:
+        コラボレーション図:
+        シーケンス図:
+        ステートチャート図:
+        アクティビティ図:
+        コンポーネント図:  #// サーバー（仮想）と（コンポーネントやクラス）の対応関係と一覧
+            （構成）:  #focus: コンポーネント
+                システム:
+                    ノード:  #// サーバー
+                        ポート:
+                        コンポーネント:  #// e.g.) 検索, 装置（端末, ハード, ATM, カード リーダー）
+                            クラス:
+                            インターフェース:
+                    パッケージ:
+                    依存関係:
+        配置図:  #// 拠点と（ハードウェアやコンポーネント）の対応関係と一覧
+            （構成）: 
+                拠点:  #// e.g.) aws の AZ
+                    ハードウェア:  #// e.g.) サーバー（ノード）, ルーター, ファイアーウォール, ハブ, 拠点
+                    コンポーネント:  #// ソフトウェア
+        ロバストネス図:
+        フローチャート:
+開発プロセス:
+    _: PDCA, テーラリング, ポストモーテム
+    ウォーターフォール: #keyword:
+        手戻りを最小限にする  #ref: https://ja.wikipedia.org/wiki/ウォーターフォール・モデル#:~:text=手戻り
+    アジャイル: #keyword:
+        イテレーション: #keyword:  #// 設計→実装→テスト→改善（リリース後の振り返り）の1回のサイクル
+        スクラム:
+            _: スクラムはアジャイル開発の一手法で、フレキシブルで繰り返しの速い開発サイクルを提供します。ここではスクラムの基本的な手順とその効果について説明します。
+            手順:
+                スプリント計画会議:  #// Sprint Planning Meeting
+                    チームは製品のバックログからスプリント期間（通常1～4週間）で達成可能なタスクを選択し、スプリントバックログを作成します。
+                デイリースクラム:  #// Daily Scrum
+                    チームは毎日15分程度の短い会議を行い、進捗の共有、課題の特定、その日の作業計画を立てます。
+                スプリント実行:
+                    チームはスプリントバックログに基づいてタスクを実行し、製品のインクリメント（部分的な完成品）を開発します。
+                スプリントレビュー:
+                    スプリントの終わりに、チームはステークホルダーに対して成果物をデモンストレーションし、フィードバックを受け取ります。
+                スプリントレトロスペクティブ:  #// Sprint Retrospective
+                    スプリントの終了後、チームは何がうまくいったか、改善点は何かを議論し、次のスプリントに向けた改善策を特定します。
+            効果:
+                柔軟性と適応性ができる:
+                    常に変化する市場や顧客の要求に対応できるように、計画を柔軟に調整し、迅速に対応することができます。
+                透明性がある:
+                    デイリースクラムやスプリントレビューを通じて、プロジェクトの進捗状況がチーム内外に明確に共有されます。
+                生産性の向上:
+                    短いサイクルでの具体的な成果物の提供が、モチベーションを高め、効率的な作業を促進します。
+                品質の向上:
+                    定期的なレビューとフィードバックを通じて、製品の品質を段階的に向上させることができます。
+                チームワークと自己組織化:
+                    チームメンバーが自らの役割を理解し、互いに協力して問題を解決する環境が育まれます。
+要件定義: #keyword: 要件定義, 仕様 分析 依頼 要求 対応
+    IPA 超上流から攻める IT 化の原理原則 17ヶ条:
+        要件定義は発注者の責任である:  #ref: https://www.ipa.go.jp/files/000005109.pdf#page=11
+            理由: コスト増、納期遅れ、品質低下 の原因になるため
+            補足:
+                業務要件（発注者の願い）と製品仕様（プロが責任持つところ）が重なったところが「プロジェクト要件」になる
+                #ref: https://twitter.com/00oichan/status/1599150720317784065
+    形式的手法: #keyword:  #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: Formal methods
+        特徴:
+            - プログラミング言語とは異なる特殊な「形式言語」を使用します
+            - 文章よりは厳密になります。これはプログラミング言語でも同様ですが、形式的手法は仕様を記述するためのものです
+            - Z言語で書かれた仕様においても、誤った記述（typo）が発生する可能性はプログラミング言語でのコードと同様です。
+            - Z言語やVDM（Vienna Development Method）、Alloy、TLA+（Temporal Logic of Actions）など
+        サンプル: |  #// Z言語
+            [ACCOUNT]  ／／口座の識別子の型
+
+            Balance == {balance: ACCOUNT ↦ ℕ} ／／各口座に対する残高のマップ。自然数(ℕ)で表現される。
+
+            InitBalance: Balance
+            InitBalance = {∅} ／／初期状態では、どの口座にも残高はない。
+
+            Deposit: ACCOUNT × ℕ × Balance × Balance
+            ΔDeposit(a: ACCOUNT, amount: ℕ, before: Balance, after: Balance)
+            after = before ∪ {a ↦ (before(a) + amount)} ／／預金操作。指定された金額を口座残高に追加する。
+
+            Withdraw: ACCOUNT × ℕ × Balance × Balance
+            ΔWithdraw(a: ACCOUNT, amount: ℕ, before: Balance, after: Balance)
+            before(a) ≥ amount ∧ after = before ∪ {a ↦ (before(a) − amount)} ／／引き出し操作。口座から指定された金額を引き出す。残高が足りない場合は操作不可。
+    非機能要件: #keyword:
+        #search: 非機能要件の観点
+        #search: 非機能要件の合意
+        #search: 高可用性
+        #search: 高速化
+技術選定, 採用理由:  #keyword:
+    #ref: https://zenn.dev/ubie_dev/articles/4437cde02a672b
+    視点: 指定の理由、普及度、コミュニティの関心、（継続度）
+    採用理由の例:
+        スターの数が多いから
+        コミュニティができているから
+        商用サポートが付いたEnterprise版もあるから
+        API で自動化できるから
+        WebUI があるから
+    安全なソフトウェアの利用:
+        #search: use safe software
+    比較: #keyword: 技術選定 比較
+        オッズ化: #keyword:  #// 調べたい事以外の条件を揃えて数値を比較すること
+            #ref: https://x.com/takua_scientist/status/1714781937221697897
+コード: #keyword: coding
+    コメントの位置: #keyword: コード コメント 位置,  コメント 上下 位置
+        上に書く場合:
+            サンプル:
+                // Comment
+                __Code__
+            欠点:
+                コード } else { の上のブロックを折りたたむとコメントが見えなくなる  #// コメントの下のブロックではありません
+                    #ref: tree-breadcrumb.ts  >>  else if (breadcrumbs.length < CurrentBreadcrumbs.length) {
+        右に書く場合:
+            __Code__  // Comment
+    型:
+        型を導入することのメリット: #keyword: type merit
+            静的解析ツールが使えるようになります
+            #ref: https://jp.quora.com/TypeScriptで徹底的に型管理をするエンジニアが周りに多い/answers/1477743628329183?ch=17&oid=1477743628329183
+        型を導入することのデメリット: #keyword: type demerit
+            _: オブジェクトのプロパティの型を import する必要があります。
+            サンプル: |  #focus: PropType
+                import ObjectType, PropType
+
+                object = new ObjectType()
+                func(object.prop1)
+                def fund(prop1: PropType)
+                    ...
+        クラスの配列か要素の配列か: #keyword: object array or array object
+            設計的には、まずNodeクラスを検討し、変数が全体的なセマンティクスで最も意味をなすように設計します。
+            次に、効率を心配します。私たちは小さな効率を忘れるべきです、例えば約97%の時間:時期尚早の最適化はすべての悪の根源です
+            #ref: https://stackoverflow.com/questions/7031652/array-of-objects-or-object-with-arrays
+        Optional 型:  #keyword: Optional,  null/undefined 許容型,  Null less programming
+            #// Python や Swift などでは Optional 型、TypeScript では null/undefined 許容型です
+            問題点:
+                Optional 型は、毎回 null チェックを行う必要が出てきます。
+            Optional でない型:  #// 推奨
+                Optional でない型 なら null チェックをしなくても安全に動作します。
+                ただし、0 や空文字列が無効な値として適さない場合は、Optional 型が必要になります。
+                配列番号が大きすぎる場合も無効な値であるため、
+                null が扱えることが Optional でない型より優れているわけではありません。
+            言語別:
+                #search: TypeScript null
+                #search: Python Optional
+                #search: Swift Optional
+    変数:
+        環境変数: #keyword:
+            Linux, bash:  #search: Linux 環境変数
+            Windows:  #search: Windows 環境変数
+            mac:  #search: mac PATH 環境変数
+            PowerShell:  #search: PowerShell 環境変数
+            VSCode:  #search: VSCode .env
+            Python:  #search: Python environment variable
+            GoCD:  #search: GoCD environment variable
+        リンク元・引用元・参照元の違い: #keyword: source and destination
+            文書中の引用や参考文献に書かれたリンクについて:
+                - リンク元 → リンク先
+                - 引用先 ← 引用元
+                - 参照先 ← 参照元  #// コードと逆
+            コードの中の変数などについて:
+                - リンク元 → リンク先
+                - 参照先 → 参照元  #// 文書と逆
+            補足:  #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: source and destination
+        グローバル変数:
+            アンチ パターン: #keyword: global variable anti pattern
+                カレント, アクティブ: #keyword: current object anti pattern,  active object anti pattern
+                    - カレントはグローバル変数直接ではなく、コンテキスト オブジェクト に所属させます。
+                        そうしないと処理ごとにそれぞれのカレントを戻さなければならなくなります。
+                    - コンテキストの中に代入するオブジェクト（または、そのインデックス）は、グローバル スコープ から取得できますが、
+                        グローバル スコープ のデータ構造は、リードオンリーになるようにします。
+                    - コンテキストは Thread Local にある場合もありますが、暗黙的なため、非推奨です
+            ベスト プラクティス:
+                コンテキスト オブジェクト:
+                    ID やインデックスやオブジェクトの参照をコンテキストに持ちます。
+                    グローバル変数に持つものは、環境変数などプロセス全体でシングルトンなものだけにします。
+                イミュータブル データ モデリング: #keyword:  #// 不変データの設計。リード オンリー データ構造
+                    たとえば、同じインデックスに対して異なるオブジェクトに置き換えないようにします。
+                    どこからでも（グローバルに）参照できるようにします。
+                    #ref: ${typrm_files}/Qiita下書き/29_GlobalThisJS/29_GlobalThisJS.md#イミュータブル データ モデリング
+    関数: #keyword:
+        式渡し: |  #ref: https://x.com/Ts_Neko/status/1705382952455258286
+            関数の引数に式を書かないのは和訳コメントぐらい余計だよな。
+            関数定義（ヘルプ）を見ればわかるのに、どんな値を渡しているのか分からなくなる問題がある。
+            プログラミングの超初心者だけにして。
+            変数を指定:
+                const  rev = matches.reverse();
+                show(rev);
+            式を指定:
+                show(matches.reverse());
+            ただし、条件によっては使われない計算も行われる可能性がある
+        説明変数渡し: #keyword:
+            関数名から引数が想像できない場合は、説明変数を渡す。 なお、「説明変数」は統計学の用語もあるので「リーダブルコードの」を書くこと
+            const  expire = config.policy.BackupShortExpire
+            rotate(expire)
+        再帰関数:  #keyword: recursive function
+            利点:
+                コードが簡潔になることがある
+                自然に問題を分割できる場合がある（例：ツリー構造の探索）
+            注意点:
+                スタックオーバーフローの可能性（深い再帰呼び出し）
+                パフォーマンスの問題（同じ計算を何度も行う可能性）
+                再帰の代わりに反復（ループ）を使うこともできますが、問題によっては再帰の方が直感的で理解しやすい場合があります
+            高速化:  #search: 竹内関数
+    ガード節:
+    早期リターン: #keyword:
+        ガード節を早期リターンしないと、「侵害コンテンツDL違法化の範囲」の図のようにネストが深くなる。
+        #search: 侵害コンテンツDL違法化の範囲
+        #ref: https://twitter.com/Ts_Neko/status/1562963538276073473
+    三項演算子: #keyword:
+        三項演算子は本当に読みにくいのか:  #ref: https://qiita.com/Takakiri/items/be93a6fb84bd78846749
+        連続した三項演算子: |
+            false ? 1 :
+            true ? 2 :
+            3
+        PHP 8.0 での仕様変更:
+            サンプル: |
+                true ? 'true' : false ? 't' : 'f'
+            PHP 8.0以降: |  #// 1つ目の : より 2つ目の ? のほうが結合が強いです。 2つ目の ? : は、1つ目が真なら評価されず、偽なら後で結合した式が評価されます
+                true ? 'true' : false ? 't' : 'f'
+                    ↓
+                true ? 'true' : ( false ? 't' : 'f' )
+                    ↓
+                'true'
+            PHP 7.x以前: |  #// 2つ目の ? は結合が弱いですが、後で評価されます
+                true ? 'true' : false ? 't' : 'f'
+                    ↓
+                ( true ? 'true' : false ) ? 't' : 'f'
+                    ↓
+                ( 'true' ) ? 't' : 'f'
+                    ↓
+                't'
+    メソッド チェーン: #keyword: method chain
+        概要: あるオブジェクトに対してメソッドを.（ドット）で連結して繋げていくこと
+        サンプル: object.methodA().methodB()
+    カリー化: #keyword: currying  #ref: ${programming}/方法論/コーディング.svg#currying
+        概要:
+            関数の複数の引数を、1つずつ順に、バラバラにすること。
+            1つのパラメーターだけ持つのがいいらしい。
+
+            f( a, b ) = c という関数 f があるときに、F( a ) = g ただし、g( b ) = c という関数 g が得られる関数 F 
+            を定義した場合、F は、f をカリー化したものである。 F は b を受け取る関数 g を返す。
+
+            おそらく、class::method( a, b ) を class::property a と class::property b に分けることも、
+            カリー化だろう。
+        意見:
+            カリー化という概念を理解する必要は無い。
+            g は、a の要素を含んでいるものであるので、多くの変数から適切にクラスを抽出できれば、
+            必要な単位でオブジェクトを返すことになり、カリー化ができていることになる。
+            引数をバラバラに分ければ、指定した引数以外のコンテキストを省略（デフォルトの使用）が
+            できるというメリットだけであれば、デフォルト引数や名前付き引数でもよいはず。
+    クロージャー: #keyword: closure  #ref: ${programming}/方法論/コーディング.svg#closure
+        概要:
+            new_ClassA 関数の中で関数（下記 insider 無名関数）が定義されていて、insider 関数の内部から、new_ClassA 
+            関数のローカル変数を参照している場合、参照カウンターによって、insider 関数が無くなるまで、ローカル変数は
+            無くならない。 このような構成をクロージャと呼ぶ。 ローカル変数は、関数の形をしたオブジェクトのメンバー
+            変数のようになる。
+        サンプル: |
+            // JavaScript
+            function  new_ClassA() {
+                var  i = 0;  // オブジェクトの初期化関数に相当
+                return  function() { // 関数呼び出しで呼び出されるメソッド
+                    i = i + 1;       // 無名関数だが、説明のため insider と呼ぶことにする
+                    return i;
+                }
+            }
+
+            function_object = new_ClassA();  // i = 0
+            alert( function_object() );  // i = 1
+            alert( function_object() );  // i = 2
+            alert( function_object() );  // i = 3
+        意見:
+            クロージャは、オブジェクトの生成によって代用が可能であるので、新しい概念として理解する必要は無い。
+            i は new を使って生成し、それを参照しているオブジェクトを返せばよく、その方がオブジェクトのライフ
+            サイクルを理解しやすい。
+        参考:
+            #ref: https://jp.quora.com/kansuu-no-kari-ka-ha-jitsuyou-teki-ni-ha-donna-tokini-yaku-tachi-masu-ka
+        関連:
+            #search: Python generator,  @contextlib.contextmanager
+    コードを探す:
+        画面からコードを探す:  #keyword:
+            画面に表示される文字列を全文検索する
+        URLからコードを探す:  #keyword:
+            React Router などから探す
+            React コンポーネントの定義先をブラウズする
+    ヨーダ記法: #keyword:
+        Quora: |  #ref: https://jp.quora.com/プログラミングに関して-ヨーダ記法は好きですか/answers/1477743736228519
+            読みにくいので大嫌いです。と書くと好みの問題と言われてしまうのですが、万人に該当するものは好みではないですし、そもそも対策方法としてのレベルも低いです。
+            定数を左に書くとエラーになるので確実に見つけられると言われますが、逆にいえば定数を左に書かなければ見つけられません。定数はリテラル（数字）だけではありません。なので、確実にするのは難しいのです。条件付きの対策に対して確実であるというのはおかしいですよね。条件なしにすることが良い対処です。確実であることと確実にすることは大きく違います。
+            実質ヨーダ記法は、定数ではなくリテラルが左にあることを見つけてドヤるぐらいの効果しかありません。トリッキーだからこそギークな中級エンジニアは好んでしまうのです。
+            ヨーダ記法の議論をまとめると、==と書くべきところを=と書いてしまったという問題の対策は、リテラルに注意するか、=に注意するかのどちらかです。
+            =を見つけるほうが簡単かつレビューも早いのですが、ヨーダ記法支持者は今までと変わらないので改善したアピールにならないと考えるのでしょう。そして、難しいからミスしても仕方ないと見逃してくれるという考えもあるでしょう。しかし、読みにくいという犠牲を払っても責任回避にしかならず、発生確率はほとんど下がりません。上級者はこの問題を発生させませんが（警告すら見たことありませんが）、ヨーダ記法のおかげではなく==を書く癖が付いているからです。（あとテストをする癖でも防がれます）
+            もし、C言語に戻ってヨーダ記法を求められたときは、確認済みというコメントを付けようと思っています。チェック後に変化があったらgitでコミット時に自動的にチェックもできます。誰かは警告されない環境かもしれない、という理由は、チップの性能的にC言語しか使えないと考える一種のカルトですね。
+            一般的には、警告されるコンパイラーやツール（IDE）を使えばいいです。
+        他の人のツイート:
+            #ref: https://x.com/choosecrowx/status/1893148035166708171
+                - if (Apple >= 100)
+            #ref: https://x.com/mattn_jp/status/1893189758375059673
+                - Java で s.equals("x") の s が null でもいいように "x".equals(s)
+        IT ニュース＆コラム 697:  #ref: http://www.sage-p.com/news/697.txt
+        IT ニュース＆コラム 695:  #ref: http://www.sage-p.com/news/695.txt
+    コーディング レビュー: #keyword:
+        Lint: 最低限の コーディング スタイル のチェック。不要な関数や変数などの削除
+            #search: コーディング スタイル
+        getter の一元化: | #keyword:
+            - 算出プロパティを積極的に使うことで、プロパティの値の決定方法を 1箇所に集める
+            - 入力データツリーが大きい場合は、入力する可能性があるデータの構造体ツリーを含む引数に、
+                出力の値や構造体を取得する関数内関数を作るかメソッドに分ける。
+
+                関数内関数は外の関数の引数を参照できる。 #focus: __GetSubStructure__
+                サンプル: |
+                    function  __GetStructureFunction__(arg: __InputStructure__) {
+                        __OutputStructure__.sub = __GetSubStructure__(__Index__);
+                        return  __OutputStructure__;
+
+                        function  __GetSubStructure__(__Index__) {
+                            return  arg.__Property__[__Index__];
+                        }
+                    }
+            #search: JavaScript メソッド サブルーチン
+            #search: middle DTO
+            #search: メモ化
+            #search: JavaScript computed property
+        #search: 指摘と承認の心理
+    コーディング スタイル:  #keyword: coding style,  コーディング スタイル,  ルール 大文字 小文字 命名規則 規約 camel case snake kebab
+        #ref: ${programming}/プログラミング言語、環境/C／C++/C言語.svg#camel_snake_case
+        歴史:  #ref: https://neos21.net/blog/2022/09/04-01.html
+        独自:
+            シンプルコメント:
+            目立たせる部分の前の行を空行にする:
+            値の設定は 1箇所にして、上書きしないこと:
+                const,  computed get
+            大量の引数を呼び出し先の自作関数に渡すとき:
+                - 呼び出し先には構造体（オブジェクト）を渡す。インターフェースでプロパティを必須にする
+                - API の構造体から内部プロパティを追加するように継承する
+                #search: 引数オブジェクト
+            Null チェック:
+                type-A: |  #focus: value
+                        var  value = 1; // default
+                        #// 離す
+                        if ( /* null check */ __NullCheck__) {
+                            if (__MainCondition__) {
+                                value = y * z;
+                            }
+                        }
+                    #// Null チェックは行を分ける
+                type-B:
+                    if (((__NullCheck__))  &&  __MainCondition__) { ____ }
+                    #// && の前後に空白 2つ
+                    #// Null チェックは 2重括弧で囲む
+        onTime: #keyword:  #// 時間になったときに呼ばれる関数の適切な名前
+            runAtScheduledTime  #keyword: runAtScheduledTime
+            #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: runAtScheduledTime
+        Go 言語: #search: Go coding style
+        Pyhon PEP8:  #ref: https://pep8-ja.readthedocs.io/ja/latest/
+            一貫性を崩すべき場合がある:
+            一貫性の無さのサンプル: |
+                def complex(real, imag=0.0):
+                しかし、デフォルト値をもった引数アノテーションと組み合わせる場合、 = の前後にはスペースを入れるようにしてください
+                    def munge(sep: AnyStr = None):
+            linter:
+                flake8:
+                    VSCode 拡張機能:
+                        Python 3.7: version 2023.6.0  #// 2023.8.0 以降と、2023.4.0 は使えません
+                pylint:
+                pycodestyle:
+                autopep8:
+        変数名の大文字小文字:
+            大文字小文字を区別する名前空間:
+                大文字小文字の宗教論争に巻き込まれる。http_proxy と HTTP_PROXY など
+        ハイフンとアンダースコア:
+            Docker: コンテナー名のイメージ名と数字の間を _ から - に変更
+            Ansible: ホスト名の - を警告。_ を推奨
+        インデント: #keyword: coding style indent
+            Go には行の長さ制限がありません。 パンチカードが溢れる心配はありません。 行が長すぎると感じる場合は、行を折り返して追加のタブでインデントします。
+            #ref: https://go.dev/doc/effective_go#formatting
+        縦をそろえる:
+            不合理に禁止しているルール:
+                Don’t use spaces to vertically align tokens on consecutive lines, since it becomes a maintenance burden
+                #ref: https://google.github.io/styleguide/pyguide.html#36-whitespace
+        空白 2つ: #keyword: double space
+            合理的理由:
+                サンプル: |
+                    if a == 1  and  not b:
+            類似サンプル:
+                ls コマンド:
+                    ファイル名同士は2つのスペースで区切られ、これが「別々の項目」であることを示しています。
+                コメントの前:
+                    2つの空白  #ref: https://google.github.io/styleguide/pyguide.html
+                タイポグラフィ:
+                    伝統的な手法です
+                    文章でも、単語間は1スペース、文と文の間は2スペース（またはピリオド後の大きめのスペース）を使う慣習があります
+                    数学の記述でも、優先順位の低い演算子の周りにスペースを多く取ることがあります
+                    つまり、異なる意味レベルの要素を、スペース量で区別するという考え方は合理的です。
+            不合理に禁止しているルール:
+                #ref: https://www.flake8rules.com/rules/E272.html
+        略語や頭字語の禁止: #keyword:
+            #ref: ${GitHub}/MyPrivateCode/PDF/toImage/toImage.js#readable
+    マスター、スレーブといったプログラミング用語の置き換え: #keyword: master term
+        #ref: https://japan.zdnet.com/article/35155289/
+        概要: ブラック・ライブズ・マター Black Lives Matter への配慮
+        考慮した名前の例: メイン、デフォルト、プライマリー、ルート、オリジナル
+プログラミング言語: #keyword: プログラミング言語, programming language
+    三項演算子: #search:
+    PHP:
+        関連:
+            WordPress: #search:
+            Laravel:
+                インストール: #ref: ${GitHub}/Trials/PHP_Laravel-Trial-Scripts/steps.yaml
+プログラミング学習:
+    Scratch: #ref: https://scratch.mit.edu
+        試す: #ref: https://scratch.mit.edu >> 作ってみよう
+        参考: #ref: https://ja.wikipedia.org/wiki/Scratch_(プログラミング言語)
+    プログラミン: #ref: https://ja.wikipedia.org/wiki/プログラミン
+        2020-12-31終了 代わりは Scratch か Viscuit
+シンプル イズ ベスト: #keyword:
+    過剰設計, オーバー エンジニアリング: #keyword:
+        メルマガ 836 2021-12-13
+リファクタリング: #keyword: refactoring  #// refactering ではない
+    リファクタリング自爆奥義集: #ref: https://qiita.com/MinoDriven/items/dac5505cf8442e1721d1
+リアクティブプログラミング, Reactive Programming: #keyword:
+    サンプル:
+        int a = 3;
+        int b = 5;
+        def c = a + b; // c ===> 8
+        int a = 5; // c ===> 10
+    #ref: https://developer.mamezou-tech.com/blogs/2022/07/19/reactive-programming/
+高速化, 負荷軽減: #keyword: 高速化,  最適化 ベンチマーク 性能 性能計測
+    性能の指標: #glossary:
+        スループット:
+        レイテンシ:
+        フレーム グラフ:
+            コールスタックの時間の経過をグラフで表示します
+            #ref: ${my_images}/2024/frame_graph.png
+    計測の手法:
+        Linux:  #search: Linux benchmark
+        Python:
+            #search: timeit
+            #search: pytest-profiling
+        Go:  #search: Go testing.B
+    高速化の手法:
+        バルク化: #keyword: バルク化, バルク処理, バッチ処理
+            _: 複数のデータベース操作を一度に実行することで、個別に各クエリを実行するよりも効率的に処理を行う方法。
+            有効なケース:
+                - サーバーが遠いとき（レイテンシが長いとき）
+                - API 呼び出しが完了したら消えるキャッシュがあるとき
+            一般的な意味: 大量生産, 大量購入  #// コスト削減のために行われる
+        メモ化: #keyword:
+            関数の結果をキャッシュすること
+            #ref: https://ja.wikipedia.org/wiki/メモ化
+            #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: memoization
+        キャッシング:  #keyword: キャッシュ,  キャッシング cache
+            基本:
+                - 頻繁にアクセスされるデータをメモリに保存
+                - データベースへの負荷を軽減し、応答速度を向上
+            キャッシュを更新する方法: #keyword: cache invalidate architecture
+                図:  #ref: ${my_images}/2025/invalidate_architecture.png
+                開発手順:
+                    まずはキャッシュを気にせずに更新し、
+                    キャッシュやファサードが見つかったら、通知して無効化します。
+                構成:
+                    プロキシ:  #// 「キャッシュやファサード」の手前（または同じ位置）にプロキシを置いて、プロキシがキャッシュの有効性を管理します
+                        場所: マスター データ（または、そのクライアント）にプロキシを実装します
+                        プロキシの外:
+                            プロキシがキャッシュを持ち、データの変更をしたときにキャッシュを無効化したとしても、
+                            プロキシが管理しない別のキャッシュやファサードなどを無効にできない可能性があります。
+                            その場合、オブザーバーで対応します。
+                    オブザーバー、通知:  #// マスターを持つものから、キャッシュやファサードに通知する。即時に無効化  #search: Observer パターン
+                        #ref: ${my_images}/2025/observer_pattern.png
+                        通知先: キャッシュやファサードなどは、
+                            更新の通知を受信して、キャッシュの無効化やファサードの更新を行います
+                    TTL:  #// キャッシュやファサードに有効期限（Time-To-Live）を設定する
+                        #// キャッシュやファサードに実装します
+                更新判定:
+                    #// オブザーバーを使って即時に無効化するのであれば、更新判定は不要
+                    キャッシュ キー:  #// マスターにバージョン番号を持たせ、プロキシーがキーの更新を検出したらキャッシュやファサードを無効化する
+                    更新フラグ:  #// マスターの隣に更新フラグを持つ。クライアントごと（キャッシュやファサードごと）のフラグを分ける必要がある。
+                #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: cache invalidate architecture
+            uncached: #keyword:  #// キャッシュをバイパスします
+                uncached data - キャッシュに保存されていないデータ
+                uncached request - キャッシュを経由せずにサーバーに直接送られるリクエスト
+                uncached operation - キャッシュを使用しない操作
+        データベースの最適化:
+            - インデックスの適切な使用、クエリの最適化など
+        コンテンツデリバリーネットワーク（CDN）の利用:
+            - 静的コンテンツの配信を高速化・分散化
+        竹内関数: #keyword:
+            再帰呼び出しの性能を計測するのに適した関数
+            #ref: https://ja.wikipedia.org/wiki/%E7%AB%B9%E5%86%85%E9%96%A2%E6%95%B0
+        Next.js:  #search: Next.js 高速化
+    負荷軽減の手法:
+        負荷分散, スケール アウト: #keyword: 負荷分散, scale out
+        性能アップ, スケール アップ: #keyword: 性能アップ, scale up
+        レート制限: #keyword:
+            基礎知識:  #ref: https://blastengine.jp/blog_content/rate-limit/
+                目的:
+                    セキュリティ対策: 悪意のある利用者のアクセスを制限し、DDoS（分散型サービス拒否）攻撃やブルートフォース攻撃を防ぎます。
+                    公平性の確保: 特定のユーザーがAPIリソースを独占することを防ぎ、すべてのユーザーが公平にアクセスできる環境を維持します。
+                    サービス品質の維持: トラフィックの急増によるサーバーダウンや速度低下を防ぎ、安定したサービスを提供します。
+                    コスト管理: 想定外のリソース使用を抑え、無駄な運用コストを削減します。
+                対象:
+                    サーバー: 負荷の分散
+                    ユーザー: 特定のユーザーが一定時間内に実行できるリクエスト数を制限します
+                    ロケーション:
+                    操作: 特定の操作に対してリクエストの頻度を制限します
+                    時間帯:
+            アルゴリズム:
+                #↓ パケット
+                トークン バケット: #keyword:  #// トークンバケットは一定間隔でトークンを補充し、それを消費することでリクエストの処理を制御します
+                リーキー バケット: #keyword:  #// 
+                #↓ ウィンドウ
+                固定ウィンドウ:
+                スライディングウィンドウ:
+                #↓ 場所
+                クライアント側:  #// サーバーに送るリクエスト数を制御します
+                サーバー側:  #// API のリクエストを受け付ける数を制御します
+                ハイブリッド:
+                #↓ その他
+                タイムアウト:  #// タイムアウトの長さを調整します
+                    エラーハンドリングが必要
+                リトライ:
+                    一定時間待った後に再リクエストします
+                設定値の変えやすさ:
+            言語別, クラウド別:
+                Python:  #search: Python レート制限
+                    flask-limiter, fastapi-limiter, limits:
+                Node.js:
+                    express-rate-limit:
+                AWS:
+                    AWS API Gateway:
+                Cloudflare:
+                    Web Application Firewall:
+        高速化: #search:
+デプロイメント環境: #keyword: DEV STG PRD (PROD) 環境, デプロイメント環境
+    概要: 開発環境（変更が最初に行われる場所）と本番環境（エンドユーザーが使用する環境）は分離される。
+        DEV ⇒ STG ⇒ PRD に分離することが一般的。
+    大文字か小文字か:
+        大文字（DEV 環境など）で書くことは英語の文書で多い。
+        小文字（dev 環境など）で書くことは開発者および日本で多い。
+    パッケージの管理:
+        インターネットから自動的にダウンロードされるパッケージ（Python なら Wheel など）は、
+        社内リポジトリから本番などの環境へインストールするようにします。
+    ローカル環境: #keyword: ローカル環境, 非ローカル環境, リモート環境
+        サーバーを使わずローカルでサーバー環境を構築したものをローカル環境といいます。
+        それに対し、サーバーを使う環境を総称して「非ローカル環境」「リモート環境」といいます。
+    参考:
+        #ref: https://ja.wikipedia.org/wiki/展開環境
+構成のバージョンアップ:  #keyword: version upgrade debug,  バージョン管理
+    基本方針:
+        方針: バージョンは最新にするのをデフォルトとするが、テストに失敗したときは戻せるようにするのがベストプラクティス。
+        手順:  #focus: 最新をインストール,  バージョンを記録,  バージョン指定したときの動作確認
+            実験環境で:
+                最新をインストールします:
+                    バージョンを指定しません
+                バージョンを調べてメモします:  #keyword: version
+                    --version オプション:  __CommandName__ --version
+                    ファイル名:  find / | grep __CommandName__
+                    Docker:  #search: Docker image version
+                    version-manifest.txt:  #keyword:
+                        GitLab:  https://docs.gitlab.com/omnibus/package-information/
+                        Chef: /opt/chef/version-manifest.txt
+                        サンプル: |
+                            Component               Installed Version                          Version GUID                                                                                                              Overridden From   
+                            ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                            appbundler              master                                     git:027987582f6d2e3f556b0b57a9139f7aa61baea1                                                                              
+                            bundler                 14.1.1                                     
+                                :
+                    Linux の更新:  #keyword: Linux update
+                        Ubuntu:
+                            パッケージの一覧の更新: sudo apt-get update
+                            パッケージの更新インストール: sudo apt-get upgrade  #// 現在の一覧を使います。通常 sudo apt-get update を実行した後で upgrade します
+                        CentOS7:  sudo yum -y update  #keyword: sudo yum -y update
+                    lock ファイルがある場合: ファイル名をメモします（以下で使います）
+                バージョンを記録します:
+                    基本: 手順書またはインストーラーにバージョンを書きます（リポジトリに含めます）
+                    lock ファイルがある場合: リポジトリに含めます
+                （必要なら）:
+                    一度、少し古いバージョンをインストールします:  #// バージョン指定したときの動作確認
+                        バージョンを指定します
+                    最新に戻します:
+                テストします:
+            対象環境で:
+                最新をインストールします:
+                    （必要なら）バージョンを指定します
+                結合テストをします:
+    １つだけ更新:
+        構成するモジュールをすべて最新に更新するのではなく、１つだけ最新に更新すると、
+        バージョンの依存関係が複雑になるため非推奨です。
+    １つだけ追加:
+        当時のバージョンを追加します。当時から少し新しめがよい。
+        そうしないと、バージョンの依存関係が複雑になるため、それ以外の操作は非推奨です。
+    deprecated したとき:  #search: deprecated
+    設定ファイルの監視: #keyword:
+        #↓通知タイミングによる
+        Ansible を実行するタイミングの場合:  #// theirs 差分（サーバー直接編集）を受け入れて Ansible でデプロイする場合
+            デプロイ前:
+                タイミングの詳細:
+                    STG 環境の場合:
+                        -   STG 環境へデプロイする前も、theirs 差分のチェックを行います
+                    PRD 環境の場合:
+                        -   メンテナンス中しか触れない PRD 環境の場合は、メンテナンス中のデプロイ直前に theirs 差分のチェックを行います
+                        -   それでデプロイするプロジェクトに変更があった場合、メンテナンス後にリポジトリにフィードバックします
+                theirs 差分のチェック: #keyword: Ansible theirs 差分
+                    -   古い release ブランチで ansible-playbook ____ --check を実行し、監視対象のファイルに差分が無いこと
+                    -   --check を付けて実行する playbook は、新しいリリースで実行するすべての playbook です
+                    #// 以下に続きます
+                theirs 差分があった場合:
+                    新しい release ブランチで ansible-playbook ____ --check を実行し、監視対象のファイルに theirs 差分をリバートするような差分が無いこと
+            メモ:
+                -   ansible-playbook --check コマンドで出力する差分を、重要なファイルだけに限定して表示する必要はありません。
+        その他:
+            cron ジョブ で定期実行はできるが、どうやって通知するのかが問題
+    設定ファイル オブジェクト: #keyword: setting object,  設定オブジェクト,  設定ファイル オブジェクト const singleton setting file object
+        AI への質問:
+            プログラムを起動したりリロードしたときしか値を変えない設定ファイルの値をグローバルなスコープにあるオブジェクトの変数に入れることに何か問題がありますか
+        回答された問題:
+            変更の難しさ, テスト性, 並行処理の問題, カプセル化の欠如
+        解答の評価:
+            いずれも的外れ
+                変更しない, テスト時の DB 設定と同じ, 変更しないので平行処理の問題は発生しない, カプセル化できている
+        書き方:
+            Swift: #search: Swift setting object
+    マイグレーション: #keyword: library migration  #// ライブラリのバージョンアップに伴って必要となるコードの変更や修正のこと
+    SBOM: #keyword:  #// Software Bill Of Materials．ソフトウェア部品表
+        概要: ソフトウェアコンポーネント、ライセンス、依存関係の一覧の書式の１つ。
+            到達経路や範囲もあるとよい（SBOM ではないと思うが）
+        応用:
+            - 脆弱性を「迅速に」修正
+            - ライセンス要件の遵守（GPL対応）
+            - バージョン管理
+            #// コンテナー イメージ を自動解析する精度は、現状あまり高くない。実験レベルの品質
+        米国連邦政府の要求:  #// SBOMにおける最低限必要な要素を 2021年7月12日に発表しました
+            #ref: https://www.ntia.gov/files/ntia/publications/sbom_minimum_elements_report.pdf
+            #ref: https://www.hitachi-solutions.co.jp/oms/sp/blog/2021120105/
+            Data Fields:
+                - Supplier Name（サプライヤー名）
+                - Component Name（コンポーネント名）
+                - Version of the Component（バージョン）
+                - Other Unique Identifiers（そのほかの固有識別子）
+                - Dependency Relationship（依存関係）
+                - Author of SBOM Data（SBOMデータの作成者）
+                - Timestamp（タイムスタンプ）
+            Automation Support:  #// 報告フォーマットついて規定しています
+                Software Package Data Exchange (SPDX)
+                CycloneDX
+                Software Identification (SWID) Tags
+            Practices and Processes:  #// SBOMを、いつ、どのように更新して配信すべきか
+                Frequency（頻度）更新頻度
+                Depth（深さ）関連する要素も
+                Known Unknowns（既知の未知のもの）未知の明示
+                Distribution and Delivery（配布と配信）安定配信
+                Access Control（アクセス制御）特定の要素を非公開
+                Accommodation of Mistakes（誤りの許容）SBOMの消費者は（意図しない）エラーや脱落に寛容であること
+    CVE: #keyword:  #ref: https://www.ipa.go.jp/security/vuln/CPE.html  #// 共通プラットフォーム一覧, Common Platform Enumeration
+        CPE名:
+            cpe：/{種別}：{ベンダ名}：{製品名}：{バージョン}：{アップデート}：{エディション}：{言語}
+    ライブラリの更新:  #keyword: library upgrade, library version up
+        ElasticSearch:
+            Rolling Upgrade:
+                indexはドキュメントの更新が常時動いており、Rolling Upgradeで失敗した際にデータの復旧が難しくなり、リスクが高いと判断しました。
+                そのため別クラスタに新しいバージョンのElasticsearchを構築し、切替えを行う方針を採用しました。
+                #ref: https://techblog.zozo.com/entry/elasticsearch-version-up
+        deprecated, EOL:
+            deprecated: #keyword:  #// 非推奨, 廃止予定。対象は メソッド、API、またはパッケージ
+                deprecated したとき: #keyword: deprecated trouble
+                    対処: 要求元のバージョンを上げます
+                    #search: deprecated trouble
+            EOL, End of Life: #keyword:  #// サポート終了
+    exe ファイル化:  #keyword: packaging to exe file
+        Go言語: ビルドすると exe ファイルになります
+        Python: library.zip と メイン Python という構成にできます
+        JavaScript: pkg などで exe にできます。
+            library.zip のようなことはできません。node_modules のコピーもあまり推奨されていない様子。
+コード, バージョンの差分の吸収: #keyword: version up DTO DAO
+    #↓ 反静的コードの禁止
+    辞書アクセスの禁止:  #// プロパティ アクセス にすること
+        問題点:
+            -   辞書のキーがどこで使われているか見当もつかなくなってしまいます
+        対処法:
+            -   プロパティにすることで参照元を一覧することが IDE でできるようになります
+    万能 DTO, 万能 Web API の禁止: #keyword: almighty DTO,  PageDTO,  almighty web API
+        問題点:
+            -   画面（フロントエンド）に返す Web API が、すべての画面で使う便利な DTO を返すようにすると、
+                データの仕様変更（複数化など）があったときに、影響する画面が絞り込めなくなってしまいます。
+        対処法:
+            -   この状況を解消するには、万能 DTO から徐々に 画面固有 DTO (PageDTO) にプロパティを移していくことです。
+            -   PageDTO は HTML サーバー ライブラリ から疎結合にします（HTML にマッピングする処理と、PageDTO を作る処理は、ソース ファイル を分けて呼び出します）
+            -   どの画面に使われているかは、DAO のプロパティにブレークポイントを張り、探します。
+            -   2つ以上の画面で同じ API が呼ばれていたら新しい PageDTO に分けます
+    中間 DTO の禁止: #keyword: middle DTO
+        問題点:
+            -   中間 DTO の正しさが検証できない。
+                中間 DTO の存在意義（抽象化のメリットなど）は、すでに親（WebAPI）か子（DAO）が満たしている可能性が高いです。
+            -   類似の複製オブジェクトがたくさんできてしまう。
+                様々な中間的で暗黙的な目的で、同じ属性のコピーができてしまい、整合性が取れなくなる
+            -   内部プラットフォーム効果  #ref: https://gigazine.net/news/20240223-inner-platform-effect/
+        対処法:
+            -   属性（変数）に入れないで、算出プロパティにすること。必要ならメモ化もする。
+            -   DTO は内部オブジェクトにする。DTO に依存するとオレオレ中間モデルになってしまうため
+                同じクラスの算出プロパティにしないなら、extension、アクセス時にサブクラスにするかラップをかぶせる。
+                中間の変数に入れると、その変数がどこから来たのかを探さなければならなくなるため。
+            -   out = assemble(in1, in2) 形式の関数にしないで
+                out = get(in1_name, in2_name) にすること。in1,in2 が何者か assemple 関数内ですぐにわからないため。
+        問題点 2:
+                データ名に改名があった場合、DTO のプロパティ名が変えられず、データ名とプロパティ名の対応が取れなくなる
+        対処法 2:
+            -   DTO を無くす
+            -   プロパティ名もデータ名に合わせる
+            -   何もしない。今後はデータ名とプロパティ名の対応関係をコードから調べる
+        問題点 3:
+                ビジネス ロジック が DTO を作るコードと、DTO を使うコードに分散してしまう
+        対処法 3:
+            -   DTO を無くす
+        問題点 4:
+            同じクラスのコピーが各層にある問題: #keyword:
+                domain/log.py: |
+                    class LogType(Enum):
+                        TLOG = 'tlog'
+                model/log.py: |
+                    class LogType(Enum):
+                        TLOG = 'tlog'
+                #// LogType.__module__ が異なります
+        （参考）>> ビューとデータの区別がなかった場合:  #search: new view layer
+    メモ化, 中間層の禁止, ナビゲーションで追えなくなる代入の禁止: #keyword: prohibit unnavigatable let,  ナビゲーションできない 代入 禁止 メモ化 中間層 中間オブジェクト DTO
+        （中間 DTO の禁止）:  #search: middle DTO
+        Qiita記事:
+            #ref: ${typrm_files}/Qiita下書き/28_relationalGetter/28_relationalGetter.md
+            #ref: ${GitHub}/Trial/try_RelationalGetter  #keyword: try_RelationalGetter
+        実際のサンプル:
+            追えないケース:
+                # print(get_secondary_host())
+                get_secondary_host:
+                    # def get_secondary_host(self) -> str:
+                    #     config = get_config()
+                    get_config:
+                        # def get_config(self) -> Config:
+                        #     config = get_server_config()
+                        get_server_config:
+                            # def get_server_config(self) -> Config:
+                            #     site_config = get_site_config()
+                            get_site_config:
+                                _:
+                                # def get_site_config(self) -> SiteConfig:
+                                #     return site_config
+                            _:
+                            #     config = build_config(site_config)
+                            build_config:
+                                # def build_config(self) -> Config:
+                                #     secondary_info = site_config.secondary_info
+                                secondary_info:
+                                    _:
+                                    # class SiteConfig:
+                                    #     @property
+                                    #     def secondary_info(self) -> RegionInfo:
+                                    #         info = RegionInfo(
+                                    #         return info
+                                _:
+                                #     if secondary_info:
+                                #         secondary_region = Region(
+                                #             host=secondary_info.host
+                                #         config.secondary_region = secondary_region
+                                #     return config
+                            __:
+                            #     return config
+                        _:
+                        #     config.secondary_host = config.secondary_region.host
+                        #     return config
+                    _:
+                    #     return config.secondary_host
+            追えるケース:
+                get_secondary_host:
+                    # def get_secondary_host(self) -> str:
+                    #     return get_config().secondary_host
+                    get_config:
+                    secondary_host:
+                        # @property
+                        # def secondary_host(self) -> str:
+                        #     return self.secondary_region.host
+                        secondary_region:
+                            # @property
+                            # def secondary_region(self, i) -> RegionInfo:
+                            #     site_config(i).secondary_info
+                            site_config:
+                                _:
+                                # @property
+                                # def site_config(self, i) -> SiteConfig:    #// get_site_config の代わり
+                                #     return site_config[i]
+                            _:
+                            #     site_config.secondary_info
+                            secondary_info:
+                                _:
+                                # class SiteConfig:
+                                #     @property
+                                #     def secondary_info(self) -> RegionInfo:
+                                #         info = RegionInfo(
+                                #         return info
+    DAO の種類:  #// DTO のアクセス対象
+        - DB（またはそのキャッシュ、または モックのデータ YAML/JSON、
+            アプリケーションのDBアクセス関数のモック。ORM操作はしない） #search: Python unittest.mock
+        - DB のバージョン違い（出力構造体の型やサブクラスの違い）
+        - 使う API のレスポンス（またはそのキャッシュ、または DB の代わりとなる テスト データ YAML/JSON, WireMock）
+            構造体はアクセス前後のアプリ全体で絞り込んだ Facade
+        - 使う API のレスポンスのバージョン違い
+        - 画面 または API（リクエスト元 HTTP など）。
+            最新版のみ（新旧両方の画面があるときはそれらを含めて最新。またはリクエスト元のバージョン別）。
+            画面の項目がアクセスするフィールド名は、画面の項目の名前となるべく一致させる
+        - など
+    #↓ バージョン アップ
+    バージョン アップ の手法:  #// DTO/DAO/DataSource 構造における バージョン アップ の手法
+        上位互換のケース: #// フィールドの追加、複数化、名前の変更によるマイナーバージョン変更は DAO で吸収する。DAO の更新前のフィールドは残す
+            組み合わせ一覧:
+                更新未対応画面, 更新不要画面:  #// 画面構成 ＝ DTO の構成
+                    - Page DTO の既存フィールド | DAO の既存フィールド | 既存データソース
+                    - Page DTO の既存フィールド | DAO の既存フィールド | 追加データソース  #// 改名など。DAO の内部で差分を吸収する
+                    - Page DTO の既存フィールド | DAO の追加フィールド | 追加データソース  #// 複数化しても CSV などで表示するだけでよい場合
+                更新対応画面:
+                    - Page DTO の追加フィールド | DAO の追加フィールド | 既存or追加データソース
+                    #-Page DTO の追加フィールド | DAO の既存フィールド | 既存or追加データソース  は開発不要
+                DAO とデータソースの組み合わせ: |
+                        DAO のフィールド | データソース
+                        -------------------------------
+                        既存             | 既存
+                        既存             | 追加         #// 複数化したときは[0]のみ。[0]が無ければ null（コードは 追加 DAO フィールド を呼び出すことができます）
+                        既存             | 既存と追加   #// 追加を優先的に採用する
+                        追加             | 既存         #// 配列にする。（下記の「既存と追加の両方を採用する」と同じコードが使える）
+                        追加             | 追加
+                        追加             | 既存と追加   #// 既存と追加の両方を採用する。既存を後の要素にする（既存 DAO フィールドと矛盾させない）
+                    #// 旧版と追加の両方があるときにエラーにすることは、チェック時のみ。それ以外の処理ではなるべく動く方向にする
+            説明:
+                データソースの互換性:
+                    上位互換にすること。deprecate は慎重に。警告・ガイドのみ行う。旧版 DAO のフィールドには This will be deprecated とコメントする
+                    旧版と追加の両方があるときにエラーにすることは良い
+                    #// 旧版と追加の両方があるときにエラーにすることは、チェック時のみ。それ以外の処理ではなるべく動く方向にする
+                DAO の更新:
+                    フィールドの追加、複数化（単数用とは別に複数用フィールドを追加）、改名（DTO は変えない）を行う。
+                更新 DAO:
+                    上位互換のケースでは、旧版と共存する新版 DAO を用意しない。既存の DAO を更新する
+                DTO の更新:
+                    更新が必要な DTO は旧版 DAO の更新に合わせるように更新すること。未更新の DTO があっても動作はする
+        メジャー バージョン アップ のケース: #// 並列更新する新バージョン。一部互換。不要なフィールドは消す。網羅的なテストが必要
+            組み合わせ一覧:
+                更新未対応画面, 更新不要画面:  #// 画面構成 ＝ DTO の構成
+                    - 旧版 DTO | 旧版 DAO のフィールド | 旧版データソース
+                    #-旧版 DTO | 新版 DAO のフィールド | 新版データソース  は動作しません
+                更新対応画面:
+                    - 新版 DTO | 旧版 DAO のフィールド | 旧版データソース  #// 旧 メジャー バージョン
+                    - 新版 DTO | 新版 DAO のフィールド | 新版データソース
+            説明:
+                データソースの互換性:
+                    新バージョンの指定があれば互換性なし。使われない旧版データソースがあったときは警告すること。
+                    旧バージョンの指定があれば、旧版 DAO
+                旧版 DTO:  #// 表示内容が変わらない画面など。DTO は変えない
+                    旧フィールド（旧版 DAO）のみ:
+                        旧版データソース:
+                            変更なし
+                        新版データソース:  #// 新版データソースに対応しない画面(DTO)が残っていてもいいなら不要
+                            旧版 DAO の更新:
+                                移動したフィールドは、旧版 DAO ⇒ 新版データソース のマッピングを行うこと。
+                                こうすることで必要な DTO だけを新版 DTO に変更すればよくなる
+                新版 DTO:  #// 新版で表示内容が変わる画面など
+                    新旧共通フィールド（新版 DAO）:
+                        変更なし
+                    新旧で異なるフィールド（新版 DAO）:
+                        ビジネス ロジック で並列更新するバージョン番号（メジャーバージョンなど）を参照して場合分けする。
+                        画面や DAO でバージョンを見て吸収しない（吸収するとロジックが混乱する）
+                        新バージョンになっても同じデータ構造に対する ビジネス ロジック は対応しなくても動くように DAO を作る
+                Facade, 中間 DTO:  #// 基本的に禁止
+                    インターフェースは DAO に相当するが、実装は DTO に相当する
+                    新旧で共通のフィールドが多い場合は、インターフェースを継承する
+            サンプル:
+                旧版 DTO:
+                    dao = daoVersion1 | daoVersion2
+                    boxA = dao.propetyA
+                新版 DTO: |
+                    dao = daoVersion1 | daoVersion2
+                    boxA = dao.propetyA  #// = dao.v2.newPropertyA
+                    if dao.v2:
+                        dao_ = dao.v2
+                        boxNew = dao_.newPropety
+                    else:
+                        boxNew = null
+                        #// 旧版フィールドをアクセスする（アクセスできない）コードは、旧版データソースが無くなるまで保持する
+    テスト:
+        #search: version up test
+レガシー コード 対応: #keyword: レガシー コード, 移植,  version up
+    並行運用期間を短くします: #keyword: version up 並行運用
+        複数バージョンの並行運用（projectA は lib v1, projectB は lib v2）は技術的負債となりやすいため、
+        可能な限り早期の統一を目指すことをお勧めします。
+    バージョン切り替え方法:
+        Git ブランチ:  #keyword: version up git branch
+            概要:
+                - 共有コードのバージョンごとに Git ブランチ を分けます
+                - 現バージョンの更新を新バージョンに自動的に反映できます
+                - プロジェクトごとに共有コードのバージョンを分けることができます（並行運用）  #search: version up 並行運用
+                - 新バージョンの開発初期段階に適した構成です
+            コードの内容の同期: |  #focus: cherry-pick  #// 新バージョンの更新内容を、現バージョンに再適用します
+                # v1.0で修正を行う
+                git checkout release/v1.0
+                git commit -m "Fix critical bug in module_a"
+
+                # v1.0の修正を含む新しいv2.0を作成
+                git checkout release/v1.0
+                git checkout -b release/v2.0-rebuilt
+
+                # v2.0の変更を順次適用（修正済みのv1.0の上に）
+                git cherry-pick <v2-feature-1-hash>
+                git cherry-pick <v2-feature-2-hash>
+                # ... その他のv2.0の機能
+
+                # 問題なければv2.0を更新
+                git branch -m release/v2.0 release/v2.0-old  # バックアップ
+                git branch -m release/v2.0-rebuilt release/v2.0
+            Git Worktree を使った並行運用: #search: Git worktree
+                現行バージョン開発時:  #// Git Worktree を使わない  #focus: shared_code
+                    branch-now/
+                        project_a/
+                            main.py
+                            shared_code
+                        project_b/
+                            main.py
+                            shared_code -> ../project_a/shared_code  # シンボリックリンク
+                新バージョン開発時: |  #// Git Worktree を使う。 project_b のみ新バージョン  #focus: shared_code
+                    branch-now/  #// メイン ブランチ のワーキング
+                        project_a/
+                            main.py
+                            shared_code    # 現バージョンのコード
+                        project_b/
+                            main.py
+                            shared_code -> ../../branch-new/project_a/shared_code  # シンボリックリンクを一時的に branch-new 内に変える
+                    branch-new/  #// 新バージョンのブランチのワーキング
+                        project_a/
+                            main.py
+                            shared_code    # 新バージョンのコード
+                        project_b/
+                            main.py
+                            shared_code -> .../project_a/shared_code  # シンボリックリンク
+        シンボリックリンク: | #keyword: version up symbolic link
+            shared_code/
+            ├── v1.0/
+            │   ├── __init__.py
+            │   ├── module_a.py
+            │   └── module_b.py
+            ├── v2.0/
+            │   ├── __init__.py
+            │   ├── module_a.py
+            │   └── module_b.py
+            └── current -> v1.0/  # シンボリックリンク
+
+            project_a/
+            ├── main.py
+            └── shared_code -> ../shared_code/current/  # シンボリックリンク
+
+            project_b/
+            ├── main.py
+            └── shared_code -> ../shared_code/current/  # シンボリックリンク
+        サブクラスの禁止:
+            バージョンをサブクラスにしないこと。
+            バージョンが異なればインターフェースが異なることは普通。
+        検索性を確保します:
+            後でバージョンの違いを grep 一発で一覧できるようにします。 たとえば、バージョン変数を定義するなど
+    レガシーに戻せるようにします:  #// 移植が間に合わなかったときのため
+        エラーモード:
+            レガシーコードの API（関数）にアクセスしたらエラーにするモードにする。
+        スレッド ローカル:
+            移植開発中、マルチスレッドで動作する場合は、このモードを スレッド ローカル にする必要があります。
+    スクラップ アンド ビルド: #keyword:
+        Mozilla: #ref: https://mechaag.tumblr.com/post/126718116842/オープンソース開発失敗の歴史
+            1から作り直し
+    拠点ごとにバージョンを変えます: #keyword:
+        ステップ:
+            バックアップを取る, 変更内容のドキュメント化, 互換性の確認, テスト環境の利用, 段階的実施,
+            モニタリング, エラーログの確認, ステークホルダーとのコミュニケーション, ロールバック計画
+        並行バージョンのしくみ:
+            Git:
+                バージョンごとにブランチを分けます。ブランチの差分はなるべく少なくなるようにします。
+            Ansible:
+                - 拠点の ホスト グループ を追加します。 #search: Ansible host group
+                - グループ変数を定義します  #search: Ansible group_vars
+            Python:
+                それぞれのブランチでpyproject.tomlとpoetry.lockを独立して管理します。
+    見積もり:  #// レガシー コード に機能追加などをするときの見積もり
+        リバースエンジニアリング(仕様の抽出と整理)そのものに新規開発と同等レベルの時間がかかる
+        #ref: https://jp.quora.com/WordPressをフルカスタムして長年使われているシステムを/answers/1477743700322614?ch=17&oid=1477743700322614&share=7cd8cf5c&srid=hvT3Uj&target_type=answer
+    関連:
+        中間 DTO の禁止:  #search: middle DTO
+デバッグ: #keyword: general debug
+    代入しているコードを探します: #keyword: debug let
+        - IDE で __Variable__ の参照元を一覧します。
+        - イコールやコロンがあるコード (__Variable__= や __Variable__:) を探します。
+    デバッグ ポイント の表示: #keyword: debug point
+        概要: コール ツリー の補足情報。デバッグしようとしている機能の デバッグ ポイント を探してブレークするための表示。
+            機能が単純な処理の場合、デバッグ ポイント の表示はする必要はありません。コール ツリー から探します。
+        手順:
+            - デバッグ ポイント で print するように設定します
+            - print の内容から調べたいコードを grep 検索して、ブレーク ポイント を張ります
+        デバッグ ポイント: #// ブレーク ポイント を設置する可能性が高い場所
+            - 表示するように設定したときだけ表示します
+            - 場所を grep 検索できるような内容を print します
+        コード:
+            基本サンプル: |
+                console.log(`DEBUG: keywordCount:`);
+            条件付き表示のサンプル: |  #ref: ${GitHub}/typrm/specifications.yaml#Not found search keyword
+                var  debugLineNum = 224;  // 0 = not debug. Search "debugLineNum" in this file.
+                var  debugFilePathPart = "search/2/2.yaml";  // "" = not debug
+                var  inDebuggingLine = false;
+                inDebuggingLine = (lineNum === debugLineNum  &&  inputFileFullPath.includes(debugFilePathPart));
+                if (inDebuggingLine) {  // debugLineNum
+                    console.log(`DEBUG: matchedSearchKeywordCount: ${found.matchedSearchKeywordCount}`);
+    モック クラス があるテストのデバッグ: #keyword: mock debug
+        IDE の定義ジャンプができない可能性を考慮する:
+            ステップインする、ウォッチに表示されるクラスが正しい
+            IDE の静的定義による定義へのジャンプは、モックに対しては正しくありません。
+            ステップインして、汎用モックであるか、fixture のモックである可能性に、注意しましょう
+            IDE の問題の解決は不可能です。モックはテスト対象のオブジェクトAの内部オブジェクトBを置き換えますが、Bのコードでインポートすることができないため、
+            IDEの定義にジャンプする機能でモックにジャンプすることはできません。ステップインします。
+        モックの定義を探す:
+            Python ならクラス名のフルネームにパスの情報が含まれています。
+            動的に定義したクラスであれば、名前の中に <locals> が含まれます。 __Path__.<locals>.__ClassShortName__
+            オブジェクトをウォッチに表示して、Copy Value で型名をコピーできます 
+        Raised Excption でブレークする:
+            問題が発生した場所が明確に分かります。
+            ただし、再起動する前にこのブレークポイントを無効にしてください。起動しない可能性が高いです。
+            また、ステップインを開始した後でそのブレークポイントを設定しないと、いつまでも問題の個所に到達しないかもしれません。
+        ワンライナーを分解する:
+            obj.method(user.name).attr
+            なら
+            a = user.name
+            b = obj.method(a)
+            c = b.attr
+            に分解してステップ実行します。
+        モックの出力が問題なら、モックを修正する:
+        Chat: |
+            @pytest.fixture
+            def target_fixture(self, data) -> TargetChildClass:
+                class _Mock(TargetChildClass):
+                    def get_item(self, item_id: int):
+                        return  data['item_id']
+            get_item の定義にジャンプすると _Mock クラスの get_item ではなく TargetChildClass の get_item にジャンプしてしまいました。
+            これにより、TargetChildClass の詳細を調べてしまい、多くの時間が無駄になってしまいました。
+            この問題を避けるには？
+    STG 環境のデバッグ: #keyword: STG debug
+        Python: ソースがあれば可能  #search: pdb.set_trace
+    タイミングのデバッグ: #keyword: timing debug, 非同期処理 デバッグ リアルタイム
+        - テストにおいて、時間で待っている場合、時間を増やすなどします
+        - print を使うとタイミングがずれるので、代わりに変数や配列への代入を使います
+エラーと警告とログ:  #keyword:
+    エラー メッセージ: 顧客が対処できないエラーは表示せず、ログに残して社内通知する
+    警告 メッセージ: #keyword:
+        個別に非表示にできること  suppress/ignore/skip warning
+    エラー ログ: #keyword: エラー ログ
+        本番環境のログのチェックとエラーの処置。エラーログは全く無いようにする（警告はあり）。定期的にチェックする
+    不整合データ: 部門Aが入力するデータと部門Bが入力するデータには不整合がある状態は運用上イレギュラーではあるが
+        本番環境では有りうるので、その場合の動作を仕様化すること
+    高可用性, HA, 耐障害性: #keyword: 高可用性, HA, high availability, 耐障害性, システムの信頼性
+        設計:
+            高可用性: システムの停止時間をどれだけ短くできるかに焦点を当てた考えた方
+            平均故障間隔, MTBF など:  #// Mean Time Between Failure
+                平均故障間隔 MTBF: 故障から次の故障までの平均的な間隔。MTBF = システムの稼働時間 / 故障回数。 故障率 = 1 / MTBF
+                平均故障時間 MTTF: 修理できない非修理系では MTTF と呼ぶ
+                TAT, turn around time: #keyword:  #// あるプロセスを開始してから完了するまでにかかる総所要時間
+                    TAT が長いシステムほど品質を上げにくい
+                #ref: https://ja.wikipedia.org/wiki/平均故障間隔
+            正常に動く範囲を広げる（その仕様を開発チームと合意する）:
+            失敗用のデータを入れる。内部情報は表示しない。そのエラーログは内部情報を入れる:
+            情報の無いエラーは最終手段だが、エラーログは必須:
+            耐障害性: 何か障害が起きたときでもシステムのパフォーマンスを落とすことなくシステムを稼働し続けられる冗長構成のこと
+        機能:
+            冗長化（レプリケーション）:
+                - サーバー、データベース、ネットワーク機器などの重要コンポーネントを複数用意
+                - 一つが故障しても、他のコンポーネントが処理を引き継ぐ
+            ロードバランシング:
+                - 複数のサーバーに負荷を分散
+                - 特定のサーバーへの過度な負荷を防ぎ、全体的なパフォーマンスを向上
+            フェイルオーバー機能:
+                - 主要システムに障害が発生した場合、自動的にバックアップシステムに切り替え
+            自動スケーリング:
+                - 負荷に応じて自動的にリソースを増減
+                - クラウド環境で特に有効
+            定期的なバックアップとリストア機能:
+                - データ損失を防ぎ、迅速な復旧を可能に
+            監視・アラートシステム:
+                - システムの状態を常時監視し、問題を早期に検知・通知
+            自動修復機能:
+                - 軽微な問題を自動的に修復
+            グレースフルデグラデーション:
+                - 一部機能に問題が発生しても、システム全体の停止を回避
+            フォールト トレランス: #keyword: fault tolerance,  フォールト トレラント,  フェール セーフ
+        SLA, Service Level Agreement:  #// システムの稼働率に関する契約条項
+        災害レベル:
+            Disaster Recovery (DR): #keyword:  #// 災害復旧。破壊的なインシデントに対する対策  #ref: https://ja.wikipedia.org/wiki/ディザスタリカバリ
+        サーバー レベル:
+        サービス（プロセス）レベル:
+        コマンド レベル:
+            事前に入力するコマンド: 実際に入力する内容は変わりますというような書き方はしない
+            エラーの数の表示: 長いログの最後にエラーの数を表示することで、すぐに判断できるようにする
+    ガード節:  #keyword: ガード節, Guard
+        #ref: https://en.wikipedia.org/wiki/Guard_(computer_science)
+        #ref: https://ja.wikipedia.org/wiki/ガード_(プログラミング)
+    例外処理: #keyword: 例外処理, 例外
+        必要性 >> アプリケーションの場合:
+            復帰させる:
+                サービスの待機状態に戻す。
+                配列の要素を取得または設定するとき、次の要素から再開する。
+                独立した次の処理を再開する。
+                リソースを開放する。一時ファイルなど
+            エラー メッセージ を変更する:
+                ユーザー向けのエラーメッセージを適切にする。
+            ログ、メール等通知を追加する:
+                解析できるようにログに記録する。
+                メール等で社内に通知する。
+            コードが例外から回復できない場合は、その例外をキャッチしない:
+                例外は「原則」キャッチしない:
+                    共通のエラー処理で十分な場合
+                    #ref: https://zenn.dev/koduki/articles/e9373cb78fcfef
+                例外をキャッチしない:  #// 例外から回復できない場合は、その例外をキャッチしないでください
+                    When your code can't recover from an exception, don't catch that exception.
+                    #ref: https://learn.microsoft.com/en-us/dotnet/standard/exceptions/best-practices-for-exceptions#use-trycatchfinally-blocks-to-recover-from-errors-or-release-resources#:~:text=don%27t%20catch%20that%20exception
+                Web フレームワークの例外処理機構を利用する:  #ref: https://qiita.com/ts7i/items/d7f6c1cd5a14e55943d4
+                Handle errors at the first appropriate place:
+            キャッチしないときのフレームワークの動作の修正:
+                例外をキャッチしないときに実行されるデフォルトの処理が適切ではない場合、
+                処理を変えます。
+                内部ログに出力する。
+            返り値のチェックが必要な場合:
+                ラッパーで例外を発生させます
+            （誤った必要性）:
+                例外処理は、呼び出すライブラリ等が例外を投げるから書く:
+                    ではなく、復帰の処理や適切なレスポンスやロギングをフレームワークのデフォルトから変える必要性から例外処理を書く（という方針です）。
+                    https://zenn.dev/koduki/articles/e9373cb78fcfef
+    コンストラクターの例外: #keyword: constructor exception
+        概要: コンストラクターで例外が発生しても構いませんが、デストラクターは起動しません
+        参考: #ref: https://stackoverflow.com/questions/1507082/python-is-it-bad-form-to-raise-exceptions-within-init
+静的解析ツール: #keyword:  #// コーディング スタイル や静的に分かるバグをチェックします
+コーディング スタイル:  #search: コーディング スタイル
+テスト環境、テストデータ: #keyword: テスト環境, テストデータ, test design,  test
+    テスト ツール: #search: Test.yaml
+    自動テストの目的:  #keyword: 自動テスト,  回帰テスト regression test
+        基本的なケースや特定のケースで正しい動作をすることを実証することで、ほとんどの機能が使えることが期待できるようになる状態にすること
+        開発と同時に作ることができる。効果が出るのは回帰テストのとき。
+        コーディングのために基本的な内部関数をテストするのではなく、基本的なケースについて結合テストする。
+    手動テストの書き方:  #keyword: 手動テスト  #ref: https://qiita.com/Takakiri/items/a3d900fc2a105ca9f412
+    実施率を上げる:  #// テストの失敗が他のテストの実施に影響しないようにします
+        エラー復帰:
+            テストでエラーが発生しても、次のテストを実施できるように例外処理などを行います。
+        環境のリストア:
+            環境をセットアップする機能のテストが失敗しても、
+            環境を使った本体のテストが実施できるように
+            環境のバックアップをリストアしてからテストを開始します。
+        リストア実行オプション --from:
+            テストスクリプトの構成によっては、
+            VM をリストアして途中から実行する --from __VmName__ オプションを実装します。
+            途中から実行するテストを実行したログが無ければ、
+            --from オプションを付けて再実行します
+    テスト環境の自動判定: #keyword:
+        概要: テスト環境を表すレコードが存在することをチェックすることで、テスト環境であることを自動判定します
+        注意: テスト固有の Web API を追加しないこと。本番環境と違うコードになってしまうため。
+        テスト固有のレコードを使う場合:
+            注意: 正常動作に影響しないレコードが作れる場合のみ
+            ローカルに起動するデータベースの初期状態にテスト固有のデータを入れます:
+                テスト環境であることを確認して、
+                手動、または、テスト固有のスクリプトでテスト固有のデータ this_is_test_environment を入れます。
+            各テスト開始時に、テスト環境を表すレコードが存在することをチェックします:
+                特定のデータを取得する API を使って判定します
+            テストがレコードを消してしまったら、そのテストが終わったときに復帰するようにテストを書きます:
+        テスト固有のテーブルを使う場合:  #// 非推奨
+            注意: テスト固有の API を追加しなければならないため非推奨
+            テスト固有のテーブルを追加します:
+                できれば手動で。スクリプト等で本番環境などに追加されないようにするため
+    テスト環境との切り替え: #keyword:
+        概要: WireMock を使うように URL を設定するなど、テスト環境を切り替える方法
+        設定方法:
+            手動テストの場合:
+                環境変数のファイルや設定ファイルでモックのアタッチを行うかどうかを決定します。
+                test_____ ファイルにアタッチする詳細な手順の関数を書き、その関数を呼び出します。リリース ビルド するときの対象外にするためです。
+                    test_____ ファイルとは、一般に使われる テスト スイート が テスト コード 用 のファイルと判定する名前のファイルです。
+                    呼び出す関数を（モックで）アタッチするか？
+                README に設定方法を書きます。
+            自動テストの場合:
+                手順: beforeEach やフィクスチャ―などでアタッチします
+                補足:
+                    beforeEach: #ref: ${programming}/方法論/テスト.svg#beforeEach
+                    フィクスチャ―:  #search: pytest fixture
+        （補足）DI との関係:  #// Dependency Injection
+            テスト環境との切り替えに DI は使わないこと。テスト以外に使うものだから
+    テスト関数を探す: #keyword: which test  #// あるテスト対象のコードがどのテストで使われているかを調べる
+        ブレークポイントを張ります
+    正常系, 異常系: #glossary:
+        正常系: normal test。正しい入力での出力チェック
+        異常系: error checking test, abnormal test, irregular test。想定外の異常、その他の例外が発生した際の動作を確認  #search: エラーと警告とログ
+        準正常系: 想定される異常な値の入力での出力チェック  #search: フォールト トレランス
+    バージョン アップ のテスト: #keyword: version up test
+        バージョン アップ の方法:  #search: version up  #search: version up DTO DAO
+        #↓ DTO/DAO/DataSource
+        テスト データ などにアクセスする関数(DAO)のテスト: #keyword: test data
+            テスト データ のファイルを分ける:
+                疎結合:
+                    構成が変わってもレアな機能はすぐに対応しないでメイン機能のみリリースできるようにすべきなので、
+                    アクセス関数の テスト データ と個別機能の テスト データ は疎結合にします。
+                    疎結合にするとは、たとえば、それぞれのファイルを用意して、同期をオフにできるようにします。
+                DAO のデータのソース: DAO がアクセスする古いバージョンの テスト データ はそのまま使い（更新不要）、
+                    新しいバージョンの テスト データ を追加する。
+                    アクセスした後の DAO のリテラルを テスト データ にしてしまうと手間がかかる。
+                    プロパティ名が違うとエラーになるリテラルやデータ形式（strict な json-schema を通す YAML等）を使うこと
+                    #ref: https://qiita.com/dhirabayashi/items/f3707e5fc9d91cb61880#完全な垂直スライドのテストに集中する
+        ビジネス ロジック 関数のテスト(DTO):
+            方法: ビジネス ロジック の関数(DTO)をテストするとき、
+                マスター データ は扱いやすい形式のデータ（YAMLの文字列リテラルなど）とし、
+                テスト プログラム で DAO のアクセス関数を呼び、得られた構造体（のキャッシュ）を ビジネス ロジック の関数に渡す。
+            効果: DAO と DTO の単体テストが十分であれば、
+                フィールドの改名や、不要になったと思われるフィールドを削除して実は不要ではなかったことが、
+                テスト段階で判明する。
+                Python のようにメソッド名のスペルミスを静的解析できない言語でも、テストで対応する。
+                もしスペルミスがあれば期待する出力が得られない
+    リリース当日コマンド: #keyword:  #// 本番相当のテスト環境で同じコマンドを実行すること
+        #// マニュアルに書いてあるコードをテストします
+        test_release.md.sh:
+            コマンドを抽出するコマンド: |  #keyword:
+                #!/bin/bash
+                documentFilePath="$1"
+                cat  "${documentFilePath}"  |  grep -f  [install-A] |  \
+                    sed "s|/prd|/stg|"  | \
+                    >> _test.sh
+        release.md: |  #// マニュアル
+            ## コマンド
+                ./install-A.sh  prd   #[install-A]
+                ./install-B.sh  prd   #[install-B]
+                ./uninstall-A.sh  prd   #[install-A:rollback]
+    本番データを使う:
+        データベースのレプリケーションを使う:
+            #ref: https://www.ashisuto.co.jp/delphix_blog/article/201709-test-data.html
+    ユニットテスト: #keyword: ユニット テスト,  単体テスト
+        アルゴリズムのテスト:
+            ユニットテストは、テストデータがテーブルの場合にのみ作ります。
+            テスト対象となる処理のうち、アルゴリズム（ビジネス ロジック）に関する入出力だけに絞り込んだ関数（テスト対象）
+            を作りユニットテストをします。
+        受け入れテスト:
+            使うライブラリの破壊的バージョンアップがされたときに検出できるようにします。
+            ライブラリのラッパーを作るときは必須です。
+        基本ケース 1つなら不要:
+            結合テストなど全体のテストで通っているコードに対しては、ユニットテストでそのコードを通す必要はありません。
+            カバレッジで考えると分かりやすい。
+            また、負債になる理由は、開発者しか知らない内部仕様（関数仕様）をテストしているため。
+    結合テスト: #keyword:
+        結合テスト（一般）:
+            メリット: ユニット テスト の対象の外側までテストできる
+            デメリット: 動作が遅い。結合の組み合わせのみ網羅度を上げ、アルゴリズム（ビジネス ロジック）は ユニット テスト で行う
+            #ref: https://products.sint.co.jp/obpm/blog/join-test
+        内部結合テスト: #keyword:  #// 独自用語
+            概要: 外部との接続はモックを使い、内部はモックを使わないテスト
+            メリット: 内部でモックを使わないことで、要求仕様に無い独自仕様（内部 Web APIなど）をテストの正解として用意してしまうことが無くなります
+    プライベート メソッド のテスト: #keyword: test private
+        JavaScript:
+            export されていない関数やクラスを参照します:  #search: JavaScript not exported
+    修正の影響範囲:  #keyword: 再テスト 修正 影響範囲
+        手段: 使用箇所の検索, ブレークポイントを置いて確認する, 自動テスト
+        #ref: https://hiroronn.hatenablog.jp/entry/20180912/1536755089
+        #ref: https://www.google.com/search?q=コード修正+影響範囲
+用語: #glossary:  #keyword: プログラミング 用語
+    DSL: ドメイン固有言語 domain-specific language。SQL, HDL など  #ref: https://ja.wikipedia.org/wiki/ドメイン固有言語
+    LT: ライトニング トーク。5～10分のプレゼンテーション
+    predicate: 条件関数, 述語関数, 述語（直訳）, 真偽値を返す関数  #keyword: predicate 条件関数 述語関数  #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: predicate
+    シンボル:  #search: 識別子
+    スキャフォールディング:  #keyword: scaffolding  #// 足場
+        概要: プロジェクトを新規作成します
+            #ref: https://atmarkit.itmedia.co.jp/ait/articles/0905/22/news117.html
+        蘊蓄:
+            建物が建設されると、この足場はなくなります。足場は一時的なものです。
+    チュートリアル, トレーニング, ハンズオン, ワークショップ: #search:
+    削除 の類語: 消去
+    識別子:
+        識別子 (identifier): プログラミング言語の文脈では、変数、関数、クラスなどの名前を指す場合に使われることが多いです。
+        シンボル (symbol): プログラミング言語理論では、識別子とその意味や値を関連付ける抽象的な概念として使われることがあります。

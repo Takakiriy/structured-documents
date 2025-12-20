@@ -1,0 +1,2636 @@
+#keyword: Go_language.yaml, Go, Go language  #ref: ${programming}/プログラミング言語、環境/go_language.svg
+特殊記号一覧 （Go 言語）: #glossary: Go  #ref: ${programming}/プログラミング言語、環境/go_language.svg#special_sign
+    ...:  #search: Go 可変長引数  #search: Go 可変長引数展開
+    (``):  #search: ``  #search: Go template literal
+公式:  #ref: https://go.dev/
+    チュートリアル: #keyword: Go language tutorial  #ref: https://go.dev/doc/  #ref: https://go.dev/doc/effective_go
+        チュートリアル, A Tour of Go:  #ref: https://go-tour-jp.appspot.com/welcome/1
+    ライブラリ:  #ref: https://pkg.go.dev/std
+    ライブラリ検索: #keyword: Go search  #ref: https://pkg.go.dev/std >> キーワードと Enter を入力（上）>> Symbols タブ
+        サンプル:
+            context.WithCancel を検索するときは、context を検索して、見つかったページの中を WithCancel で検索します。
+            メモの書き方のサンプルは、 #search: Go WithCancel
+        注意: メソッド名を検索してもパッケージの説明へのリンクは表示されません（説明の無いページに飛びます）
+            パッケージ名だけで検索してください
+手順 >> インストール: #keyword: install Go
+    スクラッチパッド Web サイト:  #keyword: Go playground  #ref: https://play.golang.org/
+        #ref: https://play.golang.org/
+        注意: VSCode のインテリセンスや定義へのジャンプなどが使えません
+            最新版しか使えません
+        サンプル:
+            Web サイトを開きます:
+                #ref: https://play.golang.org/
+            下記のコードを Web サイトに貼り付けます: |
+                package main
+
+                func main() {
+                    fmt.Println("Hello, world")
+                }
+            Run ボタン（右上）:
+                #// package 文の下の import 文は自動的に作られます
+    チュートリアル, A Tour of Go:  #ref: https://go-tour-jp.appspot.com/welcome/1
+        #search: Go language tutorial
+    プロジェクト:
+        try_go: #keyword: try_go  #ref: ${GitHub}/Trials/go/try_go
+            #ref: ${GitHub}/Trials/go/try_go/README.yaml
+            #ref: ${GitHub}/Trials/go/try_go/example/1_hello/hello.go
+        新規プロジェクト: #keyword: Go new project
+            Ubuntu on WSL2 の場合:  #search: install Go WSL2 VSCode
+                WSL2 と Visual Studio Code をインストールします:
+                    #search: install WSL2 Ubuntu VSCode
+                Go言語 をインストールします:
+                    #search: install Go WSL2 VSCode
+                新しいフォルダーを作り、Visual Studio Code で開きます:
+                    mkdir ~/try_go1
+                    code  ~/try_go1
+                go.mod ファイルを作ります:
+                    ~/try_go1/go.mod : |
+                        module main.go
+                        go 1.16
+                hello.go ファイルを作ります:
+                    ~/try_go1/hello.go : |
+                        package main
+
+                        import (
+                            "fmt"
+                        )
+
+                        func main() {
+                            fmt.Println("Hello, world!")
+                        }
+                デバッグ実行します:
+                    Visual Studio Code の中で ~/try_go1/hello.go を開きます:
+                    ブレークポイントを張ります:
+                        fmt.Println の行番号の左をクリック
+                    F5 キーを押します:
+                        ブレークします
+                別のコードを実行しようとしてパッケージが見つからないエラーになった場合:
+                    #search: go get
+    バージョン: #keyword: Go version  #// Go 言語 のバージョン一覧
+        #ref: https://go.dev/dl/
+        #ref: https://go.dev/doc/install
+        本体のバージョン:
+            go version コマンド
+        Go言語の言語仕様のバージョン:  #search: go.mod go version
+            go.mod ファイルの go フィールド
+        実行バイナリに入っている Go のバージョン:
+            go version  __Binary__
+        本体の バージョン アップ: #keyword: version up Go
+            本体:  #search: install Go WSL2
+            プロジェクト: go.mod ファイルに書かれているバージョンを上げます
+            make clean:
+        パッケージの バージョン アップ: #keyword: go package version up
+            マイナー バージョン アップ: |
+                cd  __GoModFolder__  #// go.mod ファイルがあるフォルダー
+                go get -u     #// go.mod, go.sum ファイルを編集します
+                go mod tidy   #// パッケージをダウンロードします
+            メジャー バージョン アップ:  #// 互換性が無い可能性があります
+    本体インストール:
+        WSL2 に Go言語 をインストールします: #keyword: install Go WSL2
+            新: |  #// 新規インストール 兼 バージョン アップ する手順です
+                sudo curl -L  "https://go.dev/dl/go1.25.5.linux-amd64.tar.gz"  --output "/usr/lib/go1.25.5.linux-amd64.tar.gz"  ||  Error
+                sudo rm -rf    "/usr/lib/golang"  ||  Error  #// Remove old version Go language
+                sudo tar -xzf  "/usr/lib/go1.25.5.linux-amd64.tar.gz"  -C "/usr/lib"  ||  Error
+                sudo mv        "/usr/lib/go"  "/usr/lib/golang"  ||  Error
+                sudo rm -f     "/usr/lib/go1.25.5.linux-amd64.tar.gz"  ||  Error
+                sudo ln -sf    "/usr/lib/golang/bin/go"  "/usr/bin/go"  ||  Error
+                sudo ln -sf    "/usr/lib/golang/bin/gofmt"  "/usr/bin/gofmt"  ||  Error
+                go version  |  grep "1.25.5"  ||  Error
+            旧:  #search: install Go WSL2 VSCode
+        Windows 10 に Go言語 と Visual Studio Code をインストールします:  #search: install Go Windows VSCode
+            #ref: ${GitHub}/Trials/try_Go_language/steps.yaml#Go言語と Visual Studio Code を Windows 10 にインストール
+        CentOS7 に Go言語をインストールします:  #// VSCode デバッガーで実行します
+            プロジェクト:
+                #ref: ${GitHub}/Trials/go
+            #search: install Go CentOS7
+        mac に Go言語をインストールします:  #// VSCode デバッガーで実行します
+            プロジェクト:
+                #ref: ${GitHub}/Trials/go
+            手順:
+                #ref: ${GitHub}/Trials/go/try_go/README.yaml
+    公式: #ref: https://go.dev/doc/install
+    書きかけ >> Go言語を VSCode デバッガーで実行します:  #keyword: Go VSCode debugger
+        新しい bash (@CentOS7):
+            mkdir ~/_go_tmp
+            code ~/_go_tmp
+        __Project__/main.go: |
+            package main
+
+            func main() {
+                fmt.Println("Hello, world!")
+            }
+        __Project__/.vscode/launch.json: |  #// 下記補足を参照
+            {
+                "version": "0.2.0",
+                "configurations": [
+                    {
+                        "name": "Go: Debug",
+                        "type": "go",
+                        "request": "launch",
+                        "mode": "auto",
+                        "cwd": "${workspaceFolder}",
+                        "program": "${workspaceFolder}",
+                        "args": [],
+                        "showLog": false
+                    }
+                ]
+            }
+        エラー: |
+            could not import fmt (cannot find package "fmt" in any of 
+                /usr/lib/golang/src/fmt (from $GOROOT)
+                /home/m-toda/go/src/fmt (from $GOPATH))compiler
+    旧 Go言語を VSCode デバッガーで実行します:  #keyword: Go VSCode debugger
+        参考: #ref: ${programming}/プログラミング言語、環境/go_language.svg#VSCode_DebuggerExtension
+        VS Code >> File >> Open Folder >> Go を実行するときの カレント フォルダー など:
+        __Project__/.vscode/launch.json: |  #// 下記補足を参照  #keyword: Go launch.json
+            {
+                "version": "0.2.0",
+                "configurations": [
+                    {
+                        "name": "Go: Debug",
+                        "type": "go",
+                        "request": "launch",
+                        "mode": "auto",
+                        "cwd": "${workspaceFolder}",
+                        "program": "${workspaceFolder}/__FolderHavingMainGo__",
+                        "args": ["__parameter__", __Options__ ],
+                        "showLog": false
+                    }
+                ]
+            }
+        補足: #// 上記 launch.json の補足
+            program: 直下に main.go があるフォルダーのパス
+            args: 起動パラメーター。適宜編集してください  #search: launch.json args
+            cwd:
+                注意: 効果がないようです
+                代わりに main 関数で カレント フォルダー を調整します: |
+                    func main() {
+                        os.Chdir("../..")
+                参考:
+                    Debugging uses wrong working directory:  #// https://github.com/microsoft/vscode-go/issues/3251
+        ファイルを作ったら、F5 キーを押します:
+    キー操作:
+        実装へジャンプ: Ctrl + F12 キー  #search: go navigate implementation
+学習中: #keyword: Go larning
+    Effective Go:  #ref: https://go.dev/doc/effective_go  #// 2009年版です。ビルドやテストはその後変わっています（と書いてあります）
+        次: #ref: https://go.dev/doc/effective_go#Getters
+文法:  #ref: https://go.dev/ref/spec
+    コメント: #keyword: Go comment  #ref: https://go.dev/doc/effective_go#commentary
+        一般: /* */, //
+        ドキュメント コメント:  関数や変数の直前の行のコメントは、ドキュメント コメント してドキュメントにコピーされます
+        コメント ディレクティブ:
+            line ディレクティブ: #keyword: Go line directives,  //line :line
+                書式: //line ____   #// Go言語コードの中
+                サンプル: |
+                    //line :line
+                    //line :line:col
+                    //line filename:line
+                    //line filename:line:col
+                    /*line :line*/
+                    /*line :line:col*/
+                    /*line filename:line*/
+                    /*line filename:line:col*/
+                目的:
+                    go tool coverと同じように、元のソースコードと差し替えてコード生成したソースコードをコンパイルに用いるようなツールを作っている場合は、
+                    lineディレクティブを使って、エラーメッセージに元のソースコードの位置を含めると親切です
+                #ref: https://qiita.com/tenntenn/items/a82cc4711abd53944286
+    制御構文: #keyword: Go operation
+        関数: #keyword: Go func,  Go function
+            基本:
+                def  __FunctionName__() {}
+                def  __FunctionName__(__Parameters__) {}
+                など
+            プライベート関数:  #search: Go private function
+            可変長引数: #keyword: Go variadic parameter,  Go 可変長引数
+                #// 可変長引数をスライス（配列）で受け取ります
+                サンプル: |
+                    func  variable_length( arguments  ...int ) {
+                        return  arguments[0] + arguments[1]
+                    }
+                    ...
+                    
+                    variable_length( 1, 2 ) == 3
+                #search: Go 可変長引数展開
+            デフォルト引数:  #// Go の仕様にありません
+                代用:
+                    概要:
+                        - 可変長引数でオプションの構造体を渡します
+                        - フィールドは省略できます   #search: Go struct not initialized field
+                    サンプル: |
+                        package main
+
+                        import "fmt"
+
+                        func main() {
+                            function(9, Option{i: 23, s: "abc"}) // 23 abc
+                            function(9, Option{i: 23})           // 23 default
+                            function(9, Option{s: "abc"})        // 1 abc
+                            function(9)                          // 1 default
+                        }
+
+                        func function(dummy int, opt ...Option) {
+                            option := GetOption(opt)
+
+                            fmt.Println(option.i, option.s)
+                        }
+
+                        type Option struct {
+                            i int
+                            s string
+                        }
+
+                        func GetOption(opt []Option) *Option {
+                            option := Option{
+                                i: 1,
+                                s: "default",
+                            }
+                            if len(opt) != 0 {
+                                if opt[0].i != 0 {
+                                    option.i = opt[0].i
+                                }
+                                if opt[0].s != "" {
+                                    option.s = opt[0].s
+                                }
+                            }
+                            return &option
+                        }
+            init: #keyword: Go init function
+                概要: main 関数が呼ばれる前に呼ばれる関数です。それぞれのファイルに 1つ定義できます。
+                    実行順序が予測できないという理由で敬遠される人もいます。
+                サンプル: |  #// 引数や返り値は無い
+                    func init() {
+                        __Operations__
+                    }
+                実行順序:
+                    コンポーネントの init:
+                        import が指す先のモジュールの init 関数。モジュール内のファイルごとの init を呼び出す順序は不定
+                    コレクションの init:
+                        import が書かれているモジュールの init 関数。モジュール内のファイルごとの init を呼び出す順序は不定
+                    main:
+            モック: #keyword: Go mock  #ref: ${programming}/プログラミング言語、環境/go_language.svg#override_by_function_value
+            Getter, Setter: #keyword: Go getter setter  #// Go の仕様にありませんが、Effective Go に説明があります  #ref: https://go.dev/doc/effective_go#Getters
+                _: Go 言語の一般では GetXxx() は Xxx() という名前が付けられますが、公式的には GetOwner でもいいらしい。
+                サンプル: |
+                    owner := obj.Owner()
+                    if owner != user {
+                        obj.SetOwner(user)
+                    }
+                副作用がある Get:
+                    理想的には、Get という言葉からは「何かを取得する」ことが予想され、これは状態を変更しない
+                    （副作用を持たない）操作であるべきです。しかし、それは一般的な慣例であり、絶対的なルールではありません。
+                    #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: getter side effects
+        分岐: #keyword: Go if
+            三項演算子: #keyword: go 三項演算子 ? :
+                _: Go 言語では三項演算子は使えません  #ref: https://qiita.com/ruiu/items/61236f09b3469a679eb9
+                代用A: | #keyword: stringIf
+                    a := 1
+                    fmt.Println(stringIf(a == 1, dic{true: "OK", false: "NG"}))
+
+                    type dic map[bool]string
+
+                    func stringIf(condition bool, values dic) string {
+                        if condition {
+                            return values[true]
+                        } else {
+                            return values[false]
+                        }
+                    }
+                代用B: |
+                    map[bool]string{true: "Mitigation stats", false: "Not mitigation"}[ddosRestResponse.Mitigations.Ongoing]
+        繰り返し、ループ (for):
+            ループ変数: |
+                for  i := 0;  i < 10;  i++ {
+                }
+            ループ条件: |  #// while 文はありません
+                for  i < 10 {
+                }
+            無限ルール, ループ内で脱出: |
+                for {
+                }
+            range: |  #// index が要らないときは、代わりにアンダースコア(_) を書きます
+                an_array := []int{ 2, 5, 8 }
+                for  index,  value  := range  an_array {
+                    fmt.Println( index,  value )
+                }
+            ラベル付きループ: #keyword: Go label loop,  Go goto
+                書式: |  #// ループに名前を付けます。ループするものを指す名前がよいでしょう
+                    __Label__:
+                        for {
+                            if ___ {
+                                break __Label__
+                            }
+                            if ___ {
+                                continue __Label__
+                            }
+                        }
+                break __Label__: #keyword: Go break with label  #// 多重ループを抜けます。ラベルに指定したループを抜けます
+                continue __Label__: #keyword: Go continue with label  #// 多重ループの次に飛びます。ラベルに指定したループの次の要素から続けます
+        エラー処理:  #keyword: Go error  #ref: ${programming}/プログラミング言語、環境/go_language.svg#err
+            エラーを発生させます:
+                パラメーターが無い場合:
+                    return  errors.New("failed test")
+                パラメーターがある場合: |
+                    err = fmt.Errorf("message: %v", variable)
+            エラー メッセージ を表示します: |
+                err := errorWithStack()
+                if err != nil {
+                    log.Println(err)
+                }
+            サンプル集:
+                #ref: ${GitHub}/Trials/go/try_go/example/3_error/error_example.go
+            エラーの種類, 型:
+                error インターフェースを満たす構造体
+                    func (e ErrorType) Error() string
+            複数, multierror: | #keyword: Go multierror  #// 複数のオブジェクトをまとめます
+                import  "github.com/hashicorp/go-multierror"
+
+                func main() {
+                    err1 := errors.New("first error")
+                    err2 := errors.New("second error")
+                    err3 := errors.New("third error")
+                    errs := multierror.Append(err1, err2, err3)
+
+                    if errs.ErrorOrNil() != nil {  // エラーがあれば出力
+                        fmt.Println(errs.Error())
+                    }
+                }
+            zap:  #search: Go zap logger  #// エラー オブジェクト に対応したログ。ソース ファイル の場所と行番号もログに含まれます
+            Wrap: #keyword: Go error Wrap  #// 呼び出し先の エラー メッセージ が中に入った エラー オブジェクト を生成します
+                サンプル: |
+                        err = fmt.Errorf("message: %w", err) // Wrap
+                    #ref: ${GitHub}/Trials/go/try_go/example/3_error/error_example.go#func errorWrap
+                サンプル2: |  #focus: Wrap
+                    import "github.com/pkg/errors"
+                    err := Unmarshal(message, &encodedData)
+                    if err != nil {
+                        return  errors.Wrap(err, "failed to encode")  // オリジナリティがあるメッセージにするとデバッグ時に便利です
+                    print(err.data.error.data.msg)           // ラップしたエラー
+                    print(err.data.error.data.cause.data.s)  // 根本のエラー
+                参考:
+                    #ref: https://github.com/uber-go/guide/blob/master/style.md#error-wrapping
+            WithStack: #keyword: WithStack,  -stack-trace  #// ソース ファイル の場所と行番号（スタック トレース）を エラー オブジェクト に付けます
+                #// -stack-trace オプションを付けて起動すると、エラーに スタック トレース が付くコード
+                実装サンプル: #ref: ${GitHub}/Trials/go/try_go/example/3_error/error_example.go#func WithStack
+                    -stack-trace オプションを付けて起動すると、エラーに スタック トレース が付きます（１段のみ）
+                参考:
+                    How do you get a Golang program to print the line number of the error it just called?:
+                        #ref: https://stackoverflow.com/questions/24809287/how-do-you-get-a-golang-program-to-print-the-line-number-of-the-error-it-just-ca
+                    Golangでエラー時にスタックトレースを表示する:
+                        #ref: https://qiita.com/deeeet/items/dacc71932393ab35d9f8
+            サブクラスのメンバーを参照します:
+                #search: go type assertion
+            ユーザー定義 error: #keyword: go UserDefinedError  #focus: UserDefinedError, 
+                main: |  #ref: ${GitHub}/Trials/go/try_go/example/3_error/error_example.go#err = errorUserDefined
+                    err = errorUserDefined()
+                    if err != nil {
+                        err_ := err.(*UserDefinedError)
+                        log.Println(err)
+                        log.Println(err_.parameterA)
+                    }
+                func errorUserDefined: |  #ref: ${GitHub}/Trials/go/try_go/example/3_error/error_example.go#func errorUserDefined
+                    func errorUserDefined() error {
+                        err := &UserDefinedError{parameterA: 2}  // func NewUserDefinedError(____) *UserDefinedError を作ってもよい
+                        return err
+                    }
+                type UserDefinedError: |  #ref: ${GitHub}/Trials/go/try_go/example/3_error/error_example.go#type UserDefinedError
+                    type UserDefinedError struct {
+                        parameterA int
+                    }
+                    func (e *UserDefinedError) Error() string {
+                        return fmt.Sprintf("UserDefinedError {parameterA: %v}", e.parameterA)
+                    }
+            公式: #ref: https://go.dev/ref/spec#Errors
+    データ: #keyword: Go data
+        Println: #keyword: Go Println,  fmt.Println
+            #ref: ${programming}/プログラミング言語、環境/go_language.svg#Println
+        文字列: #keyword: Go string
+            一部: #keyword: Go string part
+                インデックスで要素を指定:  #search: Go array element
+                インデックスで範囲を指定:  #search: Go slice
+                区切り文字指定:
+                    最後（右）にマッチした位置より右: |
+                        func  rightOfLastCharacter(str string, character byte) string {
+                            index := strings.LastIndexByte(str, character)
+                            if index == -1 {
+                                return str
+                            }
+                            return  str[index+1:]
+                        }
+                    #// 標準ライブラリにありません
+            複数行:
+                \n を使う場合: |
+                    multi_line := "" +
+                        "Hey!! we\n" +
+                        "are going to\n" +
+                        "write multiline strings\n" +
+                        "in Go.\n"
+                (``) を使う場合: #keyword: Go raw string literal  #ref: https://go.dev/ref/spec#String_literals
+                    サンプル: |
+                        //
+                            multi_line := `Hey!! we
+                        are going to
+                        write multiline strings 
+                        in Go.
+                        `
+                    補足:
+                        改行文字は \r\n であっても Go 言語のデータとしては \n になります。
+                変数を埋め込むリテラル: #search: Go template literal
+            変数を埋め込むリテラル: #keyword: Go template literal  #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: Go template literal from AI
+                Go 言語 の場合: |  #// 言語仕様にはありません
+                    "string text "+ fmt.Sprint(expression) +" string text"
+                JavaScript の場合: |  #search: JavaScript テンプレート リテラル
+                    `string text ${expression} string text`
+                関連:
+                    Go 言語の ` ` で囲まれた文字列:  #search: Go raw string literal
+            置き換え:
+                基本: #ref: https://pkg.go.dev/strings#ReplaceAll
+                    wholeAfter = strings.ReplaceAll(wholeBefore, partBefore, partAfter)
+                正規表現で置き換え: |
+                        re := regexp.MustCompile(`[A-Za-z]+`)
+                        replaced := re.ReplaceAllString("123abc456def789", "--")
+                    #ref: ${GitHub}/Trials/go/try_go/example/4_string/replace/replace_example.go
+            trim:
+                - strings.TrimSpace(s)
+                - strings.TrimLeft(s, " ")
+                - strings.TrimRight(s, " ")
+            検索, 含む:
+                Contains: |  #keyword: go Contains,  go includes
+                    import "strings"
+                    if strings.Contains( aString, "Keyword" ) { ... }
+                Index: |  #ref: https://pkg.go.dev/strings#Index
+                    import "strings"
+                    notFound := -1
+                    if strings.Index( aString, "Keyword" ) >= 0 { ... }
+                Index slice:  #// 途中から検索します
+                    import "strings"
+                    notFound := -1
+                    if strings.Index( aString[n:], "Keyword" ) + n >= 0 { ... }
+                    #ref: https://stackoverflow.com/questions/25837030/find-index-of-a-substring-in-a-string-with-start-index-specified
+                LastIndex: |
+                    import "strings"
+                    notFound := -1
+                    if strings.LastIndex( aString, "Keyword" ) >= 0 { ... }
+            比較:
+                strings.HasPrefix("hello world", "hello")
+                strings.HasSuffix("hello world", "world")
+            fmt.Sprintf: #keyword: go fmt.Sprintf
+                サンプル:
+                    an_string = fmt.Sprintf( "value = %v",  an_object )
+                書式指定:  #ref: https://pkg.go.dev/fmt  #ref: ${programming}/プログラミング言語、環境/go_language.svg#fmt_format
+                (%v):  #ref: https://pkg.go.dev/fmt  >>  The default format for %v is
+                #// JavaScript の テンプレート リテラル と同じ書き方はできません
+            型:  #// byte[], rune
+                byte:
+                    リテラル:  #// 'a' など  #search: Go rune literal
+                        #// ASCII 範囲内（0-127）のリテラル文字の場合、rune 型から byte 型へ暗黙的に型変換ができます
+                byte[]変換: #keyword: go byte array
+                    byte[] ⇒ string:
+                        - var str = string(data)
+                        - var str = *(*string)(unsafe.Pointer(&data))
+                        #ref: https://chidakiyo.hatenablog.com/entry/2017/12/12/忘れがちなGoでbyteをstringに変換する方法をベンチマー
+                    string ⇒ byte[]:
+                        var data  = []byte("はろーhogehogeです。")
+                rune: #keyword: Go rune,  Go 文字 UTF-8 UTF-32  #ref: https://pkg.go.dev/unicode/utf8
+                    #// Go言語では文字のことを常に rune と呼んでいます
+                    rune 型:  #// 32 ビット int。UTF-32  #ref: https://pkg.go.dev/builtin#rune
+                    リテラル: #keyword: Go rune literal  #// 'a' など
+                        -   リテラル文字（'a' など）は rune 型です
+                        -   ASCII 範囲内（0-127）の場合、byte 型へ暗黙的に型変換ができます
+                        -   strings.IndexRune(path, 'c')  #// OK
+                        -   strings.IndexByte(path, 'c')  #// OK
+                    DecodeRune: #keyword: Go DecodeRune  #// UTF-8 のバイト列から最初の 1文字を取り出します  #ref: https://pkg.go.dev/unicode/utf8#DecodeRune
+                        書式: |
+                            func DecodeRune(p []byte) (r rune, size int)
+                        サンプル: |
+                            b := []byte("世界")
+                            rune, size := utf8.DecodeRune(b)  // rune == int("世"), 3
+                            fmt.Printf("%c %v\n", rune, size)
+                    IndexRune: | #keyword: Go IndexRune  #// 1文字をキーワードとして検索します  #ref: https://pkg.go.dev/strings#IndexRune
+                        // 見つからないと -1
+                        const (
+                            notFound = -1
+                        )
+                        quoteIndex := bytes.IndexRune(line, '"')
+                        if quoteIndex != notFound { 
+            デバッグ:  #search: go dlv maxStringLen
+        定数, 列挙体:  #ref: https://go.dev/doc/effective_go#constants  #ref: ${programming}/プログラミング言語、環境/go_language.svg#const
+            const: #keyword: Go const
+                const (
+                    A = 1
+                    B = "b"
+                )
+            enumerated constants: #keyword: Go enumerated constants
+                const (
+                    _           = iota // ignore first value by assigning to blank identifier
+                    KB ByteSize = 1 << (10 * iota)
+                    ZB
+                    YB
+                )
+        変数:
+            var: #keyword: Go var
+                概要: 初期値を指定しないときの変数定義に使います。
+                サンプル: |
+                    var b int
+                    if a == 1 {
+                        b = 2
+                    } else {
+                        b = 3
+                    }
+                上記を 1行で書く場合: |
+                    b := map[bool]int{true: 2, false: 3}[a == 1]
+        配列: #keyword: Go array  #ref: ${programming}/プログラミング言語、環境/go_language.svg#array
+            #ref: https://go.dev/tour/moretypes/6
+            キーワード:
+                append:  #search: Go append
+                cap:  #search: Go cap
+                for:  #search: Go for
+                len:  #search: Go len
+                make:  #search: Go make
+                range:  #search: Go range
+            代入: #keyword: let Go array
+                要素数が分かっている場合: |
+                    array := make([]string, len(source))  // make で配列を作っても代入したらスライスになります
+                    for i, item := range source {
+                        array[i] = "aaa"
+                    }
+                要素数が分からない場合: | #search: Go append
+                    array := make([]string, 0)
+                    for _, item := range source {
+                        array := append(array, "aaa")
+                    }
+                make: #keyword: Go make  #ref: ${programming}/プログラミング言語、環境/go_language.svg#make
+                    - __Slice__ := make([]__ElementType__, __Length__)  #search: let Go array
+                    - __Slice__ := make([]__ElementType__, __Length__, __Capacity__)
+            リターン: |  #keyword: Go return array
+                func BuildSlice(size int) []int {
+                    return make([]int, size)
+                }
+            リテラル:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#array
+            要素: #keyword: Go array element
+                書式:
+                    __Slice__[__Index__]
+                範囲外の場合:  #// index が 0 より小さく len 以上を指定した場合の動き
+                    _: panic が発生します
+                    サンプル: |
+                        a := ""
+                        a[0]
+                    エラー メッセージ: |
+                        runtime error: index out of range [0] with length 0"
+            スライス, 一部参照, 縮小: #keyword: Go slice  #ref: ${programming}/プログラミング言語、環境/go_language.svg#slices
+                書式:
+                    - __Slice__[__Start0__:__Over__]
+                    - __Slice__[__Start0__:]
+                    - __Slice__[:__Over__]  #// __Slice__[0:__Over__] と同じ
+                関連 >> 要素:  #search: Go array element
+                    __Slice__[__Index__]
+                配列とスライス:
+                    - スライスは配列を参照しています
+                    - スライスをコピーしても配列はコピーされません
+                一部参照:  #//  __Slice__[__Index0__, __OverOffset__]
+                比較:
+                    if bytes.Equal(slice1, slice2) {
+                最後の１つ:
+                    __Item__  := __Slice__[len(__Slice__)-1]
+                末尾を除外する:
+                    #// 下記はどれも同じ処理です
+                    - __Slice__[0:len(__Slice__)-1]  #// 未確認
+                    - __Slice__[:len(__Slice__)-1]   #// 未確認
+                途中を除外する:
+                    書式: append(__Slice__[:__Index0__], __Slice__[__Index0Plus1__:]...)  #// ... は要素の列に変換します  #keyword: Go 可変長引数展開  #// variadic arguments expansion
+                    サンプル: |  #focus: append
+                        func main() {
+                            slice := p("   ", []int{0, 1, 2, 3, 4})            // len: 5 cap: 5 [0 1 2 3 4]
+                            slice = p("    ", append(slice[:2], slice[3:]...)) // len: 4 cap: 5 [0 1 3 4]
+                        }
+                        func p(_ string, slice []int) []int {  #search: Go p int array
+            長さと容量, 追加: #keyword: Go len, Go cap  #ref: https://go.dev/doc/effective_go#append  #ref: ${programming}/プログラミング言語、環境/go_language.svg#len_cap
+                参照:
+                    len:
+                        len(array)
+                        len だけをずらすことはできません。append を使ってください
+                    cap:
+                        cap(array)
+                append: #keyword: Go append
+                    容量の増え方: |  #focus: cap
+                        func main() {
+                            // Start from a literal
+                            slice := p("   ", []int{0, 1, 2})      // len: 3 cap: 3 [0 1 2]
+                            slice = p("    ", append(slice, 3, 4)) // len: 5 cap: 6 [0 1 2 3 4]
+                            slice = p("    ", append(slice, 5, 6)) // len: 7 cap: 12 [0 1 2 3 4 5 6]
+
+                            // Start from calling make
+                            slice = p("   ", make([]int, 3))       // len: 3 cap: 3 [0 0 0]  make で配列を作っても代入したらスライスになります
+                            slice = p("    ", append(slice, 3, 4)) // len: 5 cap: 6 [0 0 0 3 4]
+                            slice = p("    ", append(slice, 5, 6)) // len: 7 cap: 12 [0 0 0 3 4 5 6]
+                        }
+
+                        func p(_ string, slice []int) []int { // #keyword: Go p int array
+                            fmt.Println("len:", len(slice), "cap:", cap(slice), slice)
+                            return slice
+                        }
+                    増えたときの動作:
+                        - len が増えても cap 以下の場合、len が増える（ずれる）だけで配列は増えないため高速です
+                        - len が cap を超えると配列を作り直してコピーします。C言語の realloc と同じ動作です
+                        - ただし、一般的にデータのコピーは高速なので、あまり気にしなくてもよいです。
+                        - 配列の中にあるポインターの先のオブジェクトは作り直しません。
+                    要素の参照の継続性:  #// 配列を作りなおしたとき、要素を参照していた変数から継続して参照できます
+                        検証コード: |  #focus: item
+                            type StructA struct {
+                                a int
+                            }
+
+                            func main() {
+                                slice := []StructA{{a: 0}, {a: 1}, {a: 2}}
+                                fmt.Println(cap(slice)) // 3
+                                item := slice[1]
+                                fmt.Println(item) // {1}
+
+                                slice = append(slice, StructA{a: 3}, StructA{a: 4})
+                                fmt.Println(cap(slice)) // 6
+                                fmt.Println(item)       // {1}
+                            }
+            for 文（繰り返し）: #keyword: Go for,  Go range  #ref: ${programming}/プログラミング言語、環境/go_language.svg#for_array
+                書式: for __Index__, __Item__ := range __Slice__ { ____ }
+                サンプル: |
+                    array := make([]string, len(source))
+                    for i, item := range source {
+                        array[i] = "aaa"
+                    }
+            フィルター:  #// Go 言語にはありません  #keyword: Go array filter,  Go array 内包 map
+                filter 相当のサンプル: |  #ref: https://stackoverflow.com/questions/37562873/most-idiomatic-way-to-select-elements-from-an-array-in-golang
+                    func filter(ss []string, test func(string) bool) (ret []string) {
+                        for _, s := range ss {
+                            if test(s) {
+                                ret = append(ret, s)
+                            }
+                        }
+                        return
+                    }
+
+                    ss := []string{"foo_1", "asdf", "loooooooong", "nfoo_1", "foo_2"}
+
+                    mytest := func(s string) bool { return !strings.HasPrefix(s, "foo_") && len(s) <= 7 }
+                    s2 := filter(ss, mytest)
+
+                    fmt.Println(s2)
+                map 相当のサンプル: |
+                    numbers := []int{1, 2, 3, 4, 5}
+
+                    result := make([]int, len(numbers))
+                    for i, num := range numbers {
+                        result[i] = num * 2
+                    }
+            includes, contains: #// 文字列配列に含まれるかどうかをチェックします
+                map を検討してください
+                includes, contains は Go 言語の標準にありません
+                #ref: https://stackoverflow.com/questions/10485743/contains-method-for-a-slice/66361144
+            ソート:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#sort
+        map, 辞書: #keyword: go map,  go dict  #ref: ${programming}/プログラミング言語、環境/go_language.svg#map
+            基本: |
+                aMap := map[string] int { "Mario": 1,  "Luigi": 2 }
+                fmt.Println( aMap )  // map[Luigi:2 Mario:1]
+            要素数: len(dic)
+            for 文（繰り返し）: #keyword: Go for map
+                書式: for __Key__, __Value__ := range __Map__ { ____ }
+            ソートしたキーを表示する関数:
+                コード: | #// reflect が必要なため、通常はその都度コードを書く必要があります
+                    // PK: type "call PK(map)" in VSCode debug console then print sorted keys
+                    func PK(m interface{}) {
+                        keys := []string{}
+                        keyReflects := reflect.ValueOf(m).MapKeys()
+                        for _, keyReflect := range keyReflects {
+                            keys = append(keys, keyReflect.String())
+                        }
+                        sort.Strings(keys)
+
+                        for _, key := range keys {
+                            fmt.Println(key)
+                        }
+                    }
+                メモ:
+                    - 複数行の文字列を返すと VSCode の debug console では ¥n を表示してしまいます
+                    - 実行するプログラムから少なくとも 1回は呼び出すようにしないと、関数はプログラムに入らなくなり、呼び出せなくなります
+            アイテムが empty の辞書: #keyword: go enpty map
+                    type dummy = struct{}
+                    keys := map[string]dummy{}
+                    keys[key] = dummy{}
+                #ref: https://stackoverflow.com/questions/57620170/can-you-have-a-map-with-no-value-in-go
+            フィールド アクセス: #keyword: go map field 
+                ネストしたフィールド: |  #keyword: go boolField,  go stringField,  go arrayField
+                    // ------------------------------------------------------------------------------
+                    // field アクセス
+                    // ------------------------------------------------------------------------------
+                    func boolField(mapping map[string]interface{}, fieldNames string, defaultValue bool) bool {
+                        return leafField(mapping, fieldNames, defaultValue).(bool)
+                    }
+
+                    func stringField(mapping map[string]interface{}, fieldNames string, defaultValue string) string {
+                        return leafField(mapping, fieldNames, defaultValue).(string)
+                    }
+
+                    func arrayField(mapping map[string]interface{}, fieldNames string) []map[string]interface{} {
+                        array := leafField(mapping, fieldNames, []interface{}{}).([]interface{})
+                        returnValue := []map[string]interface{}{}
+                        for _, item := range array {
+                            returnValue = append(returnValue, item.(map[string]interface{}))
+                        }
+                        return returnValue
+                    }
+
+                    func leafField(mapping map[string]interface{}, fieldNames string, defaultValue interface{}) interface{} {
+                        notFound := -1
+                        fieldName := ""
+                        for {
+                            period := strings.Index(fieldNames, ".")
+                            if period == notFound {
+                                fieldName = fieldNames
+                            } else {
+                                fieldName = fieldNames[0:period]
+                            }
+                            if fieldName == "" {
+                                panic("bad field name")
+                            }
+
+                            if mapping[fieldName] == nil {
+                                return defaultValue
+                            } else if period == notFound {
+                                return mapping[fieldName]
+                            } else {
+                                mapping = mapping[fieldName].(map[string]interface{})
+                            }
+                            fieldNames = fieldNames[period+1:]
+                        }
+                    }
+            アイテムが配列の辞書: #keyword: go array map
+                #search: go arrayField
+            要素の有無:
+                サンプル:
+                    _,  is_there_Mario := a_map[ "Mario" ]
+                    fmt.Println( is_there_Mario )  // true
+                    #// 指定したキーの要素があるかどうかを調べるには、要素を参照してその２つ目の返り値を代入します
+                    #ref: https://go-tour-jp.appspot.com/moretypes/22
+                キーが無いときの要素:
+                    Wario := a_map[ "Wario" ]
+                    fmt.Println( Wario )  // {0 0}
+                    #// 指定したキーの要素がなければ、nil になります。
+        クラス, インターフェース, 構造体: #keyword: Go class  #ref: ${programming}/プログラミング言語、環境/go_language.svg#object
+            #// Go 言語では「クラス」という概念はありませんが「レシーバー」という概念があります  #search: Go receiver
+            実装へジャンプ: VSCode >> Ctrl + F12 キー  #keyword: go navigate implementation
+            struct, interface: #keyword: Go struct, Go interface  #ref: ${programming}/プログラミング言語、環境/go_language.svg#interface
+                interface 型の値: |
+                    - object := MyInterface(&Vertex{X: 1, Y: 2})
+                    - object := MyInterface(nil)
+                サンプル: |  #focus: MyInterface, XPlusY, Vertex  #ref: ${GitHub}/Trials/go/try_go/example/inheritance/interface_example.go
+                    type MyInterface  interface {  // インターフェース
+                        XPlusY() int
+                    }
+
+                    type Vertex struct {  // クラスの属性
+                        X int
+                        Y int
+                    }
+
+                    func ( this  *Vertex ) XPlusY() int {  // 構造体のメソッド（クラスのメソッド）
+                        return  this.X + this.Y
+                    }
+
+                    func  main() {
+                        anObject := Vertex{X: 1, Y: 2} // オブジェクトの生成
+                        anObjectPointer := MyInterface(&anObject)
+                        fmt.Println(anObjectPointer.XPlusY()) // 3
+
+                        InterfaceFunction(&anObject)
+                    }
+
+                    func InterfaceFunction(object MyInterface) {
+                        fmt.Println(object.XPlusY()) // 3
+                    }
+                フィールドの省略: | #keyword: Go struct not initialized field  #// フィールドは Go 言語の正式名です
+                    type Vertex struct {  // クラスの属性
+                        X int
+                        Y int
+                    }
+
+                    Vertex{ X: 1 }  // Y = 0 になります。string 型なら ""。
+                フィールド名のスタイル:  #search: Go coding style
+                    Pascal ケースまたは Camel ケース。決まっていない。
+                    Pascal ケースが基本。ただし、Getter がある場合は Camel ケース。が良いでしょう。
+                タグ文字列: #keyword: Go tag string
+                    概要: タグ文字列は、Go言語の構造体を別の形式にマーシャリングするときに参照されます。
+                        タグ文字列は、通常 ` ` （バッククォート）で囲む文字列を使うことで、文字列中に
+                        " " ダブルクォートを入れることができるようにします。
+                    サンプル: |  #// フィールド X のタグ文字列は、json:"x"
+                        type Vertex struct {
+                            X int `json:"x"`
+                            Y int `json:"y"`
+                        }
+                    JSON: #keyword: Go JSON tag name
+                        map を含む場合:  #focus: map
+                            型定義: |
+                                type Data struct {
+                                    Name   string             `json:"name"`
+                                    Detail map[string] string `json:"detail"`
+                                }
+                            サンプル JSON: 
+                                {
+                                    "name": "John",
+                                    "detail": {
+                                        "city": "New York",
+                                        "job": "Engineer",
+                                    }
+                                }
+                            Detail の値: |
+                                map[string] string {
+                                    "city": "New York",
+                                    "job": "Engineer",
+                参考:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#structure
+            New__Type__, New, コンストラクター:  #search: Go constructor
+            メソッド, レシーバー:  #search: Go method
+            コピー: | #keyword: Go copy  #// 代入ではコピーできませんが関数の引数で shallow コピーができます
+                type StructA struct {
+                    X int
+                    Y int
+                }
+
+                func Copy(a StructA) *StructA {
+                    return &a
+                }
+
+                func main() {
+                    a := &StructA{X: 1, Y: 2}
+                    b := Copy(*a)
+                    b.X = 3
+                    fmt.Println(a.X, a.Y)
+                    fmt.Println(b.X, b.Y)
+                }
+            extension method, メソッドの追加: #keyword: go extension  #// 既存のクラスにメソッドを追加することはできませんがその代わりの方法
+                interface を拡張する場合:
+                    #ref: ${GitHub}/Trials/go/try_go/example/inheritance/extension_example.go#focus:
+                interface を拡張して interface を使う場合:
+                    #ref: ${GitHub}/Trials/go/try_go/example/inheritance/extension_interface_example.go#focus:
+                data facade を使う場合:
+                    #ref: ${GitHub}/Trials/go/try_go/example/inheritance/data_facade_example.go#focus:
+                基本型や構造体を拡張する場合:
+                    #ref: ${GitHub}/Trials/go/try_go/example/inheritance/extension_string_example.go#focus:
+            String メソッド: #keyword: go String  #// object.String()
+                object.String()
+            dig (DI): #keyword: go.uber.org/dig,  Go DI Dependency Injection  #ref: https://pkg.go.dev/go.uber.org/dig
+                Provide: #keyword: dig.Provide  #// provider にコンストラクター（型）を登録します  #ref: https://pkg.go.dev/go.uber.org/dig#Container.Provide
+                    学習用コード: |  #focus: __ContainerInterfaceType__
+                        c := dig.New()   #keyword: dig.New  #// dig.Container type  #ref: https://pkg.go.dev/go.uber.org/dig#New
+                        c.Provide(func (r __ComponentType__) __ContainerInterfaceType__ {
+                            return &__ContainerType__{__ComponentType__: r}
+                        })
+                    関係図: __ContainerInterfaceType__ ◯-- __ContainerType__ ◇-- __ComponentType__
+                    #ref: https://int128.hatenablog.com/entry/2019/01/28/143158
+                    推奨コード:  #// モジュールごとに１つだけ書きます
+                        ベストプラクティス: 下記 DigProvide 関数の引数は dig.Container だけにし、Provide 関数の呼び出しをシンプルに並べます。
+                            Provide まで依存関係を考慮してしまうと、DI を使う意味がなくなるので非推奨です。
+                            #ref: ${typrm_files}/ref/Python-AI.yaml#label: DI simple provide
+                        サンプル di.go: |
+                            package  mypackage
+
+                            import "go.uber.org/dig"
+
+                            func DigProvide(container *dig.Container) error {
+
+                                err := container.Provide(New__ClassA__) // *__ClassA__
+                                if err != nil {
+                                    return err
+                                }
+                                err := container.Provide(New__ClassB__) // *__ClassB__
+                                if err != nil {
+                                    return err
+                                }
+                                return nil
+                            }
+                Invoke: #keyword: dig.Invoke  #// オブジェクトを生成します  #ref: https://pkg.go.dev/go.uber.org/dig#Container.Invoke
+                    コード: |  #focus: __ContainerInterfaceType__
+                        c.Invoke(func (u __ContainerInterfaceType__) {
+                            u.__Method__()
+                        })
+                    #ref: https://int128.hatenablog.com/entry/2019/01/28/143158
+                    トラブルシューティング:  #search: dig Invoke trouble
+                dig.In:  #// provider に型を登録します
+                    コード: |  #focus: __ContainerInterfaceType__
+                        type __ContainerType__ struct {
+                            dig.In
+                            __ComponentName__ __ComponentType__
+                            __ComponentName__ __ComponentType__
+                        }
+                    #ref: https://int128.hatenablog.com/entry/2019/01/28/143158
+                依存関係(String): #keyword: dig.Graph  #focus: graph  #// 構築されたオブジェクトの依存関係を一覧します  #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: Go dig Graph from AI 
+                    コード:  #focus: String
+                        c := dig.New()
+                        c.Provide(____)
+                        c.Provide(____)
+                        fmt.Println(c.String())
+                    出力例: |  #// __ContainerType__ -> deps: [__ComponentType__], ctor: __Constructor__
+                        nodes: {
+                            kafka.IProducer -> deps: [*kafka.ServiceBuilder], ctor: func(*kafka.ServiceBuilder) (kafka.IProducer, error)
+                            *elastic.Client -> deps: [*elastic.ClientBuilder], ctor: func(*elastic.ClientBuilder) (*elastic.Client, error)
+                            ...
+                        }
+                        values: {
+                        }
+                    有向グラフ JSON に変換:  #keyword: dig graph JSON  #// dig の依存関係の出力を、JSON 形式の有向グラフに変換します
+                        サンプル:
+                            dig の出力: |
+                                A -> deps: [B C], comment
+                                B -> deps: [D A C], comment
+                            出力 JSON: |
+                                {
+                                    "nodes": [
+                                        {"id": "A"},
+                                        {"id": "B"},
+                                        {"id": "C"},
+                                        {"id": "D"}
+                                    ],
+                                    "edges": [
+                                        {"source": "A", "target": "B"},
+                                        {"source": "A", "target": "C"},
+                                        {"source": "B", "target": "D"},
+                                        {"source": "B", "target": "A"},
+                                        {"source": "B", "target": "C"}
+                                    ]
+                                }
+                        変換スクリプト: | #keyword: go-dig-json  #// ChatGPT 製、動作確認済み。85行の入力で約 10秒かかります
+                            #!/bin/bash
+
+                            nodes='{}'
+                            edges='[]'
+
+                            # input.txtを一行ずつ読み込みます
+                            while IFS= read -r line; do
+                                # ノード名とエッジのリストを抽出します
+                                node=$(echo $line | cut -d' ' -f1)
+                                deps=$(echo $line | cut -d'[' -f2 | cut -d']' -f1)
+
+                                # ノードを追加します
+                                nodes=$(echo $nodes | jq --arg node $node '. + {($node): true}')
+
+                                # エッジを追加します
+                                for dep in $deps; do
+                                    edges=$(echo $edges | jq -c --arg node $node --arg dep $dep '. + [{"source": $node, "target": $dep}]')
+                                done
+                            done < "input.txt"
+
+                            # ノードとエッジを最終的なJSONオブジェクトにまとめます
+                            json=$(jq -n \
+                                    --argjson nodes "$(echo $nodes | jq 'to_entries | map({id: .key})')" \
+                                    --argjson edges "$edges" \
+                                    '{nodes: $nodes, edges: $edges}')
+
+                            # JSONを出力します
+                            echo $json
+                        実行:  #// 実行結果の JSON は NetworkX で処理できます  #search: NetworkX JSON
+                            ./go-dig-json > out.json
+                依存関係(Visualize): #keyword: dig.Visualize
+                    コード:
+                        container *dig.Container
+
+                        dig.Visualize(container, os.Stdout)
+                    出力:  #focus: label=<__Package__.__Type__>,  __PathToSourceFolder__,  __PrviideCaller__
+                        サンプル: |
+                            digraph {
+                                rankdir=RL;
+                                graph [compound=true];
+
+                                subgraph cluster___Num1__ {
+                                    label = "__PathToSourceFolder__";
+                                    constructor___Num1__ [shape=plaintext label="__PrivideCaller__.func1"];
+                                    
+                                    "__Package__.__Type__" [label=<__Package__.__Type__>];
+                                }
+                                subgraph cluster___Num2__ {
+                                ...
+                        説明:
+                            label=<__Package__.__Type__>: 親クラス？
+                            __PathToSourceFolder__: Privide を呼んでいる .go ファイルがあるフォルダー
+                            __PrviideCaller__: Privide を呼んでいる関数
+                トラブルシューティング (dig):
+                    - #// Invoke に指定した関数が呼ばれない  #keyword: dig Invoke trouble
+                        対処A:
+                            Provider 関数の呼び出しログを表示します:
+                                Call:  #ref: ~/go/pkg/mod/github.com/__Dig__/dig.go
+                                    オリジナル: |
+                                        func (n *node) Call(c containerStore) error {
+                                            results := c.invoker()(reflect.ValueOf(n.ctor), args)
+                                    デバッグ表示する場合: |
+                                        func (n *node) Call(c containerStore) error {
+                                            fmt.Printf("@@@@@@@@@@ start %v\n", n.location.String())
+                                            results := c.invoker()(reflect.ValueOf(n.ctor), args)
+                                            fmt.Printf("@@@@@@@@@@ end %v\n", n.location.String())
+                        対処B:
+                            DryRun 実行します。
+                                c := dig.New(dig.DryRun(true))
+                            これで Invoke が成功した場合、Provider に指定した関数の中に問題があります。
+                        対処C:
+                            Invoke の返り値 (error) の内容を確認します
+                        対処D:
+                            依存関係を表示します  #search: dig.Graph
+                        対処E:
+                            関数の引数の型が合っているか調べます:
+                                dig.Provide に指定したオブジェクトの型に一致する必要があります
+            参考:
+                ユーザー定義 error: #search: go UserDefinedError 
+        キャスト: #keyword: go cast
+            静的:
+                概要:
+                    数値の型を変えることができます。
+                    type ステートメントで、型名を変えただけの型に使えます。
+                サンプル:
+                    float32( int_value )
+            動的: #keyword: go type assertion,  型アサーション（動的型チェック、動的型変換）
+                成功したときだけ分岐する場合: |  #ref: https://stackoverflow.com/questions/18771569/avoid-checking-if-error-is-nil-repetition
+                    if _, ok := err.(*json.UnmarshalTypeError); ok {
+                        fmt.Println(err.(*json.UnmarshalTypeError).Offset) // err.data.Offset
+                    }
+                失敗したら panic させる場合:
+                    floatValue := variable.(float32)
+                    data := variable.(*Structure)  #// .(Structure) では cannot have dynamic type エラーになります
+                失敗したかどうかを変数に入れる場合:
+                    floatValue, ok = variable.(float32)
+                    data, ok = variable.(*Structure)
+                Visual Studio Code での表示: |  #keyword: Visual Studio Code Go watch
+                    WATCH ビューで展開すると、ポインター参照や data が間に挟まりますが無視して展開してください。
+                    インターフェースを展開すると型が一覧されます。
+                    // ClassA(object).agents[0].(*ClassB).dataType
+                    object
+                        *
+                            agents
+                                [0]
+                                    data
+                                        *
+                                            ClassB
+                                                dataType
+                #ref: ${programming}/プログラミング言語、環境/go_language.svg#type_assertion
+            配列への map にキャストします:  #search: go arrayField
+        TypeOf:  #keyword: go TypeOf  #// reflect.Type 型
+            型の参照:
+                typeName := fmt.Sprintln(reflect.TypeOf(__Variable__))  // 例 "map[string]interface {}\n"
+                _ = []interface{}{typeName}  #// （必要なら）コンパイル エラー を回避します
+            __Variable__:
+                構造体変数、または、構造体型のゼロ値（例 time.Time{}）
+                reflect.TypeOf に渡すと、型情報だけ使われ、値は使われません
+            比較:
+                コード: t == reflect.TypeOf(__Variable__)
+                処理内容: 型が一致するかどうかを比較します。メンバーが一致するかどうかではありません
+        interface:
+            "interface{}": 任意のインターフェース
+            "[]interface{}": 任意のインターフェースの配列
+            #ref: ${GitHub}/Trials/go/try_go/example/yaml/yaml_example.go        
+            #ref: ${programming}/プログラミング言語、環境/go_language.svg#switch_type
+        DI, wire:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#wire
+            サンプル: |
+                package main
+
+                import (
+                    "github.com/google/wire"
+                )
+
+                func provideMyType() *MyType {
+                    return &MyType{}
+                }
+
+                type MyType struct {
+                    // フィールド定義
+                }
+
+                func main() {
+                    var mySet = wire.NewSet(provideMyType)  // #keyword: wire.NewSet example
+
+                    instance, err := InitializeMyType()  // #search: Go wire Initialize__Type__
+                    if err != nil {
+                        // エラー処理
+                    }
+                }
+            リファレンス:
+                wire:
+                    wire.NewSet:  #search: wire.NewSet example
+                        #ref: https://github.com/google/wire/blob/main/docs/guide.md#:~:text=NewSet
+                InitializeMyType,  Initialize__Type__: #keyword: Go wire Initialize__Type__
+                    - インスタンスを生成する関数
+                    - コンパイル時に Wire ツールによって生成されます
+        日時: #keyword: Go time
+            Duration: #keyword: Go Duration  #ref: https://pkg.go.dev/time#Duration
+                単位: ナノ秒 (1/1000,000,000 秒)
+                扱える範囲: 約290年 (64bit)
+                ParseDuration:  #ref: https://pkg.go.dev/time#ParseDuration
+                    使える単位: ["ns", "us", "µs", "ms", "s", "m", "h"]
+                        #// 年月日は独自に実装が必要です
+        バージョン番号: #keyword: Go semantic versioning
+            比較します:  #ref: ${GitHub}/Trials/go/try_go/example/version_compare/version_compare_example.go
+            関連 >> Go 言語のバージョン:  #search:
+        Getter, Setter:  #search: Go getter setter
+    関数, メソッド:
+        関数:  #search: Go function
+        メソッド: #keyword: Go method,  Go receiver
+            基本:
+                func (w *__ReceiverType__) __MethodName__(__Parameters__) __ReturnType__ {
+            レシーバー:
+                - Go 言語にはクラスの概念がありません。メソッドのクラスに対応する概念はレシーバーです
+                - レシーバーになれるのは、構造体だけでなく基本型（int など）もなれます
+            アクセス制御: #keyword: Go アクセス制御
+                プライベート メソッド: #keyword: Go private method,  Go public method
+                    - パッケージの外から呼び出せないメソッドです
+                    - メソッド名を小文字から始めます
+                プライベート関数: #keyword: Go private function
+                    - パッケージの外から呼び出せない関数です
+                    - メソッド名を小文字から始めます
+                テスト:  #// テスト コード もアクセス制御の影響を受けます。 テスト コード をどのパッケージの中に入れるかがテスト対象のアクセス制御によって制限されます
+                    #search: Go private method test
+    パッケージ:  #search: Go package
+ファイル: #keyword: Go file
+    ファイル名: #ref: https://golang.hateblo.jp/entry/golang-filepath-split-path
+        サンプル: |
+            name := "/path/to/dir/filename.txt"
+
+            extname := filepath.Ext(name)
+            println(extname) // .txt
+
+            basename := filepath.Base(name)
+            println(basename) // filename.txt
+
+            dirname := filepath.Dir(name)
+            println(dirname) // /path/to/dir
+
+            dirname, basename = filepath.Split(name)
+            println(basename) // filename.txt
+            println(dirname)  // /path/to/dir/  (Dir と違って最後に / が付いてる)
+    バイナリ ファイル アクセス:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#ioutil
+        アプリケーション用:
+            io.ReadFile: #keyword: Go ReadFull
+            io/ioutil.ReadAll: #keyword: Go ReadAll
+                #// ioutil は Go 1.16 で非推奨になりました
+                書式: |
+                    import  "io/ioutil"
+                    func  ReadAll( r io.Reader ) ([]byte, error)
+                サンプル: |  #focus: ReadAll
+                    func main() {
+
+                        file, err := os.Open("file.txt")
+                        if err != nil {
+                            log.Fatal(err)
+                        }
+                        defer file.Close()
+                        readBinary, err := ioutil.ReadAll(file)
+
+                        text := string(readBinary)
+                        fmt.Print(text)
+                    }
+        テスト用: | #keyword: testtool ReadBinaryFile
+            package testtool
+
+            import (
+                "os"
+                "testing"
+            )
+
+            func ReadBinaryFile(t *testing.T, filePath string) []byte {
+                t.Helper()
+
+                data, err := os.ReadFile(filePath)
+                if err != nil {
+                    currentFolder, _ := os.Getwd()
+                    t.Fatalf("%s からファイル %s を読み込めませんでした: %v", currentFolder, filePath, err)
+                }
+
+                return data
+            }
+    設定ファイル:
+        viper: #keyword:
+            viper.Unmarshal: #keyword:  #// 設定ファイルをパースします
+                viper.SetConfigName("settings")       // 設定ファイルが見つからないとエラーになります
+                viper.SetConfigType("yaml")           // 設定ファイルは settings.yaml ファイル
+                viper.AddConfigPath(".")              // 設定ファイルは カレント フォルダー 内、
+                viper.AddConfigPath("$HOME/.appname") // または $HOME/.appname フォルダー内
+
+                err := viper.ReadInConfig()      // 設定ファイルをリードします
+                err := viper.Unmarshal(&config)  // 設定ファイルをパースします
+                    // config に指定した構造体に格納されます。
+                    // データ（Camelケース）に対応するフィールド（Pascalケース）が構造体に無ければ、データは格納されません
+                    // フィールドに対応するデータが無ければ、ゼロ値が格納されます
+            その他:  #search: viper
+    ファイル パス: #keyword: Go path
+        GOPATH:  #search: GOPATH
+        import:  #search: Go import  #// import に指定するパス
+        go test:  #search:  #// go test に指定するパス
+            テスト コード:  #search: Go ./__TestCodeFolder__
+            testdata フォルダー, テスト ファイル:  #search: Go testdata folder
+    JSON:
+        サンプル: |
+            import "encoding/json"
+            type Person struct {
+                Name string `json:"name"`
+                Age  int    `json:"age"`
+                City string `json:"city"`
+            }
+            jsonStr := `{"name": "John Doe", "age": 30, "city": "Tokyo"}`
+
+            var person Person
+            json.Unmarshal([]byte(jsonStr), &person)
+        サンプル2: |
+            bBody, err := json.Marshal(hreq.Body)  // bBody: []byte
+            body = bytes.NewReader(bBody)
+
+            err = json.NewDecoder(body).Decode(responseBody)
+            if err != nil {
+                return err
+            }
+        ダウンロードしたデータ:  #keyword: Go JSON read data  #// json.NewDecoder(body).Decode(responseBody) を使う場合
+            下記でブレークします:
+                Decode:  #ref: /usr/lib/golang/src/encoding/json/stream.go
+                    func (dec *Decoder) Decode(v any) error {
+                        n, err := dec.readValue()
+                        // dec.buf ([]byte 型) を表示
+        #search: go UnmarshalTypeError
+    YAML: #keyword: go YAML
+        公式: #ref: https://pkg.go.dev/gopkg.in/yaml.v2
+        サンプル プロジェクト:  #ref: ${GitHub}/Trials/go/try_go/example/yaml/yaml_example.go
+        YAML から map にします, Unmarshal:
+        YAML から構造体にします, UnmarshalStrict:
+        参考: #ref: https://golang.hateblo.jp/entry/2018/11/08/183555
+    XML: #keyword: go XML
+        Unmarshal:  #// XML をパースします
+            構造体のメンバーに対応する XML タグが無い場合、 0 や "" が入ります
+            #ref: https://pkg.go.dev/encoding/xml#Unmarshal
+        Snap Note: #ref: ${programming}/プログラミング言語、環境/go_language.svg#XML
+    syslog: #keyword: Go syslog  #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: Go syslog from AI
+    msgpack: #keyword: Go msgpack,  Go MessagePack  #// github.com/vmihailenco/msgpack
+        #search: MessagePack
+        サンプル: |  #focus: item,  Name
+            package main
+
+            import (
+                "fmt"
+                "log"
+
+                "github.com/vmihailenco/msgpack"
+            )
+
+            type Item struct {
+                ID   int    `msgpack:"id"`
+                Name string `msgpack:"name"`
+            }
+
+            func main() {
+                item := &Item{
+                    ID:   1,
+                    Name: "SampleItem",
+                }
+
+                b, err := msgpack.Marshal(item)
+                if err != nil {
+                    log.Fatalf("Failed to encode item: %s", err)
+                }
+
+                fmt.Printf("Encoded item: %v\n", b)
+            }
+        トラブルシューティング:
+            - #// msgpack: invalid code=61 decoding map length
+                手順: err := msgpack.Unmarshal(message.Value, &encData)
+                エラー: |
+                    msgpack: invalid code=61 decoding map length
+                対処:
+                    正しい msgpack 形式を渡してください。
+                    #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: Go msgpack decoding map length error from AI
+    go.mod ファイル: #keyword: go.mod
+        サンプル:  #search: Go new project
+            module main.go
+
+            go 1.16
+
+            require (
+            )
+        フィールド:  #// 上記サンプルなどのキーワードの説明
+            go: #keyword: go.mod go version  #// 言語仕様のバージョン。go version コマンドで表示される Go コンパイラーやライブラリが使われますが、
+                言語仕様（構文など）は go.mod ファイル に指定されたバージョンの仕様です。
+                #search: Go version in execute binary file
+        編集:  #search: go get
+    go.sum ファイル: #keyword: go.sum
+        go get を実行すると自動で作られます。
+        使えるパッケージの一覧
+    実行ファイル:
+        Go のバージョン: #keyword: Go version in executable binary file  #// 実行ファイルを作った Go 言語 のバージョン
+            表示: go version -m __ExecutableBinaryFilePath__
+            関連 >> go.mod に指定した go のバージョン:  #search: go.mod go version
+ネットワーク, 通信:
+    HTTP: #keyword: Go HTTP,  Go language REST
+        net/http: #keyword: Go net/http
+            クライアント: |
+                import  "net/http"
+                client := &http.Client{
+                    Timeout: 10 * time.Second,  // タイムアウト値を10秒に設定
+                req, err := http.NewRequest("GET", "http://example.com", nil)
+                resp, err := client.Do(req)
+            モック相当:  #// クライアントが受け取るレスポンスを置き換える場合
+                #focus: log.json, resp.Body
+                Go 1.16 以降: |
+                    resp, err := client.Do(req)
+                    ////////////// Debug
+                    if url == "http://localhost:8082/customers" {
+                        content, _ := os.ReadFile("log.json")
+                        resp.Body = io.NopCloser(strings.NewReader(string(content)))
+                        data, err := io.ReadAll(resp.Body)
+                    }
+                    ////////////// Debug (end)
+                Go 1.16 未満: |  #// 処理内容は変わりません
+                    resp, err := client.Do(req)
+                    ////////////// Debug
+                    if url == "http://localhost:8082/customers" {
+                        content, _ := ioutil.ReadFile("log.json")
+                        resp.Body = ioutil.NopCloser(strings.NewReader(string(content)))
+                        data, err := ioutil.ReadAll(resp.Body)
+                    }
+                    ////////////// Debug (end)
+        GIN: #keyword: Go GIN  #ref: https://github.com/gin-gonic/gin
+            サンプル: | 
+                engine:= gin.Default()
+                engine.GET("/", func(c *gin.Context) {
+                    c.JSON(http.StatusOK, gin.H{
+                        "message": "hello world",
+                    })
+                })
+                engine.Run(":3000")
+プロセス, スレッド: #keyword: Go process  #// チャンネル, キャンセル, エラー
+    go run: #keyword:  #// 実行します
+        ソース ファイル が 1つの場合:
+            go run main.go
+        ソース ファイル が複数の場合:
+            #// 以下のいずれか
+            - go run "."   #// ソース ファイル が入ったフォルダーを指定します
+            - go run main.go sub.go  #// 必要な ソース ファイル をすべて指定します
+        オプションを渡す場合:
+            - go run main.go --option
+            - go run main.go -option  #// オプションの最初のハイフンは 1つでも 2つでも構いません
+            #// -- の右に指定するとプログラムに渡りません (go 1.19.5) 
+            #//     go run main.go -- --option
+    CLI 起動パラメーター: #keyword: go cli parameters
+        flag:
+            サンプル: |
+                var (
+                    schemaFileName = flag.String("schema", "schema.json", "-schema schema.json")
+                    stackTrace     = flag.Bool("stack-trace", false, "-stack-trace")
+                )
+                if !*stackTraceArg {
+                    return err
+                }
+        Flags:  #keyword: Go Flags, Go command line option  #// プロセス起動オプション
+            サンプル:  #// go 1.19.5
+                コード: |
+                    var portOption = flag.String("port", "8080", "server port")
+
+                    func main() {
+                        flag.Parse()  #// Parse を呼び出す必要があります
+                        log.Printf("port: %s", *portOption)
+                    }
+                コマンド:
+                    go run example.go  --port 8088
+            #ref: ${programming}/プログラミング言語、環境/go_language.svg#flag_package
+        Cobra: #keyword: Go Cobra  #ref: https://github.com/spf13/cobra
+            コールツリー:  #focus: sub-command,  __Operations__, subCommand
+            subCommand:  #// __Application__ sub-command で呼ばれる関数などの定義
+                初期値:
+                    # var subCommand = &cobra.Command{
+                        Use: "sub-command"
+                        Run: func(cmd *cobra.Command, args []string) { __Operations__
+                Options:
+                    サンプル:
+                        flags := command.Flags()
+                        flags.IntVarP(&option.IntOption, "num", "n", 0, "This is an int option")
+                        flags.StringVarP(&option.StringOption, "str", "s", "default", "This is a string option")
+                        // 標準の Flags の書き方とは異なります  #search: Go Flags
+                    StringVar:  #// 長い名前しかないオプションで、プログラムでは string 型で扱います
+                        flags.IntVar(__AddressOfVariable__, __LongOptionName__, __DefaultValue__, __Description__)
+                    StringVarP: #// 長い名前と短い名前があるオプションで、プログラムでは string 型で扱います
+                        flags.IntVarP(__AddressOfVariable__, __LongOptionName__, __ShortOptionName__, __DefaultValue__, __Description__)
+                    __LongOptionName__: |
+                        "port-num" を指定すると --port-num __Value__ オプションが指定できるようになります
+                    IntVar:  #// 長い名前しかないオプションで、プログラムでは int 型で扱います
+                    IntVarP: #// 長い名前と短い名前があるオプションで、プログラムでは int 型で扱います
+            rootCmd:  #// defined in root.go file  #// 通常編集しません
+                # subCommand
+                # var rootCmd = &cobra.Command{
+                # func Execute() {
+                #     if err := rootCmd.Execute(); err != nil {
+            init:  #search: Go init function
+                # func init() {
+                #     rootCmd.AddCommand(subCommand)
+            main:
+                # import "github.com/spf13/cobra/cobra/cmd"
+                # func main() {
+                #     cmd.Execute()
+                Execute:  #// defined in root.go file
+                    ...:
+                        func (cobra.Command.Run):
+                            func(cmd *cobra.Command, args []string) { __Operations__
+            #ref: https://zenn.dev/tama8021/articles/22_0627_go_cobra_cli
+            #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: Cobra exmple 
+            #ref: https://qiita.com/tkit/items/3cdeafcde2bd98612428
+        その他:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#arg
+    Goroutines: #keyword: Goroutines, go go
+        #ref: ${programming}/プログラミング言語、環境/go_language.svg#Goroutines
+        同期: |  #ref: https://pkg.go.dev/sync#WaitGroup
+            import "sync"
+            wg := &sync.WaitGroup{}
+            for {
+                go func(i int) {       // #keyword: go func
+                    defer wg.Done()
+                    ____
+                }
+            }
+            wg.Wait()
+    chan:  #keyword: Go chan チャンネル, Go チャネル  #// ゴルーチン間のキュー
+        #ref: ${programming}/プログラミング言語、環境/go_language.svg#Goroutines
+    context:  #keyword: Go context  #// 待ち、キャンセル処理、タイムアウト、メッセージ パッシング
+        公式: #ref: https://tip.golang.org/doc/go1.7#context  #ref: https://pkg.go.dev/context
+        参考: https://qiita.com/taizo/items/69d3de8622eabe8da6a2
+        context:  #// パッケージ
+            Background:  #search: Go Background  #// コンテキストを生成します  #ref: https://pkg.go.dev/context#Background
+                func Background() Context
+                __GoContext__ = context.Background()
+                #search: Go Context interface
+            go:  #// ゴルーチンを開始します
+                書式: go __Function__ (__Context__)
+                サンプル: |
+                    context1, cancel := context.WithCancel(context.Background())
+                    go func(context1 context.Context) {
+                        select {
+                        case <-context1.Done():
+                            // コンテキストがキャンセルされた場合の処理
+                        }
+                    }(context1)
+            WithCancel, Done: #keyword: Go WithCancel  #// キャンセルする関数を返します。 関数は Done() のキュー（チャンネル）に入れます
+                WithCancel: #keyword: Go WithCancel  #// キャンセルします  #ref: https://pkg.go.dev/context#WithCancel
+                    func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+                    __GoContext__, __Cancel__ = context.WithCancel(__Context__)
+                Done:  #search: Go context Done
+                キャンセルの伝搬:  #search: Go cancel parent
+            WithTimeout, Deadline, Done:  #// タイムアウトしたら Done() のキュー（チャンネル）に入ります
+                WithTimeout: #keyword: Go WithTimeout  #// タイムアウトを設定します。キャンセルする関数も返します  #ref: https://pkg.go.dev/context#WithTimeout
+                    goContext (Context), cancel (CancelFunc) = context.WithTimeout(__Context__, __TimeOut__)
+                Deadline: #keyword: Go context Deadline  #// タイムアウトする時刻を返します
+                    書式: deadline (time.Time), ok (bool) = __Context__.Deadline()    
+                    公式: |  #ref: https://pkg.go.dev/context#Context
+                        // Deadline returns the time when work done on behalf of this context
+                        // should be canceled. Deadline returns ok==false when no deadline is
+                        // set. Successive calls to Deadline return the same results.
+                        //      Deadline は、このコンテキストに代わって行われた作業をキャンセルする必要がある時刻を返します。
+                        //      期限が設定されていない場合、期限は ok==false を返します。（訳注：？）
+                        //      Deadline を連続して呼び出すと、同じ結果が返されます。
+                        Deadline() (deadline time.Time, ok bool)
+                Done:  #search: Go context Done
+                サンプル: |  #focus: WithTimeout, Done
+                    func heavyFunc(goContext context.Context) {
+                        time.Sleep(5 * time.Second)
+                    }
+                    func main() {
+                        goContext := context.Background()
+
+                        goContext, cancel := context.WithTimeout(goContext, 1 * time.Second) // 1秒後にキャンセル
+                        defer cancel()  //  関数を抜けたら即キャンセル
+                        go heavyFunc(goContext)
+                        go heavyFunc(goContext)
+                        select {
+
+                            case <-goContext.Done(): // 1秒以上かかると Done() がcloseされる
+                                fmt.Println("done:", goContext.Err()) // done: context deadline exceeded
+                        }
+                    }
+            WithValue, Value:  #// コンテキスト内変数  #ref: https://pkg.go.dev/context#WithValue
+                WithValue: #keyword: Go WithValue  #// 変数に値を設定します
+                    context.WithValue(__Context__, __Name__, __Value__)
+                Value: #keyword: Go context Value  #// 変数の値を参照します
+                    書式: __Context__.Value(__Name__)
+                    公式: |  #ref: https://pkg.go.dev/context#Context
+                        // Value returns the value associated with this context for key, or nil
+                        // if no value is associated with key. Successive calls to Value with
+                        // the same key returns the same result.
+                        //
+                        // Use context values only for request-scoped data that transits
+                        // processes and API boundaries, not for passing optional parameters to
+                        // functions.
+                        //
+                        // A key identifies a specific value in a Context. Functions that wish
+                        // to store values in Context typically allocate a key in a global
+                        // variable then use that key as the argument to context.WithValue and
+                        // Context.Value. A key can be any type that supports equality;
+                        // packages should define keys as an unexported type to avoid
+                        // collisions.
+                        //
+                        // Packages that define a Context key should provide type-safe accessors
+                        // for the values stored using that key:
+                        //
+                        // 	// Package user defines a User type that's stored in Contexts.
+                        // 	package user
+                        //
+                        // 	import "context"
+                        //
+                        // 	// User is the type of value stored in the Contexts.
+                        // 	type User struct {...}
+                        //
+                        // 	// key is an unexported type for keys defined in this package.
+                        // 	// This prevents collisions with keys defined in other packages.
+                        // 	type key int
+                        //
+                        // 	// userKey is the key for user.User values in Contexts. It is
+                        // 	// unexported; clients use user.NewContext and user.FromContext
+                        // 	// instead of using this key directly.
+                        // 	var userKey key
+                        //
+                        // 	// NewContext returns a new Context that carries value u.
+                        // 	func NewContext(ctx context.Context, u *User) context.Context {
+                        // 		return context.WithValue(ctx, userKey, u)
+                        // 	}
+                        //
+                        // 	// FromContext returns the User value stored in ctx, if any.
+                        // 	func FromContext(ctx context.Context) (*User, bool) {
+                        // 		u, ok := ctx.Value(userKey).(*User)
+                        // 		return u, ok
+                        // 	}
+                        Value(key any) any
+                サンプル: |
+                    goContext := context.Background()  // 空のコンテキストを生成します  #keyword: Go Background
+                    goContext = context.WithValue(goContext, "Foo", 1)
+                    goContext = context.WithValue(goContext, "Bar", 2)  // 値を代入するたびに新しいcontextが生成されます
+
+                    fmt.Println(goContext.Value("Foo").(int)) // 1
+        Context: #keyword: Go Context interface  #// インターフェース  #// Background の返り値
+            Done: #keyword: Go context Done  #// キャンセルやタイムアウトやメッセージを受け取ります
+                書式:
+                    def Done() <-chan struct{}
+                    case <-__Context__.Done()
+                公式: |  #ref: https://pkg.go.dev/context#Context
+                    // Done returns a channel that's closed when work done on behalf of this
+                    // context should be canceled. Done may return nil if this context can
+                    // never be canceled. Successive calls to Done return the same value.
+                    // The close of the Done channel may happen asynchronously,
+                    // after the cancel function returns.
+                    //      Done は、このコンテキストに代わって行われた作業をキャンセルする必要がある場合に、
+                    //      閉じられたチャネルを返します。
+                    //      このコンテキストをキャンセルできない場合、Done は nil を返すことがあります。 
+                    //      Done を連続して呼び出すと、同じ値が返されます。 
+                    //      Done チャネルのクローズは、cancel 関数が戻った後に非同期で行われる場合があります。
+                    //
+                    // WithCancel arranges for Done to be closed when cancel is called;
+                    // WithDeadline arranges for Done to be closed when the deadline
+                    // expires; WithTimeout arranges for Done to be closed when the timeout
+                    // elapses.
+                    //      WithCancel は、cancel が呼び出されたときに Done が閉じられるように手配します。 
+                    //      WithDeadline は、期限が切れたときに Done が閉じられるように手配します。 
+                    //      WithTimeout は、タイムアウトが経過したときに Done が閉じるように手配します。
+                    //
+                    // Done is provided for use in select statements:
+                    //      Done は、select ステートメントで使用するために提供されています。
+                    //
+                    //  // Stream generates values with DoSomething and sends them to out
+                    //  // until DoSomething returns an error or ctx.Done is closed.
+                    //  //      Stream は DoSomething で値を生成し、DoSomething がエラーを返すか
+                    //  //      ctx.Done が閉じるまで値を out に送信します。
+                    //  func Stream(ctx context.Context, out chan<- Value) error {
+                    //  	for {
+                    //  		v, err := DoSomething(ctx)
+                    //  		if err != nil {
+                    //  			return err
+                    //  		}
+                    //  		select {
+                    //  		case <-ctx.Done():
+                    //  			return ctx.Err()
+                    //  		case out <- v:
+                    //  		}
+                    //  	}
+                    //  }
+                    //
+                    // See https://blog.golang.org/pipelines for more examples of how to use
+                    // a Done channel for cancellation.
+                    //      Done チャネルを使用してキャンセルする方法のその他の例については、
+                    //      https://blog.golang.org/pipelines を参照してください。
+                    Done() <-chan struct{}
+                サンプル: |  #focus: Done, cancel
+                    func heavyFunc(goContext context.Context) {
+                        time.Sleep(5 * time.Second)
+                    }
+                    func main() {
+                        goContext := context.Background()
+                        goContext, cancel := context.WithCancel(goContext)  // タイムアウトなし。キャンセル関数を取得します
+                        go heavyFunc(goContext)
+                        go heavyFunc(goContext)
+
+                        cancel()
+
+                        select {
+                        case <-goContext.Done():
+                            fmt.Println("done:", goContext.Err()) // done: context canceled
+                        }
+                    }
+            Value: #search: Go context Value  #// 変数の値を参照します
+                __Context__.Value(__Name__)
+            Deadline: #search: Go context Deadline  #// タイムアウトする時刻を返します
+                __Context__.Deadline()     (deadline time.Time, ok bool)
+            Err: #keyword: Go context Err  #// エラーを返します
+                公式: |  #ref: https://pkg.go.dev/context#Context
+                    // If Done is not yet closed, Err returns nil.
+                    // If Done is closed, Err returns a non-nil error explaining why:
+                    // Canceled if the context was canceled
+                    // or DeadlineExceeded if the context's deadline passed.
+                    // After Err returns a non-nil error, successive calls to Err return the same error.
+                    //      Done がまだ閉じられていない場合、Err は nil を返します。 
+                    //      Done がクローズされている場合、Err は理由を説明する nil 以外のエラーを返します。
+                    //      コンテキストがキャンセルされた場合は Canceled を、コンテキストの期限が過ぎた場合は DeadlineExceeded を返します。 
+                    //      Err が非 nil エラーを返した後、Err を連続して呼び出すと同じエラーが返されます。
+                    Err() error
+    errgroup:  #keyword: Go errgroup  #// context の機能に加え、複数の goroutine の作成と エラー ハンドリング やキャンセルをまとめて扱えるようにします
+        公式: #ref: https://pkg.go.dev/golang.org/x/sync/errgroup#WithContext
+        詳細:
+            - goroutine が 1つだけなら不要  #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: errgroup
+        errgroup:  #// パッケージ
+            WithContext: #keyword: Go errgroup WithContext  #ref: https://pkg.go.dev/golang.org/x/sync/errgroup#WithContext
+                書式: 
+                    func WithContext(ctx context.Context) (*Group, context.Context)
+                    __Group__, __Context__ = errgroup.WithContext(__Context__)
+                サンプル: |
+                    package main
+
+                    import (
+                        "context"
+                        "fmt"
+
+                        "golang.org/x/sync/errgroup"
+                    )
+
+                    func main() {
+                        rootContext := context.Background()
+                        errorGroup, _ := errgroup.WithContext(rootContext)
+
+                        errorGroup.Go(func() error { // Goroutine A
+                            fmt.Println("A")
+                            return nil
+                        })
+                        errorGroup.Go(func() error { // Goroutine B
+                            fmt.Println("B")
+                            return nil
+                        })
+                        errorGroup.Wait() // Wait for all goroutines  #keyword: go errgroup wait
+                        fmt.Println("Done")
+                    }
+                サンプルの出力: |
+                    B
+                    A
+                    Done
+        キャンセルの伝搬: #keyword: Go cancel parent  #// 親のコンテキストがキャンセルされたら、子のコンテキストもキャンセルします
+            子のコンテキストにも伝搬します:
+                サンプル: |  #focus: parentCancel, Done
+                    func main() {
+                        goContext := context.Background()
+
+                        parent, parentCancel := context.WithCancel(goContext)
+                        child, childCancel := context.WithCancel(parent)
+                        defer childCancel()
+                        go heavyFunc(goContext)
+
+                        go func() { // 親を1秒後にキャンセル
+                            time.Sleep(time.Second)
+
+                            parentCancel()
+                            fmt.Println("parent cancelled")
+                        }()
+
+                        select {
+                        case <-child.Done(): // 子もキャンセルされる
+                            fmt.Println("parent:", parent.Err()) // parent: context canceled
+                            fmt.Println("child:", child.Err()) // child: context canceled
+                        }
+                    }
+            親や兄弟のコンテキストには伝搬しません:
+                #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: cancel parent
+            Ctrl + C による中断: |  #keyword: Go Ctrl+C
+                // 通常、最も親のコンテキストにキャンセルを送信します
+                #focus: sigCh
+
+                package main
+
+                import (
+                    "context"
+                    "fmt"
+                    "os"
+                    "os/signal"
+                )
+
+                func main() {
+                    // 最も親のコンテキストを作成
+                    ctx, cancel := context.WithCancel(context.Background())
+
+                    // シグナルハンドラをセットアップ
+                    sigCh := make(chan os.Signal, 1)
+                    signal.Notify(sigCh, os.Interrupt)
+
+                    // 別のゴルーチンでシグナルを待機
+                    go func() {
+                        <-sigCh
+                        fmt.Println("Caught signal, cancelling context...")
+                        cancel()
+                    }()
+
+                    // 何かの処理...
+                    <-ctx.Done()
+                    fmt.Println("Context was cancelled, cleaning up and exiting...")
+                }
+    time:  #keyword: Go time,  Go timer,  Go date
+        now:
+            UTC: |
+                now := time.Now()
+            タイムゾーン指定: | #keyword: Go タイムゾーン
+                timeZone, _ := time.LoadLocation("Asia/Tokyo")   // #keyword: Go time.LoadLocation
+                now := time.Now().In(timeZone)                   // #keyword: Go time.Now
+        Format:
+            now := time.Now()
+            now.Format("January 02 2006 15:04:05")  // string
+        gopkg.in/robfig/cron.v2:
+            サンプル: |  #search: install Go  #focus: now, nextTime, <-timerUntilNextTime
+                package main
+
+                import (
+                    "fmt"
+                    "time"
+
+                    "gopkg.in/robfig/cron.v2" // go get gopkg.in/robfig/cron.v2
+                )
+
+                func main() {
+                    schedule, _ := cron.Parse("*/5 * * * * *")       // #keyword: Go cron.Parse
+                    timeZone, _ := time.LoadLocation("Asia/Tokyo")   // #keyword: Go time.LoadLocation
+
+                    now := time.Now().In(timeZone)                   // #keyword: Go time.Now
+                    fmt.Println(now)  // 2022-01-01 12:00:13.709366384 +0900 JST
+
+                    nextTime := schedule.Next(now)
+                    timerUntilNextTime := time.NewTimer(nextTime.Sub(now))  // #keyword: Go time.NewTimer
+                    <-timerUntilNextTime.C // Wait for (nextTime - now)
+                    fmt.Println(nextTime)  // 2022-01-01 12:00:15 +0900 JST
+                }
+            Next:  #// 次の処理開始時刻までの時間を返します
+            StartImmediately: 存在しない
+        go-co-op/gocron:
+        Duration:  #ref: https://pkg.go.dev/time#Duration
+            String:  日時分で表示します  #ref: https://pkg.go.dev/time#Duration.String
+    error:  #search: Go error
+    exec:  #keyword: Go exec,  Go system call
+        exec:
+            Command: #keyword: Go exec Command
+                書式:
+                    func Command(name string, arg ...string) *Cmd
+                    __Command__ = exec.Command(__CommandPath__)
+                    __Command__ = exec.Command(__CommandPath__, __Argument1__)
+                    __Command__ = exec.Command(__CommandPath__, __Argument1__, __Argument2__, ...)
+                サンプル: |  #focus: script,  Start,  Wait
+                    func run(scriptPath string) {
+                        script := exec.Command("sh", "-c", scriptPath)
+                        script.Start()
+                        script.Wait()
+                    }
+                サンプル2: |  #focus: cmd
+                    func main() {
+                        cmd := exec.Command("tr", "a-z", "A-Z")
+                        cmd.Stdin = strings.NewReader("some input")
+                        var out strings.Builder
+                        cmd.Stdout = &out
+                        err := cmd.Run()
+                        if err != nil {
+                            log.Fatal(err)
+                        }
+                        fmt.Printf("in all caps: %q\n", out.String())
+                    }
+        Cmd:
+            Start:  #ref: https://pkg.go.dev/os/exec#Cmd.Start  #// プロセスを起動します。終了まで待ちません
+                #search: Go exec Command
+            Wait:  #ref: https://pkg.go.dev/os/exec#Cmd.Start  #// プロセスの終了を待ちます
+                #search: Go exec Command
+モジュール, コンパイル: #keyword: Go module  #// パッケージ
+    GOPATH: #keyword: ~/go, GOPATH, GO_PATH mode
+        概要: パッケージの基準パスを指定する環境変数。GOPATH が指すフォルダーの中に src, pkg, bin のフォルダーがあります
+        構成:
+            Goモジュールが有効の場合:  #// GOPATH が設定されていない場合
+                $GOMODCACHE が指すフォルダー: #keyword: GOMODCACHE  #// モジュールの保存場所
+                    定義されていないとき: ~/go/pkg/mod
+                    サンプル: ~/go/pkg/mod/github.com/__UserName__/__Package__
+            Goモジュールが無効の場合:  #// GOPATH が設定されている場合
+                $GOPATH が指すフォルダー:
+                    src: .go ファイル。ダウンロードしたファイルも含みます。$GOPATH/src/github.com/__UserName__/__Package__
+                    pkg: .a ファイル。ライブラリのバイナリ
+                    bin: 実行可能ファイル
+        環境変数 GOPATH が定義されていない場合: ~/go
+        参照元:
+            go test:  #search: go test
+    package 文: #keyword: Go package  #ref: ${programming}/プログラミング言語、環境/go_language.svg#package_statement
+        書式: （先頭行に） package __PackageName__
+        スタイル:  #ref: https://go.dev/doc/effective_go#package-names  >>  packages are given lower case
+            - 小文字の 1単語の名前
+            - パッケージ名.クラス名 でコードに書かれます。buf.BufReader とならず buf.Reader にすべきです
+            - アンダースコアや mixedCaps は必要ありません
+            - パスではなくフォルダー名がパッケージ名になります。たとえば encoding/base64 をインポートしたとき、名前は、encoding.base64 ではなく base64 
+            - パッケージ名はインポートのデフォルト名にすぎないため、先験的に衝突について心配する必要はありません
+        配置:
+            同じフォルダー:  #// 同じパッケージ名にすること
+                同じフォルダーにパッケージ名が異なるそれぞれのファイルを置くことはできません。
+                    src/try/try1.go
+                        package try1
+                        try1
+                    src/try/try2.go
+                        package try2
+                        try2
+            サブフォルダー:  #// 別のパッケージ名を定義できます
+                サブフォルダーにパッケージ名が異なるファイルを置くことはできます。
+                そのサブフォルダーは親フォルダーのパッケージとは別のパッケージになります。
+                    src/try/try.go
+                        package try1
+                        try1
+                    src/try/sub/try.go
+                        package try2
+                        try2
+        constructor: #keyword: Go constructor  #ref: https://go.dev/doc/effective_go#composite_literals
+            New__Type__:
+                インスタンスを生成する関数名は New と型名 にします。
+                その関数はコンストラクターと呼ばれます。
+            New: #keyword: Go New
+                もし、パッケージに１つのクラスしかエクスポートされない場合、コンストラクターの名前は New にします。
+                #ref: https://go.dev/doc/effective_go#package-names  >>  NewRing
+    import: #keyword: Go import  #ref: ${programming}/プログラミング言語、環境/go_language.svg#import
+        書式:
+            サンプル:
+                インポートするパッケージの中:
+                    import (
+                        "github.com/aws/aws-sdk-go/aws"                     // aws というシンボルが使えるようになります
+                        "github.com/aws/aws-sdk-go/service/dynamodb"        // dynamodb というシンボルが使えるようになります
+                        db  "github.com/aws/aws-sdk-go/service/dynamodb"    // db というシンボルが使えるようになります
+                    )
+                インポートされるパッケージの中: |  #// github.com/aws/aws-sdk-go/service/dynamodb
+                    package db
+                    type Vertex struct {  // ...
+            書き方:
+                -   GOPATH または go.mod ファイルがあるフォルダーの親フォルダーからの相対パスで、拡張子 .go は省略します
+                -   別名の記述がない場合、指定したフォルダーの中にある package に指定したパッケージ名が使えるようになります
+                -   通常、フォルダー名とパッケージ名を一致させますが、そうでない場合は注意が必要です
+        トラブルシューティング:
+            循環エラー, import cycle not allowed エラーの対策:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#import_cycle_not_allowed
+    go help modules: #keyword:
+        英語: |
+            Modules are how Go manages dependencies.
+
+            A module is a collection of packages that are released, versioned, and        
+            distributed together. Modules may be downloaded directly from version control 
+            repositories or from module proxy servers.
+
+            For a series of tutorials on modules, see
+            https://golang.org/doc/tutorial/create-module.
+
+            For a detailed reference on modules, see https://golang.org/ref/mod.
+
+            By default, the go command may download modules from https://proxy.golang.org.
+            It may authenticate modules using the checksum database at
+            https://sum.golang.org. Both services are operated by the Go team at Google.
+            The privacy policies for these services are available at
+            https://proxy.golang.org/privacy and https://sum.golang.org/privacy,
+            respectively.
+
+            The go command's download behavior may be configured using GOPROXY, GOSUMDB,
+            GOPRIVATE, and other environment variables. See 'go help environment'
+            and https://golang.org/ref/mod#private-module-privacy for more information.
+        日本語訳: |
+            モジュールは、Goが依存関係を管理する方法です。
+
+            モジュールは、一緒にリリース、バージョン管理、および配布されるパッケージのコレクションです。
+            モジュールは、バージョン管理リポジトリまたはモジュールプロキシサーバーから直接ダウンロードできます。
+
+            モジュールに関する一連のチュートリアルについては、https：//golang.org/doc/tutorial/create-module を参照してください。
+
+            モジュールの詳細については、https：//golang.org/ref/modを参照してください。
+
+            デフォルトでは、goコマンドはhttps://proxy.golang.orgからモジュールをダウンロードできます。
+            チェックサムデータベースを使用してモジュールを認証する場合があります。
+            https://sum.golang.org。 どちらのサービスも、GoogleのGoチームによって運営されています。
+            これらのサービスのプライバシーポリシーは、次のURLで入手できます。
+            https://proxy.golang.org/privacyおよびhttps://sum.golang.org/privacy、
+            それぞれ。
+
+            goコマンドのダウンロード動作は、GOPROXY、GOSUMDB、GOPRIVATE、およびその他の環境変数を使用して構成できます。
+            詳細については、「gohelpenvironment」およびhttps://golang.org/ref/mod#private-module-privacyを参照してください。 
+    go build: #keyword:  #ref: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
+        概要:
+            実行ファイルを生成します。
+            main が無いと正常終了しますが実行ファイルはできません。
+            実行ファイルの数は  #search: executable file count for security
+        コマンド:
+            go build example/1_hello/hello.go
+            #template_: go build __GoFilePath__
+        クロスコンパイル:
+            Linux で Windows の実行ファイルを作ります:
+                GOOS=windows GOARCH=amd64  go build  example/1_hello/hello.go
+                    #// カレント フォルダー に hello.exe ができます
+            #ref: https://stackoverflow.com/questions/41566495/golang-how-to-cross-compile-on-linux-for-windows
+        トラブルシューティング:
+            - #// package __PackagePath__ is not in GOROOT
+                手順: go build
+                エラー: |
+                    package __PackagePath__ is not in GOROOT
+                    __URL__
+                対処:
+                    go bulid に .go ファイルのパスを指定してください
+    gopls: #keyword:  #// 読み方は「Go please」 #ref: https://github.com/golang/tools/blob/master/gopls/README.md
+環境変数: #glossary: Go environment variable
+    $GOMODCACHE:  #search: GOMODCACHE
+    $GOPATH:  #search: GOPATH
+    $GO111MODULE:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#GO111MODULE
+テスト: #keyword: Go test  #// ログ、デバッグ
+    手順:
+        実行:  #search: Go test VSCode  #search: go test
+        実行順序: #keyword: go test order
+            パッケージ内変数: 初期化
+            init 関数:  #search: Go init function
+            TestMain 関数が定義してあるとき:  #serach: go TestMain
+                TestMain 関数だけ呼ばれます。
+                TestMain 関数から m.Run() を呼び出すことで、個別のテスト関数が呼ばれます。
+            TestMain 関数が定義してないとき:  Test から始まる名前の関数を順に実行します
+        階層化:
+            t.Run:
+                サンプル:
+                    t.Run("it says quack", func(t *testing.T) {
+                注意:
+                    t.Run は Visual Studio Code の Testing ビューで表示されません。
+            ファイルを分けます。フォルダーを作ります:
+        テーブルを使ったテスト:
+            pytest.mark.parametrize のような機能はありません  #search: @pytest.mark.parametrize
+            #ref: https://engineering.mercari.com/en/blog/entry/20211221-a-deep-dive-into-table-driven-testing-in-golang/
+        プライベート メソッド のテスト: #keyword: Go private method test
+            1つのパッケージ内の場合:
+                _test.go から プライベート メソッド を呼び出せます
+            複数のパッケージの場合:  #// 2つのパッケージのプライベートメソッドを使う処理について、go test のテストコードを書くには
+                対処A >> 片方がパブリックなら、もう片方でテストを作ります:
+                    - 2つのパッケージがパブリックとプライベートの場合、プライベート側のパッケージの中に テスト コード を書くことができます
+                対処B >> パブリック メソッド に変える:
+                    - 仕様変更にあたりますが、テストは内部パッケージなどの外部仕様の検証なので、 パブリック メソッド であるべきです
+                    - 型を分けるべきかも検討してください
+    画面 >> VSCode の Testing: #keyword: Go test VSCode
+        ツリーのルート: モジュール名。go.mod の module
+        トラブルシューティング:
+            - #// Testing ビューから実行できない
+                手順: Testing ビューから実行
+                エラー: |
+                    ?       command-line-arguments  [no test files]
+                正しく動く場合: |
+                    ok      __Module__     0.008s
+                対処:
+                    go.mod の module に指定した名前の末尾を .go では無くします
+                原因:
+                    go.mod の module に指定した名前の末尾を .go にすると Testing ビューから実行できなくなります。
+                    なぜなら次のコマンドの __Module__.go がフォルダーと認識されなくなり、go test が実行できなくなるからです。
+                    /usr/bin/go test -timeout 30s -run ^__TestName__$ __Module__.go
+    コマンド:
+        go test:  #keyword: go test  #// コマンドラインからテストを起動します  #ref: ${programming}/プログラミング言語、環境/go_language.svg#go_test
+            （関連）>> VSCode:
+                - go.mod ファイルがあるフォルダーを VSCode で開くとデバッガーが使えます。
+                - 操作方法は Python の場合と同じです  #search: VSCode testing debug UI
+                - テストの結果は Testing ビューに表示されません。テストの結果は go test コマンドで確認してください
+            手順:
+                CLI:
+                    全てのテストを実行します: |  #// ベンチマークは実行しないかも？ #search: go test -bench
+                        cd __Project__
+                        go clean -testcache
+                        go test
+                            #// または
+                        go test test/...
+                            #// または
+                        go test | grep "\-\-\- FAIL:"    #// 失敗したテストだけ表示します
+                    1つのテストを実行します:  #search: go test -run
+                    実行順序:  #search: go test order
+                    ベンチマークを実行します: #keyword: go test -bench
+                        go test -bench "."
+                VSCode:
+                    1つのテストを実行します:
+                        VSCdoe >> Testing（左）>> Testing１つのテストに マウス カーソル を合わせる >> Debug Test ボタン
+                    制限事項:  #// 2022-08-25 現在
+                        複数のテストを同時に実行することはできません。シェルから実行してください。
+                        Run Test（デバッガーなし）を実行することはできません
+            テスト ファイル, テスト コード:  #search: _test.go
+            ローカルディレクトリモード:  #// go test のパラメーターが無いとき（オプションは除く）
+                コマンド: go test
+                テスト対象: カレント フォルダー の中の _test.go
+                キャッシュ: 無効      #search: go test cache
+                出力例: |
+                    $ go test
+                    PASS
+                    ok      main.go  0.011s
+            パッケージリストモード:  #// go test のパラメーターが有るとき
+                コマンド例:
+                    フォルダー指定:  #keyword: Go ./__TestCodeFolder__
+                        - go test  ./__TestCodeFolder__      #// サブフォルダーを含みません
+                        - go test  ./__TestCodeFolder__/...  #// サブフォルダーを含みます
+                    モジュール指定:
+                        - go test  __Module__/__TestCodeFolder__      #// サブフォルダーを含みません
+                        - go test  __Module__/__TestCodeFolder__/...  #// サブフォルダーを含みます
+                    パッケージ指定: go test  __PackagePath__         #keyword: Go __PackagePath__
+                    __PackagePath__, __TestCodeFolder__: #// _____test.go ファイルを検索するルートのフォルダー
+                        __PackagePath__ の相対パスの基準: go/src  #keyword: go/src  #search: GOPATH
+                        __TestCodeFolder__ の相対パスの基準: （カレント フォルダー）
+                        注意: __TestCodeFolder__ にファイルのパスは指定できません
+                テスト対象: __TestCodeFolder__ または __PackagePath__ または -run オプション  #search: Go ./__TestCodeFolder__  #search: Go __PackagePath__
+                キャッシュ: 有効  #// Pass したテストは再実行しません  #keyword: go test cache
+            オプション:
+                -v: #// 詳細表示。実行したテスト関数の名前や、t.Logf による print 表示を行います  #search: go test log
+                -run: #// テスト対象の関数。正規表現で指定  #keyword: go test -run
+                    #focus: __FunctionName__, __TestName1__
+                    コマンド: |
+                        cd __Project__
+                        go test ./__TestCodeFolder__ -run ^__FunctionName__$
+                            #// または
+                        go test ./__TestCodeFolder__ -run __FunctionNameRegularExpression__
+                    テスト結果出力: |
+                        --- FAIL: __FunctionName__ (0.00s)
+                            --- FAIL: __FunctionName__/__TestName1__ (0.00s)
+                                __TestCode__.go:121: 
+                                        Error Trace:    __TestCodeFolder__/__TestCode__.go:121
+                                        ...
+                            --- FAIL: __FunctionName__/__TestName2__ (0.00s)
+                                __TestCode__.go:121: 
+                                        Error Trace:    __TestCodeFolder__/__TestCode__.go:121
+                                        ...
+                        FAIL    __TestCodeFolder__   0.014s
+                    テスト コード >> __TestCodeFolder__/__TestCode__.go:
+                        func __FunctionName__(t *testing.T) {
+                            t.Run("__TestName1__", func(t *testing.T) {
+                            t.Run("__TestName2__", func(t *testing.T) {
+                    サンプルA:
+                        go test -count=1 "." -run "^Test1$"
+                    サンプルB:
+                        go test ./test -run "^Test.*$"
+                -timeout: #// テスト全体(?)のタイムアウト。１つのテストのタイムアウトではない。
+                    コマンド:  go test  ____  -timeout 55m
+                    1秒: -timeout 1s
+                    55分: -timeout 55m
+                    公式: https://golang.org/pkg/time/#ParseDuration
+                -short: #// 長いテストとして登録されたテストはスキップします。
+                -cover: #// カバレッジも取ります。 #ref: ${programming}/プログラミング言語、環境/go_language.svg#coverage
+                -count: #// キャッシュを無視してテストを1回実行します
+                その他のオプション:  https://pkg.go.dev/cmd/go/internal/test >> In addition to the build flags
+            ログの見かた, デバッグ:  #search: go test log
+        go vet: #// テストを実行する前に動くチェッカー
+    ログ:
+        ログの見かた, デバッグ:  #keyword: go test log
+            成功判定: 最後に FAIL と表示されないこと
+            成功 >> 基本:
+                サンプル:
+                    -v オプションなし: |
+                        ok  folder/package   0.115s            // フォルダーの中にある全てのテストが成功しました
+                    -v オプションあり: |
+                        === RUN   TestEnsureLogCode            // 実行を開始しました。TestEnsureLogCode は関数名です
+                        --- PASS: TestEnsureLogCode (0.00s)    // 関数に書かれたテストが成功しました
+                        ok  folder/package   0.115s            // フォルダーの中にある全てのテストが成功しました
+                                                            // 全てのテストに成功したら最後に FAIL と表示されません
+                関数名: TestEnsureLogCode
+                フォルダーパス: folder/package  #// 相対パスの基準は go/src  #search: go/src
+            失敗 >> 基本:  #// デバッグ
+                サンプル:
+                    失敗したときの出力内容: |
+                        --- FAIL: TestName1 (0.00s)
+                            ...
+                        FAIL
+                        exit status 1
+                        FAIL    test.go  0.004s
+                    -v オプションなし: |
+                        FAIL    __Module__/__Folder__/__Package__   0.009s      // フォルダーの中にあるテストが１つでも失敗しました
+                        FAIL                                 // 全てのテストのうち１つでも失敗したら最後に FAIL と表示されます
+                    -v オプションあり: |
+                        === RUN   TestEnsureLogCode          // 実行を開始しました。TestEnsureLogCode は関数名です
+                            log_code_test.go:48: fail test   // t.Fatalf("fail test\n") が呼ばれました
+                        --- FAIL: TestEnsureLogCode (0.00s)  // 関数に書かれたテストは失敗しました。
+                        FAIL    __Module__/__Folder__/__Package__   0.009s      // フォルダーの中にあるテストが１つでも失敗しました
+                        __OtherTests__
+                        FAIL                                 // 全てのテストのうち１つでも失敗したら最後に FAIL と表示されます
+                関数名: TestEnsureLogCode
+                フォルダーパス:
+                    __Project__/__Folder__/__Package__  #// __Project__ は go.mod ファイルがあるフォルダー
+                関数の場所: __Project__/__Folder__/__Package__/log_code_test.go:48
+                失敗したテストの再実行（デバッグ）:
+                    - go test ./__Folder__/__Package__ -v
+                    - go test __Module__/__Folder__/__Package__ -v
+                    - go test __Module__/__Folder__/__Package__ -v  -run TestEnsureLogCode
+            その他:
+                ？: |
+                    ?       __Module__/__Folder__/__Package__    [no test files]  // 直下に _test.go ファイルが見つかりません。無視できます
+        出力:
+            zap:  #keyword: Go zap logger  #// 動作が速いログ, ソース ファイル名と行番号も記録されます
+                公式: https://pkg.go.dev/go.uber.org/zap
+                サンプル:
+                    コード: |
+                        err := errors.New("doSomething is error")
+                        zap.L().Error("__ErrorMessage__", zap.String("__Key__", "__Value__"), zap.Error(err))
+                    ログの内容: >
+                        2017-03-23T17:52:59.005+0900    ERROR    __SourcePath__:__LineNum__   __ErrorMessage__
+                        {"key": "value", "error": "doSomething is error"}
+                メソッド:
+                    Error, Warn, Info, Debug, DPanic, Panic, Fatal
+                テスト, LogCapture:  #// ログ出力内容のテスト  #ref: ${GitHub}/MyPrivateCode/Go/lib.go#type LogCapture
+    ファイル: #keyword: _test.go  #// テストエクステンションと同じ構造です  #ref: ${programming}/プログラミング言語、環境/go_language.svg#VSCode_test_extension
+        x_test.go: #// テスト コードが書かれたファイルとして実行されます。x は任意の文字列
+            新規作成します:
+                ファイル名: 末尾を _test.go にします
+                関数名:  Test から始めます  #keyword: Go Test function
+                関数内テスト項目:  #serach: go t.Run
+                サンプル:
+                    example_test.go: |
+                        func TestHTTPClientGetDo(t *testing.T) {
+                            // #search: t.Errorf
+                        }
+            TestMain: #keyword: go TestMain  #ref: ${programming}/プログラミング言語、環境/go_language.svg#TestMain
+                _: TestMain 関数が定義してあると、go test は、TestMain 関数だけ呼び出します
+                サンプル: |
+                    func TestMain(m *testing.M) {
+                        // 共通の初期化関数
+                        err := setTestConstants()
+                        if err != nil {
+                            os.Exit(1)
+                        }
+
+                        // それぞれのテスト関数
+                        exitCode := m.Run()
+
+                        // 共通の終了関数
+                        os.Exit(exitCode)  // 必ず os.Exit で終了するように警告されます
+                    }
+            testing 型: #keyword: Go testing package
+                testing.T 型: #glossary: Go testing.T  #// Test 関数の引数の型  #search: Go Test function  #ref: https://pkg.go.dev/testing#T
+                    t.Fatalf:  #// エラーとして記録して現在のテストを中断します
+                        t.Fatalf( "Error %v", err )
+                    t.Errorf:  #// エラーとして記録して現在のテストを継続します
+                        t.Errorf( "Error %v", err )
+                    t.Logf:  #// run test (-v オプションあり) でのみ表示されます。
+                        t.Logf( "Error %v", err )
+                testing.B 型: #glossary: Go testing.B  #// Benchmark 関数の引数の型  #ref: https://pkg.go.dev/testing#B
+                    b.N:  #ref: https://pkg.go.dev/testing#B.N
+                        概要: ループ回数。testing パッケージが自動的に設定します。
+                            何回か Benchmark 関数か呼ばれ、呼ばれるたびに N の値が変わります。
+                            ベンチマークが安定した結果を出すまで呼ばれます。
+                        サンプル:
+                            bench_test.go: |
+                                func BenchmarkMyFunction(b *testing.B) {
+                                    for i := 0; i < b.N; i++ {
+                                        MyFunction()
+                                    }
+                                }
+        _ から始まる名前のファイル:  #// テスト コードの対象外です
+        testdata フォルダー: #keyword: Go testdata folder,  Go test file  #// テスト コードの対象外です
+            テスト コード の探索: テスト コード として扱われません
+            パスの指定方法:
+                基準: テスト コード のファイル _____test.go ファイルがあるフォルダーからの相対パスを指定します
+                プロジェクトのルートからの相対パス:  #keyword: Go testdata projectRoot
+                    サンプル: |  #focus: projectRoot
+                        const (
+                            projectRoot = "../.."             // テスト コード のファイルがあるフォルダーからの相対パス
+                            testdata    = "../../testdata"    // 無くてもよい
+                        )
+                        func Test(t *testing.T) {
+                            contents := testtool.ReadBinaryFile(t, projectRoot + "/testdata")  // #search: testtool ReadBinaryFile
+                    または: |  #focus: var
+                        import "path/filepath"
+
+                        var (
+                            projectRoot = "../.."
+                            testdata    = projectRoot + "/testdata"
+                            testdata1   = filepath.Join(projectRoot, "testdata")
+                        )
+            テスト データ を作る関数:  #search: go makeTestData1
+    コード:
+        ライブラリ:
+            TestMain 関数:  #serach: go TestMain
+            t.Run 関数:  #serach: go t.Run
+            testing.T:
+                t.Run 関数, サブテスト:  #keyword: go t.Run,  go test sub test
+                    基本: |  #focus: t.Run
+                        func TestSomething(t *testing.T) {
+
+                            t.Run("Subtest1", func(t *testing.T) {
+                                // サブテスト1のロジック
+                            })
+
+                            t.Run("Subtest2", func(t *testing.T) {
+                                // サブテスト2のロジック
+                            })
+                        }
+                    setup, cleanup 付き: |
+                        func TestSomething(t *testing.T) {
+
+                            setup := func() {
+                            }
+
+                            cleanup := func() {
+                            }
+
+                            t.Run("Subtest1", func(t *testing.T) {
+                                setup() // セットアップ
+                                defer cleanup() // テスト完了後にクリーンアップを保証
+
+                                // サブテスト1のロジック
+                            })
+
+                            t.Run("Subtest2", func(t *testing.T) {
+                                setup() // セットアップ
+                                defer cleanup() // テスト完了後にクリーンアップを保証
+
+                                // サブテスト2のロジック
+                            })
+                        }
+                t.Helper():  #search: t.Helper
+            testify: #keyword:  #ref: https://pkg.go.dev/github.com/stretchr/testify
+                インストール:
+                    go get "github.com/stretchr/testify"
+                サンプル:
+                    import( "github.com/stretchr/testify/assert" )
+
+                    err = ...
+                    assert.NoError(t, err) // t *testing
+                assert: #glossary: Go assert  #ref: https://pkg.go.dev/github.com/stretchr/testify/assert
+                    assert.Nil:  assert.Nil(t, err)  #// nil が正しいとしてチェックする
+                    assert.Equal:
+                        assert.Equal(t, a, 2)
+                        assert.Equal(t, s, "abc")
+                        #search: Go assert HasPrefix
+                    assert.True:
+                        文字列の一部を比較します: #keyword: Go assert HasPrefix
+                            assert.True(t, strings.HasPrefix(str, prefix))
+            go-cmp/cmp: #keyword:
+        独自:
+            t.Helper() を呼び出してください: #keyword: t.Helper  #// テスト コード を書く上で便利な関数は t.Helper() を呼び出してください
+                _: テスト補助関数（ヘルパー関数）内で使用され、エラーレポートの質を向上させるために使われます。
+                サンプル: |
+                    func TestReadData(t *testing.T) {
+                        t.Helper()
+                エラー位置の正確な報告:
+                    t.Helper() を呼び出すと、そのヘルパー関数内でテストが失敗した場合、エラーは呼び出し元の行で報告されます。これにより、実際にテストが失敗した場所（ヘルパー関数を呼び出した箇所）を正確に特定できます。
+                スタックトレースの簡略化:
+                    t.Helper() を使用することで、テストフレームワークはそのヘルパー関数をスタックトレースから除外します。これにより、エラーメッセージがより簡潔で読みやすくなります。
+                テストコードの可読性向上:
+                    ヘルパー関数を使用することで、テストコードを整理し、繰り返しの多いロジックを抽象化できます。t.Helper() を使用すると、これらのヘルパー関数がテストの一部として適切に扱われます。
+            テスト データ を作る関数:  #keyword: go makeTestData1  #// 1 は任意の文字列
+                _: Go 言語ではエラーのコードが多くて見にくいためデータを作る関数に分けます
+                サンプル: |
+                    func TestVersion(t *testing.T) {
+                        ymlData := `
+                            version: 1.0.0
+                            `
+                        data := makeTestData1("1.0.0", ymlData)
+
+                        err = TestTarget(data.version, data.ymlObject)
+                        if err != nil {
+                            t.Fatal("failed test")
+                        }
+                    }
+
+                    func makeTestData1(t *testing.T, versionNum string, ymlData string) *TestData1 {
+                        ymlVersion, err := version.NewVersion(versionNum)
+                        if err != nil {
+                            t.Fatal("failed test")
+                        }
+                        ymlData = strings.Replace(ymlData, "\t", "  ", -1)
+                        ymlObject := make(map[string]interface{})
+                        err = yaml.Unmarshal([]byte(ymlData), &ymlObject)
+                        if err != nil {
+                            t.Fatal("failed test")
+                        }
+
+                        return &TestData1{
+                            version:   ymlVersion,
+                            ymlObject: ymlObject,
+                        }
+                    }
+
+                    type TestData1 struct {
+                        version   *version.Version
+                        ymlObject map[string]interface{}
+                    }
+コマンド: #keyword: Go command
+    go get: #keyword:  #// モジュールをダウンロードします
+        追加:
+            書式:
+                - go get github.com/__User__/__Module__
+                - go get github.com/__User__/__Module__@__Version__
+            処理内容:
+                - 指定されたパッケージをダウンロードして使えるようにします
+                - go.mod ファイルの require セクションに指定したモジュールを追加します
+                - go.sum ファイルに依存するモジュールを追加します
+        更新:
+            互換性のある最新:
+                go get -u github.com/example/module
+            指定バージョン:  #// アップグレードまたはダウングレード
+                go get github.com/__User__/__Module__@__Version__
+        削除:
+            - （go.mod ファイルの該当行を削除）
+            - go mod tidy  #// 依存関係を調整
+    go mod: #keyword:
+        go mod init: #keyword:
+            go.mod ファイルを生成します:  #// カレント フォルダー にできます
+                mkdir  $HOME/go_1
+                cd     $HOME/go_1
+                go mod init example.com/greetings
+            できた go.mod ファイル:
+                $HOME/go_1/go.mod : |
+                    module example.com/greetings
+
+                    go 1.16
+            Visual Studio Code で開きます:
+                code  $HOME/go_1
+    go run: #search:
+スタイル: #keyword: Go coding style,  Go 命名規則
+    #ref: https://zenn.dev/kenghaya/articles/1b88417b1fa44d
+    #ref: https://go.dev/doc/effective_go#names
+    その他:  #search: coding style
+Linter: #keyword: Go lint
+    gofmt:  #keyword: gofmt,  Go auto formatter  #ref: https://pkg.go.dev/cmd/gofmt
+        2文を1行に書く: |  #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: gofmt lines
+            func main() {
+                slice := p("   ", []int{0, 1, 2})
+                slice = p("    ", append(slice, 3, 4))
+                slice = p("    ", append(slice, 5, 6))
+            }
+
+            func p(_ string, slice []int) []int {
+                fmt.Println("len:", len(slice), "cap:", cap(slice), slice)
+                return slice
+            }
+    Staticcheck: #ref: https://staticcheck.io/
+        概要: VSCode の Go Extenstion のデフォルトが staticcheck になった
+            #ref: https://qiita.com/yagi_eng/items/1c34f9691128c51846e7
+        インストール:
+            Go の拡張機能をインストールします:
+            __Project__/staticcheck.conf : |
+                checks = ["inherit", "ST1003", "ST1016", "ST1020", "ST1021", "ST1022"]
+            example.go : |
+                func staticcheckExample(a bool) int {  // func staticcheckExample is unused (U1000) go-staticcheck
+                    if a == false {  // should omit comparison to bool constant, can be simplified to !a (S1002) go-staticcheck
+                        return 0
+                    }
+                    return 1
+                }
+            VSCode で保存すると Linter が動いて警告を更新します:
+            staticcheck が動作していることを確認します:
+                警告に マウス カーソル を合わせ、staticcheck が警告していると表示されることを確認します
+    Golint: #keyword:
+        参考:
+            公式:
+                #ref: https://github.com/golang/go/issues/38968
+            Go公式のlinter、Golintが非推奨になった:
+                #ref: https://zenn.dev/sanpo_shiho/articles/09d1da9af91998
+            Goの静的解析ツールをgolintからstaticcheckに移行した話:
+                #ref: https://blog.cybozu.io/entry/2021/02/26/081013
+トラブルシューティング:
+    - #// 脆弱性情報: #ref: https://pkg.go.dev/vuln/
+        #search: 脆弱性調査
+    - #// デバッグ用コード 自動整形機能に耐えうるコード
+        サンプル: #keyword: go debug,  go _
+            ////////// debug start
+            watch := debuggingFunction()
+            _ = watch            // ここはブレークできません
+            fmt.Println(watch)   // ここはブレークできます
+            ////////// debug end
+        サンプルの解説:
+            //////////: コメントも含めて自動的にインデントされてしまうため、一時コードの範囲を目立たせます
+            _ = watch: 変数が参照されていないというエラーを発生しないようにします
+                参考：「__Variable__ declared but not used compiler (UnusedVar)」エラー
+        サンプル2:
+            ////////// debug start
+            watch1 := debuggingFunction()
+            watch2 := debuggingFunction()
+            _ = []interface{}{watch1, watch2}
+            ////////// debug end
+        サンプル2の解説:
+            _ = []interface{}{watch1, watch2}: 変数が参照されていないというエラーを発生しないようにします
+                コロンを書いて 1行に複数文を書いても、複数行に自動整形されてしまいます
+        サーバーにある実行ファイルをデバッグします: #// 未確認
+            #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: debug in server
+    - #// 長い文字列のデバッグ表示: #keyword: go dlv maxStringLen
+        現在の制限:
+            デバッガーが表示する文字列の値の長さは 4096(?)文字、スライスは 64(?)文字の制限があります。
+            bodyBinary[10000:15000] == "1234567890123456789012345678901234567890123456789012345678901234"
+        対処A:
+            watch := string(bodyBinary[10000:15000])
+            fmt.Println(watch)
+            // DEBUG CONSOLE に表示されます
+        対処B >> JSON デコード: #keyword: go UnmarshalTypeError
+            元のコード: |
+                err = json.NewDecoder(body).Decode(responseBody)
+                if err != nil {
+                    return err
+                }
+            デバッグ用コード: |  #focus: offset,  21489  #// offset の値を調べて設定してから、文字列の一部を表示します
+                //FIXME_: start
+                if false {
+                    bodyBinary, _ := io.ReadAll(body)
+                    bodyString := string(bodyBinary)
+                    offset := 21489
+                    bodyString1 := string(bodyBinary[offset - 500:offset])
+                    bodyString2 := string(bodyBinary[offset:offset + 500])
+                    fmt.Println("-----------")
+                    fmt.Println(bodyString)
+                    fmt.Println("-----------")
+                    fmt.Println(bodyString1)
+                    fmt.Println("-----------")
+                    fmt.Println(bodyString2)
+                    fmt.Println("-----------")
+                }
+                //FIXME_: end
+                err = json.NewDecoder(body).Decode(responseBody)
+                if err != nil {
+                    //FIXME_: start
+                    fmt.Println(err)
+                    if _, ok := err.(*json.UnmarshalTypeError); ok {
+                        fmt.Println(err.(*json.UnmarshalTypeError).Offset) // err.data.Offset == 21489
+                    }
+                    //FIXME_: end
+                    return err
+                }
+        現状:
+            #ref: https://github.com/golang/vscode-go/issues/2533
+            #ref: https://github.com/golang/vscode-go/wiki/debugging#i-need-to-view-large-strings-how-can-i-do-that-if-dlvloadconfig-with-maxstringlen-is-deprecated
+            #ref: https://github.com/golang/vscode-go/blob/master/docs/debugging.md
+            #ref: https://github.com/golang/vscode-go/blob/master/docs/settings.md
+    - #// data プロパティ #keyword: watch go data  #// ウォッチに表示されたオブジェクトの data プロパティ
+        ウォッチの data: data プロパティではなく、ダウンキャストしたデータ
+        data のコード: |  #// サブクラスが UnmarshalTypeError の場合
+            if _, ok := err.(*json.UnmarshalTypeError); ok {
+                fmt.Println(err.(*json.UnmarshalTypeError).Offset) // err.data.Offset
+            }
+    - #// オブジェクトを表示します  #keyword: go toDebugString,  go print watch debug object
+        関数を埋め込みます: |
+            ////////// debug start
+            func  toDebugString( v interface{} ) string {
+                bytes, err := json.MarshalIndent(v, "", "   ")
+                if err != nil {
+                    panic(err)
+                }
+                return string(bytes)
+            }
+            ////////// debug end
+        オブジェクトの情報の文字列を取得します: |
+            ////////// debug start
+            watch := toDebugString(__variable__)
+            _ = watch
+            ////////// debug end
+        ウォッチ等で値を取得します:
+        参考:
+            デバッグ用 printf （toDebugString）:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#toDebugString
+    - #// 一部のコードの処理をスキップします  #keyword: go skip code,  go comment out
+        スキップした後のコードを上側にコピーします。
+        コメントアウトすると、依存関係エラーになる可能性が高いです。
+    - #// 型を調べます  #search: go TypeOf
+    #// エラー メッセージ
+    - #// __Symbol__ redeclared in this blockcompilerDuplicateDecl __OldFile__.go(__Line__, __Column__): other declaration of __Symbol__
+        手順: VSCode で Go 言語ファイルを編集中
+        エラー: |
+            __Symbol__ redeclared in this blockcompilerDuplicateDecl __OldFile__.go(__Line__, __Column__): other declaration of __Symbol__
+        対処A:
+            $ go env GOCACHE
+            __Home__/.cache/go-build
+            $ rm -rf  __Home__/.cache/go-build
+        対処B:
+            VSCode を再起動
+    - #// Error: missing dependencies for function "__SourceFolderPath__".__Constructor__.func1.1
+        手順: dig.Invoke 呼び出し
+        エラー: |
+            Error: missing dependencies for function "__SourceFolderPath__".__Constructor__.func1.1
+                missing type: __ContainerClass__
+                (did you mean __RegisterdType1__, __RegisterdType2__, ____ ?)
+        対処:
+            dig.Provide 関数に __ContainerClass__ のコンストラクターを渡してください。  #search: dig.Provide
+    - #// Unable to step while the previous step is interrupted by a breakpoint.
+        手順: Visual Studio Code で ステップ イン
+        エラー: |
+            2023-03-03T03:03:03+09:00 error layer=dap runtime error: next while nexting
+            invalid command: Unable to step while the previous step is interrupted by a breakpoint.
+            Use 'Continue' to resume the original step command.
+        対処:
+            ステップ イン ができないようなので、ブレークポイントと実行再開をしてください。
+            ブレークポイントを置く関数は grep で探してください。
+        メモ:
+            マルチスレッドの場合に発生するようです
+        #ref: https://pkg.go.dev/github.com/go-delve/delve/service/dap
+    - #// this value of ____ is never used
+        手順: コーディング中
+        エラー: |
+            this value of ____ is never used
+        対処:
+            #search: go debug
+    - #// cgo: C compiler "gcc" not found: exec: "gcc": executable file not found in $PATH (exit status 2)
+        手順:
+        エラー: |
+            Build Error: go build -o /____/__debug_bin -gcflags all=-N -l .
+            # runtime/cgo
+            cgo: C compiler "gcc" not found: exec: "gcc": executable file not found in $PATH (exit status 2)
+        対処:
+            gcc を使えるようにします:
+                #search: install gcc
+    - #// ok      _____.go  [no tests to run]
+        手順: go test
+        エラー: |
+            ok      _____.go  [no tests to run]
+        対処:
+            テスト関数が書かれたファイルの名前の末尾が _test.go 以外の場合:
+                ファイル名の末尾が _test.go になるように修正します
+            テスト関数名が Test から始まらない場合:
+                テスト関数名を Test から始まるように修正します
+    - #// command-line-arguments  [no test files]
+        手順: Visual Studio Code の Testing ビューから１つのテストを run test  #keyword: go Testing run test
+        エラー: |
+            command-line-arguments  [no test files]
+        対処:
+            ターミナルから実行します:
+                go test "." -run "^Test____$"
+        原因:
+            内部で実行するコマンドが正しくないため: |  #// ____.go の指定が余分。おそらく go.mod の module に指定されているものが付く
+                Running tool: /usr/bin/go test -timeout 30s -run ^Test____$ ____.go
+    - #// package __Path__ is not in GOROOT
+        手順: go run __Path__
+        エラー: |
+            package __Path__ is not in GOROOT
+        対処:
+            __Path__ を環境変数 GOPATH の値に書かれたパスの中に入れてください
+    - #// could not import __Module__
+        手順: import 文の中に コンパイル エラー
+        エラー: |
+            could not import __Module__ (no required module provides package "__Module__") compilerBrokenImport
+        対処A: #keyword: go get
+            go get __Module__
+            #// go get すると go.mod と go.sum も編集されます
+        対処B:
+            モジュール名:
+                使える文字: 小文字、アンダースコア
+                使えない文字: ハイフン、大文字
+            フォルダー名:
+                ソース ファイル が入るフォルダー名は、モジュール名と同じにします
+    - #// __Variable__ declared but not used compiler (UnusedVar)
+        手順: コンパイル時エラー
+        エラー: |
+            __Variable__ declared but not used compiler (UnusedVar)
+        対処:
+            参照されていない変数を _（アンダーバー）変数に代入します。
+            _ = __Variable__
+            _ = []interface{}{__Variable__, __Variable__}
+    - #// Unable to evaluate expression: call not at safe point
+        手順: ブレーク中に DEBUG CONSOLE で関数呼び出しがある式を入力したとき
+        エラー: |
+            Unable to evaluate expression: call not at safe point
+        対処:
+            現在のブレークの状態では関数呼び出しができません。
+            関数呼び出しをするコードに変えるしかありません。
+                debug_ := variable.String()
+                _ = debug_
+            #ref: https://github.com/go-delve/delve/issues/1590
+    - #// Unable to evaluate expression: function calls not allowed without using 'call'
+        手順: ブレーク中に DEBUG CONSOLE で関数呼び出しがある式を入力したとき
+        エラー: |
+            Unable to evaluate expression: function calls not allowed without using 'call'
+        対処:
+            例: call variable.String()  #// 最後が関数呼び出しであること
+        補足:
+            - delve が出力するエラーメッセージです。delve は go 言語のデバッガーのモジュールです  #keyword: delve
+            - call に続いて関数呼び出しがある式を入力してもエラーになります : |
+                例: call variable.String().a
+                エラー: Unable to evaluate expression: invalid interface type: could not find str field
+        参考:
+            GitHub Issue:
+                #ref: https://github.com/microsoft/vscode-go/issues/2655
+            サポートが難しいわけ:
+                #ref: https://stackoverflow.com/questions/58217704/unable-to-call-function-in-go-debugger
+    - #// (untyped string constant) is not an interface
+        手順: |
+            "literal".(interface{})
+        エラー: |
+            (untyped string constant) is not an interface
+        対処:
+            interface{}("literal")
+            #search: go cast
+    - #// go.mod file not found
+        手順: Go 言語プログラムを実行します
+        エラー: |
+            go: go.mod file not found in current directory or any parent directory; see 'go help modules'
+        対処:
+            go mod init __ProjectName__
+    - #// expected 'package', found 'import'
+        手順: 文法エラー
+        エラー: |
+            expected 'package', found 'import'
+        対処:
+            ソースファイルの先頭行は package 文を書きます。
+            package main
+    - #// panic: interface conversion: interface {} is []interface {}, not __TargetType__
+        手順: object["name"].(map[interface{}]interface{})
+        エラー: |
+            panic: interface conversion: interface {} is []interface {}, not map[interface{}]interface{}
+        対処:
+            #// エラーメッセージに書くべき型が書かれています
+            object["name"].([]interface{})[0]
+    - #// panic: interface conversion: interface {} is map[string]interface {}, not __TargetType__
+        手順: object.(map[interface{}]interface{})
+        エラー: |
+            panic: interface conversion: interface {} is map[string]interface {}, not map[interface{}]interface{}
+        対処:
+            #// エラーメッセージに書くべき型が書かれています
+            object.(map[string]interface{})

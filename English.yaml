@@ -1,0 +1,505 @@
+#keyword: English, en
+#ref: ${programming}/英語/英語.svg
+文法:  #ref: ${programming}/英語/英語.svg#doumeishi
+    冠詞: #keyword:
+        技術的な文書:
+            技術的な文書やコミットメッセージでは、特定の名前や用語について話している場合でも冠詞（"the", "a", "an"）を省略することがよくあります。
+            #ref: ${typrm_files}/ref/English-AI.yaml#label: article
+    複数形:
+        0個: #keyword: 0 複数 英語
+            0個の場合も、複数形で書きます
+    不定詞と動名詞: #keyword:  
+        不定詞:  #// to 未来
+        動名詞:  #// 現在過去 ing
+        サンプル:
+            - He stopped to smoke  #// タバコを吸うために止まった
+            - He stopped smoking  #// タバコを吸うことを止めた
+    接続詞: #keyword: 
+        もしくは: Alternatively
+    過去分詞で形容詞: #keyword: 
+        expected pattern   OK
+        expecting pattern  NG。進行形 (-ing) の形で形容詞として使うのは一般的ではありません
+    that: #keyword:
+        接続詞, 従属接続詞:
+            He says that ...
+        関係代名詞:
+            The person that lives next door ...
+ビジネスのメール:
+    省略しません:
+        I'm → I am
+        isn't → is not
+        wanna → would like to
+    遠回しな表現を使います:
+        want → would like to
+        Please → Could you please
+感情, 反応:
+    フォーマルな表現:  #// 敬語はないがフォーマルな表現はあります
+        1: ありがとう、どういたしまして、ごめんなさい、元気ですか、久しぶり、早く良くなるいいですね、うれしいです、
+        2: 私の考えでは、～を忘れないでください、～正しいかわかりません、～してください、やめてください、～する時間はありますか、手伝いましょうか、
+        3: ～してもいいですか、理由は？、意味が分かりません、締め切りはいつ、他に聞きたいことは、あなたはどうですか、何と言いましたか、
+        4: 同館です、もちろん、参加します、また次の機会に、結構です、そうは思わない、急いでください
+            #// 以上は普通の日本語表現。英語のカジュアル、普通、フォーマルは以下のリンク先。1～4 に分類上の意味はありません
+        #ref: ${my_images}/2024/フォーマルな英語1.jpg
+        #ref: ${my_images}/2024/フォーマルな英語2.jpg
+        #ref: ${my_images}/2024/フォーマルな英語3.jpg
+        #ref: ${my_images}/2024/フォーマルな英語4.jpg
+        #ref: https://x.com/KoalaEnglish180/status/1760264043104014748
+    このように書けます:
+        You can do so like this
+    がんばれ！:
+        Good luck!
+    初めて知った, 知らなかった:
+        I didn't know that!
+        I had no idea!
+        #// the first time I knew that とは言わない
+        #ref: https://eikaiwa.dmm.com/uknow/questions/4689/
+        #ref: https://eikaiwa.dmm.com/uknow/questions/9481/
+    できない:
+        今のところそれはできない:
+            Currently there is no way to do
+    出典, ガイドラインによれば:
+        According to Apple App distribution guide
+    時間が掛かる:
+        It takes time for the data to be updated.
+    ほしい:
+        Can I get ...
+単語 >> 英和:  #glossary: English  #search: en __Word__
+    above: 上
+    abstract:  #search: English 概要
+        -   抽象的な
+        -   要旨（Abstract） #search: English 概要
+    accept, address, apply:
+        address: address reviewer's comment  #// レビュアーのコメントに対処した
+        apply: apply reviewer's suggestions  #// apply comment は不自然
+        accept: 受け入れる 承諾する 意見に同意したというニュアンス 実際に行動を起こしたかが不明確
+    after: #// 後
+        A after B:  B の後の A  #// B, A の順序における A
+        A before B: B の前の A  #// A, B の順序における A  #keyword: A before B
+    ahead:
+        This branch is 2 commits ahead of develop.  #// このブランチは develop ブランチより 2コミット分先行しています。develop ブランチから 2コミット追加しています
+    ambiguous: 曖昧な
+    approve: 承認  #// aproove, aprove ではない
+    as: #keyword:
+        A as B: A は B として。 B として扱われる A
+    backup: バックアップ。 複合語になっています #keyword: back up
+    ban: 禁じる  #// 頭字語ではない
+    before: #// 前
+        A before B: B の前の A  #search: A before B
+        before line: 前の行, 上の行  #// 類義語は above  #keyword:
+    below: #// 下
+        2行下の行: #keyword:
+            -   A two lines below B
+                B の 2行下の A
+            -   the line two lines below the line you are reading
+                読んでいる行の2行下の行
+    by:
+        ～を使って:  #search: using English
+    ca.: 約
+    cannot:  #// 一般に can not より cannot が使われます
+        cannot: 物理的または規則上不可能であること
+        can not: 他に選択肢がある場合
+    cf.: 参照
+    check: または make sure
+    coalesce: 融合する。（読み：コーレース）
+    deep: 深い  #// 対義語は shallow
+    delegate: 委譲する  delegate A to B  #ref: https://www.merriam-webster.com/dictionary/delegate
+    dependent, dependency:
+        depend: （動詞）  #keyword: depend on
+        dependency: （名詞）
+        dependent: （形容詞）A is dependent on B
+        depended, depending: 使ってもよいが dependent のほうが正しい
+        解説: #ref: https://ell.stackexchange.com/questions/93147/dependent-vs-depended-vs-depending
+            A → B:  #// A を使うには B が必要、または A が発生する要因は B にある、という関係がある場合
+                A is dependent on B
+            関連:
+                クラスの依存関係: #search:
+                依存関係図:  #ref: https://learn.microsoft.com/ja-jp/visualstudio/modeling/create-layer-diagrams-from-your-code?view=vs-2022
+    deprecated: 非推奨
+    different, difference:
+        different: 違う（形容詞） If A and B are different values
+        difference: 違い（名詞）、差分、差額
+        price difference: 差額
+        distance: 距離  #// 差分ではない
+        different price: 異なる価格  #// 差額ではない
+    directive: #keyword: directive, ディレクティブ, 指示子
+    discourage: がっかりさせる。（受動形なら）お勧めしない
+    divergent, ダイバージェント: 。分岐する。発散する
+    e.g.: たとえば
+    emit: 放出する。出力する  #search: トランジスター
+    emphasize: 強調する
+    enumerator: 「イニュームレイター」  #ref: https://www.google.com/search?q=enumerator+発音
+    et al.: その他
+    exist:
+        - A does not exist.  #// A が存在しません
+    experimental: 実験的な
+    expired: 期限切れ,  expiration date
+    explicit: 明示的な
+    FYI: just For Your Information  参考まで
+    grammar: 文法  #// grammer ではない
+    ibid.: 同じ箇所に
+    id.: 同上
+    i.e.: すなわち
+    if:
+        if や when の前のコンマ: #keyword: English if comma,  English when comma
+            if や when が後にある場合は、コンマは不要です。
+                Set default values if necessary.
+            if や when が前にある場合は、コンマが必要です。
+                If necessary, set default values.
+            強調させたいときや if 以降が長いときは付けてもいいです。
+    implies, implication:
+        A implies B:
+            A ⇒ B。 #search: 含意
+        Implies B:
+            B のとき。
+    important:
+        critical: 危機的
+        significant: 少し改まった感じ。客観的に
+    indicator:  indicater ではない
+    missing inserted:
+        A missing B inserted: A が無い B がある。A があることを予期していたが B がある 
+    inventory:
+    inventry:  inventory のミススペル
+    issue:
+        意味: 問題
+        Git のコミットメッセージの例: Fix an issue where users could not login using OAuth
+        類似語: error, problem, bug
+    IOW: in other words 言い換えれば
+    little, few:  #search: 単数形と複数形
+    lose, loose, lazy:
+        lose: 失う
+        loose: ゆるい（物）
+        lazy: 怠惰な（人）
+    make sure, ensure:  ～という状態にする  #keyword: English ～にする
+    metadata: メタデータ  #// meta data ではない
+    misbehaving: おかしな動作
+    next:
+        next A: 次の A  #// 1-A, 2-A の順序における 2-A  #ref: https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1123610871
+            #// 対義語は previous
+        A next to B: B の隣/横の A  #// 順序は不明。 #search: above, below, before, after
+        2行下の行: #serach: below
+    number of:
+        a number of __複数形__: いくつかの
+        a large number of __複数形__: 多くの
+        the number of __複数形__: ～の数  #// 全体は単数形扱い
+    occur, occurred, occurs:  #// occured, occurd, occures ではない
+    omit:
+        過去分詞: omitted  #// t が２つ  #keyword: omitted
+    opposite: 反対
+    pass, path:
+        pass: 合格, （ボールを）渡す
+        passed ball: 野球で、投手の打者に対する投球を捕手がとりそこなって後方にそらせること
+        path: 小道, 進路
+    placeholder: プレースホルダー
+    plain: 無地の,  plain text  #// 類似: plane
+    plane: 飛行機, 平面  #// 類似: plain
+        #ref: https://chisou-media.jp/posts/5451
+    polling: ポーリング
+    portion: 部分、量や割合を重視する「部分」  #keyword: English part
+    practice: 練習。 best practice 最も優れている手法
+    prior, prioritized, priority: 優先, 前の。反対後は after, posterior
+        A is prioritized. The prioritized person. He has priority.
+        in order of priority.
+    Raspberry Pi: #// Rasberry ではない
+    reconcile, リコンサイル: 調整する。和解させる。一致させる
+    refactoring: リファクタリング。refactering, referctering, refoctoring ではない
+    retrieve: #glossary:  #// 見つけ出して取得する
+        #↓類義語
+        get – 手に入れる。 一番 抽象度の高い大雑把な意味
+        fetch – 行って取ってくる。bring back 持ち帰るのニュアンス
+        obtain – (フォーマル) 苦労して得る。earn より労力の意味合いが強め
+        acquire – (フォーマル) 何かを始めるにあたって必要な土台となるものを得る。習得、身に取り込むニュアンス
+        retrieve – (フォーマル) 見つけ出して取得する。get back 取り戻すのニュアンス。re- の接頭語はリピートのニュアンスが入る
+        gain – 利益を得る。増益のニュアンス
+        earn – 対価を得る。労力を要する。受け取るニュアンス
+        win – 勝ち取る。達成のニュアンス
+        #ref: https://michaeluno.sakura.ne.jp/technotes/note/「得る」の英語のニュアンスの違い-acquire-フォーマ/
+    reveal: 明らかにする 「レヴィール」（レビューに聞こえる） #// revail や reveil ではない
+    reverse: 逆  #// 類義語は opposite
+    senario: scenario のスペルミス
+    set up: 準備。終了時の処理は tear down, clean up
+    severity: 重大度。「サヴァリティ」
+    shallow: 浅い  #// 対義語は deep
+    sic: 原文ママ
+    squelch, スケルチ: (…を)押しつぶす,(…を)鎮圧する
+    standby: スタンバイ  #// stanby ではない
+    support: サポート、対応
+        This version is not supported comma-containing values. は間違い。
+        Comma-containing values are not supported in this version. は正しい。
+        This version does not support comma-containing values. は正しい。
+        主体 supports 対象
+        対象 is/are supported (by 主体)  受動態
+    summary:  #// sammary ではない
+    time:
+        on time: 時間通りに、予定された時刻にぴったりに
+        be in time: 間に合う
+        just in time: ちょうど間に合うように
+        It is time, It's time: 時間になった（日本語では過去形）
+        It's already time: もう時間になっている
+        It's been time: しばらく前に時間になっている
+        It's past time: 時間を過ぎている
+    use:
+        ～を使って: #keyword: using English
+            using
+            Set default values using Bash parameter expansion.
+    vault: 保管庫  #// ボールト。valut ではない
+    wild card:  #// wildcard ではない
+    whether: かどうか。Whether she will succeed is another story. 彼女が成功するかどうかはまた別の話だ
+    another: 別のもう１つ。 another __Object__ than __That__
+    WIP, work in progress:  #// 仕掛中  #keyword:  #// ウィップ
+        意味: 仕掛中
+        補足: 途中（on the way）より良い
+単語 >> 和英:  #glossary: English  #search: en __Word__
+    ただし A は～とする, ここで A は～とする: where A is ____
+    すごい, かなり, 大幅に:
+        significantly, very, greatly
+    すでに:
+        すでにしている（肯定形）: already
+        すでにしていない（否定形）: no longer
+    対応: #// corresponding,  general ledger corresponding accounts
+        英語: corresponding
+        意味: 対応関係
+        corresponding と respectiveの使い分け:
+            #ref: https://www.enago.jp/academy/ask-english-expert/articleinpresentationfile/corresponding-と-respectiveの使い分け/
+        関連:
+            （なし）: invoice ledger
+            meet: 満たす 
+            fit: 条件に適合している
+            conform to A: A に準拠する
+            conformed copy: 適合コピー。署名は無いが活字で書いてあるコピー
+                #ref: https://www.levelset.com/blog/conformed-vs-certified-copy/
+            certified copy: 謄本。署名があるコピー  #// conformed より公式
+                #ref: https://www.levelset.com/blog/conformed-vs-certified-copy/
+            adapt: 環境に適合する  #// adopter（里親、採用者）ではない
+            suit: 彼はこの職場に「適合」している
+    Git コミット メッセージ: #keyword: Git commit message English
+        - Added __Function__.
+        - Supported __Target__ to __Operation__.
+    次:
+        A の次: next to A
+    解析: analyze (分析する), identify (特定する)
+    入った, 含む: __Parent__ with __Item__
+    文字化け: garbled text
+    注意: attention 注意, caution 警戒, warning 警告, advice 助言
+    補足: appendix, supplement
+    警告: warning
+    警告を抑制する: suppress/disable/ignore/skip warning
+    動作確認: operation confirmation 
+    クソリプ: hate comments
+    クソリプする人: trolls, haters
+    ワイドショー: talk show, tabloid show, gossip show
+    ケータリング: catering
+    検出する: detect
+    締める:
+        tighten: たるみを無くすためにきつくする
+        fasten: 取り付けて固定するためにネジを締める
+        #ref: https://redkiwiapp.com/ja/english-guide/synonyms/tighten-fasten
+    並行して: in parallel
+    以外:
+        一般: except for ____
+        中以外: except in ____
+    アスタリスク: asterisk
+    チェックをしない(オプション): chrome --no-default-browser-check  #keyword: no check option
+    日時, 時間, 日付: #keyword: English date
+        配達日: delivery date
+        入手予定日:
+        at: 時間。日時
+        on: 日、曜日、年月日
+        in: 年、月、年月
+        4時の10分前: ten to four,  ten before four  #// __Minutes__ before __Hour__
+        10分前:
+            - ten minutes ago
+            - ten minutes earlier
+            - ten minutes before
+            #// オプション名にするなら
+            - xMinutesBefore
+    範囲:
+        to: まで。To execute up to the middle setup among several setup procedures.  いくつかのセットアップ手順のうち中間のセットアップまでを実行する
+    相当する, ぐらい:
+        ぐらい: __N1__ is about the same as __N2__
+        相当する: __N1__ is equivalent to __N2__
+    関連する:
+        related, relevant 
+    概要:  #keyword: English 概要,  概要 序論 要約 概観 全体像 大筋 英語,  abstract 論文 概要
+        - #↓ 一般
+            summary - 要約、まとめ(最も一般的)
+            overview - 概観、全体像
+            outline - 概要、大筋、アウトライン
+        - #↓ 論文
+            abstract - 概要（論文）
+            introduction - 序論
+        - #↓ 物語
+            synopsis - あらすじ、梗概(本や映画など)
+        - #↓ ビジネス、記事
+            brief - 概要、簡単な説明(ビジネス)
+            executive summary - 要旨(ビジネス文書)
+    脆弱性: vulnerability  #// ヴァルネラビリティ
+    冗長構成: redundant configuration
+    常駐: resident, The program does not remain resident.
+    副作用: side effects
+    担当者: staff  #ref: https://eikaiwa.dmm.com/uknow/questions/426/
+    管理者: administrator
+    監視: monitoring, watch
+    メンテナンス: maintenance
+    避ける: prevent（防ぐ）
+    証明書:  #// certificate, ID, license
+        保険証書: certificate of insurance
+        身分証明書: ID, identity document
+        社員証: employee ID
+        出生証明書: birth certificate
+        死亡証明書: death certificate
+        運転免許: driver's license
+    実機: device  #// 実デバイス
+    拠点:
+        region
+        base, headquarters（特に組織の中心地を指す場合）
+        "hub"（中心地や活動の中心）、"station"（特に軍事や研究の場合）、"office"（事務所やビジネスの場合）
+    省く, 省略する: omit, eliminate, remove, leave out, drop, exclude, except
+        #// eliminating typing the passphrase again.
+    途中:
+        - along the way  #// （長い道のりの）途中で。過去における途中でもよい
+        - on the way  #// 現在が途中  #ref: https://otonaccc.com/along-the-way/
+    隣人（兄弟）: neighbor
+    改良: improve
+    実行: execute, perform, call
+    不安定: flaky  #// 同じテストを複数回実行した時に、時々失敗したり成功したりするような不安定な振る舞いのことを "flaky test" と呼びます。
+    厳密: strict （厳しい）
+    必須: mandatory
+    除外: exclude, (grep --exclude), except for
+    定義済み: built in, predefined
+    もし必要なら:
+        関数名の例: (Swift) textView.layoutIfNeeded()
+    昇順: ascending order
+    降順: descending order
+    昇順または降順: sort order  #ref: https://docs.oracle.com/javase/jp/6/api/javax/swing/SortOrder.html
+    式: expression, formula
+    a か b のどちらか: either a or b
+    凡例: legend  #// 凡例
+    ～のために:
+        英語:
+            because 節
+            due to 句  書き言葉
+            for 句
+        関連: ～によって
+    ～によって:
+        英語:
+            __A__ causes __B__ to become __C__
+            High load causes Linux file system to become read-only
+        関連: ～のために
+    など:
+        and others:  #// など、「人」
+            参考: https://www.rokutanjuku.com/nado-eigo-andothers
+        and so on: #keyword:  #// など、そのようなもの 「物」
+            サンプル: I had bacon, salad, toast, and so on.
+            NG: I like watching movies, playing tennis, collecting stamps, and so on.
+                #// そのようなものとして他を想像できないため NG
+            参考: https://eikaiwa.dmm.com/uknow/questions/24204/ >> Katsuhiro Inoue
+        etc.: #keyword:  #// et cetera の略。et は and のラテン語
+            サンプル:
+                - 1, 2, 3, etc. are numbers.
+                - 1, 2, 3, et cetera, et cetera are numbers. #// 話し言葉
+            参考: https://eikaiwa.dmm.com/uknow/questions/24204/ >> Tamaki
+        such a ～:
+比較:  #glossary:
+    サンプル:
+        語:  #glossary: English
+            example: 代表となる１つ。特徴、または一般的な規則を説明するもの
+            sample: 全体の一部。同じものが他にもある
+            e.g.: for example, たとえば
+            i.e.: 言い換えれば、つまり
+        参考:
+                - https://beats.colabory.com/2016/05/26/4628.html
+                - https://theeigojuku.com/learning-english/hitokoto/sample-and-example/
+    必要:  #glossary: English  #keyword: 必要です
+        must:  #keyword: must
+            parameters must not be omitted.
+        required:  #keyword: required
+            ____ module is required.
+        no need for __A__:  #// __A__ は必要ない  #keyword: 必要ない
+            #ref: https://stackoverflow.com/questions/45232039/is-it-possible-to-compare-two-directories-in-git
+    カッコ:  #glossary: English
+        bracket:  #ref: ${programming}/英語/英語.svg#bracket
+            カッコ, 括弧
+            (round bracket), {curly brace}, [square bracket]
+        brace: |
+            {curly brace}
+    番号, index: #keyword: index  #glossary: English
+        ID: 1, 2, 3, 4, ...
+        index: 0, 1, 2, 3, ...
+        indices: 添字の複数形
+        indexes: 索引の複数形
+        #参考: indexes なのか indices なのか  https://www.utakata.work/entry/indexes-indices2
+    単数形と複数形: #keyword:
+        all, any, some, each, every: #glossary:
+            all: 複数形
+            every: 単数形
+            each: 単数形
+            some: 単数形
+            any: 単数形
+            not any: 複数形 or 単数形
+            no: 単数形
+            other: 複数形 or 単数形
+                other, othres, other item, other items
+        little, few:
+            little と few の違い:
+                little: 不可算名詞に付く
+                few: 可算名詞に付く
+            a little と little の違い:  #// few も同様
+                a little: 少しある
+                little: 少ししかない
+            サンプル:
+                a few seconds: 数秒
+        double:
+            - a double door  #// 両開きのドア。単数形
+    スペル:
+        cloud, browser  #// clowd, brouser ではない
+    finish, complete:
+        Waiting for container to initialize to complete
+    程度が大きいほど〜: The larger ____, the higher ____
+間違得やすいスペル:  #glossary:
+    #// 書式「__Correct__: #// __Bad__ ではない」
+    the same as:  #// as same as で習ったけど間違い
+    character:   #// charactor ではない
+    controller:  #// controler ではない
+    enterprise:  #// enterprize ではない
+    paths:  #// pathes ではない
+    registry:  #// registory, resitry ではない
+    registries:  #keyword: registry の複数形  #// registrys ではない
+計算: #keyword: 英語 計算  #ref: ${programming}/英語/英語.svg#calcrate
+    バージョン:  #keyword: English version
+        以上: ... or later      #keyword: or later
+        以前: ... or earlier    #keyword: or earlier
+複合語: #glossary:
+    複合語: compound word。 語。 二つ以上の単語の結合によってできたと認められる語。 辞書で引ける
+        #ref: https://hokusei.repo.nii.ac.jp/?action=repository_action_common_download&item_id=1276&item_no=1&attribute_id=45&file_no=1&usg=AOvVaw3GQT8n6NJvrvfCGf81HAyw
+    複合名刺: 二語以上からなる名刺。慣用句ですらない
+    熟語: 漢字数文字で構成される語
+    慣用句・イディオム: #.. idiom
+        #ref: https://ja.wikipedia.org/wiki/慣用句
+            - 二語以上の単語が固く結びつき、全く異なる意味を持つものを指し、言語学的にはイディオムと呼ばれる
+        #ref: https://nativecamp.net/blog/20180520-idiom
+            - get up, put off
+        #ref: https://ja.wikipedia.org/wiki/イディオム
+            - “beat around the bush”（遠まわしに言う）、“hit it off”（気が合う）
+            - 日本言語学会と日本英語学会は“idiom”を一意に「慣用句」と訳している
+    成句:
+        - 二語以上の語。 辞書では、語の中で引ける。
+        #ref: https://ja.wikipedia.org/wiki/慣用句
+        - 慣用句の定義とほぼ重なるが、「無くて七癖」のように古くから慣習的に用いられている文句も含み、諺にも近いニュアンスをもつこともある。
+    成語, 故事成語: 故事に語源を持つ言葉。例：馬の骨、噛ませ犬
+    ことわざ:
+    関連: #search: 形態素解析
+辞書, 翻訳: #keyword: English dictionary,  翻訳
+    PLaMo翻訳:  #ref: https://translate.preferredai.jp
+    英英辞典: #keyword:
+        Merriam-Webster:  #ref: https://www.merriam-webster.com/dictionary
+    シソーラス辞典: #keyword: 類義語辞典, 対義語辞典, 同義語辞典, 反義語辞典, 類語辞典, 連想類語辞典, シソーラス辞典
+        #// 用例があるかどうかチェックするために検索をすること
+        英語:
+            thesaurus.com: #ref: http://thesaurus.com/
+            ケンブリッジ: #ref: https://dictionary.cambridge.org/ja/thesaurus/
+            その他の辞典サイト:
+                #ref: http://www.merriam-webster.com/
+                #ref: http://www.visualthesaurus.com/
+        接頭語:  #// in,un,de,pro,anti,an,re等
+            #ref: http://www.mondofacto.com/dictionary/prefix.html
+    文章校正 >> DeepL Write:  #ref: https://www.deepl.com/write

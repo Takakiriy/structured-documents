@@ -1,0 +1,1759 @@
+#keyword: Cloud.yaml, cloud
+サーバーとクラウド:
+    レンタルサーバー, 共用サーバー: root 権限なし
+    VPS (Virtual Private Server), 専用サーバー: root 権限あり  https://knowledge.sakura.ad.jp/2691/
+    クラウドサーバー: ハードのスペックを拡張できる、従量課金
+    踏み台サーバー: bastion host バスティオン ホスト, springboard server, jump server  #keyword: 踏み台サーバー, bastion host
+        #ref: https://redj.hatenablog.com/entry/2018/10/31/202732
+    サービス, アプリケーション:
+        Google Drive:  #search:
+        大容量ファイル転送サービス: #keyword:
+            ギガファイル便: #keyword:  #ref: https://gigafile.nu/
+                タイムスタンプ: 記録されません
+                アップロードします:
+                    アップロードするファイルを作ります
+                    https://gigafile.nu/  を開きます
+                    ファイルをドラッグ＆ドロップします
+                    URL をメモします  スケジュール帳などに書くとよい
+                        削除キーは他の人に漏洩させないため  サーバーの容量は気にしない
+                        パスワードを設定しなくても URL を知らなければ漏洩しません
+                    ページを閉じます
+                ダウンロードします:
+                    入手した URL を開きます
+                    ファイル名をクリックします
+    規格:
+        ISO/IEC 27001: 情報セキュリティマネジメントシステム（ISMS）に関する国際規格  #keyword: ISO/IEC 27001, ISMS
+            #ref: https://www.jqa.jp/service_list/management/service/iso27001/
+        ISO/IEC 27017: クラウドのセキュリティの国際規格  #keyword:
+        ISO/IEC 17788: クラウドの規格  #keyword:
+    用語:
+        IT インフラ: #keyword: IT インフラ, IT infrastructure, IT基盤, システムリソース, ITアセット, IT資産, データベース サーバー サービス 設定ファイル
+            _: データベース サーバー サービス 設定ファイル、
+                データがある場所はインフラによって異なります。
+                サーバー内に設定ファイルがあるように、粒度（granularity）の違いがあります
+            媒体？: #keyword: 記憶媒体, 記録媒体, マスメディア, CD DVD USBメモリー 新聞 テレビ ラジオ SNS 電子書籍 動画配信
+                データベース サーバー サービス 設定ファイル といったものは、媒体とは言いません。
+            キャッシュ？:  #// キャッシュは IT インフラ の一種とは言いません
+                キャッシュは機能です。
+                環境によってインフラが変わります。
+                データのコピーはありますが、恒久的な保存場所ではありません。
+SaaS:  #glossary:
+    SaaS: サービス。Google WorkspaceやMicrosoft Office 365、Dropbox、Slack、Zoomなど  「サーズ」（アクセントは read と同じ）
+        #search: Applications.yaml
+    PaaS: プラットフォーム。aws, Azure, GCE
+    IaaS: インフラ。EC2, GCE  「アイアース」
+    IaC: #// Infrastructure as Code
+        #search: HCL
+Azure: #keyword:  #// https://portal.azure.com/  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#Azure
+    Invoice を保存します: #keyword: Azure invoice,  Azure 請求書
+        https://portal.azure.com/ >>（サブスクリプション名） >> (Billnig) Billing profile invoices（左）>>
+        （Invoice ID）>> ダウンロード（タブ）>> Download invoice
+        #// Billing account name を本名に変えたら、製品ごとの請求の詳細 に本名が書かれるようになりました  2025-03-12
+    アカウント:
+        https://portal.azure.com/ >>（サブスクリプション名）>> Settings >> Billing properties >> Billing account name >>
+            Access control (IAM)（左）>>（名前）
+    支払い方法:  #ref: https://portal.azure.com/#view/Microsoft_Azure_Billing/BillingMenuBlade/~/Overview
+        メニュー: Billing（左）>> Payment methods
+    サブスクリプションの支払いの設定:
+        #ref: https://portal.azure.com/#@tsnekosagep.onmicrosoft.com/resource/subscriptions/ea1f44ca-9843-4817-bae8-ca3f4f9862fb/invoices
+        メニュー: Billing（左）>> Billing profile invoices >> Pay 列（右）>> Select payment method
+        支払い失敗 2024-11-09: Sony も住友9もダメ。1円だから？
+aws: #keyword:  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#aws
+    手順:
+        アカウント、ユーザー、IAM:  #ref: https://console.aws.amazon.com/
+            AWS マネジメント コンソールへサインインする:  #keyword: aws sign in
+                （もし、AWS マネジメントコンソールにサインイン中なら）右上のユーザー名 [ サインアウト ]:
+                一般ユーザー（登録済みであること）:  #keyword: aws sign in general  #snippet-depth: 1
+                    URL: https://console.aws.amazon.com/
+                    選択: IAM ユーザー
+                    アカウント ID: __AWS_Account__  #template: $env.AWS_Account
+                    次へ ボタン:
+                    ユーザー名: __UserName__  #template: $env.AWS_UserName
+                    パスワード: __Password__  #template: $env.AWS_Password
+                ルートユーザー、AWS アカウント、ルートアカウント（特別なときのみ使用）:  #keyword: aws sign in root
+                    URL: https://console.aws.amazon.com/
+                    選択: ルートユーザー
+                    ルートユーザーの E メールアドレス: __Account__
+                    次へ ボタン:
+                    パスワード: ____
+                    サインイン ボタン:
+                    MFA コード: ____
+                設定: #settings:
+                    $env.AWS_Account: __AWS_Account__
+                    $env.AWS_UserName: __UserName__
+                    $env.AWS_Password: __Password__
+            無料AWSアカウントの作成:
+                メニュー: https://aws.amazon.com/jp/s/dm/landing-page/create-free-account/ >>
+                    まずは無料で始める（オレンジ色）
+                ステップ 1:
+                    E メールアドレス: ____
+                    パスワード: ____
+                    AWS アカウント名: ____  #// AWS アカウント名とは ⇒ snote >> AWS アカウント名
+                ステップ 2:
+                    どのように使用されますか: ビジネス or 個人
+                    問い合わせ先:
+                        フルネーム:
+                        電話番号:
+                        住所:
+                        郵便番号:
+                ステップ 3:
+                    クレジットカード:
+                ステップ 4:
+                    本人の確認:
+                        検証コードの受け取り方法: SMS
+                ステップ 5:
+                    サポートプランを選択:
+            ルートアカウントの MFA を有効化する:
+                Google Authenticator for iPhone の場合:
+                    Google Authenticator for iPhone をインストールします:
+                    AWS マネジメント コンソールでの操作:
+                        メニュー: https://console.aws.amazon.com/ >> ルートユーザーでサインイン >>
+                            ユーザー名（右上） >> マイセキュリティ資格情報 >> 多要素認証（MFA） >> MFA の有効化
+                        MFA の登録を開始します:
+                            仮想 MFA デバイス >> 続行
+                        AWS アカウントを識別する QR コードを表示します:
+                            QR コードの表示
+                    Google Authenticator での操作:
+                        すでに別の AWS アカウントがあるとき:
+                            新しい AWS アカウントと区別できるように表示名を短く変更します:
+                                …（右上）>> 編集 >>（鉛筆アイコン）>>（区別できる名前）>> 保存
+                        MFA を登録します:
+                            メニュー: ＋ボタン >> QR コードをスキャン
+                            MFA コード1: 今表示されている 6桁の数字
+                            MFA コード2: しばらく待って次に表示される 6桁の数字
+                            MFA の割り当て ボタン:
+            ルートアカウントの MFA のデバイスを変更する:
+                https://console.aws.amazon.com/ >> ルートユーザーでサインイン >> ユーザー名（右上） >>
+                マイセキュリティ資格情報 >> 多要素認証（MFA） >> 管理 >> 削除（左上） >> 削除 ボタン >>
+                以降は上記「ルートアカウントの MFA を有効化」を参照
+            aws 開発用のユーザーを作成して招待します (new_user_credentials.csv):
+                設定: #settings:
+                    __AWS_CollaboratorUserName__: user1
+                AWS マネジメント コンソールにサインインします:
+                    上記「AWS マネジメント コンソールへサインインする」を参照
+                開発者ユーザーを新規作成します:
+                    メニュー: https://console.aws.amazon.com/iam/ >> ユーザー >> ユーザーを追加
+                    ユーザー詳細の設定:
+                        ユーザー名: user1  #template: __AWS_CollaboratorUserName__
+                        チェックを入れます:
+                            - プログラムによるアクセス
+                            - AWS マネジメントコンソールへのアクセス
+                        コンソールのパスワード: 自動生成パスワード  #// デフォルト
+                        チェックを入れます(2): パスワードのリセットが必要
+                        次のステップ ボタン:
+                    ユーザーをグループに追加します:
+                        AdministratorGroup を作る場合:
+                            グループの作成 ボタン:
+                            グループ名: AdministratorGroup
+                            （チェックを入れる）ポリシー名: AdministratorAccess
+                            グループの作成 ボタン(2):
+                        チェックを入れます: AdministratorGroup
+                        次のステップ ボタン:
+                    タグの追加:
+                        次のステップ ボタン:
+                    確認:
+                        ユーザーの作成 ボタン:
+                    成功:
+                        自動生成パスワードを選んだ場合:
+                            .csv のダウンロード ボタン:
+                            .csv ファイルを暗号化して開発者ユーザーに送ります:
+                            #// アクセスキーなどは .csv ファイルに書かれています。また、後で再発行できるのでメモしなくて構いません:
+                        閉じる ボタン（右下）:
+            aws 開発用のユーザーとして招待を受ける (new_user_credentials.csv):
+                操作: |
+                    開発者ユーザーは new_user_credentials.csv ファイルに書かれた URL を開き
+                    そのファイルに書かれた User name, Password を使ってログインします
+                    ログインしたらパスワードを変更します
+            スイッチロールする:
+                #// ユーザーの権限をロールに変更します。ユーザーが所属していない AWS アカウントの IAM ロールも対象にできます
+                設定: #settings:
+                    __User_AWS_AccountID__: 111156789012  #// ユーザーが所属する AWS アカウント ID
+                    __Role_AWS_AccountID__: 222256789012  #// 操作対象となるリソースや IAM ロールがある AWS アカウント ID
+                    __RoleName__: S3ReadOnly
+                    __ProfileName__: 222256789012-S3ReadOnly  #// AWS CLI を使ってスイッチロールするときのみ必要
+                スイッチロールする内容を作ります:
+                    スイッチロールしたときの権限を持つ IAM ロールを作ります:
+                        ロールを作る AWS アカウントにサインインします:  #// 操作対象となるリソースが所属する AWS アカウントにロールを作ります
+                            222256789012 にサインインします。上記「AWS マネジメント コンソールへサインインする」
+                                #template: __Role_AWS_AccountID__
+                        メニュー: https://console.aws.amazon.com/iam/ >> ロール >> ロールの作成
+                        信頼されたエンティティの種類を選択:  #// ユーザーが所属する AWS アカウント
+                            信頼されたエンティティの種類を選択: 別の AWS アカウント  #// 別でなくてもこれを選びます
+                            アカウント ID: 111156789012  #template: __User_AWS_AccountID__
+                                #// 自分のアカウント（作成しようとしている IAM ロールがある AWS アカウント ID）を指定することもできます
+                            オプション: ____  #// 例: （すべてチェックなし）
+                            次のステップ ボタン:
+                        Attach アクセス権限ポリシー:  #// ユーザーに与える権限
+                            （チェックを入れる）ポリシー名: _____  #// 例: AmazonS3ReadOnlyAccess
+                            次のステップ ボタン:
+                        タグの追加:
+                            次のステップ ボタン:
+                        確認:  #// 説明の入力
+                            ロール名: S3ReadOnly  #template: __RoleName__
+                            ロールの説明: ____ #// 例: （空欄）
+                            ロールの作成 ボタン:
+                    ユーザーにスイッチロールできる権限を与えます:
+                        ユーザーが所属する AWS アカウントにサインインします:
+                            111156789012 にサインインします。上記「AWS マネジメント コンソールへサインインする」
+                                #template: __User_AWS_AccountID__
+                        スイッチロールするポリシーを作ります:
+                            メニュー: https://console.aws.amazon.com/iam/ >> ポリシー >> ポリシーの作成
+                            JSON タブ: |
+                                {
+                                    "Version": "2012-10-17",
+                                    "Statement": [
+                                        {
+                                            "Effect": "Allow",
+                                            "Action": "sts:AssumeRole",
+                                            "Resource": [
+                                                "arn:aws:iam::222256789012:role/S3ReadOnly"
+                                            ]
+                                        }
+                                    ]
+                                }
+                                #template-at(-5): "arn:aws:iam::__Role_AWS_AccountID__:role/__RoleName__"
+                            次のステップ ボタン:
+                            次のステップ ボタン(2):
+                            名前: 222256789012_S3ReadOnly
+                                #template: __Role_AWS_AccountID_____RoleName__
+                            説明: ____ #// 例: （空欄）
+                            ポリシーの作成 ボタン:
+                        ユーザーまたはグループにポリシーをアタッチします:
+                            グループにポリシーをアタッチする場合:
+                                メニュー: https://console.aws.amazon.com/iam/ >> グループ >> （対象のグループ）>>
+                                    ポリシーのアタッチ
+                                （チェックを入れる）ポリシー名: 222256789012_S3ReadOnly
+                                    #template: __Role_AWS_AccountID_____RoleName__
+                                ポリシーのアタッチ ボタン:
+                            ユーザーにポリシーをアタッチする場合:
+                                メニュー: https://console.aws.amazon.com/iam/ >> ユーザー >> （対象のユーザー）>>
+                                    アクセス権限の追加 >> 既存のポリシーを直接アタッチ（右上）
+                                （チェックを入れる）ポリシー名: 222256789012_S3ReadOnly
+                                    #template: __Role_AWS_AccountID_____RoleName__
+                                次のステップ ボタン:
+                                アクセス権限の追加 ボタン:
+                AWS マネジメント コンソールの場合:
+                    スイッチロールします:
+                        #// ルートユーザーはスイッチロールできません
+                        IAM ユーザーでサインインします:
+                            上記「AWS マネジメント コンソールへサインインする」
+                        初回:
+                            メニュー: （IAM ユーザー名）（右上）>> ロールの切り替え
+                            ロールの切り替え ボタン:
+                            アカウント: 222256789012  #template: __Role_AWS_AccountID__
+                            ロール: S3ReadOnly  #template: __RoleName__
+                            表示名: ____ #// 例: （空欄）
+                            色: ____  #// ロールに対する表示色
+                            ロールの切り替え ボタン(2):
+                        ２回目以降:
+                            メニュー: （IAM ユーザー名）（右上）>> （ロール）
+                    スイッチロールした状態から IAM ユーザーに戻ります:
+                        メニュー: （IAM ユーザー名）（右上）>> （IAM ユーザー名）に戻る
+                AWS CLI の場合:
+                    EC2 内の AWS CLI の場合の設定:
+                        ~/.aws/config に下記を追加します: |
+                            [profile 222256789012-S3ReadOnly]
+                            role_arn = arn:aws:iam::222256789012:role/S3ReadOnly
+                            credential_source = Ec2InstanceMetadata
+                                （以上を追加します）
+                                #template-at(-4): __ProfileName__
+                                #template-at(-4): __Role_AWS_AccountID__:role/__RoleName__
+                    EC2 外の AWS CLI の場合の設定:
+                        上記「~/.aws/config」の内容を一部変更します:
+                            - 変更前） credential_source = Ec2InstanceMetadata
+                            - 変更後） source_profile = default
+                    MFA が必要な場合の設定:
+                        上記「~/.aws/config」の role_arn がある profile に下記を追加します: |
+                            mfa_serial = arn:aws:iam::YYYYYYYYYYYY:mfa/____
+                    スイッチロールします:  #// 今まで開いていたシェルでも構いません
+                        export AWS_PROFILE=222256789012-S3ReadOnly  #// 環境変数を設定します（bashの場合）。 #template: __ProfileName__
+                    スイッチロールした状態でコマンドを実行します:  #// 今まで開いていたシェルでも構いません
+                        aws s3 ls  #// --profile オプション（下記）を指定しない通常の AWS CLI コマンド
+                    スイッチロールした状態から IAM ユーザーに戻ります:
+                        export AWS_PROFILE=  #// 環境変数を設定します（bashの場合）
+                    一時的にスイッチロールしてコマンドを実行します:  #// 今まで開いていたシェルでも構いません
+                        aws s3 ls --profile 222256789012-S3ReadOnly  #// --profile オプションにプロファイル名を付けて実行します  #template: __ProfileName__
+                    参考: AWS CLI を設定する環境変数 - AWS Command Line Interface
+                        https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-envvars.html
+        サポート, 料金:
+            サポートプランの変更:
+                https://console.aws.amazon.com/ >> ルートユーザーでサインイン >>
+                https://console.aws.amazon.com/support/ >> Support plan ...  Change（左上） >>
+                プランの変更（右上）
+            サポートのチケットの作成:
+                https://console.aws.amazon.com/support/ >> Your support cases
+                #// 日本語が使えます
+            フォーラム:
+                https://forums.aws.amazon.com/index.jspa
+            Cost Explorer: #ref: ${programming}//ネットワーク・セキュリティ/Cloud/Cloud.svg#AWS_bill
+        リソースのクリーンアップ:
+            #snote: %MyDoc%\src\GitHub\Trials\try_aws_AmplifyConsoleServerless\steps.yaml
+            #search: aws Amplify clean
+        はじめてのアーキテクティング: #keyword: aws アーキテクチャ  #ref: https://www.youtube.com/watch?v=cD870G8uqhY
+            #// AWS JumpStart 2022
+            #ref: ${my_images}/2022/aws/chat_architecture.png
+            #ref: ${typrm_files}/2022/awsハンズオン2022
+            手順:
+                要件の概要整理:
+                    ペルソナ, ニーズ
+                機能要件の合意:
+                    アジャイル開発の場合は優先順位
+                非機能要件の合意: #keyword: 非機能要件の合意  #search: 非機能要件の観点
+                    フロントエンドとバックエンドの内容:
+                        #search: 一般的なインフラの構成
+                    Web API の概要:
+                        呼ばれる頻度
+                    非機能要件の修正と合意:
+                        #ref: ${my_images}/2022/aws/非機能要件1.png
+                        #ref: ${my_images}/2022/aws/非機能要件2.png
+                        #search: 非機能要件の観点
+            構成: #keyword: 一般的なインフラの構成
+                #// 下記は古い
+                小規模:
+                    #ref: ${my_images}/2022/aws/小規模の一般的なインフラの構成.png
+                    #ref: ${my_images}/2022/aws/小規模の一般的なawsの構成.png
+                中規模:
+                    #ref: ${my_images}/2022/aws/中規模の一般的なインフラの構成.png
+                    #ref: ${my_images}/2022/aws/中規模の一般的なawsの構成.png
+            観点: #keyword: 非機能要件の観点  #// アーキテクチャ設計で意識すべき観点
+                #// シンプルにサーバー1台、という構成は良くない
+                信頼性:  #// サービスが稼働し続けるようにする。ダウンすると機会損失やイメージ低下になってしまう
+                    指標:
+                        SLA: #keyword:  #// Service Level Agreement の略。サービスの提供事業者とその利用者の間で結ばれるサービスのレベル（定義、範囲、内容、達成目標等）に関する合意
+                            基本: 正常稼働する時間の割合
+                                99.9%のSLAは、サービスが1ヶ月（43,200分）のうち、43,156分間は正常に動作することを意味します（約43分のダウンタイムが許容される）
+                                99.99%のSLAは、1ヶ月あたり約4.3分のダウンタイムのみが許容されることを意味します
+                                通常95%以上、特にクラウドサービスでは99%以上が一般的です。
+                            その他:
+                                システム稼働時間（アップタイム）
+                                応答時間内に処理されたリクエストの割合
+                                解決時間内に対応されたサポートチケットの割合
+                        RTO: #// 復旧するまでの時間
+                        RPO: #// いつのデータを復旧するか
+                        注意:
+                            できるだけ最小限に、という要求ではコストや工数が増える
+                    サービス:
+                        ロード バランサー: #keyword:
+                            リクエストの分散:
+                                複数の データ センター
+                            ヘルス チェック: #keyword:
+                                SSH pytest:  #search: Python testinfra
+                                Consul: #search:
+                                MySQL:  #search: MySQL replication health check
+                            ロード バランサー の多重化:
+                                aws ではデフォルト
+                    データベース:
+                        レプリケーション: #keyword:  #// 更新した内容はすぐにミラーのデータベースにも反映させます
+                            小規模リクエストの分散はしないことが多い
+                        フェールオーバー: #keyword:  #// 障害発生時にミラーのデータベースに切り替えます
+                        バックアップの自動化:
+                            aws: AWS Backup
+                    リージョン, AZ: #search:
+                パフォーマンス, スケーラビリティ:  #// 遅くならないようにする
+                    サービス:
+                        スケール アップ: #keyword:  #// 高速なサーバーに置き換えます。限界があります。高価
+                        スケール アプト: #keyword:  #// サーバーの台数を増やします
+                    スタティックなコンテンツ:  #// HTML, 画像, 動画
+                        CDN: #search: CDN
+                        オブジェクト ストレージ:  #// オブジェクト用。安価で耐久性が高い
+                    データベース:
+                        リード レプリカ, 非同期レプリケーション:  #keyword:
+                            同期するのに少し時間がかかることに注意
+                        イン メモリ データ ストア:  #keyword: インメモリデータストア
+                            Redis, Memcached
+                    プロトコル:
+                        HTTP, Web socket, Web Push
+                開発や運用の効率:  #// 使うサーバーの数が増えると気になり始めること
+                    ダッシュボード:  #// メトリクスをグラフでまとめる。アラートを上げる
+                        #search: Zabbix
+                    CI/CD: #search:
+                    Infrastructure as Code:  #// インフラのコード化
+                    マネージド サービス の活用:
+                        信頼性がすでに考慮されていることが一般的
+                コスト:  #// 金額
+                    現在のコストの把握:
+                    コスト削減とのトレードオフ:
+                        コストが高い要素からコスト削減を検討します
+                    オート スケーリング:  #keyword:
+                セキュリティ, 権限: #keyword: security architecture
+                    リスク分析: #keyword:  #// 何をどこまで守るか
+                        ベースライン アプローチ: #keyword:
+                            既存のチェックリストを使います
+                            aws の Well Archtected Framework
+                        詳細リスク分析:
+                            情報資産（データの内容）, 脅威, 脆弱性
+                            リスク, 対策 
+            AWS基礎: #// 3時間にAWSの基礎的な概念やサービスの紹介をまとめたコンテンツです  #ref: https://youtu.be/Kb7ZEBwqUAI?t=2006
+            ハンズオン: #keyword: aws ハンズオン 2022
+                参考:
+                    チュートリアル; MySQL と Docker Compose を使ってマルチコンテナー アプリを作成する:
+                        https://learn.microsoft.com/ja-jp/visualstudio/docker/tutorials/docker-tutorial
+                        https://learn.microsoft.com/ja-jp/visualstudio/docker/tutorials/tutorial-multi-container-app-mysql
+                        https://ren-opdev.hatenablog.com/entry/2020/12/29/175246
+                    AWS ソリューションアーキテクトが初級ハンズオンで受けた疑問を解説:
+                        https://aws.amazon.com/jp/builders-flash/202010/beginner-hands-on-questions/?awsf.filter-name=*all
+                        https://www.m3tech.blog/entry/2021/07/26/113000
+                    RDSでの1⇄NチャットアプリDB設計:
+                        https://qiita.com/kamihork/items/63ce20c319fdaaaa9b82
+                プロビジョニングします:
+                    VPC を作ります:
+                        メニュー: aws >> VPC（を検索）>> VPC 作成（上）
+                        作成するリソース: VPCなど
+                        名前（名前タグの自動生成）: handson-takakiri
+                        IPv4 CIDR ブロック: 10.0.0.0/16
+                        NAT ゲートウェイ: AZごとに1
+                        VPCエンドポイント: なし
+                        VPC を作成 ボタン:
+                        #// 完了した後、NAT ゲートウェイが作られていることを確認すること
+                    セキュリティ グループ を作ります:
+                        alb-takakiri:
+                            メニュー: aws >> EC2 >>（ネットワーク＆セキュリティ >>）セキュリティグループ >> セキュリティグループを作成（右上）
+                            セキュリティグループ名: alb-takakiri
+                            説明: （セキュリティグループ名と同じでよい） #// 省略できません
+                            VPC: x >> (handson-takakiri)
+                            インバウンドルール: #// ルールを追加
+                                タイプ: HTTP
+                                ポート範囲: 80
+                                ソース: （Anywhere-IPv4） 0.0.0.0/0  #// ドロップダウンから Anywhere-IPv4 を選ぶと 0.0.0.0/0 が設定できます
+                            セキュリティグループ作成 ボタン（右下）:
+                            アウトバウンドルール の確認:
+                                メニュー: アウトバウンドルール タブ
+                                タイプ: すべてのトラフィック
+                                ポート範囲: すべて
+                                送信先: 0.0.0.0/0
+                        web-takakiri:
+                            メニュー: （ネットワーク＆セキュリティ >>）セキュリティグループ >> セキュリティグループを作成（右上）
+                            セキュリティグループ名: web-takakiri
+                            説明: （セキュリティグループ名と同じでよい）
+                            VPC: x >> (handson-takakiri)
+                            インバウンドルール: #// ルールを追加
+                                タイプ: HTTP
+                                ポート範囲: 80
+                                ソース: （カスタム） alb-takakiri  #// 入力ボックスの下に sg-____ が表示されたら OK
+                            セキュリティグループ作成 ボタン（右下）:
+                            アウトバウンドルール の確認:
+                                メニュー: アウトバウンドルール タブ
+                                タイプ: すべてのトラフィック
+                                ポート範囲: すべて
+                                送信先: 0.0.0.0/0
+                        db-takakiri:
+                            メニュー: （ネットワーク＆セキュリティ >>）セキュリティグループ >> セキュリティグループを作成（右上）
+                            セキュリティグループ名: db-takakiri
+                            説明: （セキュリティグループ名と同じでよい）
+                            VPC: x >> (handson-takakiri)
+                            インバウンドルール: #// ルールを追加
+                                タイプ: MySQL/Aurora
+                                ポート範囲: 3306
+                                ソース: （カスタム） web-takakiri  #// 入力ボックスの下に sg-____ が表示されたら OK
+                            セキュリティグループ作成 ボタン（右下）:
+                            アウトバウンドルール の確認:
+                                メニュー: アウトバウンドルール タブ
+                                タイプ: すべてのトラフィック
+                                ポート範囲: すべて
+                                送信先: 0.0.0.0/0
+                    RDS を作ります:
+                        DB サブネットグループを作成します:
+                            メニュー: aws >> RDS >> サブネットグループ >> DB サブネットグループの作成（右上）
+                            サブネットグループの詳細:
+                                名前: db-subnet-takakiri
+                                説明: （同上）
+                                VPC: handson-takakiri
+                            サブネットを追加:
+                                アベイラビリティーゾーン:
+                                    - ap-northeast-1a
+                                    - ap-northeast-1c
+                                サブネット:
+                                    ap-northeast-1a:
+                                        - 10.0.128.0/20
+                                    ap-northeast-1c:
+                                        - 10.0.144.0/20
+                            作成 ボタン:
+                        データベースを作成します:
+                            メニュー: aws >> RDS >> データベース >> データベースの作成（右上）
+                            データベース作成方法を選択: 標準作成
+                            エンジンのオプション:
+                                エンジンのタイプ: Amazon Aurora
+                                エディション: Amazon Aurora MySQL 互換エディション
+                                利用可能なバージョン : （変えない）
+                            テンプレート:
+                                開発/テスト
+                            設定:
+                                DB クラスター識別子: db-takakiri
+                                マスターユーザー名: admin
+                                マスターパスワード: password
+                                パスワードを確認: password
+                            インスタンスの設定:
+                                DB インスタンスクラス: バースト可能クラス (t クラスを含む)
+                                    db.t3.small
+                            可用性と耐久性:
+                                マルチ AZ 配置: 別の AZ で Aurora レプリカ/リーダーノードを作成する (可用性のスケーリングに推奨)
+                            接続:
+                                Virtual Private Cloud (VPC): handson-takakiri
+                                パブリックアクセス: なし
+                                VPC セキュリティグループ (ファイアウォール): 既存の選択
+                                既存の VPC セキュリティグループ: db-takakiri  #// default は x で削除
+                            追加設定:  #// 接続の追加設定ではありません
+                                最初のデータベース名: todos
+                            データベースの作成 ボタン（最も下）:
+                            db-takakiri（DB 識別子 のルート）:
+                                ステータス: 利用可能  #// になるまで待つ。上にある リロード ボタン を押す必要があるかも
+                                    #// 先に ALB を作成開始してもよいです（未確認）
+                            エンドポイントをメモします:
+                                メニュー: （DB 識別子）db-takakiri（をクリック）
+                                タイプ: ライターインスタンス  #// 以下は、これが書かれている行について
+                                エンドポイント名: db-takakiri.cluster-cv5mawzjymev.ap-northeast-1.rds.amazonaws.com  #// これをメモ
+                            DB を確認します:
+                                メニュー: db-takakiri-instance1（ライター インスタンス の DB 識別子）
+                                接続とセキュリティ:
+                                    VPC: handson-takakiri (____)
+                                    サブネットグループ: db-subnet-takakiri
+                                    VPCセキュリティグループ: db-takakiri (____)
+                            リーダーインスタンスが利用可能になるまで待ちます:  #// SELECT 文だけ処理できます
+                                ブラウザーのリロード
+                    ALB を作ります:  #// DNS 名
+                        構成: ロードバランサー（エンドポイント）>> リスナー（ポート）>> ターゲットグループ >> サーバー インスタンス
+                        メニュー: aws >> EC2 >>（ロードバランシング）ロードバランサー（左下）>> ロードバランサーの作成（上）>>
+                            （Application Load Balancer）Create
+                        Basic configuration:
+                            Load balancer name: alb-takakiri
+                        Network mapping:
+                            VPC: handson-takakiri-vpc
+                            Mappings:
+                                ap-northeast-1a: handson-takakiri-subnet-public1-ap-northeast-1a  #// public があるもの
+                                ap-northeast-1c: handson-takakiri-subnet-public2-ap-northeast-1c  #// public があるもの
+                        Security groups:
+                            alb-takakiri  #// default は x を押して削除
+                        Listeners and routing:
+                            Default action:
+                                Create target group: #// をクリック
+                                    Specify group details:
+                                        Basic configuration:
+                                            Choose a target type: IP addresses
+                                            Target group name: target-takakiri
+                                            Next ボタン（右下）:
+                                    Register targets:
+                                        Create target group ボタン（右下）:
+                                    #// 現在のタブを閉じます
+                                    Listeners and routing:
+                            リロード ボタン（Default action の下）:
+                            Forword to: target-takakiri
+                        Summary:
+                            Security groups: alb-takakiri
+                            VPC: handson-takakiri-vpc
+                            ap-northeast-1a:
+                                handson-takakiri-subnet-public1-ap-northeast-1a  #// public があるもの
+                            ap-northeast-1c:
+                                handson-takakiri-subnet-public2-ap-northeast-1c  #// public があるもの
+                        Create load balancer ボタン:
+                        View load balancer ボタン:
+                        作成されたALBのDNS名をメモします:
+                            メニュー: aws >> EC2 >>（ロードバランシング）ロードバランサー（左下） #// すでに開いているなら不要
+                            （名前）alb-takakiri:
+                                DNS 名: alb-takakiri-1898683010.ap-northeast-1.elb.amazonaws.com
+                    ECS を作ります:  #// アプリケーションのコンテナーを登録して起動します
+                        メニュー: aws >> ECS (Elastic Container Service)
+                        新しいエクスペリエンス: オン
+                        クラスター: #// (左)
+                            クラスターの作成 ボタン（右上）:
+                            クラスター設定:
+                                クラスター名: cluster-takakiri
+                            ネットワーキング:
+                                VPC: handson-takakiri
+                            サブネット - オプション:
+                                - handson-takakiri-subnet-private1-ap-northeast-1a  #// private があるもの
+                                - handson-takakiri-subnet-private2-ap-northeast-1c  #// private があるもの
+                            作成 ボタン（右下）:
+                        タスク定義: #// (左)
+                            新しいタスク定義の作成 ボタン（右上）:  #// 修正するときは、既存のタスクを表示して「新しいリビジョンの作成」ボタンと表示されてます
+                            タスク定義とコンテナの設定:
+                                タスク定義の設定:
+                                    タスク定義ファミリー: task-def-takakiri
+                                コンテナ - 1:
+                                    名前: app
+                                    イメージ URI: public.ecr.aws/w6x8d2y7/jumpstart_workshop_app:latest  # .txt に書かれた情報
+                                    環境変数:  #// 環境変数を追加 ボタン
+                                        MYSQL_HOST: db-takakiri.cluster-cv5mawzjymev.ap-northeast-1.rds.amazonaws.com
+                                        MYSQL_USER: admin
+                                        MYSQL_PASSWORD: password
+                                        MYSQL_DB: todos
+                                次へ ボタン（右下）:
+                            環境、ストレージ、モニタリング、タグの設定:
+                                環境:
+                                    CPU: .25 vCPU
+                                    メモリ: .5 GB
+                                次へ ボタン（右下）:
+                                作成 ボタン（右下）:
+                        ECSサービスを作ります:
+                            メニュー: aws >> ECS >> クラスター（左）>>（クラスター名）>> デプロイ（右）
+                            デプロイ設定:
+                                ファミリー: task-def-takakiri
+                                サービス名: service-takakiri
+                                必要なタスク: 2
+                            ネットワーキング:
+                                ネットワーキング:
+                                    VPC: handson-takakiri-vpc  #// おそらく入力済み
+                                サブネット - オプション:
+                                    - handson-takakiri-subnet-private1-ap-northeast-1a  #// おそらく入力済み
+                                    - handson-takakiri-subnet-private2-ap-northeast-1c  #// おそらく入力済み
+                                セキュリティグループ:
+                                    web-takakiri  #// default のチェックは外します
+                            ロードバランシング - オプション:
+                                ロードバランサーの種類: Application Load Balancer
+                                既存のロードバランサーを使用: チェック
+                                ロードバランサー名: alb-takakiri
+                                既存のターゲットグループを使用: チェック
+                                ターゲットグループ名: target-takakiri
+                                デプロイ ボタン（右下）:
+                            service-takakiri（サービス名）:  #// 表示されないときは、ページ内リロード ボタン を押します
+                                設定とタスク タブ:
+                                    必要なステータス: 実行中  #// 2つのタスクが実行中になるまで、ページ内リロード ボタン を押します
+                                        #// 1〜2分かかります
+                        動作確認します:
+                            ブラウザーで開きます: alb-takakiri-1898683010.ap-northeast-1.elb.amazonaws.com
+                        トラブル シューティング:
+                            - #// ホームページにアクセスすると 503 Service Temporarily Unavailable、または、ECS のタスクが増え続ける
+                                #ref: https://aws.amazon.com/jp/premiumsupport/knowledge-center/alb_troubleshoot_503_errors/
+                                memo: |
+                                    ECS Deployment Circuit Breaker was triggered
+                                    AWS::ECS::Service リソースを UPDATE_IN_PROGRESS または UPDATE_ROLLBACK_IN_PROGRESS ステータスから解放する方法を教えてください。
+                                        https://aws.amazon.com/jp/premiumsupport/knowledge-center/ecs-service-stuck-update-status/
+                                イベントを確認します:
+                                    aws >> ECS >>（新しいECSエクスペリエンス=オン）>> クラスター >>（クラスター名）>>（サービス名）>>
+                                    デプロイとイベント タブ
+                                停止理由:
+                                    確認します:
+                                        aws >> ECS >>（新しいECSエクスペリエンス=オン）>> クラスター >>（クラスター名）>>（サービス名）>>
+                                        設定とタスク タブ >>（停止したタスク）>>（Task overview）>> 停止理由
+                                    対処:
+                                        - #// （未確認）CannotPullContainerError
+                                            エラー: |
+                                                inspect image has been retried 5 time(s): failed to resolve ref
+                                                "public.ecr.aws/w6x8d2y7/jumpstart_workshop_app:latest":
+                                                failed to do request: Head "https://public.ecr.aws/v2/w6x8d2y7/jumpstart_workshop_app/manifests/latest":
+                                                dial tcp 99.83.145.10:443: i/o timeout
+                                            対処:
+                                                NATゲートウェイが配置されていることを確認します
+                                                ECSに紐付けるセキュリティグループが正しくします
+                                                ECSを配置するサブネットを正しくします
+                                                セキュリティグループのアウトバウンドルールを正しくします
+                                            #ref: https://qiita.com/x-color/items/8f986d01d6a6100b7d5b
+                                            #ref: https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/task_cannot_pull_image.html
+                障害発生時の動作を確認します:
+                    ログ: #// ECS のアプリケーションのログを表示します
+                        メニュー: aws >> ECS >> クラスター（左）>>（クラスター名）>>（サービス名）>>
+                            ログ タブ >> CloudWatch で表示
+                        ログを最近の1分にフィルタリングします:  #// しなくてもよい
+                            1m （フィルターの入力項目の右）
+                        ログの内容を表示します:
+                            テキストのみ表示する場合:
+                                テキストとして表示（上）
+                            タイムスタンプなども表示する場合:
+                                ▼（タイムスタンプの左）
+                    CloudShell から HTTP GET メソッドを 1秒ごとにリクエストします:  #// シェルから curl コマンドを繰り返し実行します
+                        CloudShell を開きます:
+                            プロンプトの形のボタン（どの aws サービスのページでも右上にあります）
+                        （メモ）CloudShell を開きっぱなしにした場合:
+                            CloudShell をキーボードやマウスで20-30分操作しなかった場合セッションが切れます。
+                            操作を始めると30秒程した後再開するので、同じコマンドを再度実行して下さい。
+                        CloudShell: |
+                            dns_name=alb-takakiri-1898683010.ap-northeast-1.elb.amazonaws.com
+                            while true; do TZ=JST-9 date; curl $dns_name/items; echo; echo; sleep 1; done
+                    #// 上記の CloudShell を動かしたまま以下の手順を行います
+                    片方のコンテナーを停止させ、自動的に復旧することを確認します:  #// 停止するタスクはどちらでもよい
+                        メニュー: aws >> ECS >> クラスター（左）>>（クラスター名）>> タスク タブ >>
+                            停止させるタスクにチェック（左）>> 停止（右）>> 選択されたものを停止 >> 停止
+                        HTTP GET メソッドのレスポンスを確認します:
+                            CloudShell: |  #// を確認します。何回か 502 Bad Gateway になりますが、自動的に新しいタスクが起動して復旧します
+                                ...
+                                Fri Oct 21 00:15:56 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:15:57 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:15:49 JST 2022
+                                <html>
+                                <head><title>502 Bad Gateway</title></head>
+                                <body>
+                                <center><h1>502 Bad Gateway</h1></center>
+                                </body>
+                                </html>
+
+                                Fri Oct 21 00:15:50 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:15:51 JST 2022
+                                <html>
+                                <head><title>502 Bad Gateway</title></head>
+                                <body>
+                                <center><h1>502 Bad Gateway</h1></center>
+                                </body>
+                                </html>
+
+                                Fri Oct 21 00:15:50 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:15:50 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+                                ...
+                        起動したタスクを確認します:
+                            メニュー: aws >> ECS >> クラスター（左）>>（クラスター名）>> タスク タブ >>
+                                リロード ボタン（右）
+                            #// 1つのタスクが停止、2つのタスクが実行中、そのうち片方は開始時刻が最近です
+                    Aurora MySQLのフェールオーバーを動作確認します:
+                        メニュー: aws >> RDS >> データベース（左）>>（ライダーインスタンスの行頭にチェック）>>
+                            アクション（上）>> フェイルオーバー >> フェイルオーバー
+                        HTTP GET メソッドのレスポンスを確認します:
+                            CloudShell: |  #// を確認します。約10秒後に5秒間 Internal Server Error が返ってきます
+                                ...
+                                Fri Oct 21 00:28:42 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:28:43 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:28:44 JST 2022
+                                Internal Server Error
+
+                                Fri Oct 21 00:28:45 JST 2022
+                                Internal Server Error
+
+                                Fri Oct 21 00:28:46 JST 2022
+                                Internal Server Error
+
+                                Fri Oct 21 00:28:47 JST 2022
+                                Internal Server Error
+
+                                Fri Oct 21 00:28:48 JST 2022
+                                Internal Server Error
+
+                                Fri Oct 21 00:28:49 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+
+                                Fri Oct 21 00:28:50 JST 2022
+                                [{"id":"ccc7057d-1042-4e45-b605-878848b031e7","name":"ああああ","completed":false}]
+                                ...
+                        ロール（リーダーインスタンス・ライターインスタンス）が入れ替わっていることを確認します:
+                            （データベースのページの）リロード ボタン（上）
+                リクエストを大量に送ります:  #// ApacheBench (ab) というHTTPサーバーのベンチマークツールを使います
+                    ベンチマーク ツール をインストールして HTTP リクエストを動作確認します:
+                        CloudShell: |  #// コマンドが動作中なら Ctrl + C キーで停止させます
+                            sudo yum install -y httpd-tools
+                            dns_name=alb-takakiri-1898683010.ap-northeast-1.elb.amazonaws.com
+                            ab -n 1 -c 1 http://$dns_name/items
+                        #// まだ大量のリクエストは送っていません
+                        正常動作したことを確認します: |  #focus: Complete requests, Failed requests  #// Complete が 0以外, Failed が　0
+                            [cloudshell-user@ip-10-0-57-56 ~]$ ab -n 1 -c 1 http://$dns_name/items
+                            This is ApacheBench, Version 2.3 <$Revision: 1901567 $>
+                            Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+                            Licensed to The Apache Software Foundation, http://www.apache.org/
+
+                            Benchmarking alb-takakiri-1898683010.ap-northeast-1.elb.amazonaws.com (be patient).....done
+
+                            Server Software:        
+                            Server Hostname:        alb-takakiri-1898683010.ap-northeast-1.elb.amazonaws.com
+                            Server Port:            80
+
+                            Document Path:          /items
+                            Document Length:        265 bytes
+
+                            Concurrency Level:      1
+                            Time taken for tests:   0.008 seconds
+                            Complete requests:      1
+                            Failed requests:        0
+                            Total transferred:      474 bytes
+                            HTML transferred:       265 bytes
+                            Requests per second:    120.45 [#/sec] (mean)
+                            Time per request:       8.302 [ms] (mean)
+                            Time per request:       8.302 [ms] (mean, across all concurrent requests)
+                            Transfer rate:          55.76 [Kbytes/sec] received
+
+                            Connection Times (ms)
+                                        min  mean[+/-sd] median   max
+                            Connect:        2    2   0.0      2       2
+                            Processing:     7    7   0.0      7       7
+                            Waiting:        7    7   0.0      7       7
+                            Total:          8    8   0.0      8       8
+                    リクエストを大量に送ります:  #// 10並列 1,000,000 リクエスト
+                        ab -n 1000000 -c 10 http://$dns_name/items
+                    #// 約20〜30分送り続けます。その様子を以下で確認します
+                    各種メトリクスを確認します:
+                        ALB:
+                            メニュー: aws >> EC2 >>（ロードバランシング）ロードバランサー（左下）>>
+                                モニタリング タブ
+                            ターゲットの応答時間: ALBからECSに投げたHTTPリクエストが、ALBに返ってくるまでの時間(ms)
+                            リクエスト数: 1分間でALBが処理できたHTTPリクエストの数
+                            その他: #ref: https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
+                        ECS:
+                            メニュー: aws >> ECS >> クラスター（左）>>（クラスター名）>>（サービス名）>>
+                                拡大ボタン（メトリクスのグラフの右上）>>（ドロップダウンから）1分（上）
+                            CPU使用率:
+                            メモリ使用率:
+                            詳細なメトリクスを取得する場合:
+                                Container Insights: 
+                                    #ref: https://docs.aws.amazon.com/ja_jp/AmazonCloudWatch/latest/monitoring/Container-Insights-metrics-ECS.html
+                        Aurora MySQL:
+                            メニュー: aws >> RDS >> データベース（左上）>>（クラスター名：ツリーの親）>> モニタリング タブ >>
+                                （メトリクスのグラフをクリック）>> 
+                            CPU使用率:
+                            メモリ使用率:
+                            書き込みレイテンシー: フェールオーバーしたらレイテンシーが 0 のまま（書き込みなし）のインスタンスが
+                                もう片方のインスタンスに置き換わったことを確認できます
+                            その他: #ref: https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMySQL.Monitoring.Metrics.html
+                            #// 700req/sec でもかなり余裕があります
+                        #// CloudWatch で以上のグラフをまとめて表示するダッシュボードを作ることができます
+                リソースを削除します:
+                    CloudShell を削除します:
+                        Ctrl + C キーで停止
+                        Actions >> Delete AWS CloudShell home directory >> delete >>
+                        ブラウザーのタブを閉じます
+                    ALB:
+                        ロード バランサー を削除します:
+                            メニュー: aws >> EC2 >>（ロードバランシング）ロードバランサー（左下）>>
+                                アクション（上）>> 削除
+                        ターゲット グループ を削除します:
+                            メニュー: aws >> EC2 >>（ロードバランシング）ターゲット グループ（左下）>>
+                                （削除するグループの左をチェック）>> Actions（右上）>> Delete >> Yes, Delete
+                    RDS (1): #// 削除に時間がかかる本体を先に削除を開始します
+                        ライターインスタンスを削除します:
+                            aws >> RDS >> データベース >>（ライターインスタンスの行頭にチェック）>> アクション >> 削除
+                        リーダーインスタンスを削除します:
+                            aws >> RDS >> データベース >>（リーダーインスタンスの行頭にチェック）>> アクション >> 削除 >>
+                            最終スナップショットを作成しますか（のチェックを外す）>>
+                            私は、インスタンスの削除後、____ 自動バックアップが利用不可となることを了承します（にチェック）>> 削除
+                        #// クラスター（ツリーの親）は自動的に削除されます
+                        #// 後で、削除が完了するまで待ちます。その間、他のリソースを削除します。
+                    ECS:
+                        サービスを削除します:
+                            aws >> ECS >> クラスター（左）>>（クラスター名）>>（サービス名の左をチェック）>> サービスを削除（右）>>
+                            services を強制削除（にチェック）>> 削除
+                        コンテナー（タスク）を削除します:
+                            aws >> ECS >> クラスター（左）>>（クラスター名）>>
+                            タスク タブ >> 停止（右）>> すべてを停止 >> 停止 >> リロード ボタン（右）
+                            #// 必要なステータスの列＝停止済み になるまで待ちます
+                        クラスターを削除します:
+                            aws >> ECS >> クラスター（左）>>（クラスター名）>> クラスターの削除（右上）
+                    RDS (2):
+                        データベースの各インスタンスが削除されるまで待ちます:
+                            aws >> RDS >> データベース
+                        サブネット グループ を削除します:
+                            aws >> RDS >> サブネットグループ >>（行頭にチェック）>> 削除（右上）
+                    VPC:
+                        以後の表示を削除する VPC に限定します:
+                            VPC でフィルタリング（左上）>>（VPC名）
+                        NAT ゲートウェイを削除します:
+                            （仮想プライベートクラウド）NAT ゲートウェイ（左）>>（行頭にチェック：1つずつ）>> アクション（右上）>> NAT ゲートウェイを削除
+                            #// 状態 列が Deleted になるまで待ちます
+                        VPC を削除します:
+                            （仮想プライベートクラウド）お使いの VPC（左）>>（行頭にチェック）>> アクション（右上）>> VPC の削除
+            設計演習:
+                リファレンス:
+                    Amazon Chime:
+                        開始: Chime アプリ >> Join a meeting without an account >> Meeting ID = 2902 62 6518 >> Your Name >> Join meeting now   
+                            #ref: https://chime.aws/2902626518
+                        チーム: #ref: https://chime.aws/4548816244
+                        成果発表: 3:45 #ref: https://chime.aws/5958885991
+                    BlueScape: #// ホワイトボード
+                        全体:   #ref: https://client.ext.bluescape.ee-infra.aws.dev/FCyw-CRd-Od0tiu5kqOb
+                        チーム:  #ref: https://client.ext.bluescape.ee-infra.aws.dev/B7EL67oQHnFAUdtHE_zF
+                    Slack:  #ref: https://app.slack.com/client/
+                    SA: 10:20, 2:20
+                    はじめてのアーキテクティング: #search: aws アーキテクチャ
+                    aws: #search: aws  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#aws
+                    Cacha（非公開）:  #ref: ${MyDoc}/生活情報/チェンジ/チェンジ.svg#Cacha
+                memo: |
+                    DB の切り替えが発生したときでもサーバー名は変わりませんが、IP アドレスは変わります。アプリケーションはサーバー名を使うだけでよい。
+                    負荷分散テスト:  #ref: https://aws.amazon.com/jp/solutions/implementations/distributed-load-testing-on-aws/
+                    AZ をまたぐとレイテンシが1ミリ秒かかる。既存のシステムのレイテンシが要求される場合に考慮する。
+                    自分の aws ログイン
+                    Lambdaの初回起動を早くする方法 https://qiita.com/shinkai_/items/193d78efaf5a90799f0d
+                    DynamoDB は大量の書き込みに強い
+                    DynamoDB の容量の値段より S3 の容量の値段が一桁安い
+                    AppSYnc - Subscription QraphQL JavaScript のイベントにくる
+                    ALB でも web socket は使える. HTTP POST では使われないことが多いらしい。
+                    アプリ + gRPC でも双方向
+                    ElastiCache に　PubSub 機能がある
+                    マルチリージョンを考える時、バックアップだけでもよい。
+                発表:
+                    Slack 目次 15分
+                    機能ごと（想定機能） >> 工夫 >> 将来
+                    信頼性、パフォーマンス
+                    抽象化した時のセキュリティの考慮し忘れ
+                        マネージド(fargate)、便利、ブラックボックス
+                        オープンOSS、K8s のバージョンアップの大変さ。K8sとfargetは排他。EKS on Fargate, EKS on EC2
+                        社内の習得度、エンジニアの思想
+                    DynamoDB や Fargate などのマネージドは spin up に時間がかかる
+                    Lambda 最大15分, メモリーサイズ、SAに相談
+                now, 〜10:10:
+                    4300万レコード、1.5GB:
+                    Cognito 調べる:
+                    PubSub:
+                        更新を受け取れるらしい。
+                        オンラインになった push 。トピック(?)をチャットルーム内に一斉通知。
+                    API gateway:
+                        HTML 以外に websocket も使える
+                    Logstash: #keyword: OpenSearch Logstash  #// OpenSearch のプラグイン。ほぼリアルタイム
+                        DynamoDB と同期: Logstash Plugin for Amazon DynamoDB
+                        MySQL と同期: Logstash + JDBC Driver 
+                    Lambda の置き場所:
+                    K8sに一部ユーザーリリースもできる, カナリア リリース:
+                    EKS から ECR へ:
+                    署名付きURLは Cognito ユーザー別:
+                SA 質問:
+                    機能要件に答えることの方が負荷が高い 70万円
+                        退社した人から引き継げるものはあるのか
+                        チームで分担して開発していいか
+                        ハンズオンでわかるのか
+                    オートスケーリングのサービスを使っていけないよね。DynamoDB
+                機能要件:
+                    memo:
+                        ルームに入る
+                        /chat RDS storage, memory, NoSQL
+                        Web socket ユーザー情報 RDS, Lambda と EKS がいる
+                             通知を受けるのはポーリングより短くできる
+                        REST-API (http) API gateway
+                        フロントの JS で Chrome の push 通知ができる。
+                    チャット:
+                        テキスト: RDS ?  Web Socket は push できるはず
+                        画像: ？
+                        動画: オブジェクト ストレージ
+                    友達管理、グループ管理:
+                        アカウント: Cognito ?
+                        友達管理: 自分が他の人を指名する
+                        グループ管理: グループに自分から登録する。グループ＝ルーム＝テーブルとする
+                非機能要件:
+                    流量: 500req/sec >> ピーク時は会員の50％とする, 10秒に1回 post する, 10人 x 500 x 2 = 10,000会員
+                    保存期間: 1年 >> RDS だけでよしとする。無料枠 20 GB の汎用 (SSD) DB ストレージ
+                    ピーク時間帯: 日本時間の夕方, 会員数からオートスケーリング不要
+                    リージョン: Tokyo
+    コンピューティング, アプリケーション, コンテナー: #// EC2, ECS, AppSync, Lambda
+        EC2: #keyword: aws EC2  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#AWS_EC2
+            EC2サーバーを新規作成する:
+                URL: https://console.aws.amazon.com/ec2/
+                リージョン（右上、サポートの左）: 東京
+                操作: インスタンス（左）>> インスタンスを起動（右上）
+                ステップ 1 Amazon マシンイメージ (AMI): Amazon Linux 2 AMI (HVM), SSD Volume Type
+                ステップ 2 インスタンスタイプの選択: t2.micro
+                ステップ 7 インスタンス作成の確認: 起動 ボタン（右下）
+                選択: 新しいキーペアの作成
+                キーペア名: 例）EC2-__Today__
+                キーペアのダウンロード ボタン:  #// __IdentityFile__
+                インスタンスの作成 ボタン:
+                インスタンスの表示 ボタン（右下）:
+                インスタンスの状態が「実行中」になるまで待つ:
+            IPv4 アドレス（パブリック）を確認する:
+                URL: https://console.aws.amazon.com/ec2/
+                リージョン（右上、サポートの左）: 東京
+                操作: インスタンス（左）>> （インスタンスを選択） >> パブリック IPv4 アドレス
+            EC2 にログインする:
+                - bash, Visual Studio Code の Terminal を開く
+                - ssh  ec2-user@__PublicIPv4Address__  -i __IdentityFile__
+            EC2 の root ユーザーのパスワードを設定する:
+                - EC2 に ec2-user でログイン
+                - sudo su -
+                - passwd
+                - （パスワードを入力）
+                    #// BAD PASSWORD 警告がされた場合？
+                - exit
+            ポート 80（HTTPサーバー）を開く:
+                参考: snote >> インバウンドで開くポートの追加
+                URL: https://console.aws.amazon.com/ec2/
+                リージョン（右上、サポートの左）: 東京
+                メニュー: インスタンス（左）>> （インスタンスを選択） >> セキュリティ タブ >>
+                    セキュリティグループ（のID） >> インバウンドルールを編集 >> ルールを追加
+                タイプ: HTTP
+                ソース: 0.0.0.0/0
+                ルールを保存 ボタン:
+            拡張, スケール アップ, スケール アウト: #search: aws アーキテクチャ
+        ECS: #keyword: aws ECS,  aws container
+            #search: aws ハンズオン 2022
+        AppSync:
+            実行ログ（AppSync）:
+                ログを有効にする:
+                    参考: モニタリングとログ記録 - AWS AppSync
+                        https://docs.aws.amazon.com/ja_jp/appsync/latest/devguide/monitoring.html
+                    メニュー: https://console.aws.amazon.com/appsync/ >> __Environment__ >> 設定（左） >>
+                        ログ記録（下へスクロール）>> 
+                    チェック:
+                        - ログを有効化
+                        - 詳細なコンテンツを含める
+                    フィールドリゾルバーのログレベル: すべて
+                    既存のロールを作成または使用する:
+                        1回目:
+                            チェック: 新しいロール
+                        2回目以降:
+                            チェック: 既存の役割
+                            既存のロールを選択: arn:aws:iam::__AWS_AccountID__:role/service-role/appsync-graphqlapi-logs-ap-northeast-1
+                    保存 ボタン（右下）:
+                ログを参照する:
+                    メニュー: https://console.aws.amazon.com/cloudwatch/ >> ロググループ（左）>>
+                    検索フィルター: /aws/appsync/apis/
+        Lambda:
+            EC2 や ECS と Lambda の違い:
+                Lambda (瞬間)　にするか EKS にするか
+                既存のフレームワークが使える
+            性能:
+                
+            API ゲートウェイや AppSync から対象の Lambda を探す:
+                - https://console.aws.amazon.com/ >> API Gateway >> __API_Name__ >> __HTTP_Method__ >>
+                    __LambdaFunctionName__（右端）
+                - https://console.aws.amazon.com/ >> AWS AppSync >> __API_Name__ >> データソース >>
+                    __LambdaFunctionName__（リソース列）
+            Lambda で使える環境変数:
+                #// 環境変数の値は暗号化されています。コードに埋め込むより安全です
+                - 上記「API ゲートウェイや AppSync から対象の Lambda を探す」
+                - （Lambdaのページから）>> 環境変数 >> 編集
+    データベース: #// RDS, S3
+        RDS: #keyword: RDS, aws MySQL  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#aws_RDS_1
+        Aurora: #// MySQL のインスタンスのスケーリングができる RDB クラスター
+        S3: #keyword: aws S3  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#AWS_S3
+            S3 バケットのデフォルト暗号化(SSE-S3)を設定する:
+                参考: S3 バケットの Amazon S3 デフォルト暗号化を設定する方法
+                    https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/dev/bucket-encryption.html
+                メニュー: https://console.aws.amazon.com/s3/ >> __BuckerName__ >> プロパティ（タブ）>>
+                    （デフォルトの暗号化の）編集する
+                サーバー側の暗号化: 有効にする
+                暗号化キータイプ: SSE-S3
+                変更の保存 ボタン:
+                （必要なら）（暗号化しないでアップロードすることを拒否する場合）:
+                    https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/dev/UsingServerSideEncryption.html
+            bucket:  #// backets ではない
+        DynamoDB: #keyword:
+            AZ: 3つのAZ(Availability Zone)でレプリケーション（デフォルト）
+            NoSQL と言われる理由: SQL の JOIN ができません
+            性能:
+                レプリケーション: 数秒以内  #ref: https://aws.amazon.com/jp/blogs/news/how-to-use-amazon-dynamodb-global-tables-to-power-multiregion-architectures/
+        OpenSearch, ElasticSearch: #keyword: OpenSearch,  aws ElasticSearch
+        CloudSearch: #keyword:
+            #ref: https://dev.classmethod.jp/articles/elasticsearch-service-vs-cloudsearch/
+                - ElasticSearch も CloudSearch も Lucene をバックエンドに使っています
+    ネットワーク, エンド ポイント: #// VPC, CloudFront, Route 53, Load Balancer, API ゲートウェイ
+        リージョン, AZ: #keyword:
+            構造: グローバル >> リージョン >> AZ (Availability Zone) >> DC (Data Center)
+        VPC: #keyword: aws VPC
+            #search: aws ハンズオン 2022
+        セキュリティ グループ:
+            #search: aws ハンズオン 2022
+        WAF:  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#aws_WAF
+            手動設定:  #// AppSync に対する防御ができます。 API Gateway に設定すると Stripe の Webhook が受け取れません
+                参考: https://docs.aws.amazon.com/ja_jp/waf/latest/developerguide/web-acl-processing.html
+                メニュー: https://console.aws.amazon.com/wafv2/
+                Web ACLs:
+                    Create web ACL ボタン:
+                    Web ACL details:
+                        Name: WAF-managed-web-ACL-AppSync
+                        CloudWatch metric name: WAF-managed-web-ACL-AppSync
+                        Resource type: Regional resources
+                        Region: Asia Pacific (Tokyo)
+                        Associated AWS resources:
+                            Add AWS resources ボタン:
+                            Resource type: AWS AppSync
+                            Select the resources you want to associate with the web ACL: （任意）
+                                #// デプロイ済みのリソースが表示されるので、そこから選びます。複数選択可能
+                            Add ボタン:
+                        Next ボタン:
+                    Add rules and rule groups:
+                        Add rules >> Add managed rule groups ボタン:
+                            Admin protection:          Add to web ACL  （Set rules action to count はオフ）
+                            Amazon IP reputation list: Add to web ACL  （Set rules action to count はオフ）
+                            Anonymous IP list:         Add to web ACL  （Set rules action to count はオフ）
+                            Core rule set:             Add to web ACL  （Set rules action to count はオフ）
+                            Known bad inputs:          Add to web ACL  （Set rules action to count はオフ）
+                            Linux operating system:    Add to web ACL  （Set rules action to count はオフ）
+                            POSIX operating system:    Add to web ACL  （Set rules action to count はオフ）
+                            その他: オフ（オンにすると capacigty を超えるため）
+                            Add rules ボタン:
+                        Default action: Allow
+                        Next ボタン:
+                    Set rule priority:
+                        #デフォルトのまま
+                        Next ボタン:
+                    Configure metrics:
+                        #デフォルトのまま
+                        Next ボタン:
+                    Review and create web ACL:
+                        Create web ACL ボタン:
+                #// IP sets, Regex pattern sets, Rule groups は手動設定らしい
+            （不要？）Cloud Formation テンプレートを使ったデプロイ:
+                設定: #settings:
+                    __WAF_StackName__: WAF-sage-p
+                    __LogBacketName__: waf-log2-sage-p
+                    __RegionName__: バージニア北部  #// 下記「Fail to create TimerBlackV4, WAFWhitelistSetV4」を参照
+                参考: https://aws.amazon.com/jp/solutions/implementations/aws-waf-security-automations/
+                Cloud Formation テンプレートのダウンロード:
+                    https://aws.amazon.com/jp/solutions/implementations/aws-waf-security-automations/
+                    aws-waf-security-automations.template
+                WAF のログを入れる S3 バケットの作成:
+                    メニュー: https://s3.console.aws.amazon.com/s3/ >> バケットを作成
+                    バケット名: waf-log2-sage-p  #template: __LogBacketName__
+                    リージョン: バージニア北部  #template: __RegionName__
+                    バケットを作成 ボタン:
+                （不要？）WAF のサービスロールの作成:
+                    参考:
+                        - https://docs.aws.amazon.com/ja_jp/waf/latest/developerguide/access-control-identity-based.html >>
+                            例 2 ユーザーに AWS WAF、 CloudFront、および CloudWatch
+                    メニュー: https://console.aws.amazon.com/iam >> ロール
+                Cloud Formation テンプレートを使ったデプロイ:
+                    メニュー: https://console.aws.amazon.com/cloudformation/ >>
+                        （リージョン）バージニア北部 >> スタックの作成 >> 新しいリソースを使用  #template: __RegionName__
+                    テンプレートファイルのアップロード:
+                        ファイルの選択: aws-waf-security-automations.template
+                    次へ ボタン:
+                    スタックの名前: WAF-sage-p  #template: __WAF_StackName__
+                    Activate AWS Managed Rules Protection: no      #// デフォルト
+                    Activate SQL Injection Protection: yes         #// デフォルト
+                    Activate Cross-site Scripting Protection: yes  #// デフォルト
+                    Activate HTTP Flood Protection: yes - AWS WAF rate based rule #// デフォルト
+                    Activate Scanner & Probe Protection: yes  #// デフォルト
+                    Activate Reputation List Protection: yes  #// デフォルト
+                    Activate Bad Bot Protection: yes          #// デフォルト
+                    Endpoint Type: CloudFront                 #// デフォルト
+                    Advanced Settings: （デフォルト）
+                    Application Access Log Bucket Name: waf-log2-sage-p  #template: __LogBacketName__
+                    次へ ボタン(2):
+                    次へ ボタン(3):
+                    IAM に関する確認をチェック:
+                    スタックの作成:
+                    #// これは保護しているのか？
+            トラブルシューティング:
+                エラー: Fail to create TimerBlackV4, WAFWhitelistSetV4
+                対処: |
+                    エンドポイントとして CLOUDFRONT を選択した場合は、米国東部（バージニア北部）リージ
+                    ョン us-east-1 に WAFV2 リソースを作成する必要があります。
+                    https://d1.awsstatic.com/Solutions/ja_JP/aws-waf-security-automations.pdf
+                    https://github.com/awslabs/aws-waf-security-automations/issues/177
+            Web ACLs を削除します:
+                リソースとの接続を解除します:
+                    Web ACLs >> Asia Pacific (Tokyo) >> __Name__ >> Associated AWS resources（タブ） >>
+                        （リソース名の左の○）>> Disassociate
+                Web ACLs を削除します:
+                    Web ACLs >> Asia Pacific (Tokyo) >> __Name__ >> Delete
+        CloudFront: #keyword: CloudFront, aws CDN  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#CloudFront
+        Route 53: #keyword: Route 53, aws DNS  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#AWS_Route53
+        ALB, ELB: #// Elastic Load Balancer  #keyword: ELB, aws load balancer  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#AWS_ELB
+            #search: aws ハンズオン 2022
+        API gateway:
+            API ゲートウェイ の URL（エンドポイント）を調べます:
+                https://console.aws.amazon.com/ >> API Gateway >> __API_Name__ >> ステージ（左）>>
+                    __StageName__ >> URL の呼び出し
+    通知:
+        SNS: #keyword: aws SNS  #ref: https://aws.amazon.com/jp/sns/
+            #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#AWS_SNS
+            概要: PubSub もできる
+            Web push:
+                SNS + Lambda で Web push:
+                    #ref: https://levelup.gitconnected.com/how-to-send-web-push-notifications-for-free-with-aws-and-without-firebase-19d02eadf1f7
+    認証:
+        Cognito: #keyword:  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#Cognito
+            公式: #ref: https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-identity-pools.html
+            アカウントの種類: メール アカウントまたはユーザー名ごとのアカウント
+            認証: ELB, API Gateway などが ID トークンを検証
+            ID: アクセストークンの中にユーザーを識別する client_id や サブID が含まれます
+                #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#cognito_ID_token
+            グループ:
+                各ユーザーが所属できるグループ数の最大 100, ユーザープールあたりのグループの最大 10,000, DBの検討も
+                #ref: https://docs.aws.amazon.com/ja_jp/cognito/latest/developerguide/limits.html
+            ユーザーのカスタム属性, ユーザープールの属性:
+                非推奨: aws の人もあまり推奨していない、グループは権限別に使われる。ユーザーのグループは RDB がおすすめ
+                注意: マネジメントコンソールでは見えない
+                参考:
+                    ユーザープールの属性:
+                        #ref: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html >>
+                            Custom attributes
+                    Cognitoユーザープールにカスタム属性を持つユーザーを作成してみた:
+                        #ref: https://dev.classmethod.jp/articles/create-user-with-custom-attribute-in-cognito-user-pool/ >>
+                            "custom:"
+        シークレット（APIキーなど）:
+            パラメータストアに設定する方法:
+                パラメータストアに設定します:
+                    メニュー: https://ap-northeast-1.console.aws.amazon.com/systems-manager/ >>
+                        パラメータストア >> パラメータの作成
+                    名前: __ApplicationName__.__EnvironmentName__  #// 英数字 -_. が使えます  
+                    値: __JSON_or_text__
+                    パラメータを作成 ボタン:
+                Lambda がパラメータストアにアクセスするために、Lambda に AmazonSSMReadOnlyAccess ポリシーを追加:
+                    API ゲートウェイや AppSync から対象の Lambda を探す:
+                        - https://console.aws.amazon.com/ >> API Gateway >> __API_Name__ >> __HTTP_Method__ >>
+                            __LambdaFunctionName__（右端）
+                        - https://console.aws.amazon.com/ >> AWS AppSync >> __API_Name__ >> データソース >>
+                            __LambdaFunctionName__（リソース列）
+                    Lambda にアタッチされる IAM ロールに必要なポリシーをアタッチします:
+                        __LambdaFunctionName__ >> アクセス権限（タブ）>> 実行ロール の __RoleName__ >>
+                        ポリシーをアタッチします ボタン >> 検索 AmazonSSMReadOnlyAccess >>
+                        （ポリシー名の左にチェック）>> ポリシーにアタッチ
+                パラメータストアから環境変数に設定します（Lambda, Node.js）: |
+                    // setSecretEnvironmentVariables
+                    export async function  setSecretEnvironmentVariables() {
+                        try {
+                            const data = await (new AWS.SSM()).getParameters({
+                                Names: [`__ApplicationName__.${process.env.ENV}`],
+                                WithDecryption: true
+                            }).promise(); // It requests "AmazonSSMReadOnlyAccess" IAM policy.
+
+                            const  variables = JSON.parse(data.Parameters[0].Value);
+                            for (const name of Object.keys(variables)) {
+                                process.env[name] = variables[name];
+                            }
+                        }
+                        catch (reason: any) {
+                            logger.error(reason);
+                            throw new Error('setSecretEnvironmentVariables');
+                        }
+                    }
+            シークレット マネージャーへその他のシークレットを設定する方法:
+                シークレットのタイプ:
+                    メニュー: https://console.aws.amazon.com/secretsmanager/
+                    シークレットの種類を選択: その他のシークレット
+                    シークレットキー/値 タブ: [ ____, ... ]
+                    次 ボタン:
+                名前と説明:
+                    シークレットの名前: __Application__/__AmplifyEnvironment__
+                    次 ボタン:
+                ローテーションを設定する:
+                    チェックする: 自動ローテーションを無効にする  #// デフォルト
+                    次 ボタン:
+                レビュー:
+                    保存する ボタン:
+CDN: #keyword: CDN, Contents Delivery Network
+    Cloudflare:
+        ホップ数が1なのは、tracert コマンドがWarp VPNのローカル部分(1.1.1.1)にアクセスしているだけとかね。
+        使わないと172.16.x.x だし。tracert 以外で VPNやCDNの効果が無いわけじゃないけど。ただ、15msかかるのは謎。わざと遅くしてるのか？
+WordPress: #keyword:
+    料金: #ref: https://lolipop.jp/media/about-wordpress-explanation/
+        ドメイン取得, サーバー(110円より), 有料テーマ, 有料プラグイン
+        ページ作成 1ページ1万円, 保守
+    無料ローカル環境:  #ref: https://gigazine.net/news/20241103-wordpress-studio/
+RabbitMQ: #keyword:  #// メッセージ キュー  #ref: https://www.rabbitmq.com/
+    概要:
+        メッセージングのミドルウェア。サービス間で送受信する内部的なメッセージを中継する汎用キュー。
+        短い HTTP リクエストの処理時間内では複雑なタスクを扱うことが不可能な Web アプリケーションにおいて、特に有用です。
+        AMQPというプロトコルを利用している
+        異なる組織・異なるプラットフォーム・異なる時間(非同期処理)・異なる場所(離れている場所やネットワーク環境)でも、
+        繋げることができる。
+        現在は VMWare の所有下
+        チュートリアル  #search: RabbitMQ official tutorial
+    手順 >> インストール:
+        チュートリアル: #keyword: RabbitMQ official tutorial
+            Hello world:  #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
+                構造: publisher → (default exchange) → queue → consumer
+                #search: RabbitMQ tutorial code
+            Work Queue: #keyword: RabbitMQ work queue tutorial  #ref: https://www.rabbitmq.com/tutorials/tutorial-two-python  #// 作業キュー。時間のかかるタスクを分散するために使うワークキュー
+                構造: publisher → (default exchange) → queue → consumer
+                利点: ワーカー（コンシューマー）を増やすことで、処理を簡単に並列化できます
+                公平なディスパッチ, channel.basic_qos:
+                    ラウンドロビン:  #// Round-robin dispatching。 RabbitMQ のデフォルト
+                        次のメッセージは、次のワーカーに渡します。 worker1, worker2, worker1, worker2, ...
+                    ACK を返していないワーカーに、新しいメッセージを配信しない:
+                        channel.basic_qos(prefetch_count=1)
+                ACK, ch.basic_ack: #keyword: #// 確認応答。Message acknowledgment  #// コンシューマーが ACK を送信したら、メッセージを削除します
+                    ACK 送信:
+                        ch.basic_ack(delivery_tag = method.delivery_tag)
+                    自動応答設定:
+                        channel.basic_consume(auto_ack=True
+                    ACK の送り忘れの一覧:
+                        sudo rabbitmqctl list_queues name messages_ready messages_unacknowledged
+                    デフォルト: オン。
+                        メッセージをコンシューマへ配送した時点で、すぐにそのメッセージを削除対象として扱います。
+                        この状態でワーカーを終了させると、ちょうど処理していたメッセージは失われてしまいます。
+                        ワーカーが落ちた場合には、そのタスクが別のワーカーに届けられるようにします。（エラー処理？）
+                    ACK 送信しないまま終了した場合:
+                        メッセージが完全には処理されなかったと判断し、キューに再投入（再キュー）します。
+                    ACK 送信しないままタイムアウトした場合:
+                    別のチャンネルで応答した場合:
+                        チャネルレベルのプロトコル例外が発生します。
+                メッセージの永続化, durable, Persistent:  #// Message durability
+                    _: RabbitMQ サーバー自体が停止した場合でも、メッセージが失われないようにします
+                    永続化:
+                        キュー:  #focus: durable,  queue_declare
+                            プロデューサ側とコンシューマ側の両方で
+                            channel.queue_declare(queue='hello', durable=True)
+                        メッセージ:  #focus: DeliveryMode.Persistent,  basic_publish
+                            channel.basic_publish(exchange='',
+                                routing_key="task_queue",
+                                body=message,
+                                properties=pika.BasicProperties(
+                                    delivery_mode = pika.DeliveryMode.Persistent
+                                ))
+                    パブリッシャー確認:  #// publisher confirms
+                        _: メッセージが受け付けられてから、実際にディスクへ保存されるまでの間に、失われることを防ぎます
+                メッセージ TTL:  #// メッセージの生存時間
+                誰が宣言するか:  #search: RabbitMQ declare
+            Publish/Subscribe: #keyword: RabbitMQ publish subscribe tutorial  #// fanout エクスチェンジ  #ref: https://www.rabbitmq.com/tutorials/tutorial-three-python  #// 同じメッセージを複数のコンシューマーに通知します。負荷分散ではない
+                構造: publisher → exchange → queue → consumer
+                fanout エクスチェンジ: #keyword: RabbitMQ fanout exchange  #// publisher と cosumer の間にある publisher が直接送る先。consumer に直接送る元
+                デフォルト エクスチェンジ: #keyword: RabbitMQ default exchange
+                    - direct エクスチェンジ 相当  #search: RabbitMQ direct exchange
+                    - デフォルト エクスチェンジ の routing_key は queue 名と同じになります。
+                    - デフォルト エクスチェンジ の名前は、空文字列
+                        channel.basic_publish(exchange='', routing_key='task_queue',
+                バインディング, エクスチェンジとキューの関係:  #search: RabbitMQ routing
+                宣言, 作成: #keyword: RabbitMQ exchange_declare,  exchange_declare  #focus: exchange_type
+                    pika.BlockingConnection で接続後
+                    channel.exchange_declare(exchange='logs', exchange_type='fanout')
+                    #search: RabbitMQ declare
+                一覧:
+                    sudo rabbitmqctl list_exchanges
+                    この一覧には、amq.* という名前のエクスチェンジや、デフォルトの（名前のない）エクスチェンジが含まれています。
+                    これらはデフォルトで作成されていますが、現時点では使用する必要はほとんどないでしょう。
+                一時キュー, テンポラリ キュー: #keyword: RabbitMQ temporary queue,  RabbitMQ queue_declare exclusive
+                    _:
+                        途中からコンシューマーが参加したら、そこへ通知し、
+                        コンシューマーがいなければ、古いログが溜まらないようにします。
+                        この接続だけが使える
+                        接続が切れたら 自動削除
+                    新規作成: |
+                        result = channel.queue_declare(queue='', exclusive=True)
+                        queue_name = result.method.queue
+                誰が宣言するか:  #search: RabbitMQ declare
+            Routing: #keyword: RabbitMQ routing tutorial  #ref: https://www.rabbitmq.com/tutorials/tutorial-four-python  #// メッセージの一部だけを購読します。重大なメッセージだけ受信するなど
+                構造: publisher → exchange --(binding)→ queue → consumer
+                バインディング, エクスチェンジとキューの関係: #keyword: RabbitMQ bind,  RabbitMQ routing
+                    バインドと routing_key:  #keyword: RabbitMQ routing_key
+                        channel.queue_bind(exchange='logs', queue=result.method.queue, routing_key='black')
+                        channel.queue_bind(exchange='logs', queue=result.method.queue)
+                            #// bind の routing_key 引数は、バインディングの「binding key」属性です。 #search: RabbitMQ binding key
+                            #// basic_publish の routing_key 引数は、メッセージに付与される「routing key」です。
+                    exchange:  #search: RabbitMQ exchange_declare
+                    queue:  #search: RabbitMQ queue
+                    一覧:
+                        rabbitmqctl list_bindings
+                    binding key: #keyword: RabbitMQ binding key  #// バインディングの属性
+                        キューに複数の binding key を持たせる: #keyword: RabbiMQ binding key
+                            キューは複数の binding key を持つことができます
+                            #// queue { key1, key2 }
+                        同じ binding key を複数のキューが持っていた場合:
+                            その binding key を持つすべてのキューに配ります
+                            #// queue1 { key1, key2 }
+                            #// queue2 { key1, key3 }
+                            #// publish key1 → queue1, queue2
+                        publish するときに、どのキューも持っていない routing key を指定した場合:
+                            破棄されます
+                            #// publish unknown_key → 破棄
+                direct エクスチェンジ: #search: RabbitMQ fanout exchange
+            Topics: #keyword: RabbitMQ topics tutorial  #ref: https://www.rabbitmq.com/tutorials/tutorial-five-python  #// 複数の条件に基づいたルーティング
+                topic 用 routing key, binding key:
+                    書式:
+                        - __Word1__.__Word2__
+                        - __Word1__.__Word2__.__Word3__ ...
+                        #// 全体の長さは最大 255 バイトまで
+                    ワイルドカード:
+                        (*): 任意の 1単語
+                        (#): 0個以上の任意の単語
+                topic エクスチェンジ: #search: RabbitMQ topic exchange
+                #// 未読あり
+            RPC: #keyword: RabbitMQ RPC tutorial  #ref: https://www.rabbitmq.com/tutorials/tutorial-six-python  #// コンシューマーが処理した結果を取得します
+                コード:  #focus: correlation_id,  reply_to
+                    properties=pika.BasicProperties(
+                        correlation_id=corr_id,
+                        reply_to=callback_queue
+                    )
+            エクスチェンジの種類: #keyword: RabbitMQ exchange type
+                default:  #search: RabbitMQ default exchange  #// 指定したキューに配ります
+                fanout: #keyword: RabbitMQ fanout exchange  #// 全てのキューに配ります  #search: RabbitMQ publish subscribe tutorial
+                    送信時には routing_key に '' を指定します。
+                    fanout 型では routing_key は無視されますが、'' を指定すると読み取りやすくなります。
+                direct: #keyword: RabbitMQ direct exchange  #// 指定したバインディングに配ります  #search: RabbitMQ routing tutorial
+                    - publish する routing key と完全に一致する binding key を持つキュー に、そのメッセージを配ります
+                    - 画像  #ref: ${my_images}/2025/direct_exchange.png
+                topic: #keyword: RabbitMQ topic exchange  #// 複数の条件に基づいたルーティング
+                headers: #keyword: RabbitMQ headers exchange
+                （宣言する）:
+        WSL2 + docker-compose にインストールします: #keyword: install RabbitMQ WSL2 docker  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ
+            参考:
+                日本語:  #ref: https://qiita.com/naokini/items/3b39124e4ed2addf4fdd
+                公式:  #ref: https://www.rabbitmq.com/getstarted.html
+            Docker Engine for WSL2 をインストールします: |
+                    wsl --import  "Ubuntu-20.04-rabbitMQ" `
+                        "${HOME}\WSL_VMs\Ubuntu-20.04-rabbitMQ" `
+                        "${HOME}\WSL_back_up\Ubuntu-20.04-docker.tar"
+                    wsl -d "Ubuntu-20.04-rabbitMQ"
+                    service-start
+                    docker run  hello-world
+                #search: install Docker for WSL2
+                #search: start Docker-compose
+            プロジェクトを作ります:
+                try_RabbitMQ: #keyword:  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ
+            コンテナーを起動します:
+                コマンド:
+                    docker-compose up
+                出力例: |
+                    Starting RabbitMQ 3.10.13 on Erlang 25.2 [jit]
+                    ...
+                    node           : rabbit@e2308118e67e
+                    home dir       : /var/lib/rabbitmq
+                    config file(s) : /etc/rabbitmq/conf.d/10-defaults.conf
+                                    : /etc/rabbitmq/conf.d/management_agent.disable_metrics_collector.conf
+                    cookie hash    : LD+yFr5zaK2JEBjBWwWe1w==
+                    log(s)         : /var/log/rabbitmq/rabbit@e2308118e67e_upgrade.log
+                                    : <stdout>
+                    database dir   : /var/lib/rabbitmq/mnesia/rabbit@e2308118e67e
+                    ...
+                    Adding vhost '/vhost' (description: 'Default virtual host')
+            Web UI を表示します:
+                ブラウザー:
+                    #ref: http://localhost:15672/
+                トラブルシューティング:
+                    うまく表示されないときはポート番号を変えてください。 ただし、Windows を再起動したらポート番号はそのままでいいかもしれません。
+                    ポート番号は、docker-component.yml の port の左側です。
+                    curl http://localhost:15672/ でエラーメッセージを確認してください。
+            メッセージを送信します:  #// 送信者のことを publisher と呼びます。受信者のことを consumer 
+                #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
+                （初回のみ）pip と pika と サンプル コード をインストールします:
+                    - sudo apt install -y  python3-pip
+                    - python3 -m pip install pika --upgrade
+                    - __Project__/rabbitmq.py  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/rabbitmq.py
+                    - chmod +x  rabbitmq.py
+                実行します:
+                    cd  __Project__
+                    ./rabbitmq.py
+                送信されたことを確認します:
+                    Web UI:
+                        Queued messages: たまり続けます
+                        Message rates: 山が１つできます  #// できないこともあります
+                参考:
+                    コード:
+                        ConnectionParameters:
+                            #ref: https://pika.readthedocs.io/en/stable/modules/parameters.html
+        RabbitMQにPythonクライアント(pika)からメッセージを送信、受信する:
+            #ref: https://symfoware.blog.fc2.com/blog-entry-1489.html
+        メッセージの内容を表示します:
+            WebUI の場合:  #search: RabbitMQ Queues and Streams tab
+        RabbitMQ と関連モジュールの組み合わせ:  #keyword: RabbitMQ Erlang version  #ref: https://www.rabbitmq.com/docs/which-erlang
+            erl のバージョン:  #search: erl version
+        RabbitMQ オブジェクトを宣言する: #keyword: RabbitMQ declare,  declare
+            #// declare というより ensure と思われる  #search: bash Ensure function
+            誰が呼び出すのか:
+                exchange_declare, queue_declare, queue_bind これらはすべて 冪等（idempotent）なので、
+                producer と consumer の両方が呼び出しても問題ありませんが、
+                Ansible などで拠点構築するときがよさそう。
+            #search: RabbitMQ exchange
+        コマンド:  #search: rabbitmqctl
+    Web UI, 画面: #keyword: RabbitMQ WebUI
+        #ref: http://localhost:15672/
+            #search: VSCode port forwarding
+        Queues and Streams タブ: #search: RabbitMQ Queues and Streams tab
+    コマンド: #glossary: RabbitMQ commands
+        rabbitmqadmin: #keyword:
+            （インストール）:  #search: install rabbitmqadmin
+            connections:
+                rabbitmqadmin list connections
+            channels:
+                rabbitmqadmin list channels
+                rabbitmqadmin list channels name connection user publishes
+            publisher:  #// 一覧表示できません。channels や connections を見てください
+            exchanges:
+                rabbitmqadmin list exchanges
+                rabbitmqadmin list exchanges name type durable auto_delete
+            queue:  #search: RabbitMQ queue status CLI
+                rabbitmqadmin list queues
+            bindings:
+                コマンド: |
+                    $ rabbitmqadmin list bindings
+                        | source     | destination | routing_key |
+                        +------------+-------------+-------------+
+                        |            | my_queue_1  | default     |
+                        | exchange_1 | my_queue_2  | error       |
+                        | exchange_1 | my_queue_3  | warning     |
+            consumers:
+                rabbitmqadmin list consumers
+                rabbitmqadmin list consumers queue_name channel_details consumer_tag
+        rabbitmqctl:
+            （Docker 版）: コンテナーの中にあります
+                docker exec -it  __ContainerName__  rabbitmqctl cluster_status
+            rabbitmqctl join_cluster: #search:
+                $ rabbitmqctl join_cluster
+            cluster_status, クラスターの状態: rabbitmqctl cluster_status
+            VHost の一覧: rabbitmqctl list_vhosts
+                Listing vhosts ...
+                name
+                __VHost__
+            list_queues, 現在のキュー: rabbitmqctl list_queues -p __VHost__
+                __QueueName__  __Count__
+            キューのクリア: rabbitmqctl purge_queue  __QueueName__  -p __VHost__
+            stop_app: rabbitmqctl stop_app
+            reset: rabbitmqctl reset    #// stop_app した後で reset できます
+            #ref: https://www.rabbitmq.com/rabbitmqctl.8.html
+        rabbitmq-diagnostics: #keyword:
+            log_tail, ログを表示します:
+                コマンドのサンプル: rabbitmq-diagnostics -n rabbit@__HostNameWithoutDomain__ log_tail -N __LineLength__
+                __HostNameWithoutDomain__: FQDN からドメインを除いた部分
+                __LineLength__: 表示する行数。例 300
+                #ref: https://www.rabbitmq.com/logging.html
+    概念:
+        構造: publisher → exchange --(binding)→ queue → consumer
+        チュートリアル:  #search: RabbitMQ official tutorial
+        オブジェクト:  #// キュー
+            キュー: #keyword: RabbitMQ queue  #// RabbiqMQ の主要素。メッセージを一時的にためる場所
+                概要:  #search: RabbitMQ work queue tutorial
+                ステータスの確認:  #keyword: RabbitMQ queue status
+                    Web UI:  #search: RabbitMQ WebUI
+                        Overview タブ から確認する場合:
+                            メニュー: RabbitMQ Web UI >> Overview タブ >>（Overview）
+                            Queued messages:  キューに入っているメッセージの数。送信されると増えます。受信されると減ります。
+                                一瞬で受信されたときは表示は変換しません。
+                            Message rates: #keyword: RabbitMQ Web UI Message rates
+                                転送速度（1分間）。転送の有無もここで確認できます。サービス起動直後は表示されないかもしれません。
+                        Queues タブ から確認する場合:
+                            メニュー: RabbitMQ Web UI >> Queues タブ
+                            Ready: キューに入っているメッセージの数。送信されると増えます。受信されると減ります
+                            #// 受信した後で送受信があったことは Overview タブ で分かります  #search: RabbitMQ Web UI Message rates
+                        Queues and Streams タブ: #keyword: RabbitMQ Queues and Streams tab
+                            Get messages:
+                                ❗注意: Get したら消費することにならないように注意
+                                メッセージの内容を表示します:
+                                    Messages: 表示するメッセージの数
+                                    Get message (s) ボタン:
+                                    表示例: |
+                                        Message 1
+                                        The server reported 5 messages remaining.
+                                        Exchange
+                                        Routing Key	ScheduleCreatedEvent
+                                        Redelivered	●
+                                        Properties	
+                                            delivery_mode:	2
+                                        Payload
+                                            166 bytes
+                                            Encoding: string
+                                            {"id": "7dfef0e8-a44f-454a-a5ea-dd2545533362", "create_date": "2025-12-12T12:12:12.333333+00:00", "date": null}
+
+                                        Message 2
+                                        The server reported 4 messages remaining.
+                                        ...
+                    rabbitmqadmin コマンド: #keyword: RabbitMQ queue status CLI,  install rabbitmqadmin
+                        ダウンロードします:  #// Python コードがダウンロードされます
+                            curl -o ~/bin/rabbitmqadmin http://localhost:15672/cli/rabbitmqadmin
+                            chmod +x ~/bin/rabbitmqadmin
+                            rabbitmqadmin --version
+                        設定ファイルを使う場合:
+                            ~/.rabbitmqadmin.conf : | #keyword:
+                                [default]
+                                hostname = localhost
+                                port = 15672
+                                username = __User__
+                                password = __Password__
+                            （別の場所に .conf を置く場合）:
+                                -c オプション:  #// 毎回指定する必要があります
+                                    rabbitmqadmin  -c /path/to/custom.conf list queues
+                                環境変数:
+                                    ありません
+                            コマンドを実行します:
+                                rabbitmqadmin list queues
+                        設定ファイルを使わない場合:
+                            環境設定をします:
+                                RABBIT_MQ_OPTIONS="  -H localhost  -u __User__  -p __Password__"
+                            コマンドを実行します:
+                                rabbitmqadmin ${RABBIT_MQ_OPTIONS} list queues
+                一時キュー:  #search: RabbitMQ temporary queue
+                Quorum Queues: #keyword:  #// 新しい高可用性のキュー
+                Mirrored Queues, HA Queues: #keyword:  #// RabbitMQ 3.8 より前。RabbitMQクラスタ内でキューのコンテンツを複製することによって高可用性を提供します
+                    有効化:  rabbitmqctl set_policy ha-all "^.*$" '{"ha-mode":"all"}'
+            バインディング:  #search: RabbitMQ routing tutorial
+            エクスチェンジ: #keyword: RabbitMQ exchange
+                概要:  #search: RabbitMQ publish subscribe tutorial
+                種類:  #search: RabbitMQ exchange type
+                宣言, 作成:  #search: RabbitMQ exchange_declare
+            コネクション:
+            チャンネル:  #// 主な処理をするメソッドを持っています。ブローカー。コネクションの子要素
+            #↓ メソッド的なオブジェクト
+            publish, subscribe:  #// 送信。発行
+                publish: #keyword: RabbitMQ publish
+                    同義語: produce
+                subscribe: #keyword: RabbitMQ subscribe  #// （直訳）購読。受信を受け付ける状態
+            produce:  #// 送信
+                同義語: publish
+        メソッド:  #// 送受信
+            publish:  #keyword: RabbitMQ publisher  #// 送信すること
+                文章上: send  #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
+                コード: publish
+            consumer: #keyword: RabbitMQ consumer  #// 受信者
+                - 受信することは receive  #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
+        vhost:
+            各vhostは独立したエンティティとして機能し、一つのvhost内のキューや交換機は他のvhostからはアクセスできません。
+            #ref: ${typrm_files}/ref/Cloud-AI.yaml#label: vhost
+        クラスター:
+            状態表示:  #search: RabbitMQ rabbitmqctl
+    ファイル:
+        /etc/rabbitmq/rabbitmq-env.conf : |  #// 下記は FQDN を使う場合に必要な設定です
+            NODENAME=rabbit@rabbit-server1.example.com
+            USE_LONGNAME=true
+        ~/.erlang.cookie :
+            同じクラスター内のすべてのノードは、同じ.erlang.cookieの値を持つ必要があります。
+            異なるクラスターの間で直接のノード通信を行わない限り、それぞれのクラスターが異なる.erlang.cookieの値を持つことは許容されます。
+            #ref: ${typrm_files}/ref/Cloud-AI.yaml#label: .erlang.cookie
+    コード:
+        Python:  #glossary: RabbitMQ
+            exchange_declare:  #search: RabbitMQ exchange
+            basic_publish:  #search: RabbitMQ basic_publish
+            Hello world より: #keyword: RabbitMQ tutorial code  #glossary: RabbitMQ  #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
+                channel.queue_declare:  #// キューを作ります  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/1_send.py#queue_declare
+                channel.basic_publish:  #// 送信します  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/1_send.py#basic_publish
+                    サンプル: |  #keyword: basic_publish
+                        channel.basic_publish(
+                            exchange='',
+                            routing_key='hello',
+                            body='Hello World!')
+                channel.basic_consume:  #// 受信するチャンネルを登録します。受信開始ではありません  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/2_receive.py#basic_consume
+                channel.start_consuming:  #// 受信を開始します  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/2_receive.py#start_consuming
+                BlockingConnection, ConnectionParameters:  #// コネクションを作ります  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/1_send.py#BlockingConnection
+                connection.channel:  #// チャンネルを作ります  #ref: ${GitHub}/MyPrivateCode/RabbitMQ/try_RabbitMQ/1_send.py#connection.channel
+        Erlang: #keyword:  #// 「アーラン」。RabbitMQ のコードの言語  #ref: https://www.erlang.org/
+            インストール: #keyword: install Erlang
+                #ref: https://www.rabbitmq.com/docs/install-rpm#install-erlang
+                #ref: https://github.com/rabbitmq/erlang-rpm?tab=readme-ov-file#erlang-25-on-rhel-8-centos-stream-8-rocky-linux-8-x86-64
+                RabbitMQ との組み合わせ:  #search: RabbitMQ Erlang version
+            コマンド:
+                erl:
+                    バージョン: | #keyword: erl version  #// 下記は Erlang/OTP 22,  Eshell V10.4.4
+                        $ erl 
+                        Erlang/OTP 22 [erts-10.4.4] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [hipe]
+
+                        Eshell V10.4.4  (abort with ^G)
+                        1>  (Ctrl+C)(Ctrl+C)
+                    RabbitMQ との組み合わせ:  #search: RabbitMQ Erlang version
+            ファイル: #glossary: Erlang
+                rabbitmq-server:  #// サービスのエントリーポイントとなるシェルスクリプト  #ref: /lib/rabbitmq/bin/rabbitmq-server
+                    ERL_DIR:  #// 定義は不明
+                    RABBITMQ_HOME:  #// 定義は不明
+                    RABBITMQ_ERLANG_HOME:  #// 定義は不明
+                    RABBITMQ_EBIN_ROOT:
+                        # RABBITMQ_EBIN_ROOT="${RABBITMQ_HOME}/ebin"
+                    start_rabbitmq_server:
+                        # start_rabbitmq_server() {
+                        #     exec ${ERL_DIR}erl \
+                        #         -pa "$RABBITMQ_EBIN_ROOT" "$RABBITMQ_SERVER_CODE_PATH" \
+                .erl,  sbin/____.erl:  #// Erlang の ソース ファイル。モジュールごとにファイルを作ります
+                    サンプル: |
+                        -module(application_master).
+                        -export([start/2, stop/1, ...]).
+                        -include("application_master.hrl").
+
+                        start(Type, Args) ->
+                            % アプリケーションの起動ロジック
+                .hrl:  #// Erlang の ヘッダー ファイル
+                .beam,  ebin/____.beam:  #// Erlang の実行ファイル
+                    /lib/rabbitmq/lib/rabbitmq_server-3.13.3/plugins/rabbit-3.13.3/ebin/rabbit_guid.beam
+                ~/.erlang.cookie:
+                    同じクッキー値を持っているノード同士が通信することができます。
+                    ランダムに生成された文字列であり、通常はシステムが自動的に生成します。
+                    chmod 600 ~/.erlang.cookie が必要です
+                application_master.erl:  #// Erlang/OTPのアプリケーションを管理します
+            エラーメッセージ:  #ref: https://stackoverflow.com/questions/15940090/erlang-application-undef-error-exited-bad-return
+                ログ: |
+                    =CRASH REPORT==== 10-Apr-2013::21:02:00 ===
+                        crasher:
+                            initial call: application_master:init/4
+                            pid: <0.75.0>
+                            registered_name: []
+                            exception exit: {bad_return,
+                                                {{egs_app,start,[normal,[]]},
+                                                {'EXIT',
+                                                    {undef,
+                                                        [{cowboy,start_listener,
+    参考: 新人プログラマに知ってもらいたいRabbitMQ初心者の入門の入門 - Qiita  https://qiita.com/gambaray/items/3cc02b419c860a96bc94#rabbitmq%E3%81%A8%E3%81%AF
+    関連: aws SMS
+    トラブルシューティング(RabbitMQ):
+        - #// rabbitmqctl join_cluster に失敗する
+            手順: rabbitmqctl join_cluster
+            エラー: |
+                unable to connect to epmd (port 4369) on rabbit1.example.com: address (cannot connect to host/port)
+            対処A:
+                epmd が起動していること
+                ps aux | grep epmd
+                /local/bin/epmd -debug
+                /local/bin/epmd -daemon
+            対処B:  #keyword: RabbitMQ telnet
+                疎通確認します。
+                (@rabbit2.example.com)
+                    $ ping rabbit1.example.com
+                    $ telnet rabbit1.example.com 4369
+                    Connected to rabbit2.example.com.
+                    Escape character is '^]'.
+                    Connection closed by foreign host.
+                接続が成功した後、すぐに接続が閉じられるのは正常です。
+Keepalived: #keyword:  #// バックアップ サーバー に切り替えるフェイルオーバー用ロードバランサー
+    公式:
+        keepalived.org: #ref: https://www.keepalived.org/
+        マニュアル: #ref: https://www.keepalived.org/manpage.html
+        RedHat: #ref: https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/7/html/load_balancer_administration/ch-keepalived-overview-vsa
+        脆弱性: #ref: https://cve.report/software/keepalived/keepalived
+    概要:
+        目的: サーバーに異常があったら バックアップ サーバー に切り替えて、サービスの稼働率を高めます
+        VIP 切り替え: 停止していることを検出したら、バックアップのサーバーに VIP を設定します。
+            ロードバランサが停止していたら自動的にバックアップとして用意しておいたロードバランサに切り替える機能もあります。
+            ルータなどで利用されるVRRPを使って、仮想IPアドレス(VIP)を管理することができます。
+    手順:
+        バックアップ サーバー が マスター サーバー に変わっていたとき:
+            以前、マスターだったサーバーの keepalived を再起動します
+        マスターとバックアップを切り替えます: #search: switch keepalived
+    構成:
+        サーバー:
+            マスター:  #// VIP を持っているサーバー
+            バックアップ:  #// VIP を持っていないサーバー
+                ある バックアップ サーバー が VIP を持つように変わったら、そのサーバーは マスター サーバー と呼ばれるように変わります。
+        VIP:
+            マスターかバックアップか:  #// VIP があるかどうかを調べます
+                調べるサーバーにログインします:
+                VIP を調べます:  #// __VIP_ServerName__ に対応する IP アドレス（＝VIP）を調べます
+                    dig +short __VIP_ServerName__  #// IP アドレスの調べ方と同じコマンドです  #keyword: dig VIP
+                    #// ハードウェアに固定されたサーバー名の他に VIP に対応する __VIP_ServerName__ があります
+                判定:
+                    ip addr コマンドで表示される IP アドレスの一覧に、VIP が含まれていれば、
+                    マスター サーバー です。
+                    #search: ip addr
+            マスターとバックアップを切り替えます: #keyword: switch keepalived  #// VIP を相方のサーバーに移動します
+                #// システム自体を本当に異常な状態にする必要はありません
+                #// 以下は、初期状態は、サーバーA がマスター、サーバーB がバックアップであるとして説明しています
+                サーバーA で keepalived のサービスを終了します:  #// keepalived プロセス（サービス）がなくなったら異常であると判断されて VIP が移動します
+                    サーバーA:
+                        ip addr
+                        sudo systemctl stop keepalived
+                        ip addr
+                VIP がサーバーB に移動したことを確認します:  #search: dig VIP  #search: ip addr
+                    サーバーB:
+                        ip addr
+                    #// サーバーB がマスターと呼ばれるようになります
+                keepalived のサービスを再起動します:
+                    サーバーA:
+                        sudo systemctl start keepalived
+                （必要なら）VIP を戻します:
+                    サーバーA とサーバーB を入れ替えて同様のコマンドを実行します
+    設定ファイル keepalived.conf:  #ref: https://knowledge.sakura.ad.jp/274/3/
+        vrrp_instance:
+            virtual_router_id:  #keyword: keepalived  virtual_router_id
+                #search: VRID
+    参考:
+        Red Hat >> KEEPALIVED を用いたロードバランサーの初期設定: #ref: https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/7/html/load_balancer_administration/ch-initial-setup-vsa
+        「Linux Virtual Server」と「Keepalived」で作る冗長化ロードバランサー: #ref: https://knowledge.sakura.ad.jp/274/
+LVS, Linux Virtual Server: #keyword:  #// Layer4負荷分散装置と同様の機能を実現するためのソフトウェア
+    概要: 通常 Keepalived や Heartbeat と連携します
+    IPVS: #keyword:
+    ipvsadm: #keyword:  #// ユーザがIPVSを管理するための コマンド インタフェース を提供するユーティリティ
+        公式: #ref: http://kb.linuxvirtualserver.org/wiki/ipvsadm
+    分散アルゴリズム:
+        sh, Source Hashing: #keyword:
+            ソース IP アドレスで静的に割り当てられたハッシュ テーブルを検索して、サーバーにジョブを割り当てます。
+            #ref: http://kb.linuxvirtualserver.org/wiki/Source_Hashing_Scheduling
+        rr, Robin Robin (Round Robin?): #keyword:
+            利用可能な実サーバー間でジョブを均等に分散します。
+        一覧: #ref: http://kb.linuxvirtualserver.org/wiki/ipvsadm  >>  -s, --scheduler scheduling-method
+        #ref: https://serverfault.com/questions/950447/keepalived-what-are-the-fo-and-mh-lvs-scheduling-algorithms
+    sticky session: #keyword:  #// セッションが続いている間は同じクライアントを同じサーバへ誘導する機能
+        nginx: #ref: https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/ >> Enabling Session Persistence
+        Apache ROUTEID: #keyword:  #ref: https://httpd.apache.org/docs/2.2/ja/mod/mod_proxy_balancer.html
+    #ref: https://www.designet.co.jp/faq/term/?id=TFZT
+HashiCorp Vault: #search:  #// ヴォルト  認証サーバーとワークフロー
+用語: #glossary:
+    BFF, Backends For Frontends: #// APIをコールしたり、HTMLを生成したりするサーバのこと
+        - リバースプロキシとバックエンドのAPIサーバの間に設置することが多い
+        - システムの規模が小さいときはモノリシックのほうがシンプル
+        - Web 用とスマホ用で別のサーバー（サービス）の場合もある
+        - フロントエンドエンジニアが開発を担当
+        #ref: https://atmarkit.itmedia.co.jp/ait/articles/1803/12/news012.html
+    BI ツール:
+        膨大なデータから必要な情報を引き出し、経営や売り上げ拡大に活用するために、分析してレポーティングするツール
+        #search: ビッグデータ
+    エンドポイント: #keyword:
+        https://example.com/api の /api のこと
+    オーケストレーション:  #// コンピュータシステム、アプリケーション、およびサービスにおける、設定、管理、調整の自動化
+    ロング ポーリング:  #// 通知を受け取る（リッスンする）代わりに、通知を取りに行く。リクエストを出してから通知が来るかタイムアウトするまで待ち、タイムアウトするともう一度リクエストします
+        #search: レスポンス待ち

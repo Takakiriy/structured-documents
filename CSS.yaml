@@ -1,0 +1,1794 @@
+#keyword: CSS.yaml,  CSS  #ref: ${programming}/HTML ブラウザ/CSS.svg
+CSS プロパティ:  #glossary: CSS
+    animation-timing-function: #keyword: CSS animation
+        CSSのイージング関数を簡単に使えるようにできる「Easing Wizard」:  #ref: https://gigazine.net/news/20251108-easing-wizard/
+    font-weight: |  #keyword: CSS 太字
+        font-weight: normal;
+        font-weight: bold;     /* 太字 */
+    margin:
+        #// 外） margin - border - padding - content （内
+        親要素の属性としての余白:
+            div 要素を使う場合:
+                React: |
+                    <div style={{height: '20px'}}></div>
+            gap 属性を使う場合:
+    text-wrap:
+        pretty:  #ref: https://gigazine.net/news/20250409-safari-better-typography-text-wrap-pretty/
+    overflow-wrap:  #// 単語の途中でも折り返します
+        値: [ break-word, normal, anywhere ]
+        iOS 対応（2021年）:
+            問題: anywhere は無視されます
+            サンプル: | #ref: http://var.blog.jp/archives/75503761.html
+                .anywhere {
+                    overflow-wrap: break-word;
+                    overflow: hidden;
+                }
+        参考: #ref: https://developer.mozilla.org/ja/docs/Web/CSS/overflow-wrap
+    overflow-x, overflow-y:  #// ページの中の要素をスクロールします
+        横スクロール:
+            操作:  #// ユーザーの操作
+                横スクロールは、領域の下にあるスクロールバー、またはマウスドラッグ、またはキーボードの ←, → キー で行います。
+                縦スクロールは、ページのスクロールで行います。
+                ズームは、ブラウザーのズーム機能で行います。
+            コード:  #focus: flowchart-container, flowchart, width, height, top
+                HTML: |
+                    <div class="flowchart-container">
+                        <div class="flowchart">
+                CSS: |
+                    .flowchart-container {
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        height: 1100px;  /* コンテンツの高さ。ズームの影響を受けます */
+                    }
+
+                    .flowchart {
+                        width: 2400px;   /* コンテンツのズームはここで決まります */
+                        position: relative;
+                        top: -400px;  /* コンテンツの上側をカットする高さ。ズームの影響を受けます */
+                    }
+                script: |
+                    // 上に要素の定義があること。querySelector には overflow-x: auto がある div 要素を指定します。
+                    <script>
+                        let startX, scrollLeft;
+                        const el = document.querySelector('.flowchart-container');
+                        el.addEventListener('mousedown', (e) => {
+                            startX = e.pageX - el.offsetLeft;
+                            scrollLeft = el.scrollLeft;
+                            el.classList.add('active');
+                        });
+                        el.addEventListener('mouseleave', () => {
+                            el.classList.remove('active');
+                        });
+                        el.addEventListener('mouseup', () => {
+                            el.classList.remove('active');
+                        });
+                        el.addEventListener('mousemove', (e) => {
+                            if (!el.classList.contains('active')) return;
+                            e.preventDefault();
+                            const x = e.pageX - el.offsetLeft;
+                            const walk = (x - startX) * 3; // スクロール速度を調整
+                            el.scrollLeft = scrollLeft - walk;
+                        });
+                    </script>
+    padding:
+        #search: CSS margin
+    text-indent:  #keyword: CSS text-indent, CSS インデント 字下げ
+        HTML:
+            1行目をインデントする: |
+                text-indent: 1em;
+            2行目以降をインデントする: |
+                    padding-left: 2em;
+                    text-indent: -1em;
+        Markdown:
+            Markdown のコード（空白4つ）では機能しません。
+            空白 6つの Markdown を書いてください。
+    text-transform:
+        uppercase: 大文字にします。ただし、音声読み上げソフトでは1文字ずつ読み上げません。例 who は WHO で表示されるが who で読み上げます
+    transform:  #ref: ${programming}/HTML ブラウザ/CSS.svg#transform
+        makeStyles: |  #search: makeStyles
+            transform: "translateY(0.4rem) rotate(90deg)",
+    vertical-align: #keyword: vertical-align, HTML td valign
+        baseline, top, middle, bottom
+    width:
+        サンプル: calc(min(100% - 8rem, 60rem));
+        max-width:  #ref: ${programming}/HTML%20ブラウザ/CSS.svg#max_width
+        min-width:
+    (@property): 型や初期値を設定できる CSS変数  #ref: ${typrm_files}/ref/JavaScript-AI.yaml#label: @property
+オブジェクト別 CSS プロパティ:
+    背景画像:
+        background:
+        background-repeat: no-repeat
+        background-size:  #// 拡大縮小
+            サンプル:
+                - 100%   #// div に合わせる
+                - 200px  #// div に関わらず固定
+        #search: width, max-width
+        #search: height, max-height
+    div:
+    テキスト:
+選択子 (CSS セレクター): #keyword: CSS selector
+    基本:
+        (div): <div>
+        (.class-1): #// <div class="class-1">
+            - <div class="class-1">
+            - <div class="class-1 class-2">  #// 同じ CSS 属性に関しては、CSSのカスケード（優先順位）ルールに従って、class-2 が優先されます
+        (#id-1): <div id="id-1">
+    擬似クラス、擬似要素: #glossary: CSS  #ref: ${programming}/HTML ブラウザ/CSS.svg#pseudo_classes
+        （書式）:
+            - __TagName__:__Pseudo__  #// 指定した HTML タグのうち、指定の擬似クラス、擬似要素
+            - :__Pseudo__  #// 全ての要素のうち、指定の擬似クラス、擬似要素
+        :link:  #// 未訪問のハイパーリンク
+        :visited:  #// 訪問済みのハイパーリンク
+        :disabled:  #// 無効状態
+        :read-only:  #// 読み取り専用。 ドロップダウンリストも
+        :nth-child(odd):  #// 表の奇数行の選択子
+        :first-child:  #// 複数にマッチするときの最初の要素
+        :last-child:  #// 複数にマッチするときの最後の要素
+        :not(:first-child):  #// 複数にマッチするときの最初以外の要素
+        :before:  #// 要素の前（に要素を入れる）
+        :contains("__Text__"):  #// 指定したテキストを含む要素  #未確認  #ref: https://stackoverflow.com/questions/36862270/i-need-css-selector-to-select-elements-that-contain-a-given-text
+            Playwright: :text("__Text__")  #ref: https://playwright.dev/docs/other-locators#css-matching-by-text
+    BEM: #keyword:  #// Block Element Modifier  #ref: https://en.bem.info/methodology/
+        概要: HTML の class 属性の命名規則の1つ
+        Block:
+            サンプル: menu, button, error
+            その他: ネストできる
+                <header class="header">
+                    <div class="logo"></div>
+        Block ではない:
+            サンプル: red
+        Element, 要素:
+            書式: Block__Element
+            クラス名のサンプル: search-form__button
+            要素のサンプル: item, text, input, content
+値:
+    margin, padding の 4方向:
+        値が 4つの場合: 上右下左 または 12時→3時→6時→9時
+        値が 2つの場合: 1番目：上下 (top, bottom), 2番目：左右 (left, right)
+    CSS カラー: #keyword: CSS color
+        カラー キーワード:  #// green, gray など
+            一覧: #ref: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#color_keywords
+ユーザー エージェント スタイルシート: #keyword: CSS user agent stylesheet
+    概要: ブラウザーが定義している CSS のセットです
+    優先度:
+レイアウト、グリッド: #keyword: CSS layout
+    div の padding、margin など:  #// float、position、display（block、inline-block等）
+    CSS Grid Layout: #keyword:  #ref: https://developer.mozilla.org/ja/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout
+        #// グリッドは、列と行を定義する水平線と垂直線の集合が交差したものです。要素をグリッド上の行と列の中に配置することができます。
+        サンプル:  #ref: https://qiita.com/kura07/items/e633b35e33e43240d363
+        Playground:  #ref: https://cssgridgenerator.io/
+        table との違い:
+            表のセルのそれぞれにデータを入れる場合は table 要素。
+            意味的に表なら<table>、見た目の配置ならGridです。
+CSS Modules: #search:
+Bootstrap:
+    Bootstrap4: #keyword:
+        ボタン: #keyword: Bootstrap4 button
+            #ref: ${programming}/HTML ブラウザ/CSS.svg#Bootstrap_button
+            #ref: ${GitHub}/MyPrivateCode/Bootstrap 4 samples/chap6/sample/button-compare.html
+        参考: #ref: ${programming}/HTML ブラウザ/CSS.svg#Bootstrap
+            グリッド システム、レイアウト (row/col)
+            Display ユーティリティによるレイアウト
+            カード
+            折り畳み
+            カルーセル
+            ナビゲーション、タブ
+            スクロール スパイ
+                左側ナビ ＋ スクロール スパイ ＋ リアクティブ
+            ツリービュー
+                Jon Miles treeview
+            文章とコード
+                RFS (Responsible Font Size)
+            画像
+            メディア オブジェクト
+            表
+            リスト グループ
+            ページネーション
+            モーダル
+                一時的にクローズできないようにする (Bootstrap モーダル)
+            （入力）フォーム
+                基本、標準 HTML との関連
+                レスポンシブ フォーム
+                    ラベルと入力項目を常に別の行にするが、項目は可能な限り横に並べる
+                    ラベルと入力項目を同じ行にするか違う行にする
+                バリデーション（入力検証機能）
+                入力グループ
+                ドロップダウン
+            ボタン
+            プログレス バー
+            アラート
+            バッジ （状態、数）
+            ユーティリティ
+                spacing
+            カスタム クラス
+            テーマ （テーミング）
+            アイコン
+            トラブル シューティング (Bootstrap)
+    react-bootstrap: #keyword:
+        公式: #ref: https://react-bootstrap.github.io
+        サンプル:
+            #ref: https://codesandbox.io/s/github/react-bootstrap/code-sandbox-examples/tree/master/basic?file=/src/App.js:0-1009
+        react-bootstrap を使います: #keyword: Next.js react-bootstrap
+            （参考）追加済みプロジェクト:
+                #ref: ${GitHub}/MyPrivateCode/Next_js/next_js_bootstrap
+            プロジェクトに react-bootstrap をインストールします:
+                cd  __Project__
+                npm install react-bootstrap bootstrap
+            .css ファイルを編集します:
+                __Project__/styles/bootstrap.css: |  #focus: bootstrap
+                    @import '~bootstrap/dist/css/bootstrap.min.css';
+                        /* __Project__/node_modules/bootstrap/dist/css/bootstrap.min.css */
+            App:
+                __Project__/pages/_app.tsx: |  #focus: bootstrap.css
+                    import '../styles/bootstrap.css'
+            React コンポーネント:
+                __Project__/pages/index.tsx: |  #focus: Button,  react-bootstrap
+                    import { Button } from 'react-bootstrap';
+
+                    <main className={styles.main}>
+                        <Button>OK</Button>
+                    </main>
+        as プロパティ: #// コンポーネントの HTML 要素を変更します
+            概要:
+                React bootstrap の Button コンポーネントは <button> HTML になりますが、
+                as プロパティに、たとえば div を指定すると、その Button コンポーネントは <div> HTML になります。
+                HTML のソースを見ると変化が見られますが、見た目は変わりません。
+            サンプル:
+                <Button>OK</Button>
+                <Button as="div">div tag</Button>
+            サンプルに対応する HTML:
+                <button ...>OK</button>
+                <div ...>div tag</div>
+            参照: #ref: https://stackoverflow.com/questions/59698113/how-to-use-as-props-elementtype-in-react-bootstrap-components
+Material-UI: #keyword:  #// マテリアル デザインの React components  #ref: ${programming}/HTML ブラウザ/CSS.svg#MaterialUI
+    Version 5, @mui/styles:  #keyword: @mui/styles
+        公式: #ref: https://mui.com/styles/basics/
+        コンポーネント:
+            入力:  #focus: Button, Checkbox, Date / Time, Select, Switch, Text Field  #glossary: Material-UI5
+                IconButton:  #ref: https://mui.com/material-ui/api/icon-button/
+    Version 4:  #keyword: @material-ui
+        参考:
+            公式:
+                Version4:
+                    Components:  #// コンポーネントの概要  #ref: https://v4.mui.com/components/box/
+                    Component API:  #// コンポーネントのリファレンス  #ref: https://v4.mui.com/ja/api/accordion/
+                    Styles:  #ref: https://v4.mui.com/styles/basics/
+                旧HP: #ref: https://material-ui.com/styles/basics/  #// 最新版にリダイレクトされます
+                npm: #ref: https://www.npmjs.com/package/@material-ui/core
+            その他:
+                React入門 ～Material UI(v4)編～: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui
+        手順:  #keyword: install Material-UI
+            Material-UI の基本を実行します:
+                参考: #ref: https://v4.mui.com/styles/basics/
+                React プロジェクトを生成して動作確認します:  #search: React install
+                Material-UI をプロジェクトにインストールします:
+                    cd __Project__
+                    yarn add @material-ui/core
+                サンプル React Hook を作ります:  #ref: https://v4.mui.com/styles/basics/
+                    #// 以下のいずれか
+                    フック API:  #search: Material-UI フック API
+                    スタイル付きコンポーネント API:  #search: Material-UI スタイル付きコンポーネント API
+                    上位コンポーネント API:  #search: Material-UI 上位コンポーネント API
+            バリデーション: #keyword: Material-UI varidation
+                コード: |  #// Material-UI にバリデーションの機能があるわけではありません
+                        <Input className={emailError ? "border-red-500" : ""} />
+                        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+                    #// エラーメッセージの表示と同時に、枠を赤くしています
+                #keyword: Client-side form validation
+        コンポーネント:
+            （見た目の一覧）:  #ref: ${my_images}/2021/Material-UI/components/1.1.1.Box.png
+            レイアウト:  #focus: Box, Container, Grid, Hidden, Image List  #glossary: Material-UI
+                Box:  #//🌟  #keyword: Material-UI Box  #// <div> などの代わり  #ref: https://v4.mui.com/components/box/
+                    <div> の代わり:
+                        インストール:  #search: install Material-UI
+                        __Project__/src/Hook.jsx: |  #// Box
+                            import { Box, Button } from '@material-ui/core';
+
+                            export default function Hook() {
+                                return (
+                                    <Box p={2} style={{ backgroundColor: 'pink' }}>
+                                        <Button variant="contained">Test</Button>
+                                    </Box>
+                                );
+                            }
+                    <span> の代わり:
+                        <Box component="span">
+                    プロパティの変更: |
+                        import { Box, Button } from '@material-ui/core';
+
+                        export default function Hook() {
+                            return (
+                                <div>
+                                    <Box bgcolor="primary.main">Box</Box>
+                                    <Box bgcolor="primary.main">
+                                        <Button>Button in Box</Button>
+                                    </Box>
+                                    <Box bgcolor="primary.main" clone>
+                                        <Button>Button in Box with clone</Button>
+                                    </Box>
+                                    <Box color="text.primary">
+                                        {(props:any) => <Button {...props} />}
+                                    </Box>
+                                </div>
+                            );
+                        }
+                Container:  #//🌟
+                Grid: #keyword: Material-UI Grid  #ref: https://mui.com/material-ui/react-grid/  #ref: ${programming}/HTML ブラウザ/CSS.svg#MaterialUI_grid
+                    サンプル: |
+                        <!-- 100% は 12 です -->
+                        <Grid container spacing={2}>
+                            <Grid size={8}>
+                                <Item>size=8</Item>
+                            </Grid>
+                            <Grid size={4}>
+                                <Item>size=4</Item>
+                            </Grid>
+                        </Grid>
+                    レスポンシブ:
+                        size または xs（すべて）を sm, md, lg, xl のいずれかに変えるか複数指定することで
+                        レスポンシブに（画面幅によって変更）できます。
+                    右詰め: |
+                        <Grid container>
+                            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button variant="contained">右詰めボタン</Button>
+                            </Grid>
+                        </Grid>
+                Hidden:
+                Image List:  #//🌟
+            入力:  #focus: Button, Checkbox, Date / Time, Select, Switch, Text Field  #glossary: Material-UI4
+                Button:  #//🌟
+                Button Group:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#buttongroup(core)
+                Checkbox:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#checkbox(core)
+                Floating Action Button (FAB):  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#fab(core)
+                Date / Time:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#date-%2F-time(pickers)
+                Radio:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#radio(core)
+                Select:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#select(core)
+                Slider:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#slider(core)
+                Switch:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#switch(core)
+                Text Field:  #//🌟  #ref: https://v4.mui.com/components/text-fields/
+                Transfer List:
+                関連:
+                    Chip:  #search: Material-UI Chip
+            ナビゲーション:  #focus: Menu, Tabs  #glossary: Material-UI
+                Bottom Navigation:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#bottom-navigation(core)
+                Breadcrumbs:  #// パンくずリスト  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#breadcrumbs(core)
+                Drawer:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#drawer(core)
+                Link:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#link(core)
+                Menu:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#menu(core)
+                    MenuList:  #ref: https://v4.mui.com/components/menus/
+                Stepper:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#stepper(core)
+                Tabs:  #//🌟 #keyword: Material-UI Tabs  #search: React Router Tabs  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#tabs(core)
+                    公式: #ref: https://v4.mui.com/components/tabs/
+                        Simple Tabs:  #ref: https://v4.mui.com/components/tabs/#simple-tabs
+                            Wrapped Labels:  #// タブに改行  #ref: https://v4.mui.com/components/tabs/#wrapped-labels
+                            Disabled Tab:  #ref: https://v4.mui.com/components/tabs/#disabled-tab
+                        Fixed Tabs:  #// スクロールなし
+                            Full width:  #// 左詰め  #ref: https://v4.mui.com/components/tabs/#full-width
+                                スワイプ:
+                            Centered:  #ref: https://v4.mui.com/components/tabs/#centered
+                        Scrollable Tabs:
+                            Automatic Scroll Buttons:  #// 多くなったら スクロール ボタン を表示します  #ref: https://v4.mui.com/components/tabs/#automatic-scroll-buttons
+                            Forced Scroll Buttons:  #// 常に スクロール ボタン を表示します  #ref: https://v4.mui.com/components/tabs/#forced-scroll-buttons
+                            Prevent Scroll Buttons:  #// 常に スクロール ボタン を表示しません  #ref: https://v4.mui.com/components/tabs/#prevent-scroll-buttons
+                        Customized tabs:
+                        Vertical tabs:  #// 左にタブを表示します  #ref: https://v4.mui.com/components/tabs/#vertical-tabs
+                        Nav Tabs:  #// <button> の代わりに <a> を使います  #ref: https://v4.mui.com/components/tabs/#nav-tabs
+                        Icon Tabs:  #ref: https://v4.mui.com/components/tabs/#icon-tabs
+                        Accessibility:  #ref: https://v4.mui.com/components/tabs/#accessibility
+                    基本:  #// React Router を使わない場合
+                        インストール:  #search: install Material-UI
+                        説明:
+                            主なコンポーネント:
+                                Tabs: #// タブ本体
+                                TabPanel: #// タブの選択状態によって表示・非表示が変わる部分
+                                    サンプル コード: <TabPanel value={value} index={0}>
+                                    表示・非表示の判定: value と index が同じ値なら表示します。
+                                        下記サンプルの index={1} を index={0} に変えると、
+                                        1つ目のタブを選ぶとすべての index={0} の要素が表示されます。
+                                        TabPanel コンポーネントが無くなります。
+                            タブをクリックしたときの処理:
+                                Tabs:
+                                    # <Tabs value={value} onChange={handleChange}
+                                    handleChange:
+                                        # const [value, setValue] = React.useState(0);
+                                        # const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+                                        #     setValue(newValue);
+                                        setValue:
+                                            Tabs:  #// タブの表示が変わります
+                                            TabPanel:  #// タブに対応する領域の表示が変わります
+                        __Project__/src/Hook.jsx: |  #focus: handleChange
+                            import React from 'react';
+                            import { makeStyles, Theme } from '@material-ui/core/styles';
+                            import AppBar from '@material-ui/core/AppBar';
+                            import Tabs from '@material-ui/core/Tabs';
+                            import Tab from '@material-ui/core/Tab';
+                            import Typography from '@material-ui/core/Typography';
+                            import Box from '@material-ui/core/Box';
+
+                            interface TabPanelProps {
+                                children?: React.ReactNode;
+                                index: any;
+                                value: any;
+                            }
+
+                            function TabPanel(props: TabPanelProps) {
+                                const { children, value, index, ...other } = props;
+
+                                return (
+                                    <div
+                                        role="tabpanel"
+                                        hidden={value !== index}
+                                        id={`simple-tabpanel-${index}`}
+                                        aria-labelledby={`simple-tab-${index}`}
+                                        {...other}
+                                    >
+                                        {value === index && (
+                                            <Box p={3}>
+                                                <Typography>{children}</Typography>
+                                            </Box>
+                                        )}
+                                    </div>
+                                );
+                            }
+
+                            function a11yProps(index: any) {
+                                return {
+                                    id: `simple-tab-${index}`,
+                                    'aria-controls': `simple-tabpanel-${index}`,
+                                };
+                            }
+
+                            const useStyles = makeStyles((theme: Theme) => ({
+                                root: {
+                                    flexGrow: 1,
+                                    backgroundColor: theme.palette.background.paper,
+                                },
+                            }));
+
+                            export default function SimpleTabs() {
+                                const classes = useStyles();
+                                const [value, setValue] = React.useState(0);
+
+                                const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+                                    setValue(newValue);
+                                };
+
+                                return (
+                                    <div className={classes.root}>
+                                        <AppBar position="static">
+                                            <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                                                <Tab label="Item One" {...a11yProps(0)} />
+                                                <Tab label="Item Two" {...a11yProps(1)} />
+                                                <Tab label="Item Three" {...a11yProps(2)} />
+                                            </Tabs>
+                                        </AppBar>
+                                        <TabPanel value={value} index={0}>
+                                            Item One
+                                        </TabPanel>
+                                        <TabPanel value={value} index={1}>
+                                            Item Two
+                                        </TabPanel>
+                                        <TabPanel value={value} index={2}>
+                                            Item Three
+                                        </TabPanel>
+                                    </div>
+                                );
+                            }
+                    React Router を使う場合:  #search: React Router Tabs
+            サーフェス:  #focus: Card, Accordion  #glossary: Material-UI  #glossary: Material-UI
+                App Bar:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#app-bar(core)
+                Paper:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#paper(core)
+                Card:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#card(core)
+                Accordion:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#accordion(core)
+            フィードバック:  #focus: Dialog, Progress  #glossary: Material-UI
+                Progress:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#progress(core)
+                Dialog:  #//🌟  #keyword: Material-UI Dialog  #ref: https://v4.mui.com/components/dialogs/
+                    関連 >> Modal:
+                    下記サンプルの説明:
+                        ダイアログを表示するコンポーネント:  #focus: SimpleDialogDemo
+                        ダイアログのコンポーネント:  #focus: SimpleDialog, SimpleDialogProps
+                        ダイアログを開きます:  #focus: open
+                            onClick (Material-UI Button):
+                                # <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+                                handleClickOpen (SimpleDialogDemo):
+                                    #     const handleClickOpen = () => {
+                                    #         setOpen(true);
+                                    setOpen (SimpleDialogDemo):
+                                        # export default function SimpleDialogDemo() {
+                                        #     const [open, setOpen] = React.useState(false);
+                                        open (SimpleDialogDemo):
+                                            #     <SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+                                            open (SimpleDialog):
+                                                # function SimpleDialog(props: SimpleDialogProps) {
+                                                #     const { onClose, selectedValue, open } = props;
+                                                #     <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+                                                open (Material-UI Dialog):  #//🌟 ダイアログが表示されます
+                                                    # open={true}
+                        ダイアログを閉じます（項目を選択します）:  #focus: onClose
+                            onClick (Material-UI ListItem):
+                                # <ListItem button onClick={() => handleListItemClick(email)} key={email}>
+                                handleListItemClick:
+                                    # function SimpleDialog(props: SimpleDialogProps) {
+                                    #     const handleListItemClick = (value: string) => {
+                                    #         onClose(value);
+                                    onClose:  #keyword: Material-UI SimpleDialog onClose
+                                        # <SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+                                        handleClose (SimpleDialogDemo):
+                                            # export default function SimpleDialogDemo() {
+                                            #     const handleClose = (value: string) => {
+                                            #         setOpen(false);
+                                            setOpen:
+                                                # export default function SimpleDialogDemo() {
+                                                #     const [open, setOpen] = React.useState(false);
+                                                open (SimpleDialogDemo):
+                                                    #     <SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+                                                    open (SimpleDialog):
+                                                        # function SimpleDialog(props: SimpleDialogProps) {
+                                                        #     const { onClose, selectedValue, open } = props;
+                                                        #     <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+                                                        open (Material-UI Dialog):  #//🌟 ダイアログが消えます
+                                                            # open={false}
+                                            #         setSelectedValue(value);
+                                            setSelectedValue:
+                                                # export default function SimpleDialogDemo() {
+                                                #     const [selectedValue, setSelectedValue] = React.useState(emails[1]);
+                                                selectedValue:
+                                                    # <Typography variant="subtitle1">Selected: {selectedValue}</Typography>
+                        ダイアログを閉じます（キャンセルします）:  #focus: onClose
+                            onClose (Material-UI Dialog):
+                                # <Dialog onClose={handleClose}
+                                handleClose (SimpleDialog):
+                                    # function SimpleDialog(props: SimpleDialogProps) {
+                                    #     const { onClose, selectedValue, open } = props;
+                                    #     const handleClose = () => {
+                                    #         onClose(selectedValue);
+                                    onClose:  #search: Material-UI SimpleDialog onClose
+                    サンプル: |
+                        import React from 'react';
+                        import { makeStyles } from '@material-ui/core/styles';
+                        import Button from '@material-ui/core/Button';
+                        import Avatar from '@material-ui/core/Avatar';
+                        import List from '@material-ui/core/List';
+                        import ListItem from '@material-ui/core/ListItem';
+                        import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+                        import ListItemText from '@material-ui/core/ListItemText';
+                        import DialogTitle from '@material-ui/core/DialogTitle';
+                        import Dialog from '@material-ui/core/Dialog';
+                        import PersonIcon from '@material-ui/icons/Person';
+                        import AddIcon from '@material-ui/icons/Add';
+                        import Typography from '@material-ui/core/Typography';
+                        import { blue } from '@material-ui/core/colors';
+
+                        const emails = ['username@gmail.com', 'user02@gmail.com'];
+                        const useStyles = makeStyles({
+                            avatar: {
+                                backgroundColor: blue[100],
+                                color: blue[600],
+                            },
+                        });
+
+                        export interface SimpleDialogProps {
+                            open: boolean;
+                            selectedValue: string;
+                            onClose: (value: string) => void;
+                        }
+
+                        function SimpleDialog(props: SimpleDialogProps) {
+                            const classes = useStyles();
+                            const { onClose, selectedValue, open } = props;
+
+                            const handleClose = () => {
+                                onClose(selectedValue);
+                            };
+
+                            const handleListItemClick = (value: string) => {
+                                onClose(value);
+                            };
+
+                            return (
+                                <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+                                    <DialogTitle id="simple-dialog-title">Set backup account</DialogTitle>
+                                    <List>
+                                        {emails.map((email) => (
+                                            <ListItem button onClick={() => handleListItemClick(email)} key={email}>
+                                                <ListItemAvatar>
+                                                    <Avatar className={classes.avatar}>
+                                                        <PersonIcon />
+                                                    </Avatar>
+                                                </ListItemAvatar>
+                                                <ListItemText primary={email} />
+                                            </ListItem>
+                                        ))}
+                                        <ListItem autoFocus button onClick={() => handleListItemClick('addAccount')}>
+                                            <ListItemAvatar>
+                                                <Avatar>
+                                                    <AddIcon />
+                                                </Avatar>
+                                            </ListItemAvatar>
+                                            <ListItemText primary="Add account" />
+                                        </ListItem>
+                                    </List>
+                                </Dialog>
+                            );
+                        }
+
+                        export default function SimpleDialogDemo() {
+                            const [open, setOpen] = React.useState(false);
+                            const [selectedValue, setSelectedValue] = React.useState(emails[1]);
+
+                            const handleClickOpen = () => {
+                                setOpen(true);
+                            };
+
+                            const handleClose = (value: string) => {
+                                setOpen(false);
+                                setSelectedValue(value);
+                            };
+
+                            return (
+                                <div>
+                                    <Typography variant="subtitle1">Selected: {selectedValue}</Typography>
+                                    <br />
+                                    <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+                                        Open simple dialog
+                                    </Button>
+                                    <SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+                                </div>
+                            );
+                        }
+                    サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/react_examples/dialog_material_ui
+                Snackbar:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#snackbar(core)
+                Backdrop:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#backdrop(core)
+            データ表示:  #focus: Table, Badge, Tooltip  #glossary: Material-UI  #glossary: Material-UI
+                Avater:
+                    アイコンのみ: |
+                        import Avatar from '@material-ui/core/Avatar';
+                        import PersonIcon from '@material-ui/icons/Person';
+
+                        <Avatar className={classes.avatar}>
+                            <PersonIcon />
+                        </Avatar>
+                    リスト内アイコン: |
+                        import Avatar from '@material-ui/core/Avatar';
+                        import ListItem from '@material-ui/core/ListItem';
+                        import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+                        import ListItemText from '@material-ui/core/ListItemText';
+                        import PersonIcon from '@material-ui/icons/Person';
+
+                        <ListItem button onClick={() => handleListItemClick(email)} key={email}>
+                            <ListItemAvatar>
+                                <Avatar className={classes.avatar}>
+                                    <PersonIcon />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText primary={email} />
+                        </ListItem>
+                    サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/react_examples/dialog_material_ui
+                Badge:  #//🌟
+                Chip:  #ref: https://mui.com/material-ui/react-chip/
+                Divider:
+                Icons:
+                Material Icons:
+                List:
+                Table:  #//🌟  #keyword: Material-UI Table
+                    基本:
+                        インストール:  #search: install Material-UI
+                        __Project__/src/Hook.tsx: |  #focus: TableContainer, TableHead, TableBody
+                            import React from 'react';
+                            import { makeStyles } from '@material-ui/core/styles';
+                            import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+                            import Paper from '@material-ui/core/Paper';
+
+                            const useStyles = makeStyles({
+                                table: {
+                                    minWidth: 650,
+                                },
+                            });
+
+                            function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
+                                return { name, calories, fat, carbs, protein };
+                            }
+
+                            const rows = [
+                                createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+                                createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+                                createData('Eclair', 262, 16.0, 24, 6.0),
+                                createData('Cupcake', 305, 3.7, 67, 4.3),
+                                createData('Gingerbread', 356, 16.0, 49, 3.9),
+                            ];
+
+                            export default function BasicTable() {
+                                const classes = useStyles();
+
+                                return (
+                                    <TableContainer component={Paper}>
+                                        <Table className={classes.table} aria-label="simple table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>Dessert (100g serving)</TableCell>
+                                                    <TableCell align="right">Calories</TableCell>
+                                                    <TableCell align="right">Fat&nbsp;(g)</TableCell>
+                                                    <TableCell align="right">Carbs&nbsp;(g)</TableCell>
+                                                    <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {rows.map((row) => (
+                                                    <TableRow key={row.name}>
+                                                        <TableCell component="th" scope="row">
+                                                            {row.name}
+                                                        </TableCell>
+                                                        <TableCell align="right">{row.calories}</TableCell>
+                                                        <TableCell align="right">{row.fat}</TableCell>
+                                                        <TableCell align="right">{row.carbs}</TableCell>
+                                                        <TableCell align="right">{row.protein}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                );
+                            }
+                    Data Grid:
+                    密なテーブル:
+                        インストール:  #search: install Material-UI
+                        __Project__/src/Hook.tsx: |  #focus: TableContainer, TableHead, TableBody, size="small"
+                            import React from 'react';
+                            import { makeStyles } from '@material-ui/core/styles';
+                            import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+                            import Paper from '@material-ui/core/Paper';
+
+                            const useStyles = makeStyles({
+                                table: {
+                                    minWidth: 650,
+                                },
+                            });
+
+                            function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
+                                return { name, calories, fat, carbs, protein };
+                            }
+
+                            const rows = [
+                                createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+                                createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+                                createData('Eclair', 262, 16.0, 24, 6.0),
+                                createData('Cupcake', 305, 3.7, 67, 4.3),
+                                createData('Gingerbread', 356, 16.0, 49, 3.9),
+                            ];
+
+                            export default function DenseTable() {
+                                const classes = useStyles();
+
+                                return (
+                                    <TableContainer component={Paper}>
+                                        <Table className={classes.table} size="small" aria-label="a dense table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>Dessert (100g serving)</TableCell>
+                                                    <TableCell align="right">Calories</TableCell>
+                                                    <TableCell align="right">Fat&nbsp;(g)</TableCell>
+                                                    <TableCell align="right">Carbs&nbsp;(g)</TableCell>
+                                                    <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {rows.map((row) => (
+                                                    <TableRow key={row.name}>
+                                                        <TableCell component="th" scope="row">
+                                                            {row.name}
+                                                        </TableCell>
+                                                        <TableCell align="right">{row.calories}</TableCell>
+                                                        <TableCell align="right">{row.fat}</TableCell>
+                                                        <TableCell align="right">{row.carbs}</TableCell>
+                                                        <TableCell align="right">{row.protein}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                );
+                            }
+                    テーブルのソート:  #keyword: Material-UI Table sort
+                        インストール:  #search: install Material-UI
+                        Material-UI をプロジェクトにインストールします:
+                            cd __Project__
+                            yarn add @material-ui/icons
+                        テーブルの機能:
+                            ヘッダー行をクリック: #// ソートします、逆順ソートします
+                                #focus: EnhancedTableHead, handleRequestSort, (Material-UI)TableBody, stableSort
+                            本体の行をクリック: #// 選択状態を追加します。複数選択できます
+                                #focus: (Material-UI)TableRow, handleClick, EnhancedTableHead, handleSelectAllClick, EnhancedTableToolbar, useToolbarStyles
+                            Rows per page（右下）: #// 表示する行数  #focus: handleChangeRowsPerPage, setRowsPerPage
+                            1-5 of 13（左下）: #// ページネーション  #focus: (Material-UI)TablePagination, handleChangePage, setPage
+                            Dense padding: #// 密なテーブル  #focus: (Material-UI)Switch, handleChangeDense
+                            ソートのコールツリー:
+                                TableBody{}:
+                                    # stableSort(rows, getComparator(order, orderBy))
+                                    stableSort:
+                                        # function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
+                                        #     stabilizedThis.sort((a, b) => {
+                                        #         const order = comparator(a[0], b[0]);  // comparator = getComparator
+                                        getComparator:
+                                            # function getComparator<Key extends keyof any>(
+                                            #     descendingComparator(a, b, orderBy)
+                                            descendingComparator:
+                                                # function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
+                                                #   if (b[orderBy] < a[orderBy]) {
+                                                #     return -1;
+                        __Project__/src/Hook.tsx: |
+                            import React from 'react';
+                            import clsx from 'clsx';
+                            import { createStyles, lighten, makeStyles, Theme } from '@material-ui/core/styles';
+                            import Table from '@material-ui/core/Table';
+                            import TableBody from '@material-ui/core/TableBody';
+                            import TableCell from '@material-ui/core/TableCell';
+                            import TableContainer from '@material-ui/core/TableContainer';
+                            import TableHead from '@material-ui/core/TableHead';
+                            import TablePagination from '@material-ui/core/TablePagination';
+                            import TableRow from '@material-ui/core/TableRow';
+                            import TableSortLabel from '@material-ui/core/TableSortLabel';
+                            import Toolbar from '@material-ui/core/Toolbar';
+                            import Typography from '@material-ui/core/Typography';
+                            import Paper from '@material-ui/core/Paper';
+                            import Checkbox from '@material-ui/core/Checkbox';
+                            import IconButton from '@material-ui/core/IconButton';
+                            import Tooltip from '@material-ui/core/Tooltip';
+                            import FormControlLabel from '@material-ui/core/FormControlLabel';
+                            import Switch from '@material-ui/core/Switch';
+                            import DeleteIcon from '@material-ui/icons/Delete';
+                            import FilterListIcon from '@material-ui/icons/FilterList';
+                            
+                            interface Data {
+                                calories: number;
+                                carbs: number;
+                                fat: number;
+                                name: string;
+                                protein: number;
+                            }
+
+                            function createData(
+                                name: string,
+                                calories: number,
+                                fat: number,
+                                carbs: number,
+                                protein: number,
+                            ): Data {
+                                return { name, calories, fat, carbs, protein };
+                            }
+
+                            const rows = [
+                                createData('Cupcake', 305, 3.7, 67, 4.3),
+                                createData('Donut', 452, 25.0, 51, 4.9),
+                                createData('Eclair', 262, 16.0, 24, 6.0),
+                                createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+                                createData('Gingerbread', 356, 16.0, 49, 3.9),
+                                createData('Honeycomb', 408, 3.2, 87, 6.5),
+                                createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+                                createData('Jelly Bean', 375, 0.0, 94, 0.0),
+                                createData('KitKat', 518, 26.0, 65, 7.0),
+                                createData('Lollipop', 392, 0.2, 98, 0.0),
+                                createData('Marshmallow', 318, 0, 81, 2.0),
+                                createData('Nougat', 360, 19.0, 9, 37.0),
+                                createData('Oreo', 437, 18.0, 63, 4.0),
+                            ];
+
+                            function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
+                                if (b[orderBy] < a[orderBy]) {
+                                    return -1;
+                                }
+                                if (b[orderBy] > a[orderBy]) {
+                                    return 1;
+                                }
+                                return 0;
+                            }
+
+                            type Order = 'asc' | 'desc';
+
+                            function getComparator<Key extends keyof any>(
+                                order: Order,
+                                orderBy: Key,
+                            ): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+                                return order === 'desc'
+                                    ? (a, b) => descendingComparator(a, b, orderBy)
+                                    : (a, b) => -descendingComparator(a, b, orderBy);
+                            }
+
+                            function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
+                                const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+                                stabilizedThis.sort((a, b) => {
+                                    const order = comparator(a[0], b[0]);
+                                    if (order !== 0) return order;
+                                    return a[1] - b[1];
+                                });
+                                return stabilizedThis.map((el) => el[0]);
+                            }
+
+                            interface HeadCell {
+                                disablePadding: boolean;
+                                id: keyof Data;
+                                label: string;
+                                numeric: boolean;
+                            }
+
+                            const headCells: HeadCell[] = [
+                                { id: 'name', numeric: false, disablePadding: true, label: 'Dessert (100g serving)' },
+                                { id: 'calories', numeric: true, disablePadding: false, label: 'Calories' },
+                                { id: 'fat', numeric: true, disablePadding: false, label: 'Fat (g)' },
+                                { id: 'carbs', numeric: true, disablePadding: false, label: 'Carbs (g)' },
+                                { id: 'protein', numeric: true, disablePadding: false, label: 'Protein (g)' },
+                            ];
+
+                            interface EnhancedTableProps {
+                                classes: ReturnType<typeof useStyles>;
+                                numSelected: number;
+                                onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
+                                onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+                                order: Order;
+                                orderBy: string;
+                                rowCount: number;
+                            }
+
+                            function EnhancedTableHead(props: EnhancedTableProps) {
+                                const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+                                const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+                                    onRequestSort(event, property);
+                                };
+
+                                return (
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell padding="checkbox">
+                                                <Checkbox
+                                                    indeterminate={numSelected > 0 && numSelected < rowCount}
+                                                    checked={rowCount > 0 && numSelected === rowCount}
+                                                    onChange={onSelectAllClick}
+                                                    inputProps={{ 'aria-label': 'select all desserts' }}
+                                                />
+                                            </TableCell>
+                                            {headCells.map((headCell) => (
+                                                <TableCell
+                                                    key={headCell.id}
+                                                    align={headCell.numeric ? 'right' : 'left'}
+                                                    padding={headCell.disablePadding ? 'none' : 'normal'}
+                                                    sortDirection={orderBy === headCell.id ? order : false}
+                                                >
+                                                    <TableSortLabel
+                                                        active={orderBy === headCell.id}
+                                                        direction={orderBy === headCell.id ? order : 'asc'}
+                                                        onClick={createSortHandler(headCell.id)}
+                                                    >
+                                                        {headCell.label}
+                                                        {orderBy === headCell.id ? (
+                                                            <span className={classes.visuallyHidden}>
+                                                                {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                                            </span>
+                                                        ) : null}
+                                                    </TableSortLabel>
+                                                </TableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                );
+                            }
+
+                            const useToolbarStyles = makeStyles((theme: Theme) =>
+                                createStyles({
+                                    root: {
+                                        paddingLeft: theme.spacing(2),
+                                        paddingRight: theme.spacing(1),
+                                    },
+                                    highlight:
+                                        theme.palette.type === 'light'
+                                            ? {
+                                                    color: theme.palette.secondary.main,
+                                                    backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+                                                }
+                                            : {
+                                                    color: theme.palette.text.primary,
+                                                    backgroundColor: theme.palette.secondary.dark,
+                                                },
+                                    title: {
+                                        flex: '1 1 100%',
+                                    },
+                                }),
+                            );
+
+                            interface EnhancedTableToolbarProps {
+                                numSelected: number;
+                            }
+
+                            const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
+                                const classes = useToolbarStyles();
+                                const { numSelected } = props;
+
+                                return (
+                                    <Toolbar
+                                        className={clsx(classes.root, {
+                                            [classes.highlight]: numSelected > 0,
+                                        })}
+                                    >
+                                        {numSelected > 0 ? (
+                                            <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
+                                                {numSelected} selected
+                                            </Typography>
+                                        ) : (
+                                            <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
+                                                Nutrition
+                                            </Typography>
+                                        )}
+                                        {numSelected > 0 ? (
+                                            <Tooltip title="Delete">
+                                                <IconButton aria-label="delete">
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        ) : (
+                                            <Tooltip title="Filter list">
+                                                <IconButton aria-label="filter list">
+                                                    <FilterListIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                    </Toolbar>
+                                );
+                            };
+
+                            const useStyles = makeStyles((theme: Theme) =>
+                                createStyles({
+                                    root: {
+                                        width: '100%',
+                                    },
+                                    paper: {
+                                        width: '100%',
+                                        marginBottom: theme.spacing(2),
+                                    },
+                                    table: {
+                                        minWidth: 750,
+                                    },
+                                    visuallyHidden: {
+                                        border: 0,
+                                        clip: 'rect(0 0 0 0)',
+                                        height: 1,
+                                        margin: -1,
+                                        overflow: 'hidden',
+                                        padding: 0,
+                                        position: 'absolute',
+                                        top: 20,
+                                        width: 1,
+                                    },
+                                }),
+                            );
+
+                            export default function EnhancedTable() {
+                                const classes = useStyles();
+                                const [order, setOrder] = React.useState<Order>('asc');
+                                const [orderBy, setOrderBy] = React.useState<keyof Data>('calories');
+                                const [selected, setSelected] = React.useState<string[]>([]);
+                                const [page, setPage] = React.useState(0);
+                                const [dense, setDense] = React.useState(false);
+                                const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+                                const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
+                                    const isAsc = orderBy === property && order === 'asc';
+                                    setOrder(isAsc ? 'desc' : 'asc');
+                                    setOrderBy(property);
+                                };
+
+                                const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+                                    if (event.target.checked) {
+                                        const newSelecteds = rows.map((n) => n.name);
+                                        setSelected(newSelecteds);
+                                        return;
+                                    }
+                                    setSelected([]);
+                                };
+
+                                const handleClick = (event: React.MouseEvent<unknown>, name: string) => {
+                                    const selectedIndex = selected.indexOf(name);
+                                    let newSelected: string[] = [];
+
+                                    if (selectedIndex === -1) {
+                                        newSelected = newSelected.concat(selected, name);
+                                    } else if (selectedIndex === 0) {
+                                        newSelected = newSelected.concat(selected.slice(1));
+                                    } else if (selectedIndex === selected.length - 1) {
+                                        newSelected = newSelected.concat(selected.slice(0, -1));
+                                    } else if (selectedIndex > 0) {
+                                        newSelected = newSelected.concat(
+                                            selected.slice(0, selectedIndex),
+                                            selected.slice(selectedIndex + 1),
+                                        );
+                                    }
+
+                                    setSelected(newSelected);
+                                };
+
+                                const handleChangePage = (event: unknown, newPage: number) => {
+                                    setPage(newPage);
+                                };
+
+                                const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+                                    setRowsPerPage(parseInt(event.target.value, 10));
+                                    setPage(0);
+                                };
+
+                                const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
+                                    setDense(event.target.checked);
+                                };
+
+                                const isSelected = (name: string) => selected.indexOf(name) !== -1;
+
+                                const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+
+                                return (
+                                    <div className={classes.root}>
+                                        <Paper className={classes.paper}>
+                                            <EnhancedTableToolbar numSelected={selected.length} />
+                                            <TableContainer>
+                                                <Table
+                                                    className={classes.table}
+                                                    aria-labelledby="tableTitle"
+                                                    size={dense ? 'small' : 'medium'}
+                                                    aria-label="enhanced table"
+                                                >
+                                                    <EnhancedTableHead
+                                                        classes={classes}
+                                                        numSelected={selected.length}
+                                                        order={order}
+                                                        orderBy={orderBy}
+                                                        onSelectAllClick={handleSelectAllClick}
+                                                        onRequestSort={handleRequestSort}
+                                                        rowCount={rows.length}
+                                                    />
+                                                    <TableBody>
+                                                        {stableSort(rows, getComparator(order, orderBy))
+                                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                                            .map((row, index) => {
+                                                                const isItemSelected = isSelected(row.name);
+                                                                const labelId = `enhanced-table-checkbox-${index}`;
+
+                                                                return (
+                                                                    <TableRow
+                                                                        hover
+                                                                        onClick={(event) => handleClick(event, row.name)}
+                                                                        role="checkbox"
+                                                                        aria-checked={isItemSelected}
+                                                                        tabIndex={-1}
+                                                                        key={row.name}
+                                                                        selected={isItemSelected}
+                                                                    >
+                                                                        <TableCell padding="checkbox">
+                                                                            <Checkbox
+                                                                                checked={isItemSelected}
+                                                                                inputProps={{ 'aria-labelledby': labelId }}
+                                                                            />
+                                                                        </TableCell>
+                                                                        <TableCell component="th" id={labelId} scope="row" padding="none">
+                                                                            {row.name}
+                                                                        </TableCell>
+                                                                        <TableCell align="right">{row.calories}</TableCell>
+                                                                        <TableCell align="right">{row.fat}</TableCell>
+                                                                        <TableCell align="right">{row.carbs}</TableCell>
+                                                                        <TableCell align="right">{row.protein}</TableCell>
+                                                                    </TableRow>
+                                                                );
+                                                            })}
+                                                        {emptyRows > 0 && (
+                                                            <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                                                                <TableCell colSpan={6} />
+                                                            </TableRow>
+                                                        )}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                            <TablePagination
+                                                rowsPerPageOptions={[5, 10, 25]}
+                                                component="div"
+                                                count={rows.length}
+                                                rowsPerPage={rowsPerPage}
+                                                page={page}
+                                                onPageChange={handleChangePage}
+                                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                            />
+                                        </Paper>
+                                        <FormControlLabel
+                                            control={<Switch checked={dense} onChange={handleChangeDense} />}
+                                            label="Dense padding"
+                                        />
+                                    </div>
+                                );
+                            }
+                    ページネーション: #keyword: pagination, Material-UI pagination  #// pagenation ではない
+                        基本: #search: Material-UI Table sort
+                        カスタマイズ:  #ref: https://v4.mui.com/components/tables/#custom-pagination-options
+                        一部をスキップする場合の問題: #keyword: pagination skip problem  #// レスポンス データ の内容から判断して一部の行を表示させないようにする場合
+                            対象: ページネーションがある Web ページから、データベース等へのリクエストをするときに、開始番号とページあたりの最大数を渡し、レスポンスの一部をスキップする場合
+                            特に対策しない場合:
+                                ケースA:
+                                    10件ごとに表示するページにおいて、表示させたくない内容が 8件中 4件目にある場合、
+                                        p1=[ 1, 2, 3,    5, 6, 7, 8] ( 1-8 / 8 の 7件)
+                                    になります。
+                                ケースB:
+                                    10件ごとに表示するページにおいて、表示させたくない内容が 24件中 14件目にある場合、
+                                        p1=[ 1, 2, 3, 4, 5, 6, 7, 8, 9,10] ( 1-10 / 24 の10件)
+                                        p2=[11,12,13,   15,16,17,18,19,20] (11-20 / 24 の 9件)
+                                        p3=[21,22,23,24]                   (21-24 / 24 の 4件)
+                                    になります。
+                            対策案:
+                                ケースA:
+                                    1ページに収まる場合（かつ表示する開始番号が 1 の場合）は、全件数をマイナスすることができます。
+                                    10件ごとに表示するページにおいて、表示させたくない内容が 8件中 4件目にある場合、
+                                        p1=[ 1, 2, 3,    5, 6, 7, 8] ( 1-7 / 7 の 7件)
+                                ケースB:  #// 対策案不明
+                                    2ページ目以降の一部をスキップする場合、1ページ目の表示において、スキップする（総数を減らす）べきかどうかは分かりません。
+                                    10件ごとに表示するページにおいて、表示させたくない内容が 24件中 14件目にある場合、
+                                        p1=[ 1, 2, 3, 4, 5, 6, 7, 8, 9,10] ( 1-10 / 24 の10件)
+                                        p2=[11,12,13,   15,16,17,18,19,20] (11-20 / 24 の 9件)
+                                        p3=[21,22,23,24]                   (21-24 / 24 の 4件)
+                                    上記は、スキップする行が含まれていることを別の手段で調べられない場合。
+                    Fixed header: #ref: https://v4.mui.com/components/tables/#fixed-header
+                    Collapsible table:  #// 行を折りたためる  #ref: https://v4.mui.com/components/tables/#collapsible-table
+                    Spanning table:  #// 下部の行頭を右にずらす   #ref: https://v4.mui.com/components/tables/#spanning-table
+                    Virtualized table:  #// インライン フレーム  #ref: https://v4.mui.com/components/tables/#virtualized-table
+                Tooltip:  #//🌟  #ref: https://mui.com/material-ui/react-tooltip/
+                Typography:
+            ユーティリティ:  #focus: Modal, Transitions  #glossary: Material-UI
+                Click Away Listener:
+                CSS Baseline:
+                Modal:  #//🌟
+                    関連 >> Dialog:  #search: Material-UI Dialog
+                No SSR:
+                Popover:
+                Portal:
+                Textarea Autosize:
+                Transitions:  #//🌟
+                useMediaQuery:
+            API:  #ref: https://v4.mui.com/api/accordion/  #glossary: Material-UI
+                FormControl:  #ref: https://v4.mui.com/api/form-control/
+                    バリデーション: #ref: https://dev.classmethod.jp/articles/react-beginners-tried-to-create-a-modern-web-form-with-material-ui-and-yup/
+            Lab:  #// コアに入っていないもの  #ref: https://v4.mui.com/components/about-the-lab/
+                Alert:
+                Autocomplete:
+                Data Grid:
+                Pagination:
+                Rating:
+                Skeleton:
+                Speed Dial:
+                Timeline:
+                Toggle Buttons:
+                Tree View:
+            (@material-ui/icons): SVG アイコンコンポーネント集（アイコン一覧：Material UI - Material Icons）  #search: @material-ui/icons
+            (@material-ui/lab): core に取り込む前のコンポーネント集
+            (@material-ui/pickers): Date Picker 的なコンポーネント集
+            (@material-ui/x-grid): データグリッド機能を提供するコンポーネント（フル機能のエンタープライズ版）
+            (@material-ui/data-grid): データグリッド機能を提供するコンポーネント（無料のコミュニティ版）
+        スタイル, @material-ui/core/styles, @material-ui/styles:
+            JSS を使っています: #keyword: Material-UI JSS  #ref: https://github.com/cssinjs/jss
+            スタイルのカスタマイズ:
+                フック API:  #// classes = useStyles();  #keyword: Material-UI フック API,  Material-UI  makeStyles,  Material-UI  useStyles,  Material-UI  classes
+                    関連 >> フック API を使った子コンポーネント:  #search: Material-UI フック API 子コンポーネント
+                    インストール:  #search: install Material-UI
+                    __Project__/src/Hook.jsx: |  #// スタイルの集合 classes,  Material-UI は makeStyles, useStyles
+                        import React from 'react';
+                        import { makeStyles } from '@material-ui/core/styles';
+                        import Button from '@material-ui/core/Button';
+
+                        const useStyles = makeStyles({
+                            root: {
+                                background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+                                border: 0,
+                                borderRadius: 3,
+                                boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                                color: 'white',
+                                height: 48,
+                                padding: '0 30px',
+                            },
+                        });
+
+                        export default function Hook() {
+                            const classes = useStyles();
+
+                            return <Button className={classes.root}>Hook</Button>;
+                        }
+                    回転: #keyword: makeStyles rotate transform
+                        動かさない場合:
+                            CSS: |  #ref: https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/rotate
+                                transform: rotate(90deg);
+                            makeStyles: |  #search: makeStyles
+                                myStyle: {
+                                    transform: "translateY(0.4rem) rotate(90deg)",
+                        動かす場合: #ref: https://stackoverflow.com/questions/67366609/how-to-rotate-material-ui-icon
+                    スタイルのマージ: #ref: https://stackoverflow.com/questions/46066675/how-to-add-multiple-classes-in-material-ui-using-the-classes-props
+                スタイル付きコンポーネント API:  #// styled(Button)  #keyword: Material-UI スタイル付きコンポーネント API,  Material-UI  styled,  Material-UI  Button
+                    関連 >> スタイル付きコンポーネント API を使った子コンポーネント:  #search: Material-UI スタイル付きコンポーネント API 子コンポーネント
+                    インストール:  #search: install Material-UI
+                    __Project__/src/Hook.jsx: |  #// スタイル付きコンポーネント MyButton,  Material-UI は styled, Button
+                        import React from 'react';
+                        import { styled } from '@material-ui/core/styles';
+                        import Button from '@material-ui/core/Button';
+
+                        const MyButton = styled(Button)({
+                            background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+                            border: 0,
+                            borderRadius: 3,
+                            boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                            color: 'white',
+                            height: 48,
+                            padding: '0 30px',
+                        });
+
+                        export default function StyledComponents() {
+
+                            return <MyButton>Styled Components</MyButton>;
+                        }
+                上位コンポーネント API:  #// 旧式  #// withStyles(styles)(HigherOrderComponent)  #keyword: Material-UI 上位コンポーネント API,  Material-UI  withStyles,  Material-UI  PropTypes
+                    関連 >> 上位コンポーネント API を使った子コンポーネント:  #search: Material-UI 上位コンポーネント API 子コンポーネント
+                    インストール:  #search: install Material-UI
+                    __Project__/src/Hook.jsx: |  #// 上位コンポーネントは HigherOrderComponent,  スタイルは props classes styles,  Material-UI は withStyles, PropTypes
+                        import React from 'react';
+                        import PropTypes from 'prop-types';
+                        import { withStyles } from '@material-ui/core/styles';
+                        import Button from '@material-ui/core/Button';
+
+                        const styles = {
+                            root: {
+                                background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+                                border: 0,
+                                borderRadius: 3,
+                                boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                                color: 'white',
+                                height: 48,
+                                padding: '0 30px',
+                            },
+                        };
+
+                        function HigherOrderComponent(props) {
+                            const { classes } = props;
+
+                            return <Button className={classes.root}>Higher-order component</Button>;
+                        }
+
+                        HigherOrderComponent.propTypes = {
+                            classes: PropTypes.object.isRequired,
+                        };
+
+                        export default withStyles(styles)(HigherOrderComponent);
+            子コンポーネントにプロパティを渡す:  #// <MyButton color="red">
+                フック API:  #// classes = useStyles();  #keyword: Material-UI フック API 子コンポーネント
+                    インストール:  #search: install Material-UI
+                    __Project__/src/Hook.tsx: |  #// スタイルの集合 classes,  Material-UI は makeStyles, useStyles
+                        import React from 'react';
+                        import { makeStyles } from '@material-ui/core/styles';
+                        import Button, { ButtonProps as MuiButtonProps } from '@material-ui/core/Button';
+                        import { Omit } from '@material-ui/types';
+
+                        interface Props {
+                            color: 'red' | 'blue';
+                        }
+
+                        const useStyles = makeStyles({
+                            root: {
+                                background: (props: Props) =>  // 値にアロー関数式を指定した場合、引数は useStyles の引数
+                                    props.color === 'red'
+                                        ? 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)'
+                                        : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                                border: 0,
+                                borderRadius: 3,
+                                boxShadow: (props: Props) =>
+                                    props.color === 'red'
+                                        ? '0 3px 5px 2px rgba(255, 105, 135, .3)'
+                                        : '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                                color: 'white',
+                                height: 48,
+                                padding: '0 30px',
+                                margin: 8,
+                            },
+                        });
+
+                        function MyButton(props: Props & Omit<MuiButtonProps, keyof Props>) {
+                            const { color, ...other } = props;  // color は other に color を入れないため
+                            const classes = useStyles(props);
+
+                            return <Button className={classes.root} {...other} />;
+                        }
+
+                        export default function AdaptingHook() {
+                            return (
+                                <React.Fragment>
+                                    <MyButton color="red">Red</MyButton>
+                                    <MyButton color="blue">Blue</MyButton>
+                                </React.Fragment>
+                            );
+                        }
+                スタイル付きコンポーネント API:  #// styled(Button)  #keyword: Material-UI スタイル付きコンポーネント API 子コンポーネント
+                    インストール:  #search: install Material-UI
+                    __Project__/src/Hook.tsx: |  #// スタイル付きコンポーネント MyButton,  Material-UI は styled, Button
+                        import React from 'react';
+                        import { styled } from '@material-ui/core/styles';
+                        import Button, { ButtonProps } from '@material-ui/core/Button';
+                        import { Omit } from '@material-ui/types';
+
+                        interface MyButtonProps {
+                            color: 'red' | 'blue';
+                        }
+
+                        const MyButton = styled(
+                            ({ color, ...other }: MyButtonProps & Omit<ButtonProps, keyof MyButtonProps>) => (
+                                <Button {...other} />
+                            ),
+                        )({
+                            background: (props: MyButtonProps) =>
+                                props.color === 'red'
+                                    ? 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)'
+                                    : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                            border: 0,
+                            borderRadius: 3,
+                            boxShadow: (props: MyButtonProps) =>
+                                props.color === 'red'
+                                    ? '0 3px 5px 2px rgba(255, 105, 135, .3)'
+                                    : '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                            color: 'white',
+                            height: 48,
+                            padding: '0 30px',
+                            margin: 8,
+                        });
+
+                        export default function AdaptingStyledComponents() {
+                            return (
+                                <React.Fragment>
+                                    <MyButton color="red">Red</MyButton>
+                                    <MyButton color="blue">Blue</MyButton>
+                                </React.Fragment>
+                            );
+                        }
+                上位コンポーネント API:  #// withStyles(styles)(MyButtonRaw)  #keyword: Material-UI 上位コンポーネント API 子コンポーネント
+                    インストール:  #search: install Material-UI
+                    __Project__/src/Hook.tsx: |  #// 上位コンポーネントは MyButtonRaw,  スタイルは props classes styles,  Material-UI は withStyles, PropTypes
+                        import React from 'react';
+                        import { withStyles, createStyles, WithStyles } from '@material-ui/core/styles';
+                        import Button, { ButtonProps } from '@material-ui/core/Button';
+                        import { Omit } from '@material-ui/types';
+
+                        const styles = createStyles({
+                            root: {
+                                background: (props: MyButtonRawProps) =>
+                                    props.color === 'red'
+                                        ? 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)'
+                                        : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                                border: 0,
+                                borderRadius: 3,
+                                boxShadow: (props: MyButtonRawProps) =>
+                                    props.color === 'red'
+                                        ? '0 3px 5px 2px rgba(255, 105, 135, .3)'
+                                        : '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                                color: 'white',
+                                height: 48,
+                                padding: '0 30px',
+                                margin: 8,
+                            },
+                        });
+
+                        interface MyButtonRawProps {
+                            color: 'red' | 'blue';
+                        }
+
+                        function MyButtonRaw(
+                            props: WithStyles<typeof styles> & Omit<ButtonProps, keyof MyButtonRawProps> & MyButtonRawProps,
+                        ) {
+                            const { classes, color, ...other } = props;
+                            return <Button className={classes.root} {...other} />;
+                        }
+
+                        const MyButton = withStyles(styles)(MyButtonRaw);
+
+                        export default function AdaptingHOC() {
+                            return (
+                                <React.Fragment>
+                                    <MyButton color="red">Red</MyButton>
+                                    <MyButton color="blue">Blue</MyButton>
+                                </React.Fragment>
+                            );
+                        }
+            スタイルの内容:
+                ネストしたセレクター:  #// makeStyles({ root: { '& p': {
+                    __Project__/src/Hook.jsx: |  #// セレクターは makeStyles, red<p>green<span>blue</span>green</p>red
+                        import React from 'react';
+                        import { makeStyles } from '@material-ui/core/styles';
+
+                        const useStyles = makeStyles({
+                            root: {
+                                color: 'red',
+                                '& p': {
+                                    margin: 0,
+                                    color: 'green',
+                                    '& span': {
+                                        color: 'blue',
+                                    },
+                                },
+                            },
+                        });
+
+                        export default function NestedStylesHook() {
+                            const classes = useStyles();
+
+                            return (
+                                <div className={classes.root}>
+                                    This is red since it is inside the root.
+                                    <p>
+                                        This is green since it is inside the paragraph{' '}
+                                        <span>and this is blue since it is inside the span</span>
+                                    </p>
+                                </div>
+                            );
+                        }
+                スタイルの値を関数にした場合:  #// background: (props: Props) => props.color
+                    サンプルの一部: |
+                        const useStyles = makeStyles({
+                            root: {
+                                background: (props: Props) =>  // 値にアロー関数式を指定した場合、引数は useStyles の引数
+                                    props.color === 'red'
+                                        ? 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)'
+                                        : 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+
+                        function MyButton(props: Props & Omit<MuiButtonProps, keyof Props>) {
+                            const { color, ...other } = props;  // color は other に color を入れないため
+                            const classes = useStyles(props);
+
+                            return <Button className={classes.root} {...other} />;
+                    サンプル全体:  #search: Material-UI フック API 子コンポーネント
+                インライン スタイル:  #// <Button style={{ backgroundColor: 'pink' }}
+                    __Project__/src/Hook.tsx: |  #// style
+                        import { VFC, ReactNode } from 'react';
+                        import Button from '@material-ui/core/Button';
+
+                        type Props = {
+                            children: ReactNode;
+                        }
+
+                        const InlineStyleButton: VFC<Props> = ({ children }) => {
+                            return (
+                                <Button
+                                    variant="contained"
+                                    style={{ backgroundColor: 'pink' }}
+                                >
+                                    {children}
+                                </Button>
+                            );
+                        };
+
+                        export default InlineStyleButton;
+    関連:
+        notistack: #keyword: notistack,  notistack React 通知  #// 複数の通知をスタック形式で表示できます
+            公式: #ref: https://www.npmjs.com/package/notistack
+            API: #ref: https://iamhosseindhv.com/notistack/api
+            enqueueSnackbar, useSnackbar: #keyword:
+                サンプル: |
+                    enqueueSnackbar(`テンプレートを変更しました。`, { variant: 'success' });
+                サンプル2: |
+                    import IconButton from "@material-ui/core/IconButton";
+                    import CloseIcon from "mdi-material-ui/Close";
+                    import {SnackbarProvider, useSnackbar} from "notistack";
+                    import * as React from 'react';
+
+                    const CloseAction = ({id}) => {
+                        const { closeSnackbar } = useSnackbar();
+                        return (
+                            <IconButton
+                                key="close"
+                                aria-label="close"
+                                color="inherit"
+                                onClick={() => closeSnackbar(id)}
+                            >
+                                <CloseIcon/>
+                            </IconButton>
+                        );
+                    }
+
+                    // アプリ全体をProviderでラップ
+                    function Component({children}: {children: React.ReactNode}) {
+                        return (
+                            <SnackbarProvider
+                                maxSnack={5}
+                                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                                action={key => <CloseAction id={key} />}
+                                autoHideDuration={6000}
+                            >
+                                <children />
+                            </SnackbarProvider>
+                        );
+                    }
+
+                    // コンポーネント内で使用
+                    function MyComponent() {
+                        const { enqueueSnackbar } = useSnackbar();
+
+                        const handleClick = () => {
+                            enqueueSnackbar('成功しました！', { variant: 'success' });
+                        };
+
+                        return <button onClick={handleClick}>通知を表示</button>;
+                    }
+                自動で閉じないようにする: |
+                    enqueueSnackbar('重要な通知です', { 
+                        variant: 'error',
+                        persist: true 
+                cypress 対応:
+                    cy.contains(`.MuiSnackbarContent-message`, '完了しました').should('be.visible');
+                data-* プロパティ:
+                    追加できない
+                    #ref: https://github.com/iamhosseindhv/notistack/issues/101
+                    #ref: https://github.com/iamhosseindhv/notistack/pull/260
+                    #ref: https://github.com/iamhosseindhv/notistack/issues/242
+                    #ref: https://github.com/iamhosseindhv/notistack/pull/259
+                オプション: #ref: https://iamhosseindhv.com/notistack/api#enqueuesnackbar-options
+        mdi-material-ui: #// アイコン集  #search: mdi-material-ui
+        material-ui/icons:  #// アイコン集  #search: @material-ui/icons
+        素材:  #search: Material Design Icons
+Sass, SASS, SCSS: #keyword:  #// CSS のメタ言語。CSS の拡張記法
+    メリット:
+        ネスト（入れ子）が使えて構造が把握しやすい
+        四則演算ができる
+        変数が使える
+        ファイルを分割できる
+        Mixin（ミックスイン）でコードを引用できる
+        コードを継承で使い回せる
+        JavaScriptのように関数が使える
+        #ref: https://digitalidentity.co.jp/blog/creative/css-sass.html
+    SCSS: #// 現在主流の記法。Sassy CSS
+        （参考）Sassy CSS の出典: #ref: https://stackoverflow.com/questions/5654447/whats-the-difference-between-scss-and-sass
+        ネスト: #ref: ${GitHub}/MyPrivateCode/Next_js/next_js_sass/components/1_basic/Sass1.module.scss
+        親セレクター: | #ref: ${GitHub}/MyPrivateCode/Next_js/next_js_sass/components/2_parent_selector/Parent.module.scss
+            &:hover
+        変数: | #focus: $base-color  #ref: ${GitHub}/MyPrivateCode/Next_js/next_js_sass/components/3_variable/Variable.module.scss
+            $base-color: #c6538c;
+            .base {
+                color: $base-color;
+            }
+        四則演算: | #focus: $base-font-size  #ref: ${GitHub}/MyPrivateCode/Next_js/next_js_sass/components/4_calculate/Calculate.module.scss
+            $base-font-size: 12px;
+            .base {
+                font-size: $base-font-size * 10;
+            }
+        Next.js Sass:
+            #ref: https://react-bootstrap.github.io/getting-started/introduction/#sass
+    SASS: #// 効率的な記法
+    参考: #ref: https://digitalidentity.co.jp/blog/creative/css-sass.html
+ModularAdmin:  #keyword: ModularAdmin
+    ModularAdmin for React のインストール:
+        #Git bash
+        - cd "__ParentOfProject__"
+        - git clone https://github.com/modularcode/modular-admin-react.git
+        - cd "modular-admin-react"
+        - npm install  #// 5分半  #// yarn で行ってもほぼ同じ時間です
+        - npm start  #// 1回目は4分 2回目は2分
+    React の初期状態プロジェクトに ModularAdmin の SidebarNav だけ追加する:
+        設定: #settings:
+            __ApplicationName__: react_sidebar
+            __ModularAdmin__: ${HOME}/Desktop/modular-admin-react
+        React のプロジェクトを新規作成します:
+            #Git bash
+            - cd "__ParntOfProject__"
+            - npx create-react-app --template typescript  "react_sidebar"  #template: "__ApplicationName__"
+        各種 Node パッケージをインストールします:
+            - yarn add "@material-ui/core" "@material-ui/icons" "react-router-dom" "react-intl"
+        ModularAdmin の一部をコピーします: |  #// 下記は一度に実行できます
+            cd "react_sidebar"  #template: "__ApplicationName__"
+            export  src_="${HOME}/Desktop/modular-admin-react"  #template: "__ModularAdmin__"
+            export  dst_="."
+            export  folder_="src/_common/AppSidebar"  &&  mkdir -p `dirname ${dst_}/${folder_}` && cp -rapT  "${src_}/${folder_}"  "${dst_}/${folder_}"
+            export  folder_="src/_common/BaseLogo"    &&  mkdir -p `dirname ${dst_}/${folder_}` && cp -rapT  "${src_}/${folder_}"  "${dst_}/${folder_}"
+            export  folder_="src/_config"             &&  mkdir -p `dirname ${dst_}/${folder_}` && cp -rapT  "${src_}/${folder_}"  "${dst_}/${folder_}"
+            export  folder_="src/_theme"              &&  mkdir -p `dirname ${dst_}/${folder_}` && cp -rapT  "${src_}/${folder_}"  "${dst_}/${folder_}"
+            export    file_="src/App.js"        &&  mkdir -p `dirname ${dst_}/${file_}` && cp -f  "${src_}/${file_}"  "${dst_}/${file_}"
+            export    file_="src/AppRouter.js"  &&  mkdir -p `dirname ${dst_}/${file_}` && cp -f  "${src_}/${file_}"  "${dst_}/${file_}"
+            unset  src_  dst_  file_
+        ModularAdmin の一部を修正します:
+            src/_common/AppSidebar/AppSidebar.js:
+                修正前: import Logo from '_common/BaseLogo/BaseLogo'
+                修正後: import Logo from '../../_common/BaseLogo/BaseLogo'
+            src/AppRouter.js 全体を下記に置き換えます: |
+                import React from 'react'
+                import { HashRouter, BrowserRouter, Route, Redirect, Switch } from 'react-router-dom' //
+
+                import config from './_config'
+                import Sidebar from './_common/AppSidebar'
+
+                // Use different router type depending on configuration
+                const AppRouterComponent =
+                    config.navigationType === 'history' ? BrowserRouter : HashRouter
+
+                const AppRouter = () => (
+                    <AppRouterComponent>
+                        <Switch>
+                            <Route path="/" component={Sidebar} />
+                        </Switch>
+                    </AppRouterComponent>
+                )
+
+                export default AppRouter
+        使わないファイルを削除します:
+            rm -f  "src/App.tsx"
+        起動します:
+            yarn start
+    ModularAdmin for Handlebars のインストール 改良版（クリーン環境からは未確認）:
+        #Git bash
+        - cd "__ParentOfProject__"
+        - git clone https://github.com/modularcode/modular-admin-html.git
+        - cd "modular-admin-html"
+        - npm install --global node-gyp
+        - rm package-lock.json
+        - rm -rf node_modules
+        - npm install
+        - コードの修正:
+            config/index.js:
+                変更前: npmDir + '/sortablejs/Sortable.js',
+                変更後: npmDir + '/sortablejs/dist/sortable.umd.js',
+        - npm start
+        - http://localhost:4000
+    ModularAdmin for Handlebars のインストール（未整理）:
+        #Git bash
+        - cd "__ParentOfProject__"
+        - git clone https://github.com/modularcode/modular-admin-html.git
+        - cd "modular-admin-html"
+        - npm ci  #// エラーになりますがしないと npm install に失敗します
+        - npm install
+        - npm install gulp --save-dev
+        - npm rebuild node-sass  #// npm start で右のエラーが出るときの対策: Node Sass does not yet support your current environment
+        - npm start  #// 右のエラーになります: gyp ERR! stack Error: Can't find Python executable "python", you can set the PYTHON env variable.
+        - npm --add-python-to-path='true' --debug install --global windows-build-tools
+            #// 右のエラーが出ますが無視します: Please restart this script from an administrative PowerShell!
+        - npm install --global node-gyp
+        - rm package-lock.json
+        - rm -rf node_modules
+        - npm install
+        - npm start
+Jon Miles treeview:  #keyword: Jon Miles treeview
+    項目の動的削除(Jon Miles treeview): |
+        const treeNodeIds = {
+            companies: 0,
+            use_services: 1,
+            users: 2,
+            employees: 3,
+            order_logs: 4,
+            settlements: 5,
+            logout: 6,
+        };
+
+        function modifyMenuItems() {
+            let  enabledTreeNodes = {};
+
+            enabledTreeNodes = Object.assign(enabledTreeNodes, getHashFromArray([
+                'companies',
+                'use_services',
+                'users',
+                'employees',
+                'settlements',
+                'logout',
+            ]));
+
+            for (const treeNodeName of Object.keys(treeNodeIds)) {
+                if (!(treeNodeName in enabledTreeNodes)) {
+
+                    removeTreeItem(treeNodeIds[treeNodeName], 1);
+                }
+            }
+        }
+
+        function removeTreeItem(treeNodeID, count) {
+
+            tree.splice(treeNodeID, count);  // remove items
+            keys = Object.keys(treeNodeIds)
+            keys.splice(0, treeNodeID + 1)
+            for (const key of keys) {
+
+                treeNodeIds[key] -= count;
+            }
+        }
+
+        function getHashFromArray(array, hashItem) {
+            return array.reduce((result, item) => {
+                return { ...result, [ item ] : hashItem };
+            }, {});
+        }
+
+        modifyMenuItems();

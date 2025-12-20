@@ -1,0 +1,1972 @@
+#Character Encoding: "WHITE SQUARE" U+25A1 is □.
+    #keyword: white square
+#keyword: Document.yaml, doc, document
+YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメンテーション,  YAML document writing
+    公開記事:  #ref: ${typrm_files}/Qiita下書き/20_typrmDocument/20_typrmDocument.md
+        20_typrmDocument.md
+        21_typrmSteps.md
+        22_typrmCallTree.md
+        27_typrmTicket.md
+    引用してコメントを追加するときの書き方:
+        参考: #// __URL__
+            #// 以下、このインデントのコメントは、上記参考から引用した部分です
+
+            #// 引用部分
+            #// 引用部分
+                -   //: コメント
+            #// 引用部分
+            #// 引用部分 cd proj
+                -   //: template) cd __Project__
+    ストーリー: #search: story, 感想文, 紹介文
+    手順メモ（構造化文書の手順書）の書法: #keyword: 手順メモ 手順書  #search: steps.yaml
+        テンプレート: #keyword: steps,  steps 概念 手順  #// 手順メモのテンプレート  #ref: https://github.com/Takakiriy/structured-documents
+            #// ルート項目名には、概要と公式へのリンクを付けます
+            #// 概要｛アカウント, 公式情報｝, 手順, 機能, 画面, コマンド, API, 構成｛ツリー, 概念, 設備｝, ログ, ファイル｛DB｝, コード, テスト, チケット, トラブルシューティング の順です
+            #// 読んで理解するときに、複数の種類の項目を渡り歩くことがないように、関連するものは 1箇所にまとめて、それぞれの項目にはまとめへのリンクを張ります
+            （親）:  #// 構成の視点での親
+            概要, アカウント:  #// (@server)
+            手順, インストール:  #// ユースケース、順序、手動で起動する機能
+                インストール:  #// 「～する場合」の代わりに「～する（である調）」。コメント部分（ここ）は「～です・ます調」
+                    ダウンロードします:  #// 手順が続く場合は「～です・ます調」
+                        __Command__
+                    インストールします:
+                        # ls $HOME    #// 一時的に書く具体的なコマンドはコメント行に書きます
+                        ls __FolderPath__
+                一覧:  #search:  list steps example  #// 一覧は概念に書きます
+                WebUI を使うケース:
+                    メニュー:
+                        https://github.com/settings/tokens
+                            または
+                        GitHub リポジトリ >>（アカウント アイコン：右上）>> Settings
+                    フィールドA: ____
+                    フィールドB: ____
+                ユースケース、管理:  #// （手続き用書類名）
+                    - 構成へのリンク
+                共通の手順:  #// システム固有
+            機能:  #// 通知、自動、動作  #// 全体の流れの一部に手順を含む場合、手順のフィールドに内部処理として書きます。ここにはそこへのリンクを書きます
+            画面, サイト:
+                構成要素: 手順やコードなどへのリンク
+            コマンド, オプション:  #// コマンドの種類 >> オプション。コマンドごとに書きます。用途ごとは手順に書きます
+                種類別:
+                コマンド名:  #// ABC 順
+                    手順:
+                        手順、または手順などへのリンク
+                    オプション:
+                        種類別:
+                        オプション名:  #// ABC 順
+            API, 文法:
+            構成:  #// 概念, 設備, 構造
+                （ツリー）:
+                    #// 親は概要のフィールドの上に書きます
+                    構成要素: ファイルやAPIなどへのリンク
+                #↓ 構成要素  #// よく使う順
+                __ChildElement1__:
+                    （操作）:
+                        一覧: #keyword: list steps example
+                    __ChildElement1__:
+                    __ChildElement2__:
+                    ...:
+            ログ, メール通知:
+            ファイル, 環境変数, DB, 書類:  #// 場所と内容、環境変数。概念の分類は構成へ。ここはファイル名で分類する
+            コード:  #// 言語別 >> プラットフォーム別 >> 順序。ここは関数名やクラス名で分類する
+                基本を書きつつ、非推奨と書き、推奨へのリンクを書く
+            テスト:     #// ここは全体のテスト手順を主に書く。テスト仕様は個別の機能などのテスト仕様は #search: specification test memo
+            チケット: #keyword: 手順メモ ticket  #// GitHub Issue や チケット メモ へのリンクを書く
+                issues/000, pull/000, イシュー, プルリク:  #search: issues/000
+                #search: ticket
+            トラブルシューティング:  #// 書くときは、このインデントに書くこと。内容はリンク先でもよい
+            （__関連__）:  #// 関連することは（）で囲みます。関連 >> __関連内容__ とは書きません
+        書き方:
+            どこに書くか。手順の中にフォルダーの説明を書いても見つけられません
+        シークレットを一時保存するとき: #keyword: !secret
+            #keyword: __ServiceName__ ❗secret
+        各種要素:  #// 構成要素の書式
+            メニュー: 操作 >> 操作
+            ファイルの内容:
+                __Project__/path-to-file : |
+                    contents
+            メモします:
+                置き換えるときは typrm
+            主語フィールド名, 概要コメント:
+                概念, メニュー, 状況, アンダーバーのみ
+            サンプル コード やコメント:  #// 手順の途中に書かれる 実際に実行するコマンド
+                短縮形:  #// | なし
+                    data
+                        #template-at(-1): __Variable__
+                汎用:  #// | あり
+                    __FileName__: |
+                        data
+                    #//
+                        #template-at(-2): __Variable__
+                    新しい bash (terminalName, user@machine): | #// VSCode (____/api)
+                        command
+                    #//
+                        #template-at(-2): __Command__
+                    出力例:
+        設定: #settings:
+            __Variable__: data
+            __Command__: command
+        英語: step-by-step guide  #ref: https://learn.microsoft.com/en-us/windows-hardware/test/wpt/wpa-step-by-step-guide
+    チケット一覧の書き方:
+        今日:
+            __Working1__: #search: __Ticket__
+                __SubWorking__: #search: __Ticket__ now
+            今日済）__Working2__: #     今日の分が終わったら 今日済）を付けます
+        近日:
+            YYYY-MM-DD 曜 今日:
+            YYYY-MM-DD 曜 ____:
+        明日:
+            __Working3__: #
+    チケットのメモの書き方:  #keyword: ticket memo document
+        #// 依頼内容, 要求, 対応, 状況, now { __Working__, リファレンス, 書きかけ, memo }, スタック, 完了 の順です
+        #// 複数の依頼については以下をまとめます。以下の中にそれぞれの依頼を入れません。サブチケットが同じ内容なら共通へリンクします
+        #// 共有するときは  #search: issues-doc ブランチ
+        #keyword: ticket 補足,  ticket OJT
+            # 空行はなるべく避けるほうが良いと思います。
+            #     コードなどでは区切りを空行で見分けますが、構造化ドキュメンテーションではインデントの深さで見分けます。
+            #     この見分け方に慣れると、最も浅いレベルだけ特別に空行で見分けることが特殊に思えてきます。
+            # 子フィールドがすべて済になったら、親フィールドにも済を書いてください。
+            # 現在（すること）と参考を分ける理由は、調べることに集中させないためです
+            # YAML の書式の問題は修正する（答えを示す）。済を書きたい行はフィールドにする。その他は | による書式なしで構わない
+            # 用語をコピペする習慣
+            # よくホワイトボードに書くように、作業は、分かったことを書いて俯瞰して考えながら進めていくほうが効率的なので、
+            # 詳細なレベルの内容も書いてください。むしろ魂は細部に宿ります。
+            # タイトルに書かれた作業内容から1レベル詳細なレベルに固定する必要はありません。
+        #search: _____     #// steps へのリンク  #search: steps  >> チケット
+        issues/000, pull/000, イシュー, プルリク:
+        依頼内容: #keyword:  #// または改良案
+            __SpecificationA__: #// 未🔥, 済✅
+            __SpecificationB__: #// 未🔥, 済✅
+                #// 項目が多いときは、__Working__ へのリンクと、steps へのリンクを書く
+            __Reference__:  #// 仕様書がある場合、ここに章をまとめることができます。
+                仕様書:
+                    __Section1__: #// 未🔥, 済✅ #keyword: req-001/issues/000
+                    __Section2__: #// 未🔥, 済✅ #keyword: req-002/issues/000
+                    #search: rep-002/ticket/102
+                #// 以下は steps と同じ章構成。仕様書の サブ ID へジャンプできるようにします  #search: ticket sub ID
+                手順:  #search: req-001/issues/000
+                画面:  #search: req-002/issues/000
+        状況:
+            不具合発生時、コードだけでなくチケットも検索する。サーバーのソースがあるか確認する
+            チケット
+            リファレンス
+        （開始手順）対応, テスト: #keyword: specification test memo  #search: ____  #// 開始手順と同じ内容。依頼内容が複数ある場合は、依頼内容の中に移動する
+            全体:
+                #search: steps  #// 文章構成は steps の構成と同じ
+                コマンド:  #// 開始手順、デバッグ時の手順もこのへん
+                    ブランチ
+                補足:   #// 差分について書く。要求されていないが具体的な仕様
+                ファイル:
+            __SpecificationA__:
+            __SpecificationB__:
+                コード:
+                    #↓ コードへの辿り着きかた
+                    メモから調査できるようにする:
+                        仕様←→コード（関数などの名前）, 仕様←→テスト（関数などの名前）をたどれるようにする
+                    Git から調査できるようにする:
+                        イシュー←→プルリク←→コミット←→コードやテストの行
+        #↓ now   #// 以下は複数あってもよいが、上に自分のチケット一覧を書き、そこに右記を書く  #search: __Ticket__ now
+        __Working__:  #// 現在の作業。 または↓
+        エラー, ____:  #// 現在の作業がエラーのとき  #search: error    #// または↓
+            ログ:
+            memo:
+        __SubWorking__: # << __Category__ #keyword: ticket  #// 現在の作業
+                #snip: #keyword__: __Ticket__ now  #↓ now  #↓ 参考  #↓ 近日  #↓ スタック  #↓ 作業候補  #↓ 完了  未🏷️🔥, 済✅, 質問🔔, 停止⏸️
+                #ref: https://qiita.com/Takakiri/items/8cd44ea80b2217a0ec68
+                #// 補足  #search: ticket 補足
+            #↓ now  #// now などをフィールドにすると一覧性が損なわれることと、階層が分かりにくくなるため、コメントで書く
+            （開始手順）:  #keyword:  #// 子フィールドにあればここに無くてもよい。下記を参照
+            __Working__:  #// 項目が多いときは、__Working__ へのリンクと、steps へのリンクを書く
+                （開始手順）:  #search: steps  #// ほぼ再現可能なものだけ書く。編集中なら現在の手順を下記の memo にコピーする
+                    基本:
+                        __Commands__
+                    __Method__:
+                        _: |
+                            __Commands__
+                        __A__ の場合:
+                        __B__ の場合:
+                __DoIt__:  _____  #// この瞬間の作業
+                memo: |  #keyword: ticket memo  #focus: ____
+                    _____
+                    _____
+                #↓ 参考
+                コード:  #search: debug
+                リファレンス: #// 作業するときの参考資料へのリンク
+                要更新）リファレンス: #// 自分が書いた参考資料を更新する必要がある場合
+                ____:  #search: ____
+                書きかけ:  #search: ____  #// リファレンスする資料を作成または編集するとき
+                    ____: _____
+                済）__Working__:  #// 直近は、上にある now からすぐ見ることが多いため、下の完了に移動しない。
+                    #// 済）待ち）承認待ち）などのステータスを行頭に書きます
+                    #// 内容はなるべく steps に移動します
+                    ____:  #search: ____
+            #keyword: __Ticket__ now  #focus: ____  🌟  #keyword: ticket now,  now
+            #↓ 最近の完了
+            #↓ 近日
+            __Date__）__NextWorking__ :
+            #↓ スタック  #keyword: stack  #// スタックを YAML のマッピング（フィールド）にしない理由は、チケットの一覧性が損なわれるため
+            __NextWorking__ :
+            __Category__:
+                __NextWorking__: # << __Category__
+            #↓ 作業候補
+            __WorkingCandidate__ :
+            優先度が低いスタック:
+                __NextWorking__ :
+            #↓ 完了
+            済）__OldWorking__:
+        #keyword: __Ticket__ now  🌟
+        #↓ 近日        #// 上記を参照
+        #↓ スタック    #// 上記を参照
+        #↓ 作業候補    #// 上記を参照
+        #↓ 完了        #// 上記を参照
+        （参考）:
+            サブ ID: #keyword: ticket sub ID,  チケット サブ番号 サブID,  ticket sub number  #// 概要や依頼内容からサブ番号へリンクする __Type__-__Number__/__TicketID__
+                概要:
+                    サンプル: req-003/ticket/102, test-003/ticket/102, work-003/ticket/102, issue-004/ticket/102
+                    効果:
+                        対応漏れを防ぐ
+                        謎の開発者仕様のテストを作らなくする
+                手順:
+                    開始時:  #// 要求-対応 関係を typrm タグで文章化します
+                        - サブ ID（req, test, work）に該当する場所にタグを付けます。 サンプル → #keyword: req-001/ticket/102
+                        - 種類の間の関連を付けます。 サンプル → #keyword: test-001/ticket/102  #search: req-001/ticket/102
+                    追加時:  #// 新しい番号を取得します。番号は req-001 の 001 の部分です
+                        #search: not used sub ID list-ticket-sub-id
+                    グルーピング:  #// 複数のチケットをまとめる親チケット
+                        2つ目の issue を追加します: |
+                            | 子チケット            | 親チケット            |
+                            | --------------------- | --------------------- |
+                            | issue-____/ticket/102 | issue-102/release/1.0 |
+                            | issue-____/ticket/105 | issue-105/release/1.0 |
+                            | issue-____/ticket/106 | issue-106/release/1.0 |
+                        書き方:  #// list-ticket-sub-id コマンドにも対応できます
+                            #keyword__: issue-____/ticket/102, issue-102/release/1.0
+                    進捗管理: #keyword: 進捗管理 構造化ドキュメンテーション  #// 進捗状況を管理します
+                        個々の要求:  #// 個々の要求が完了したかどうか
+                            完了状況を絵文字で書きます。
+                            サンプル 
+                                #🔥 #keyword: req-001/ticket/102
+                                #✅ #keyword: req-002/ticket/102
+                        全体の進捗:  #// 全体の完了の割合を表示します
+                            以下を正規表現で検索します: |  #// 個々の完了状況の絵文字が一覧されます。下記の keyword も検索キーワードです
+                                keyword: req-[0-9]*/__TicketID__
+                                    または
+                                keyword: req-[0-9]*/
+                            #// 上記の全体の進捗には、以下に書かれたチェックや最終の全体テストは含みません
+                        最近の不具合修正:
+                            サンプル:
+                                #🔥 #keyword: issue-003/ticket/102
+                                #✅ #keyword: issue-004/ticket/102
+                                #// req などの番号に使われていない番号がよいでしょう
+                            以下を正規表現で検索します: |
+                                keyword: issue-[0-9]*/__TicketID__
+                        未完了一覧: #keyword: ____ ticket sub ID
+                            以下を正規表現で検索します: |  #// 個々の完了状況の絵文字が一覧されます。下記の keyword も検索キーワードです
+                                🔥.*keyword: (req|issue)-[0-9]*/__TicketID__
+                                    または
+                                🔥.*keyword: (req|issue)-[0-9]*/
+                        テストの進捗:  #search: ticket sub ID test
+                        #search: 依頼内容
+                    全体テスト:
+                        漏れが無いかチェックします: #keyword: ticket sub ID test
+                            -   test- は（開始手順）の中のテストのフィールドの中にすべてあること  #// "keyword: test-" で検索
+                            -   req- に対応する test- があること  #search: list-ticket-sub-id  >>  --test
+                            -   ここへのリンクとここのチェックリストが（開始手順）テストのフィールドの中にあること
+                                #// チェックリストは、req[ ], test[ ], req-test[ ]
+                        開始日を記録し、現在位置を書きながらテストを実施します: |
+                            （全体テスト開始日）: 2020-01-01
+                                #search: ticket/572 test now
+                        未完了一覧:  #search: ____ ticket sub ID
+                表記:
+                    書式: #// __Type__-__SubNum__/__TicketID__   #// __SubNum__ が 3桁未満のときは、左に 0 を付ける
+                        例: work-001/ticket/102  #// __TicketID__ の中に / が含まれています
+                        サブID: __Type__-__SubNum__
+                        サブ番号: __SubNum__
+                            サブ番号を構造化して親子関係を 1-3 のように複数の番号やアルファベット等を並べることは管理が大変になるため禁止。
+                            たとえば、親 004, 子1 002, 子2 003 のように、親子関係とは独立した番号が良い
+                    タイプ: #keyword: req-, test-, work-, issue-
+                        req, request: 要求  #// req-001/ticket/102 。暗黙の要求にも ID を付けても構いません
+                        test: 対処・開始手順・テスト項目  #// test-001/ticket/102  #// 要求に無いテストは サブ ID で管理しませんが、テスト コード で分かるようにします
+                        work, working-sub-ticket: 作業（サブチケット）  #// work-001/ticket/102
+                        issue: 不具合
+                        #// 対象が違えば、同じ __SubNum__ でも全く別物です。
+                        #// req-001 に対応するテストは test-001 だけとは限りませんが、test-001 は必須です。req- に欠番を入れて数字をそろえます。
+                        #// 網羅性が必要であれば、サブ要求として req- を増やすか、test- に テスト パターン を一覧します
+                    進捗状況:
+                        #// 未🔥, 済✅  #search: 依頼内容
+                ツール: #keyword: ticket sub ID tools
+                    __Project__-now: #keyword:  #// 未完了を表示します
+                        準備: |  #// __Project__-now（__Project__ はプロジェクト名など）という名前の スクリプト ファイル を作ります
+                            code  ~/bin/__Project__-now
+                                #!/bin/bash
+
+                                ticketLabels=( "ticket/101"  "release/1.0" )
+                                ticketFile="__TicketFilePath__"
+                                tildeTicketFile="~/__TicketFileRelativePath__"
+
+                                echo  ""
+                                echo  "List up sub IDs:"
+                                for  ticketLabel  in  "${ticketLabels[@]}" ;do
+                                    list-ticket-sub-id  "${ticketLabel}"  "${ticketFile}"
+                                done
+
+                                echo  ""
+                                echo  "Not completed tickets:"
+                                for  ticketLabel  in  "${ticketLabels[@]}" ;do
+                                    grep -nP '\x{1F525}.*keyword: (req|issue)-[0-9]*/'"${ticketLabel}"  "${ticketFile}"  |  sed  "s|^|${tildeTicketFile}:|"
+                                done
+
+                                echo  ""
+                                echo  "List up test IDs:"
+                                for  ticketLabel  in  "${ticketLabels[@]}" ;do
+                                    list-ticket-sub-id  "${ticketLabel}"  "${ticketFile}"  --test
+                                done
+                            chmod +x  ~/bin/__Project__-now
+                        実行: |
+                            $ __Project__-now
+                            -__Number__/__TicketID__
+                            -__Number__/__TicketID__
+                            -__Number__/__TicketID__
+                            __LineNum__ __MatchedLine__🔥 ＃keyword: __Type__-__Number__/__TicketID__
+                            __LineNum__ __MatchedLine__🔥 ＃keyword: __Type__-__Number__/__TicketID__
+                            __LineNum__ __MatchedLine__🔥 ＃keyword: __Type__-__Number__/__TicketID__
+                    list-ticket-sub-id: #search:
+                        #snip:
+                        -   list-ticket-sub-id  __TicketID__  __TicketFilePath__
+                        -   list-ticket-sub-id  __TicketID__  __TicketFilePath__  --test  #// req- に対応する test-
+            チケット全体が完了したら:
+                - 依頼内容に対応へのリンクを書きます
+                - リファレンス, now を無くします
+                - スタックを中止に変えます
+            チケットのメモを GitHub issues へ公開します:  #keyword: publish ticket memo
+                アップロードするファイルを作ります:
+                    issue 別に新しい YAML ファイルを作ります:
+                        0_issues___IssueNumber__.yaml
+                    最初の行に公開日を書きます:
+                        2022-02-02:
+                    チケットのメモを新しい YAML ファイルにコピーします:
+                        #search: ticket memo document
+                    search タグを検索して、リンク先の内容をコピーします:
+                        #search:
+                アップロードする zip を作ります:
+                    関連するファイルがあるフォルダーに 新しい YAML ファイルを移動します:
+                        #ref: ${typrm_files}/issues
+                    zip 圧縮します:
+                        issues_memo___IssueNumber__.zip
+                チケットのメモを GitHub issues へアップロードします:
+            旧）スタック・試行錯誤・学習の書法:  #keyword: stack, stack document,  try document,  larning document
+                stack >> ____:  #keyword: stack of ____  #// 使わないときは、子要素を各所へ移動し、memo にはこの行だけにする
+                    ref:  #(search)if: false
+                        #参考資料のコピー。更新なし
+                    writing:  #(search)if: false
+                        __Title__:  #keyword: new document
+                            #作成・更新・整形した学習資料
+                    memo: |
+                        学習中のメモ。操作メモ（清書は動作確認できてから）
+                    #keyword: now ____  #// 同じファイルの中をスイッチするために一時的に、now ____ の keyword タグを書き、ファイル内検索する
+                    stack:  #(search)if: false
+                        #積み残し案件
+            ツール:  #search: ticket sub ID tools
+                list-ticket-sub-id: #keyword:  #// チケットのサブIDを一覧します。空いているサブIDが分かります。req- に対応する test- を表示します
+                    #search: ticket sub ID
+                    手順:
+                        チケットのサブIDを一覧します:
+                            list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"
+                        空いているサブIDを調べます: #keyword: not used sub ID list-ticket-sub-id
+                            list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"  #// 一覧と同じコマンド
+                        req- に対応する test- を表示します:
+                            list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"  --test
+                    コード: |
+                        #!/bin/bash
+
+                        function  Help()
+                        {
+                            echo  'list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"'
+                            echo  '    This command searches "____-000/ticket/____" and sort and make them unique.  #// [ -][0-9A-Za-z]+/__TicketID__.'
+                            echo  'with --test option:'
+                            echo  '    This command list up "req-____/ticket/____" and associated "test-____/ticket/____".'
+                        }
+
+                        PositionalArgs=()
+                        while [[ $# -gt 0 ]]; do
+                        case $1 in
+                            --test)  Options_Test="yes"; shift;;
+                            -*) echo "Unknown option $1"; exit 1;;
+                            *) PositionalArgs+=("$1"); shift;;
+                        esac
+                        done
+                        set -- "${PositionalArgs[@]}"  #// set $1, $2, ...
+                        unset PositionalArgs
+
+                        function  Main()
+                        {
+                            if [ "${Options_Test}" != "" ]; then
+                                CheckTestID  "$@"
+                            else  #// Main function
+                                local  ticketID="$1"
+                                local  ticketFilePath="$2"
+                                if [ "${ticketID}" == "" ]; then
+                                    Help
+                                else
+
+                                    grep -o -E  "[ -][0-9A-Za-z]+/${ticketID}"  "${ticketFilePath}"  |  sort  |  uniq
+                                fi
+                            fi
+                        }
+
+                        function  CheckTestID() {
+                            local  ticketID="$1"
+                            local  ticketFilePath="$2"
+
+                            local  requestIDs="$( grep -o -E  "keyword: +req-[0-9A-Za-z]+/${ticketID}"   "${ticketFilePath}"  |  sed  "s/^keyword: //"  |  sort  |  uniq )"
+                            local  testIDs="$(    grep -o -E  "keyword: +test-[0-9A-Za-z]+/${ticketID}(, *test-[0-9A-Za-z]+/${ticketID})*"  "${ticketFilePath}" )"
+                            local  testIDs="$( echo "${testIDs}"  |  sed  "s/^keyword: //"  |  sort  |  uniq )"
+                            local  requestCount="$( echo " ${requestIDs}"  |  grep -c "^" )"
+                            local  line=""
+                            local  requestID
+                            local  noTestRequestCount=0
+                            if [ "${requestIDs}" == "" ]; then
+                                return
+                            fi
+
+                            for requestID in ${requestIDs}; do
+                                local  testID="test-${requestID:4}"
+                                if [[ "${testIDs}" == *"${testID}"* ]]; then  #// string includes
+                                    foundTestID="${testID}"
+                                else
+                                    foundTestID="?"
+                                fi
+                        
+                                echo  "${requestID}: ${foundTestID}"
+                                if [ "${foundTestID}" == "?" ]; then
+                                    noTestRequestCount=$(( ${noTestRequestCount} + 1 ))
+                                fi
+                            done
+
+                            echo  ""
+                            echo  "There are ${requestCount} requests."
+                            echo  "Number of requirements without associated tests: ${noTestRequestCount}"
+                        }
+
+                        Main  "$@"
+    ファイルの内容、テンプレートあり:  #keyword: steps file contents
+        __Path__ : |
+                __Contents__
+            #template:  __Variable__
+    コーディング中のメモの書き方:  #keyword: coding document
+        __課題__:  #(search)if: false
+            テスト >> __TestSymbol__: |
+                __TestCodePart__
+            コード:
+                __Specification__: |
+                    __CodePart__ 🟥
+            リファレンス:
+        スタック:
+            ____
+        #search: コールツリーの書き方
+    デバッグ中のメモの書き方:  #keyword: debug document  #// デバッグは中身の状況をいかに見えるようにするかが勝負。見えれば対策はしやすい
+        エラー, ____: #keyword: error  #関連 #search: trouble  #// 解決したら、行頭に 済）を付ける
+            ログ: #focus: ____
+                _____  #// 出力に対応する入力やコマンドがあればそれも書く
+                    #// 大量のログの内容は別のファイルに移動する
+            状況:
+                _____  #// 手順や各種構成要素の状態
+            対処:  #// 最後に書く。トラブルシューティングにも書く  #search: trouble
+                _____
+            書きかけ:  #search: ____  #// リファレンスする資料を作成または編集するとき
+                ____: _____
+            手順:
+                __CopyOfSteps___
+            memo: |
+                __NextAction___
+                __CopyOfCode___
+            OK NG アイコン:  #keyword: debug, 🟥🟡🔲🔘  #search: general debug
+                🔘 : OK, derivative expect
+                🔲 : derivative NG
+                🟡 : expect
+                🟥 : NG
+                #// 普段はここのインデントのブロックを隠しておきます（Fold）
+                #// デバッグではない作業は #search: ticket
+            コード:  #// 2分法をガイドする。print する場所を決める。KKD（ここだ！と思いついた場所）だけに print を書いてもたいてい外れる
+                #search: コールツリーの書き方
+                __FunctionName__:
+                    # __FunctionAndArguments__
+                    #     __Operation__
+                    #         // __Variable__ == __Value__      #// 変数値
+                （補足）>> コメントをコードの上に書くと折りたたむと見えなくなります:  #search: コード コメント 位置
+            リファレンス:
+                ____:  #search: ____
+        (次の)エラー: |
+            ____
+    トラブルシューティングの書法:  #keyword: trouble shooting document,  試行錯誤の書法, トラブルシューティング
+        参考: #snote: %programming%\方法論\ドキュメント.svg#try_format
+        通常テンプレートの場合:
+            トラブルシューティング:  #keyword: trouble  #snippet-depth: 1
+                - #// __概要__    または  エラー, ____:
+                    手順:
+                    ログ: |
+                        __message__
+                        __URL__
+                    対処: #// 対策は「何かが起きる前の方法」
+                    原因: #// ←対処の補足
+                    試行: |
+                        （簡易メモ）
+        分類付きテンプレートの場合:
+            トラブルシューティング:
+                デバッグ:  #search: デバッグ ツール
+                エラー:
+                    - #// __概要__
+                        #search: trouble
+    データ構造の書き方(YAML版):  #keyword: data structure YAML document,  data structure,  データ構造の書き方
+        書式:
+            Staff:
+                # class  Staff {
+                #     name: string;
+                #     level: number;
+            Class:
+                # .attribute: Class
+                # .part: PartClass
+                PartClass:
+                    ^ SubClass:
+                # .attribute  int や str  #ref: __PathOfToRefer__
+                class:  #// .attribute  #ref: ____
+                class2:  #ref: __PathOfDefine__
+                    # .attribute  #ref: __PathOfToRefer__
+                    # variable   #ref: __PathOfToDeclare__
+                    .member:  #// メンバー変数の説明
+                class[]:  #// .attribute
+                class( super ):  #// .attribute
+                (super):  #// (.attribute)
+                    memberClass:  #// .memberAttribute
+                    ^subClass:    #// .attribute  #keyword: ^ data structure YAML document
+                class< T >:  #// .attribute or variable
+                <method()>:
+                    class:  #// variable
+                <factory>:  #// .attribute
+                    class:  #// variable
+        説明:
+            クラス名:
+                所有の子のクラス名:  #// 属性名
+                所有の子のコレクションの要素のクラス名[]:  #// 属性名
+                所有の子のクラス名( スーパークラス名 ):  #// 属性名
+                (所有の子のスーパークラス名):  #// (属性名)
+                    スーパークラスの所有の子:
+                    ^所有の子のサブクラス名:    #// 上記と同じ属性名
+                ^ サブクラス名:
+                ジェネリック クラス< parameter >:  #// 属性名または変数名
+                <メソッド名()>:
+                    返される一時オブジェクトのクラス名:  #// 変数名
+                <ファクトリーや一時オブジェクトに対するメソッドを扱うクラスの名前>:  #// 属性名
+                    一時オブジェクトのクラス名:  #// 主な変数名
+    コールツリーの書き方(YAML版):  #keyword: コールツリーの書き方, call tree, call tree YAML document, calltree コールスタック
+        書き方: デバッガーのブレークポイントやステップインを使って、適度に深い位置を探した後で、書きます
+        参考 >> Abstract Factory の続きの処理:  #search: Abstract Factory next operation
+        関連 >> シーケンス図の書き方:  #search: シーケンス図の書き方
+        関数名:  #ref: __定義内容へのリンク__   #// #ref はオプション
+            # コード: import やクラス名など
+            #   // 処理概要
+            #   コード: 関数名
+            #       コード: 呼び出す 関数名  変数名◆
+            呼び出す 関数名:  #ref: ____
+                # 関数定義コード
+                #   処理コード
+                #       // 変数名 == 値 ◆
+                        ★ポイントとなる末端の処理内容
+                # 複数行を一度にコメントアウトするには、VSCode >> Edit >> Toggle Line Comment
+            値の色と子要素があるとき:  #// -: を書く
+                -:
+                # コード
+                -   主なコード１
+                # コード
+                -   主なコード２
+                子要素:
+                #
+                # 強調コメント
+                1: ローカルの場合
+                子要素A:
+                2: サーバーの場合
+                子要素B:
+            関数名( クラス名 ):  #// パラメタライズド クラス の場合
+            データの入力元を解析していることを示す❓:
+                関数名:
+                    # コード: 呼び出す 関数名  #see-below: 変数名◆❓（入力元解析済み◆、入力元不明◆❓） load(set)  #// set.attr◆❓, set.attr2◆❓
+                    関数名:
+                        #   コード  変数名◆（入力元解析済み◆、入力元不明◆❓）
+    シーケンス図の書き方: #keyword:
+        関数名:  #ref: __定義内容へのリンク__   #// ---->> の前後では #ref を書く
+            #// ここはコールツリーと同じ
+            ---->> (__Source__->>__Destination__):  #// この行をコールツリーに追加する
+                関数名:
+                    #// ここはコールツリーと同じ
+スクショ画像:  #keyword: screen shot memo, スクショ メモ
+    __画面名__:  #keyword: ____  #ref: 画像ファイルのパス
+        _: #//（画像ファイルの構成）:
+            キャプチャした画像:
+            補足: 画像を加工します。たとえば、オレンジ色の太字のテキストと矢印（文字）
+        （画面のテキスト）: |
+            Ctrl + A, Ctrl + C したテキストを貼り付けて、検索できるようにします
+    画像優位性効果:
+手順書作成支援:  #keyword: 手順書作成支援, マニュアル作り
+    操作したら文書生成:
+        Tango:  #ref: https://note.com/jousys_force/n/n46ebbf08a76a
+Snap Note: #keyword:
+    programming: #keyword:  #// ${env:TYPRM_programming} = "C:/home/mem_cache/MyDoc/programming"
+Wikipedia: #keyword:
+    Wiki形式: #keyword:
+        #ref: https://ja.wikipedia.org/wiki/Help:ページの編集#マークアップ
+        #ref: https://ja.wikipedia.org/wiki/Wikipedia:スタイルマニュアル
+    出典:
+        Twitter を出典にしていいか:
+            発言があったと書く場合は良い  #ref: https://ja.m.wikipedia.org/wiki/Wikipedia:井戸端/subj/twitterの発言は出典として利用可能か
+Markdown:  #keyword: Markdown, md
+    Markdown 書式:
+        基本: |
+            # 章
+            段落は空行で、１行開ける。改行は行末に空白2つ または<br>。スペースは &nbsp;
+            改ページ<div style="page-break-before:always"></div>
+            **強調** ~~取り消し~~
+            - リスト、箇条書き
+                - 空白2つ以上にハイフンで入れ子
+                    ```__Language__  #// 例: shell, yaml  #ref: http://rouge.jneen.net/
+                    リスト内コード
+                    ```
+            <!-- --> #// 書式の終了。例えばリストの直後のコードがあり、その間に空行を入れないとき。GitHub で確認済み
+                code  #// 空白 4つ以上でコード。ただし、言語を指定できないので色が付きません
+            1. 順序付きリスト
+            [ リンク ](http://example.com/)
+            [ ページ内リンク ](#__SectionTitle__)
+                リンク先のタイトルに空白が含まれていたら __SectionTitle__ に空白を書く代わりに - を書きます。
+                日本語にも対応しています。
+            ![画像の説明](./image01.png)
+            <img src="image01.jpg" width="50%" alt="画像の説明">
+            [![リンク付き画像画像の説明](./image01.png)](http://example.com/)
+            YouTube 動画埋め込み [![__AlternateText__](https://img.youtube.com/vi/__MovieID__/0.jpg)](https://www.youtube.com/watch?v=__MovieID__)
+            `行内のコード` と入力します。
+                バッククォートを含めるとき: `` (`) ``   2つの ` で囲みます
+                空白４つ以上なら空白を維持 <pre><code>相当
+            > 引用、💡メモ、ノート、notice
+            |  TH  |  TH  |
+            | ---- | ---- |
+            |  TD  |  TD  |
+            |  TD  |  TD  |
+            :
+            in GitHub
+            | &check; | Issue |
+            | ------- | ----- |
+            |         | #1    |
+            |         | #2    |
+            [//]: # (__コメント__)
+        表:
+            表のセルの結合:
+                できません: |
+                    以下のヘッダー行の上にある「WebUI 入力項目」は、表の外と解析されます。
+                    結合の部分は、左側のセルになります。
+                    |   WebUI 入力項目    |
+                    |   含む   | 含まない |
+                    | -------- | -------- |
+                    |    1     |    0     |
+                    |        結合         |
+                代替手段 >> HTML: |
+                    <table><thead>
+                    <tr><th colspan="2">  WebUI 入力項目</th></tr>
+                    <tr><th>  含む  </th><th>  含まない  </th></tr>
+                    </thead><tbody>
+                    <tr><td>    1   </td><td>      0    </td></tr>
+                    <tr><td colspan="2">     結合       </td></tr>
+                    </tbody></table>
+                代替手段:
+                    エクセル, 画像
+        等幅フォント:  #keyword: Markdown 等幅フォント
+            英文: |
+                -   ``` ``` で囲む
+                -   <pre>タグ
+            日本語を含む場合:
+                完全に等幅で揃えるのは技術的に困難
+    サンプル:
+        タスク表:
+            サンプル: |  #keyword: Markdown task list
+                | &check; | Task | Issue | Pull<br/>Request | DEV<br/>リリース | STG<br/>リリース | develop<br/>マージ | ansible develop<br/>マージ |
+                | ------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+                | &check; | [#111](https:____) タスク | #2468 |  | &check; |  |  |  |
+                | | ____ |  |  |  |  |  |  |
+            階層化: 子タスクは別の表を作り、ハイパーリンクを張ります
+            関連 >> GitHub タスクリスト:  #search: GitHub task list
+    GitHub Markdown: #search:
+    kramdown:
+        目次: | #keyword: kramdown TOC  #// GitHub Pages でも使えます
+            * TOC
+            {:toc}
+    JavaScript:
+        remark:  #keyword: remark, JavaScript markdown  #// Markdown を HTML に変換します
+            インストール: npm install remark remark-html
+            参考: #ref: https://nextjs.org/learn/basics/dynamic-routes/render-markdown
+reStructuredText (reST), Sphinx:  #keyword: reStructuredText, reST, .rst  #ref: ${steps}/Document.rst
+    手順:
+        インストール:  #// Visual Studio Code に reStructuredText 関連の拡張機能をインストールします
+            メニュー: VSCode >> 拡張機能
+            拡張機能: #// 以下のいずれか
+                - Preview (Haixin Chen)
+                - RST Preview
+                - reStructuredText
+            トラブルシューティング:
+                - ケース:
+                    エラー: |
+                        exception: No module named 'sphinxcontrib.redoc'
+                    対処法: 上記「RST Preview」を使ってください
+                - reStructuredText は Python が必要？ Python 3.7 では動きません
+    reST 書式: #ref: ${steps}/Document.rst  #// 基本  見出し  リスト  Code  表(Table)  引用
+        リンク:
+            基本: |
+                `URL Link <http://example.com>`_  … 末尾のアンダーラインも必要です
+                `リンク先のタイトル`_  … 末尾のアンダーラインも必要です
+            ファイル:
+                :doc:`/__RelativePathWithoutExtension__`
+            URL フラグメント: #search: URL fragment
+                書式: |  #// フラグメント名の左にアンダースコアが必要です
+                    .. ___Fragment__:
+                サンプル: |  #// http____.html#web_ui でジャンプできるようになります
+                    .. _web_ui:
+
+                    動作確認
+                    --------
+                    （本文）
+            ref ロール: #keyword: reST Sphinx ref role  #ref: https://www.sphinx-doc.org/ja/master/usage/referencing.html#role-ref
+                注意❗: reST が Sphinx を使っているときだけ使えます
+                リンク元:
+                    書式: |
+                        :ref:`__GlobalLabel__` 
+                            または
+                        :ref:`__Caption__<__GlobalLabel__>`
+                    注意❗:
+                        - < の左に空白があってもなくても同じ表示になります閉じる ` の右に空白文字が必要です
+                        - < の左に空白があってもなくても同じ表示になります
+                #↓
+                リンク先:
+                    書式: |
+                        .. ___GlobalLabel__:
+                    注意❗:
+                        - ラベルの左にアンダーバーが必要です
+                        - (.. contents::) より下に書く必要があります
+        取り消し線: #keyword: reStructuredText strike
+            注意: 以下は HTML に出力する場合のみ
+            取り消し線のインストール:
+                __Project__/conf.py :
+                    変更前: |
+                        # sys.path.insert(0, os.path.abspath('.'))
+                    変更後: |
+                        # sys.path.insert(0, os.path.abspath('.'))
+                        import sys
+                        sys.path += ['.']
+                __Project__/conf.py の最も下に追加: |
+                    # -- Strike -------------------------------------------------
+                    extensions += ['sphinxcontrib_roles']  # ./sphinxcontrib_roles.py
+                    roles = {
+                        'strike': "text-decoration: line-through;",
+                    }
+                __Project__/sphinxcontrib_roles.py : |  #// ファイルを追加
+                    # -*- coding: utf-8 -*-
+                    import os
+                    from docutils.parsers.rst import roles
+
+                    def on_builder_inited(app):
+                        for name in app.builder.config.roles:
+                            base_role = roles.generic_custom_role
+                            role = roles.CustomRole(name, base_role, {'class': [name]}, [])
+                            roles.register_local_role(name, role)
+
+                    def on_html_collect_pages(app):
+                        if isinstance(app.builder.config.roles, dict) and app.builder.config.roles:
+                            cssdir = os.path.join(app.builder.outdir, '_static')
+                            cssfile = os.path.join(cssdir, 'roles.css')
+                            if not os.path.exists(cssdir):
+                                os.makedirs(cssdir)
+                            fd = open(cssfile, 'wt')
+                            for name, style in app.builder.config.roles.items():
+                                fd.write("span.%s { %s }\n" % (name, style))
+                            fd.close()
+                        return ()
+
+                    def html_page_context(app, pagename, templatename, context, doctree):
+                        if isinstance(app.builder.config.roles, dict) and app.builder.config.roles:
+                            if 'css_files' in context:
+                                context['css_files'].append('_static/roles.css')
+
+                    def setup(app):
+                        app.add_config_value('roles', [], 'html')
+                        app.connect("builder-inited", on_builder_inited)
+                        app.connect("html-collect-pages", on_html_collect_pages)
+                        app.connect("html-page-context", html_page_context)
+            .rst ファイル:
+                :strike:`取り消し線`
+            参考: #ref: https://www.timedia.co.jp/tech/sphinx/
+        TOC ツリー: #keyword: Sphinx toctree
+            概要: 各フォルダーにある index.rst ファイルをまとめて目次を作ります
+            toctree:  #// 左半分の目次
+                サンプル: |  #focus: toctree  #// toctree の次の行に空行が必要です
+                    .. toctree::
+
+                        section_1
+                        section_2
+                        section_3/index
+                項目名: #// 目次内の表示
+                    section_1.rst や section_3/index.rst に書かれたタイトルが目次に表示されます
+                コンテンツ:  #// クリックしたときの表示内容
+                    section_1.rst や section_3/index.rst の内容が右半分に表示されます
+                ネスト:
+                    __Folder__/index の部分は子項目を展開できるようになります。
+                    子項目は __Folder__/index.rst ファイルに書きます。
+            contents:  #// ページ内の目次
+                概要: (.. contents::) の部分はページ内の目次に置き換わります
+                サンプル: |  #focus: contents  #// contents の次の行に空行が必要です
+                    ***********
+                    タイトル
+                    ***********
+
+                    .. contents::
+
+                    見出し レベル１
+                    ================
+
+                    本文
+
+                    見出し レベル２
+                    -------------------
+
+                    本文
+
+                    見出し レベル３
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+
+                    本文
+
+                    見出し レベル４
+                    """"""""""""""""""""""
+
+                    本文
+            キャプション:  #// クリックできないタイトル
+                    サンプル: |
+                        .. toctree::
+                            :caption: __Caption__
+
+                            section_1
+                            section_2
+                            section_3/index
+            逆順:
+                (:glob:) を使わない場合:
+                    手段: 逆順に並べます。(:maxdepth:)は使わないでください
+                    サンプル: |
+                        .. toctree::
+
+                            section_3
+                            section_2
+                            section_1
+                (:glob:) を使う場合:
+                    サンプル: |
+                        .. toctree::
+                            :glob:
+                            :reversed:
+
+                            recipe/*
+                    参考: #ref: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+        その他:  #ref: ${steps}/Document.rst
+    構成:
+        ロール:
+            公式: #ref: https://www.sphinx-doc.org/ja/master/usage/restructuredtext/roles.html
+            デフォルト: content  #// 特に機能はない
+            doc: #// クロス リファレンス。ハイパーリンク
+                :doc:`__Path__`  #// __Path__ には拡張子を付けません
+                #ref: https://www.sphinx-doc.org/ja/master/usage/restructuredtext/roles.html#role-doc
+            download: #// ファイルへのリンク
+                #ref: https://www.sphinx-doc.org/ja/master/usage/restructuredtext/roles.html#role-download
+        Sphinx: #keyword: Sphinx  #// .rst 形式で本文を書くドキュメント生成ツール
+            HTML の構成:
+                左にツリー構造、右にコンテンツがあるページでも、HTML ファイルは 1つです。
+                左のツリーの選択中のノードを変えたとき、HTML ファイル全体も変わります。
+    トラブルシューティング(reST):
+        - #// WARNING: Could not lex literal_block as "console". Highlighting skipped.
+            手順: ビルド
+            エラー: |
+                example.rst:329: WARNING: Could not lex literal_block as "console". Highlighting skipped.
+            対処A: |
+                .. code-block:: json なら JSON 形式として正しくします
+            対処B:  #// reST がサポートしていない文法の場合
+                修正前: |
+                    .. code-block:: console
+                修正後: |
+                    .. code-block:: none
+        - #// gen_additional_pages 'NoneType' object is not iterable
+            手順: ビルド
+            エラー: |
+                File "____/.tox/docs/lib/python3.7/site-packages/sphinx/builders/html.py", line 776, in gen_additional_pages
+                    for pagename, context, template in pagelist:
+                TypeError: 'NoneType' object is not iterable
+            対処:
+                conf.py に追加した extensions のコードで def setup(app) の app.connect("html-collect-pages", __OnHtmlCollectPages__)
+                の __OnHtmlCollectPages__ の返り値が None にならないように修正します。
+ReDoc:  #// REST API のドキュメンテーションツール  #keyword:
+    公式: https://github.com/Redocly/redoc
+mermaid:  #// テキストから図を作成します  #keyword: mermaid,  （marmaid ではありません）
+    公式:
+        - https://github.com/mermaid-js/mermaid     #// サンプルあり
+        - https://mermaid-js.github.io/mermaid/#/
+    手順:
+        表示, ブラウザー:  #keyword: browser mermaid  #ref: ${steps}/Document.mmd.html
+            表示: mermaid.min.js を指定した HTML ファイルを インターネット ブラウザー で開きます
+            コード サンプル: |
+                <head>
+                    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                </head>
+                <body>
+                    <div class="mermaid">
+                        graph TD
+                            A[Start] --> B{Decision}
+                            B -->|Yes| C[Action 1]
+                            B -->|No| D[Action 2]
+                    </div>
+        表示, インストール(a):  #keyword: edit mermaid  #// Visual Studio Code に mermaid の編集機能（Mermaid Graphical Editor 拡張機能）をインストールして表示します
+            #ref: https://ja.astahblog.com/2024/03/07/mermaid_class_diagram_on_vscode/
+            #ref: https://qiita.com/takuminoid/items/0f8edca259e7fc0d9aad
+            Visual Studio Code をインストールします:
+            Mermaid Graphical Editor 拡張機能 をインストールします:
+            .md ファイルの中の mermaid コード ブロック の上に表示される MermaidEditor をクリックします: |
+                MermaidEditor
+                ```mermaid
+                graph LR;
+                    s[ リポジトリ ] -- git status or git diff --> d[ 別のフォルダー ];
+                ```
+            エラー メッセージ を確認する:  #search: mermaid CLI
+        表示, インストール(b):  #keyword: view mermaid  #// Visual Studio Code に mermaid のプレビュー表示（Markdown Preview Mermaid Support 拡張機能）をインストールして表示します
+            Visual Studio Code をインストールします:
+            VSCode >> Extensions（左）>> Markdown Preview Mermaid Support:
+            example.md を新規作成します: |
+                ```mermaid
+                graph TD;
+                    A-->B;
+                    A-->C;
+                    B-->D;
+                    C-->D;
+                ```
+            VSCode >> Open Preview ボタン（右上）:
+                表示されないとき: エディターのタブを右クリック >> Open Preview（が複数あったらそのどれか）
+            #// 以上で図が表示されます
+        エラー メッセージ を表示, mermaid CLI: #keyword:
+            （初回のみ）インストール:
+                #// Node.js をインストール後
+                npm install -g @mermaid-js/mermaid-cli
+            画像に変換します:  #// エラー メッセージ が表示されます
+                mmdc -i ${HOME}/GitHub/steps/!Temp.mmd -o ${HOME}/_mermaid.png
+    サンプル: #ref: ${steps}/Document.md
+    ガントチャート: #keyword: mermaid ガントチャート
+        #ref: https://qiita.com/sato_kana/items/2a13f19017576488f017
+    関連:
+        Mermaid Preview >> HTML の中の表示:  #keyword: Mermaid Preview extension
+            手順: #// 未確認
+                F1 キー >> Mermaid Preview
+            次のように表示され、図は表示されません: |
+                ```mermaid
+                diagram is rendered when the
+                cursor is inside the fence
+                ```
+            代用:
+                一時的に .md ファイルを作り、mermaid の部分を .md にコピーしてから編集します:
+                    #search: view mermaid
+PlantUML: #keyword: PlantUML, .pu file  #// テキストからUMLを作成します
+    描ける図解:
+        UML:
+            シーケンス図
+            ユースケース図
+            クラス図
+            オブジェクト図
+            アクティビティ図（古い文法はこちら）
+            コンポーネント図
+            配置図
+            状態遷移図（ステートマシン図）
+            タイミング図
+        UML 以外:
+            JSON data
+            YAML data
+            Extended Backus-Naur Form (EBNF) diagram
+            Network diagram (nwdiag)
+            ワイヤーフレームによるグラフィカルインターフェース、UIモックアップ（salt）
+            アーキテクチャ図
+            仕様及び記述言語 (SDL)
+            Ditaa
+            ガントチャート
+            マインドマップ
+            WBS図(作業分解図)
+            AsciiMath や JLaTeXMath による、数学的記法
+            ER図
+    手順:
+        #ref: https://zenn.dev/m3ka24/articles/20220206-plantuml
+Graphviz:  #keyword: Graphviz
+    公式: #ref: https://www.graphviz.org/
+    概要: dotファイル（テキスト ファイル）から図を作成します
+    インストールします:
+        本体部分:
+            CentOS7: sudo yum install graphviz
+        言語部分:
+            Python:
+                pipenv: pipenv install --dev graphviz
+                Poetry: poetry add graphviz -D
+TeX: #keyword:
+    特殊記号一覧 (Tex):
+        '\': Tex 命令(?)の先頭文字
+            \__Operator__{__Parameter__}
+        '%': コメント
+            % を出力するときは \%
+        エスケープが必要な文字:
+            # & % $ _ { } ~ ^ \ < > [ ] | -
+            ~: \textasciitilde{}
+            \: \textbackslash{}
+            <: \textless 
+            '>': \textgreater
+            '|': \verb+|+
+            '-': \texttt{-}
+            #ref: http://www.ic.daito.ac.jp/~mizutani/tex/special_characters.html
+    お試しサイト: #ref: https://latexbase.com/
+    リファレンス: #ref: https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes
+    基本: |
+        \documentclass{article}
+        \begin{document}  % コメント
+        Hello World!
+        \end{document}
+    表紙: |  #focus: title
+        \documentclass{article}
+            \title{My first document}
+            \date{2013-09-01}
+            \author{Auther Auther}
+        \begin{document}
+            \maketitle
+        \newpage
+        
+        Hello World!
+        \end{document}
+    章: |  #focus: section
+        \documentclass{article}
+        \begin{document}
+
+        \section{Section}
+        Hello World!
+
+        \subsection{Subsection}
+        Structuring a document is easy!
+        \end{document}
+    表:
+        サンプル: |  #focus: cell
+            \documentclass[a4paper,twoside,12pt]{article}
+            \begin{document}
+            \begin{center}
+
+            \begin{tabular}{ c c c }
+                cell1 & cell2 & cell3 \\ 
+                cell4 & cell5\
+                    & cell6 \\    %// 1行の表を2行のソースで書く場合
+                cell7 & cell8 & cell9
+            \end{tabular}
+            \end{center}
+            \end{document}
+        表の中の改行:
+            \begin{tabular}{@{}l>{\raggedright\arraybackslash}X|}aaa\nbbb\nccc\n \end{tabular}
+    リスト: |  #focus: item
+        \documentclass[a4paper,twoside,12pt]{article}
+        \begin{document}
+
+        \begin{itemize}
+            \item List entries start with the \verb|\item| command.
+            \item Individual entries are indicated with a black dot, a so-called bullet.
+            \item The text in the entries may be of any length.
+        \end{itemize}
+        \end{document}
+    配列を文書に埋め込みます:  #ref: https://tex.stackexchange.com/questions/474792/global-variable-array
+    相互参照: #keyword: TeX 相互参照  #// ページ番号の自動調整など
+        \label: 参照先
+        \ref: 図表番号
+        \pageref: 参照先のページ番号
+        サンプル: |  #focus: \label, \ref, \pageref
+            エネルギー$E$と質量$m$は
+            \begin{equation} \label{speed-of-light}
+            E = mc^{2}
+            \end{equation}
+            で関係づけられる。
+            ここに$c$は光速で，
+            \begin{equation}
+            c = 299{,}792{,}458 \, \mathrm{m/s}
+            \end{equation}
+            である。
+
+            （式\ref{speed-of-light}，\pageref{speed-of-light}ページ）より
+        サンプルの出力:  #// 最後の部分以外は省略
+            （式2，12ページ）より
+    概念:
+        プリアンブル: #keyword:
+            \documentclass[オプション]{文書クラス}
+                プリアンブル
+            \begin{document}
+                LaTeX 本文
+            \end{document}
+    TeX Live: #keyword: TeX Live,  texlive  #ref: https://www.tug.org/texlive/
+        脆弱性情報:  #ref: https://cve.report/software/tug/texlive
+        バージョン:  #ref: https://en.wikipedia.org/wiki/TeX_Live
+            pdfTex: | #keyword:  #// 下記の場合、TeX Live のバージョンは 3.14159265 (TeX Live 2016)、pdfTex のバージョンは 2.6-1.40.17 です
+                $ pdftex --version   #// pdftex は、texlive の .tar.gz を展開した中にあります
+                    pdfTeX 3.14159265-2.6-1.40.17 (TeX Live 2016)
+                    kpathsea version 6.2.2
+                    Copyright 2016 Han The Thanh (pdfTeX) et al.
+                    There is NO warranty.  Redistribution of this software is
+                    covered by the terms of both the pdfTeX copyright and
+                    the Lesser GNU General Public License.
+                    For more information about these matters, see the file
+                    named COPYING and the pdfTeX source.
+                    Primary author of pdfTeX: Han The Thanh (pdfTeX) et al.
+                    Compiled with libpng 1.6.21; using libpng 1.6.21
+                    Compiled with zlib 1.2.8; using zlib 1.2.8
+                    Compiled with xpdf version 3.04
+        トラブルシューティング (TeX Live):
+            - #// [Errno 2] No such file or directory: 'platex': 'platex'
+                手順: TeX Live を内部でも動かしたとき
+                エラー: |
+                    [Errno 2] No such file or directory: 'platex': 'platex'
+                対処:
+                    texlive/2016/bin/x86_64-linux に PATH を通します (texlive2016-20160523.tar.gz)
+タブ空白変換:
+    indenter (Takakiri):  #keyword: indenter  #ref: ${GitHub}/indenter
+        #ref: https://github.com/Takakiriy/indenter
+        #// ちなみに indent の反対は dedent
+        #search: typrm indenter
+    unexpand:  #keyword: Linux unexpand
+キャッチコピー: #keyword: キャッチコピー,  タイトル セールス トーク 説得 宣伝 コピーライター 丁寧 言葉
+    サンプル:
+        新潟のアイス屋さんが本気出したCM
+        Tiktokで秒で削除された約100万再生された動画がヤバい理由
+        「働かないおじさん」は本当に働いていないのか？イメージを裏切る実態と「真の問題点」
+        〜が絶対に教えない〜
+        表では言えないヤバいネタ
+        〜の基本、入門
+        生活保護者ほど「勘違い」するんだけどさ
+        ホームページ https://mypg.jp
+    法則:
+        特定の個人や肩書きの場合の話
+        起承転結の転から
+    ツイート: #keyword: buzz tweet
+        サンプル:
+            #ref: https://x.com/japantank/status/1782434284432982065
+            #ref: https://twitter.com/poly_soft/status/1511480544068268033
+        ツイートを書くためのいくつかのヒント:  #ref: ${typrm_files}/ref/Document-AI.yaml#label: good Twitter tweet from AI
+        最初 >> 興味を引くキーワード:
+            お題となる流行っている一般用語
+        いいね:
+            感情、苦労
+        良くない:
+            解説
+        3段落ち:
+            初心者「」、中級者「」、上級者「」
+    YouTuber:
+        TTP（徹底的にパクる）文化
+    興味: #// 読みたい気持ちになるテーマ
+        - え、この値段でいいの？ #ref: https://x.com/kurashiru_r/status/1811052761288692064
+        - 非常に参考になる。 #ref: https://x.com/smile_running/status/1810875730932420954
+        - 記憶を消す光  #keyword: 記憶を消す光  #ref: https://x.com/Sora_Sakurai/status/1915418955122135207
+    海外展開:
+        #ref: https://japan.cnet.com/article/35225882/
+        日本: スペックが多い、ハイコンテクストから感情へ、秒で
+        欧米: ベネフィット、ローコンテクストから感情へ、1秒で
+    イノベーター理論: #search:
+    説得: #keyword: 説得,  議論 討論 意思決定
+        周辺ルート: #keyword:  #// なぜ賢くて成功を収めた人なのに愚かなアイデアに魅了されてしまうのか？
+            _: 高学歴や地位の高い人は、仕事や評判を失うことを恐れて、必ずしも信じていないことをメッセージとして表現する可能性が最も高い
+            説得する方法:  #// ロブ・ヘンダーソン氏によると、情報が溢れると周辺ルートを採用しがちになる
+                中央ルート:  #// メッセージを慎重かつ思慮深く検討させ、提示された情報を積極的に評価すること
+                周辺ルート:  #// メッセージを発した人の魅力や教育や仕事などのキャリアに基づいて判断すること
+                    他人が評価しているかどうか
+            いつ専門家による意見であることを言うか:
+                メッセージを読む前に言わないと信用しなくなる
+                #// ダニエル・オキーフ氏ら
+            正しいメッセージを発信することよりも、自身の環境や立場を高めることを重視して情報を発信する:
+                聴衆は情報の真偽や道徳的是非よりも、自分の信念と合致するかを重視した上で、メッセージを発した人物の周辺情報を探ろうとするため
+            #ref: https://gigazine.net/news/20231123-dumb-ideas/
+        相手がいる場合:
+            結論を確認します:
+                同じなら終えられます
+            発言者の傾向を確認します: #// プロフィールを確認します
+                結論を正確に読むため
+            相手が管理者なら:
+                ～したら頑張れるのにな
+        共通:
+            状況を示します:
+                前提を合わせるため
+                相手に想像させて想像と一致すると腑に落ちるため
+            データを示します: #// 結論に結びつくまでの客観的なデータを示します。誰が調べたか
+                必須。これだけでも良い
+                新しい気づきがある情報。法文
+                分野別活動順位、外国の評価
+            結論を再び示します:
+            同意を得ます:
+                うん、分かった
+        相手が乗ってきたら:
+            議論の対象を絞り込みます:
+            乱暴な一般化されたとき:
+                間違いを指摘する
+                目的を聞く？何になるのでしょうか
+            能力？を乱暴に評価されたとき:
+                評価に至る推論を批判する
+        #search: 論破, ディベート
+    レトリック: #keyword:
+        巧みな表現をする技法。また、修辞学。比喩、誇張、反語、倒置
+    何が知りたいんだい:
+        定番のスキル、誰もが知りたいこと、効果よりも感情を伝える
+    何が起きるか分からない:
+        ドリフと欽ちゃん
+    広告:
+        サプリメント業界が消費者をだますのに使っている「3つのウソ」とは？:
+            - 3つの先入観「天然なら安全」「いいものは多いほどいい」「何もしないより何かする方がいい」
+            #ref: https://gigazine.net/news/20240409-supplement-industry-deception/
+    ストーリー: #keyword: story, 感想文 紹介文 演出
+        効果:
+            注意: 注意を引くことができる
+            感化: 感化させて行動を変えることができる
+            持続: 覚えていられる
+        ネタ探し:
+            自分の初体験から: 変化がある。他の人は経験できない
+            よく聞かれる質問から: 質問には人の興味が詰まっている
+            持論から: 持論が生まれた経験
+        作り方:
+            共感できる主人公を置く: 平凡
+            本音の感情を見せる: 葛藤と苦悩
+            ディティールを描く: シーン（感じるもの）、キャラ（好き、弱点、親しみやすく）
+                #// 様子、見てもらいたいこと、共に高みへ
+                #// 評価: かわいい、良かった、好き、珍しい、新鮮
+            構成 >> 日常⇒爆発（非日常）⇒新日常: before⇒after。日常が最も大事
+            #// 情報は邪魔
+        カタログ:
+            商品の話: 売りたいとき、作った人のエピソード。情報より人物。役職
+            創業者の話: 会社の信頼を上げるときや他社と差別化するとき、始めた人や会社の顔の話をする
+            目的の話: チーム力をアップしたいとき、目的を説明する
+            客物の話: 消費者、関係者
+        ナラティブとストーリーの違い:  #keyword: ナラティブ アプローチ 物語 悪意
+            ストーリーが物語の「内容そのもの」を指すのに対して、ナラティブは物語の「語られ方」を指します。
+            ナラティブ アプローチ は、企業の価値観に基づいて、物語の力で新しい社会的認識を実現することを指します。
+        しぐさ:
+            #keyword: シャーロック ホームズ ハンド, 女子力高めポーズ
+        注意: ストーリーは世の中に溢れているため飽きやすく見抜かれやすい
+        参考: 【ストーリーの伝え方①】心に刺さる物語を制する者は人生を制する（Stories That Stick）
+            #ref: https://www.youtube.com/watch?v=kKWjv3Y8dy4&t=835s
+    キーワード:
+        参考:
+            他の記事のキーワードを参考にします → ツイッター
+            https://www.colorfulbox.jp/media/blog-kakikata-kiji-kotu/
+        ヒント: 機能名、観点
+        ubersuggest:
+    タイトル:
+        効果と手段: 〜したいことや効果 〜 手段
+        ポジティブ: 〜まとめ、〜入門、カスタマイズ、〜ベストプラクティス、一番分かりやすい〜の説明、シンプル
+        ベストX: 〜すごい〜オススメ〜5選、〜編
+        課題: 大手はどのように〜をしているのか
+        評価: 〜やすい人の傾向とは？
+        煽り: 意外と知らない？おすすめPCライフハック8選！
+        比較: 〜が最も大事！
+    タイミング:
+        宣伝の直後に契約開始、情報解禁
+    2段構え:
+    競争力: #keyword;
+        入札情報の入手:
+        性能:
+        価格:
+        拡張性: #// 横展開
+        供給能力:
+    エモーション:
+        「〜見たら元気出たわ」
+        言語化、再言「〜でしたね」
+        後半は聞き手にまわる
+    感情類語辞典:
+        #// in BOOK WALKER
+        非言語コミュニケーション:
+            口調、ボディランゲージ、思考、本能的反応 p23
+    反論: #keyword:  #// フェイクの明示が目的
+        反例を返信へ: 煽りもする
+        批判する人へ: 対象となる相手の行動を踏まえる。効果を伝える。
+            いくら正しくても批判が多い人はだいたい小さい話になりがちなので聞かなくなりますねぇ。
+            いくら本人が重大な問題だと口だけで言ってもねぇ
+    ポジション トーク: #keyword:
+        右翼と左翼
+    書き方: #keyword:
+        記事広告の書き方「初心者・初級者」バージョンで押さえるべきポイントは3つだけ:
+            #ref: https://gigazine.net/news/20220530-gigazine-writing/
+            1：誤字・脱字ゼロ:
+                自分で校正:
+                    指差しながら読む速度で意味ではなく文字を読んでいきます
+                第三者が校正:
+            2：平易な表現を使う:
+                二重否定を消す
+                専門用語を避ける
+            3：仮想体験:
+                時系列順
+                どう使うのか
+                使った感想や効果
+                デメリットを見せて信用を得る
+メール:
+    ご無沙汰しています:
+MyDoc:  #glossary:  #// steps リポジトリの補足資料や画像
+    my images:  #ref: ${my_images}  #keyword: my image folder
+    typrm files:  #ref: ${typrm_files}
+依頼, 相談: #keyword:
+    背景: #keyword:
+        依頼元, 経緯, 現状, 問題点, 理由, 優先度, 期限  #ref: ${programming}/方法論/ドキュメント.svg#background
+    依頼内容:
+        作業内容、条件
+    AI 添削: #keyword: 依頼 AI 添削
+    謝罪と依頼:
+        避けるべき文章構造:
+            謝罪 と 依頼
+        推奨する構造:
+            客観的状況 → 責任の明確化 → 依頼 → （補足としての自分もミス → 双方に責任）
+    理由だけの説明:
+        推奨する構造: 理由と、結論的な直接の回答  #// 直接の回答まで必要な人はいる
+    いいニュースと悪いニュース:
+    #search: 報連相
+分かりやすい文章:
+    医療情報をわかりやすく発信するプロジェクト:  #ref: https://twitter.com/shinyaku_online/status/1676103459811254272
+    各所に配慮した文章: Colabo NHK 謝罪の指摘  #ref: https://x.com/satoshi_hamada/status/1735602143338565920
+Trac: #keyword:  #ref: https://trac.edgewall.org/
+    新規チケット: #keyword: create Trac
+        チケット登録 タブ
+    添付ファイル: #keyword: Trac 添付ファイル  #ref: https://wiki.tracpath.com/UserGuide/ファイル添付
+        一覧表示: アップロードした日も表示されます
+        コード:  #keyword: Trac attachment  #// 添付ファイルへのリンクの書き方
+            attachment:__FileName__
+            attachment:"__FileName__"
+            #// 正常ならプレビューに赤く表示されます。リンク切れなら灰色で表示されます
+        編集:
+            再度アップロードするときに「同名の添付ファイルを置き換える」にチェックを付けます
+        削除:
+            できません。
+            #ref: https://support.zendesk.com/hc/ja/articles/4408885871130-チケットから添付ファイルを削除するにはどうすればよいですか-
+            #ref: https://support.zendesk.com/hc/en-us/articles/4408820717466-Installing-and-using-the-Ticket-Redaction-app  >>  https://{subdomain}.zendesk.com/api/v2/tickets/{ticket_id}/comments/{comment_id}/attachments/{attachment_id}/redact
+        参考: ヘルプ／ガイド（右上）>> TracWiki >> Trac リンク（をクリック）>> 添付ファイル
+    書式:
+        画像: #keyword: Trac image
+            チケットに添付された画像を貼り付けます:
+                - [[Image(picture.gif)]]
+                - [[Image(picture.gif,30%)]]
+                - [[Image(ticket:1:picture.gif)]]
+            チケットに添付された画像へのリンクを貼り付けます:
+                attachment:picture.gif
+            参考: ヘルプ／ガイド（右上）>> TracWiki >> 画像（を検索）
+        コード, プリプロセッサ: #keyword: Trac code,  Trac table  #ref: https://trac.ietf.org/trac/teep/wiki/TracSyntaxColoring
+            行内: |
+                {{{ __Code__ }}}
+            複数行: |
+                {{{
+                __Code__
+                __Code__
+                }}}
+            HTML: |
+                {{{
+                #!html
+                __Code__
+                }}}
+            使えるプロセッサ:
+                基本:
+                    #!default
+                    #!comment
+                HTML:
+                    #!html
+                    #!htmlcomment
+                    #!div
+                    #!span
+                    #!td
+                    #!th
+                    #!tr
+                    #!rst
+                    #!textile
+                プログラミング言語:
+                    #!c
+                    #!cpp (C++)
+                    #!python
+                    #!perl
+                    #!ruby
+                    #!php
+                    #!asp
+                    #!java
+                    #!js (Javascript)
+                    #!sql
+                    #!xml (XML or HTML)
+                    #!sh
+                    #!yaml
+        リンク:
+            コメントへ: comment:__Num__
+            画像へ:  #search: Trac image
+        表: |  #// 列の区切り線（縦線）の横の位置は、行ごとにずれていても構いません
+            ||= 列のタイトル1 =||= 列のタイトル2 =||
+            || 1-1 || 1-2    || 
+            || 2-1   || 2-2       ||
+        その他 書式:
+            - ~~取り消し線~~  #keyword: Trac 取り消し線
+            - "!keyword"  #// 英語の直後に ? が付かないようにします
+            - （メンション）: できません
+            - エスケープ {{//斜体}}  #keyword: Trac escape  #// コードにすれば書式マーク（左のサンプルの//）は文字として認識されます
+    自分の投稿の一覧:
+        メールを "Comment (by __AccountName__):" で検索します  #// Thunderbird の場合
+    トラブルシューティング(Trac):
+        英単語が灰色になり、?が付く:
+            手順: コメントにキャメルケースの英単語を書く
+            エラー: |
+                英語が灰色になり、?が付き、リンク切れのハイパーリンクになる
+            対処:
+                英語の前に ! を付けると通常の文字になります
+            参考:
+                WikiPageNames
+Kindle:  #keyword:
+    インストール:
+        ダウンロード: https://www.amazon.co.jp/gp/swvgdtt/your-account/manage-downloads.html
+        メニュー: ログイン（右上）>> amazon のアカウント >>
+            amazon で 「Kindle for PC (Windows) [ダウンロード] 」を検索して 0円購入
+    iPhone:
+        位置番号へジャンプします:  #keyword: Kindle 位置番号
+            ...（右上）>> 次の位置番号へ移動
+    mac:
+        文字のサイズを調整します: Aa（上）>> フォントサイズ
+        両開きにします: Aa（上）（開く）>> 表示幅 = 最も右 >> Aa（上）（閉じる）>> 2列（上）
+        次のページをめくります: 右カーソルキー
+        目次を表示します: 目次（左上）
+        しおりを付けます: しおり ボタン（右上）
+        しおりを一覧します: ノートブックを表示（右上）
+        ページ番号を指定してジャンプします: 移動（上やや左）>> 次のページまたは位置No.に移動
+AA, Ascii Art:
+    ꒰ঌ(  ˊ˘ˋ)໒꒱
+連番:
+    01〜99: | #keyword: 連番, numbers  #// コピペして使います
+        01
+        02
+        03
+        04
+        05
+        06
+        07
+        08
+        09
+        10
+        11
+        12
+        13
+        14
+        15
+        16
+        17
+        18
+        19
+        20
+        21
+        22
+        23
+        24
+        25
+        26
+        27
+        28
+        29
+        30
+        31
+        32
+        33
+        34
+        35
+        36
+        37
+        38
+        39
+        40
+        41
+        42
+        43
+        44
+        45
+        46
+        47
+        48
+        49
+        50
+        51
+        52
+        53
+        54
+        55
+        56
+        57
+        58
+        59
+        60
+        61
+        62
+        63
+        64
+        65
+        66
+        67
+        68
+        69
+        70
+        71
+        72
+        73
+        74
+        75
+        76
+        77
+        78
+        79
+        70
+        81
+        82
+        83
+        84
+        85
+        86
+        87
+        88
+        89
+        80
+        91
+        92
+        93
+        94
+        95
+        96
+        97
+        98
+        99
+    01〜99 の偶数: |
+        02
+        04
+        06
+        08
+        10
+        12
+        14
+        16
+        18
+        20
+        22
+        24
+        26
+        28
+        30
+        32
+        34
+        36
+        38
+        40
+        42
+        44
+        46
+        48
+        50
+        52
+        54
+        56
+        58
+        60
+        62
+        64
+        66
+        68
+        70
+        72
+        74
+        76
+        78
+        80
+        82
+        84
+        86
+        88
+        90
+        92
+        94
+        96
+        98
+ISO, JIS, 規格:
+    JIS 簡易閲覧: #ref: http://kikakurui.com/
+    規格の著作権: #ref: ${programming}/!著作権・ライセンス/著作権.svg#standard_copyright
+    長音: #keyword:  #ref: ${programming}/方法論/ドキュメント.svg#long_voice
+        JIS Z8301:2019:  #ref: https://kikakurui.com/z8/Z8301-2019-01.html
+            H.6 外来語の表記
+            外来語の表記は，主として“外来語の表記（平成3.6.28 内閣告示第2号）”による。
+        外来語の表記（平成3.6.28 内閣告示第2号）:
+            #ref: http://www.mext.go.jp/b̲menu/hakusho/nc/k19910628002/k19910628002.html
+            #ref: https://hourei.ndl.go.jp/#/detail?lawId=0000077441&searchDiv=1&current=6
+            閲覧:
+                - 2023-03-10  #// 見つからず
+                - 2018-07-12  #ref: https://kikakurui.com/z8/Z8301-2019-01.html
+                - 2009-09-20  #ref: https://ja.wikipedia.org/wiki/外来語の表記
+        内閣告示 文化庁:
+            #// HOME > 国語施策・日本語教育 > 国語施策情報 > 内閣告示・内閣訓令 > 外来語の表記 > 留意事項その2(細則的な事項)
+            #ref: https://www.bunka.go.jp/kokugo_nihongo/sisaku/joho/joho/kijun/naikaku/gairai/honbun06.html
+            -   3. 長音は,原則として長音符号「ー」を用いて書く。
+                ただし,慣用に応じて「ー」を省くことができる。
+                〔例〕　エレベーター　コンピューター　ギター　マフラー
+                    エレベータ　コンピュータ　スリッパ
+            -   4. イ列・エ列の音の次のアの音に当たるものは,原則として「ア」と書く
+                〔例〕　ファイア
+        外来語(カタカナ)表記ガイドライン 第3版 2015年:
+            #ref: https://www.jtca.org/standardization/katakana_guide_3_20171222.pdf
+        ひらがなの場合:  #ref: https://t.co/IkOPyW0e4j  #ref: https://x.com/Seckey777/status/1935300577195606495
+            （５）オ列の長音
+                オ列の仮名に「う」を添える。
+            #// 「あ」「い」「う」「え」はそのまま
+Unicode: #keyword: Unicode
+    公式, コンソーシアム:  #ref: https://home.unicode.org/
+    手順:
+        絵文字を入力します: #keyword: input emoji
+            キーボードから一覧を表示します:
+                Windows: Windows キー + .（ピリオド）  #search: Windows keyboard
+                mac: 右下にあるキー？
+                iPhone: 😀（左下）
+            本書の一覧から選びます:  #search: Unicode signs
+            Webページにある一覧から選びます:  #search: List of Unicode characters
+    一覧: #keyword: List of Unicode characters
+        #ref: https://en.wikipedia.org/wiki/List_of_Unicode_characters
+        #search: Unicode search
+    書式:
+        文書: U+0000  #// 16進数
+        HTML:
+            16進数: &#x0000;
+            10進数: &#0000;
+        正規表現: \u{3000}  #// 16進数
+    ファイル:
+        文字コードを自動判定できるファイルにします:  #keyword:white square
+            先頭行に下記を書きます: |
+                Character Encoding: "WHITE SQUARE" U+25A1 is □.
+            #// 上記の行頭にコメントを表す // や # を追加しても構いません
+        バイナリーから文字コードを判定します:
+            文字: 漢字 （…という文字）
+            Shift JIS: 8A BF 8E 9A  #keyword: Shift JIS
+            EUC: B4 C1 BB FA        #keyword: EUC JP
+            Unicode UTF-16: (FF FE) 22 6F 57 5B  #// FF FE は BOM     #keyword: UTF-16
+            UTF-8: (EF BB BF) E6 BC A2 E5 AD 97  #// EF BB BF は BOM  #keyword: UTF-8
+            ISO-2022-JP: (1B 24 42) 34 33 3B 7A (1B 28 42)  #// 漢 の JIS コードは 3433
+            PowerShell でリダイレクト: 8D 8C 62 FF C4 87 ?? ??  #// ?? は不定
+                #// おそらく UTF-8 のデータを Shift-JIS でデコードした結果
+                #search: PowerShell Console OutputEncoding
+    文字, サンプル:
+        （検索）: #keyword: Unicode search
+            文字を貼り付けて検索: #// 文字コードを調べる
+                Web: #ref: https://graphemica.com/
+                Python: #search: Python ord
+                JavaScript: |
+                    `\\u{${"あ".codePointAt(0).toString(16)}}`  #// '\u{3042}'
+            キーワード検索:
+                #ref: http://xahlee.info/comp/unicode_index.html
+            手書き検索:
+                #ref: https://shapecatcher.com/
+            コードから検索:
+                https://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=__UniCode__
+                #ref: https://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=20027
+                #ref: https://unicode.org/charts/unihan.html
+        全角文字コード サンプル:  #keyword: Unicode 漢字
+            '　': '\u{3000}'
+            'あ': '\u{3042}'
+        タブ文字:
+            '	'  #keyword: tab
+            #search: Unicode space
+        記号, 絵文字: #🌟  #keyword: Unicode signs,  emoji  #glossary: Unicode  #// 絵文字は VS16 (U+FE0F) です #search: Variation Selectors
+            （キーボード）:  #search: input emoji
+            ✓: #keyword: check
+            「　　　　」: #keyword: 全角空白  #// iPhone 辞書には、発音「を」として設定
+            (`): #keyword: `, バッククォート, backquote, backtick, グレイヴ・アクセント
+            (^): #keyword: ^, キャレット
+            ＼: #keyword: バックスラッシュ  #// 「すらっしゅ」で変換できます。半角の＼は Unicode には無くフォントを変えて表示します
+            ∅: #keyword: empty set
+            ◉: #keyword: fisheye
+            ⚠: #keyword: warning sign  #// U+26A0, 目立たない
+            ×: #keyword: 掛け算, かける
+            ⚠️: #keyword: warning sign VS16, 注意  #// U+26A0 U+FE0F
+            🔺: #keyword: red triangle  #// U+1F53A
+            ✅: #keyword: check mark button  #// U+2705
+            ❎: #keyword: cross mark button  U+274E
+            ❌: #keyword: cross mark  #// U+274C
+                #// 赤い〇に×はありません
+            🗑️🚮🚯: #keyword: ゴミ箱 wastebasket
+            ▶️: #keyword: play emoji  #// U+25B6 Black Right-Pointing Triangle
+            🖊: #keyword: edit emoji,  pen emoji  #// U+1F58A Lower Left Ballpoint Pen
+            🖍️: #keyword: crayon emoji
+            🧊: #keyword: ice emoji  #// 角氷
+            🌟: #keyword: star
+            💤: #keyword: zzz
+            ❗: #keyword: !, ！  #// Windows では半角、mac では全角
+            ❓: #keyword: ?, ？  #// Windows では全角
+            🟢: #keyword: green clrcle
+            🔴: #keyword: red clrcle
+            🟡: #keyword: yellow clrcle  #// U+1F7E1
+            🟠:
+            🟣:
+            🔷: #keyword: blue diamond
+            🩵: #keyword: light blue heart, cyan heart
+            ⇒: #keyword: right arrow 右  #// Windows では全角、mac では半角
+            ⬭: #keyword: 楕円 Ellipse
+            🔍: #keyword: 検索 虫眼鏡 ボタン 絵文字
+            🔃: #keyword: リロード 同期 ボタン 絵文字
+            💡: #keyword: light bulb 絵文字 電球
+            🏷️: #keyword: label 絵文字 荷札
+            ⏸️⏳: #keyword: 絵文字 一時停止
+            その他: |
+                ▣🪵□
+                ✅🔥🔔🚫❌
+                🌛❤️‍🔥🥛💰🍠🌞⬜💡🏷️
+                🌙🌖Ⓜ️🌋🕯🪔🔥☄️💥🐠🐟🐬🐳🐋🌊⛲️🚰🚿🧊💭🎄🌳🌲🌴🏝🍺🍻🥂🏅🏦💴⚱️🌻☀️🏜 🔆
+            記号:  #ref: https://ja.wikipedia.org/wiki/記号#記号の例
+                数学記号
+                論理記号
+                単位記号
+                地図記号
+                量記号
+                道路標識
+                鉄道標識
+                安全標識
+        ハイフン, ダッシュ:
+            ハイフン: つなげる
+            ダッシュ: 省略する  #ref: https://gigazine.net/news/20230315-dash-hyphen/
+            エムダッシュ:  #ref: https://gigazine.net/news/20250401-em-en-dash-how-to-use/
+        空白: #keyword: Unicode space
+            ・U+0009 水平タブ(長い空白)
+            ・U+0020 スペース
+            ・U+00A0 自動改行を防ぐ固定スペース
+            ・u+00ad ソフトハイフン
+            ・u+034f 結合文字の作成
+            ・u+061c アラビア文字のテキスト方向
+            ・u+115f ハングル朝鮮語フィラー
+            ・u+1160 ハングル中文フィラー
+            ・u+17b4 クメール語の母音固有のaq
+            ・u+17b5 クメール語の母音固有のaa
+            ・U+180E モンゴル語の母音セパレータ
+            ・U+2000 enクワッド(2分の1em)
+            ・U+2001 emクワッド(emは現在のフォントの高さ)
+            ・U+2002 enスペース
+            ・u+2003 emスペース
+            ・U+2004 3分の1em幅のスペース
+            ・u+2005 4分の1em幅のスペース
+            ・u+2006 6分の1em幅のスペース
+            ・u+2007 固定幅の数字と同じ幅のスペース
+            ・u+2008 ピリオドと同じ幅のスペース
+            ・u+2009 6分の1em～4分の1emのシンスペース
+            ・u+200a シンスペースよりさらに狭いヘアスペース
+            ・u+200b ゼロ幅スペース
+            ・u+200c ゼロ幅ノンジョイナー
+            ・u+200d ゼロ幅ジョイナー
+            ・u+200e 左から右へのマーク
+            ・u+200f 右から左へのマーク
+            ・u+202f 狭い改行無しスペース
+            ・u+205f 中程度の数学的(18分の4em)スペース
+            ・u+2060 ワードジョイナー(ゼロ幅の改行無しスペース)
+            ・u+2061 関数の適用
+            ・u+2062 2項の乗算を示す
+            ・u+2063 2項のセパレータ
+            ・u+2064 2項の加算を示す
+            ・u+206a 対称的なスワッピングを禁止する
+            ・u+206b 対称的なスワッピングを有効にする
+            ・u+206c アラビア語のフォームシェーピング(オフ)
+            ・u+206d アラビア語のフォームシェーピング(オン)
+            ・u+206e ナショナル数字シェーピング
+            ・u+206f 名目上の数字のシェーピング
+            ・u+3000 表意文字スペース
+            ・u+2800 点字パターンの空白
+            ・u+3164 ハングルフィラー
+            ・u+feff ゼロ幅改行なしスペース
+            ・u+ffa0 半角ハングルフィラー
+            ・u+1d159 音楽記号の「符頭(なし)」
+            ・u+1d173 音楽記号「ビーム(開始)」
+            ・u+1d174 音楽記号「ビーム(終わり)」
+            ・u+1d175 音楽記号「タイ(開始)」
+            ・u+1d176 音楽記号「タイ(終わり)」
+            ・u+1d177 音楽記号「スラー(開始)」
+            ・u+1d178 音楽記号「スラー(終わり)」
+            ・u+1d179 音楽記号「開始フレーズ」
+            ・u+1d17a 音楽記号「終了フレーズ」
+            #ref: https://gigazine.net/news/20221208-invisible-characters/
+    コード:  #// 仕様, ライブラリ
+        BON:  #ref: ${programming}/文字/Unicode.svg#BOM
+        Code point, 合成済み文字: #keyword:  #// 1つの U+____。1文字ではない。U+000000 ~ U+10FFFF
+            仕様: #keyword: Unicode specifications
+                単位, 文字数:
+                    サンプル: 🧑‍🦰 = 🧑 + ZWJ + 🦰
+                        文字数 = 1
+                        Code point 文字数 = 3
+                        UTF-16数 = 5  #// サロゲート ペア は 2 とする
+                    文字数:
+                        Kotlin: ICU4J BreakIterator
+                    Code point 数:
+                        Kotlin: codePointCount()
+                    UTF-16 数:
+                        Kotlin: __String__.length
+                結合文字列: #keyword:
+                    🧑‍🦰: 🧑 + ZWJ + 🦰
+                        U+01F901 + U+00200D + U+01F9B0
+                    ば:
+                        1文字: U+003070, HIRAGANA LETTER BA
+                        結合文字列:  #// は＋濁点
+                            は: U+00306F, HIRAGANA LETTER HA
+                            ゙	: U+003099, COMBINING KATAKANA-HIRAGANA VOICED SOUND MARK
+                異体字セレクター: #keyword: Variation Selectors, 異体字セレクター  #// 書記素クラスター + セレクター
+                    概要: 一般的な文字の後に書くことで、その文字に色を付けたりします。
+                    VS16 (U+FE0F): 絵文字のバリエーション
+                    サンプル:
+                        ⚠️: #search: warning sign VS16
+                    #ref: https://en.m.wikipedia.org/wiki/Variation_Selectors_(Unicode_block)
+                    #// 下記の抽象は Code point
+                    書記素クラスター（基底文字）: #keyword:
+                        Swift: String.count
+                    セレクター:
+                    ZWJ (ZERO WIDTH JOINER): #keyword:
+                        🧑‍🦰 = 🧑 + ZWJ + 🦰
+                        U+01F901 + U+00200D + U+01F9B0
+                正規化: #keyword: Unicode normalization  #// 同じ文字でも文字コードが違うことがないようにします
+                    形式:
+                        NFC, 正規合成形式: 合成するように正規化した形式
+                        NFD, 正規分解形式: 分解するように正規化した形式
+                        NFKC, 互換合成形式: 多少違っても合成するように正規化した形式
+                        NFKD, 互換分解形式: 多少違っても分解するように正規化した形式
+                    正規化する:
+                        JavaScript (1): |
+                            let  originalString = 'フ\u3099'; // 「フ」と濁点の結合文字列
+                            let  normalizedString = originalString.normalize('NFC');
+                            console.log(normalizedString); // 出力される文字列は「プ」になります
+                        JavaScript (2): |
+                            function  normalizeString(str: string): string {
+                                return  str.normalize('NFKC')
+                                    .replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))       // zenkaku number to hankaku
+                                    .replace(/[Ａ-Ｚａ-ｚ]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)); // zenkaku alphabet to hankaku
+                            }
+            Swift: #keyword: Unicode Swift
+                count:
+                    String.count: 文字数
+                    String.unicodeScalars.count: Code point 文字数
+                    String.utf16.count: UTF-16数
+                    NSString.length: UTF-16数
+                    String.utf8.count: UTF-8バイト数
+                range:
+                    UITextRange:
+                    NSRange:
+                UITextView: |  #// UITextView のメソッドはすべて UTF-16 単位らしい
+                    textView.offset  (UTF-16)
+                    textView.text.startIndex
+                    text.endIndex.utf16Offset(in: text)
+                    UITextRange, UITextView.selectedRange
+            参考:  #ref: https://qiita.com/irgaly/items/5decdbf5ed89f9cf2c27
+        正規化: #search: Unicode normalization
+        リテラル: #keyword: Unicode code literal
+            JavaScript: '\u{3042}'  #// あ  #// 未確認
+            PowerShell:
+        正規表現:
+            JavaScript: |
+                "(あ)".replace(/\u{3042}/ug,'A')  #// '(A)'
+フォント変換:
+    顔文字: |  #keyword: 顔文字, AA
+        ⁽ ´꒳`⁾ 
+        ŧ‹"ŧ‹"🍴(*´༥` *)🍖ŧ‹"ŧ‹"
+        (   ｰ̀֊ｰ́ )
+        (ง ˆ̑ ‵̮ˆ̑)ว゛
+        ദ്ദി ˉ͈̀꒳ˉ͈́ )✧
+        ٩( ´ω` )و💖
+        ( ˘꒳˘)ｽﾖﾖ
+        (  ･᷄֊･᷅ )ﾏｼﾞ?
+Ascii: #keyword:
+    制御コード:
+        一覧:
+            10進	16進	コード	フルスペル	意味・用法
+            ------------------------------------------------
+            0	00	NUL	Null	空文字
+            1	01	SOH	Start Of Heading	ヘッダ開始
+            2	02	STX	Start Of Text	テキスト開始
+            3	03	ETX	End Of Text	テキスト終了
+            4	04	EOT	End Of Transmission	伝送終了
+            5	05	ENQ	Enquiry	問い合わせ
+            6	06	ACK	Acknowledgement	肯定応答
+            7	07	BEL	Bell	警告音を鳴らす
+            8	08	BS	Back Space	一文字後退
+            9	09	HT	Horizontal Tabulation	水平タブ
+            10	0a	LF / NL	Line Feed / New Line	改行
+            11	0b	VT	Vertical Tabulation	垂直タブ
+            12	0c	FF / NP	Form Feed / New Page	改ページ
+            13	0d	CR	Carriage Return	行頭復帰
+            14	0e	SO	Shift Out	シフトアウト(多バイト文字終了)
+            15	0f	SI	Shift In	シフトイン(多バイト文字開始)
+            16	10	DLE	Data Link Escape	データリンク拡張(バイナリ通信開始)
+            17	11	DC1	Device Control 1	装置制御1
+            18	12	DC2	Device Control 2	装置制御2
+            19	13	DC3	Device Control 3	装置制御3
+            20	14	DC4	Device Control 4	装置制御4
+            21	15	NAK	Negative Acknowledgement	否定応答
+            22	16	SYN	Synchronous idle	同期
+            23	17	ETB	End of Transmission Block	伝送ブロック終了
+            24	18	CAN	Cancel	取り消し
+            25	19	EM	End of Medium	記録媒体終端
+            26	1a	SUB / EOF	Substitute / End Of File	文字置換 / ファイル終端
+            27	1b	ESC	Escape	エスケープ(特殊文字開始)
+            28	1c	FS	File Separator	ファイル区切り
+            29	1d	GS	Group Separator	グループ区切り
+            30	1e	RS	Record Separator	レコード区切り
+            31	1f	US	Unit Separator	ユニット区切り
+            32	20	SPC	Space	空白文字
+            127	7f	DEL	Delete	一文字削除
+        改行文字:  #keyword: 改行文字,  改行コード CR \r LF \n CR+LF
+            OS 別:
+                Windows: CR+LF
+                mac, Linux: LF
+                古い mac: LF+CR
+            違いにうるさいプログラム:
+                bash: CR があるとエラーになってしまいます  #search: CRLF
+            禁則処理: #keyword:
+                日本語の単語を適切な位置で区切って読みやすく改行してくれる軽量でオープンソースなライブラリ BudouX
+                #ref: https://gigazine.net/news/20231001-budoux/
+        制御コードのリテラルの書き方:
+    表: |
+        10進  16進  ASCII | 10進  16進  ASCII | ...
+        -----------------------------------------------------------
+        0    0   NULL | 32   20   SP | 64   40   @ |   96   60   `
+        1    1   SOH  | 33   21   !  | 65   41   A |   97   61   a
+        2    2   STX  | 34   22   "  | 66   42   B |   98   62   b
+        3    3   ETX  | 35   23   #  | 67   43   C |   99   63   c
+        4    4   EOT  | 36   24   $  | 68   44   D |  100   64   d
+        5    5   ENG  | 37   25   %  | 69   45   E |  101   65   e
+        6    6   ACK  | 38   26   &  | 70   46   F |  102   66   f
+        7    7   BEL  | 39   27   '  | 71   47   G |  103   67   g
+        8    8   BS   | 40   28   (  | 72   48   H |  104   68   h
+        9    9   HT   | 41   29   )  | 73   49   I |  105   69   i
+        10   A   LF   | 42   2A   *  | 74   4A   J |  106   6A   j
+        11   B   VT   | 43   2B   +  | 75   4B   K |  107   6B   k
+        12   C   FF   | 44   2C   ,  | 76   4C   L |  108   6C   l
+        13   D   CR   | 45   2D   -  | 77   4D   M |  109   6D   m
+        14   E   SO   | 46   2E   .  | 78   4E   N |  110   6E   n
+        15   F   SI   | 47   2F   /  | 79   4F   O |  111   6F   o
+        16  10   DLE  | 48   30   0  | 80   50   P |  112   70   p
+        17  11   DC1  | 49   31   1  | 81   51   Q |  113   71   q
+        18  12   DC2  | 50   32   2  | 82   52   R |  114   72   r
+        19  13   DC3  | 51   33   3  | 83   53   S |  115   73   s
+        20  14   DC4  | 52   34   4  | 84   54   T |  116   74   t
+        21  15   NAK  | 53   35   5  | 85   55   U |  117   75   u
+        22  16   SYN  | 54   36   6  | 86   56   V |  118   76   v
+        23  17   ETB  | 55   37   7  | 87   57   W |  119   77   w
+        24  18   CAN  | 56   38   8  | 88   58   X |  120   78   x
+        25  19   EM   | 57   39   9  | 89   59   Y |  121   79   y
+        26  1A   SUB  | 58   3A   :  | 90   5A   Z |  122   7A   z
+        27  1B   ESC  | 59   3B   ;  | 91   5B   [ |  123   7B   {
+        28  1C   FS   | 60   3C   <  | 92   5C   \ |  124   7C   |
+        29  1D   GS   | 61   3D   =  | 93   5D   ] |  125   7D   }
+        30  1E   RS   | 62   3E   >  | 94   5E   ^ |  126   7E   ~
+        31  1F   US   | 63   3F   ?  | 95   5F   _ |  127   7F   DEL
+BNF: #keyword: BNF, Backus–Naur form
+    #ref: https://ja.wikipedia.org/wiki/バッカス・ナウア記法
+    基本:
+        <__Symbol__> :== "__String__"
+        <__Symbol__> :== "__String__" | "__String__"
+        <__Symbol__> :== <__Symbol__> | "__String__"
+        <__Symbol__> :== <__Symbol__> | <__Symbol__>
+    拡張:
+        1つ以上の 繰り返し:
+            - ____+
+            - ( ____ )+
+形態素解析: #keyword:  #ref: https://ja.wikipedia.org/wiki/形態素解析
+    最長一致法:  #ref: https://www.anlp.jp/proceedings/annual_meeting/1996/pdf_dir/A3-5.pdf
+iPhone用 全角スペース:  #// "　　　　"  #keyword: full suze spc
+    参考: https://drive.google.com/drive/folders/1a7lvbsqFIpqwQ44GM_yjvLBu4LaeXa3u
+設定: #settings:
+    __Variable__: __Contents__

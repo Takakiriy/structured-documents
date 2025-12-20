@@ -1,0 +1,2942 @@
+#keyword: Test.yaml, test
+テスト:
+    リグレッション テスト: #keyword: リグレッション テスト,  デグレード試験
+    権限のテスト: #keyword: 権限 テスト
+        表示内容のテスト:
+            項目の有無や内容のチェック
+            エラーメッセージのチェック
+        API 呼び出し拒否のテスト: #keyword: API 呼び出し 拒否 テスト
+            API を呼び出すテスト:
+                テスト仕様作成:
+                    権限があるときの API の URL 等を確認します:
+                    想定される攻撃の curl コマンドを作ります:
+                    #// 項目を一時的に表示するのは難しい
+                テスト実施:
+                    curl を実行します:  #// または API 呼び出しの テスト スイート を使います
+                        -   エラーが返ることをチェックします
+                        -   少なくとも、判定関数に期待通りの値が渡されることをチェックします
+            判定条件のテスト:
+                判定関数の単体テストを作ります:
+        参考 >> 権限:  #search: 権限
+    ガイド メッセージ: |  #keyword: test guide message,  test check message print echo
+        "The program will check for errors in the output file."（プログラムが自動的にチェック）
+        "Please check the output file for any errors."（人間にチェックを依頼）
+CI/CD:
+    ベストプラクティス:  #keyword:
+        一般:
+            - git clone と１つのコマンド（オプションあり）でインストールとテストを実行できるようにします  #// 複雑にしない
+            - #search: テスト環境、テストデータ
+            - #search: DEV STG PRD (PROD) 環境  #// パッケージ管理
+        構成:
+            一般的な構成:
+                ローカル（開発環境）:
+                    Docker 内: { OS, SSH(VSCode用), ライブラリ, 開発サービス, 単体テスト, 結合テスト, DB 等 }
+                DEV 環境:  #// Vagrant でローカルにも作れる
+                    Docker 内: { OS, ライブラリ, 結合テスト(-v) }   #// -v は Docker volume でマウントしたリポジトリの clone
+                    Docker 外: OS, ライブラリ, 開発サービス(RPM), DB 等  #// ちなみに Docker 外 と書いているが、単一サービスの Docker コンテナーも考えられる
+                CI のランナー環境:
+                    #// 以下のいずれか、または両方
+                    - ローカルと同じ構成でテスト実行
+                    - 開発サービスのデプロイと、Docker 内 のテスト実行
+            ローカルでテストする構成: #keyword: CI/CD local test environment  #// CI 環境で実行できない場合
+                テストが Pass したらファイルの一覧を保存し、最新コミットと合っていることをチェックします:
+                    - テストが Pass したら、テストの ログ ファイル にファイル構成を含めます
+                    - CI 環境ではファイル構成が一致していることをテストします（ただし、ログ ファイル 以外） #search: CRC
+        もうすぐ期限切れ通知: #keyword: CI/CD comming soon notification,  もうすぐ期限切れ通知
+            通知する時期になったら、頻繁に実行される CI/CD のコマンド列の最後でシェルスクリプト的にエラーにするのが最もシンプル。
+            その際、エラーを発生させたコードの場所を エラー メッセージ に含める。ドキュメントにも含める。
+            SMTP を呼び出してメール通知するなどは複雑になるので非推奨。
+    用語:
+        CI, 継続的インテグレーション:
+            git push したらビルドとテストが行われます
+        CD, 継続的デリバリー:
+            CI でビルドされたサービスを、手動でデプロイを開始し、デプロイを自動的に行います
+            #ref: https://gitlab-docs.creationline.com/ee/ci/introduction/#continuous-delivery
+            #ref: https://gitlab-docs.creationline.com/ee/ci/pipelines/#パイプラインへ手動アクションの追加
+        CD, 継続的デプロイ:  #// 継続的デプロイメント
+            CI でビルドされたサービスのテストが通ったら、自動的にデプロイも行います
+            #ref: https://gitlab-docs.creationline.com/ee/ci/introduction/#continuous-deployment
+E2E test tools: #keyword:
+    ローカル？: Playwright, Testsigma, Selenium, Cypress, Cucumber, Testim
+    クラウド？: testRigor, QA Wolf, Autify, Mabl, SmartBear, Selenium WebDriver, Cypress, TestCafe, Endtest
+    #ref: https://testsigma.com/blog/end-to-end-testing-frameworks/
+    #search: React test
+Playwright: #keyword:  #// プレイライト、劇作家。 playright や playwrite ではない  #ref: https://playwright.dev/  ,  https://playwright.dev/docs/intro
+    概要:
+        await が使えてステップ実行が分かりやすい。
+        Windows 版では Visual Studio Code でステップ実行すると Chromium も開きます。
+    手順, インストール:
+        （プロジェクト）: #keyword: try_Playwright  #// 既存のプロジェクトを使う場合
+            #ref: ${GitHub}/Trials/try_Playwright/try_Playwright_1_49
+            #ref: ${GitHub}/Trials/try_Playwright/try_Playwright_1_35
+        インストール: #keyword: install Playwright
+            Windows 10:  #// Windows 10 に Playwright をインストールします
+                Node.js をインストールします:
+                    #search: VSCode Node.js
+                Playwright をインストールします:
+                    Node.js 18,16 の場合、PowerShell: |
+                        cd  ~/Desktop
+                        mkdir  try_playwright
+                        cd  try_playwright
+                        npm init -y playwright  #// オプションはすべてデフォルト。Enter を何度も押します。
+                    Node.js 14 の場合、PowerShell: |
+                        cd  ~/Desktop
+                        ls  playwright    #// 存在しないことを確認します
+                        npm init -y playwright  #// オプションはすべてデフォルト。Enter を何度も押します。
+                        PowerShell を閉じて、新しい PowerShell を開きます。
+                        cd  ~/Desktop
+                        mv  playwright  try_playwright
+                        cd  try_playwright
+                    PowerShell: |
+                        npm install --save-dev @types/node
+                            #// __dirname などが使えるようになります
+                            #// @types/node をインストールしたときに Visual Studio Code が開いていたら閉じてください
+                        code  ~/Desktop/try_playwright
+                        PowerShell を閉じます
+                        #// 不要なら playwright.config.ts の firefox, webkit の部分を コメント アウト
+                    Visual Studio Code を使う場合: |
+                        code  "."  #// Visual Studio Code の起動
+                        Playwright Test for VSCode 拡張機能をインストール
+                        VSCode >> Testing（フラスコ ボタン：左）>> Run Test（テスト項目にマウスを合わせて△ボタン）
+                        Windows 版では ブレークポイントを張ってデバッグ実行すると Chromium が開いてステップ実行できます。
+                実行します:  #search: run Windows Playwright
+            CentOS7: #keyword: install Playwright CentOS7  #// CentOS7 に Playwright をインストールします
+                注意:
+                    Linux 版のデフォルトでは Chromium でのテストのみデバッガーなしで動きます。
+                    CentOS 7 では Node.js 14, 16 で動作。Node.js 12, 18 は NG。
+                Node.js をインストールします:
+                    #search: VSCode Node.js
+                Playwright をインストールします:
+                    bash: |
+                        mkdir ~/Desktop/try_playwright
+                        cd    ~/Desktop/try_playwright
+                        npm init -y playwright  #// オプションはすべてデフォルト。Enter を何度も押します。
+                        #// 不要なら playwright.config.ts の firefox, webkit の部分を コメント アウト
+                    Visual Studio Code を使う場合:
+                        VSCode >> Testing（フラスコ ボタン：左）>> Run Test（テスト項目にマウスを合わせて△ボタン）
+                        Chromium でのテストのみデバッガーなしで動きます。
+                    CLI の場合:
+                        npx playwright install
+                        npx playwright test
+                            または
+                        npx playwright test --ui
+                実行します:  #search: Playwright CLI
+            WSL2:  #// WSL2 に Playwright をインストールします。できるけど、すごい遅い
+                WSL2 と Node.js をインストールします:
+                    #search: install Node.js
+                Playwright をインストールします: |
+                    mkdir  try_playwright
+                    cd     try_playwright
+                    npm init -y playwright@latest  #// オプションはすべてデフォルト。Enter を何度も押します。
+                    npx playwright test
+                        または
+                    npx playwright test --ui
+                #search: run WSL2 Playwright 
+            CLI:  #search: Playwright CLI
+            ブラウザーの更新: #keyword: install Playwright attached browser
+                最新バージョン:  #// Playwright がサポートするブラウザーのバージョンを調べます
+                    https://github.com/microsoft/playwright/releases
+                更新:  #// Playwright が使うブラウザーを最新バージョンに更新します
+                    npm install -D @playwright/test@latest
+                    npx playwright install chromium
+                    npx playwright --version
+        テスト作成:
+            ログイン状態の保存:
+            GUI 操作:  #// テスト コード による GUI の操作
+                URL 指定, ページ移動: #keyword: Playwright page.goto
+                    動作確認: |  #// baseURL を使わない場合
+                        test('has title', async ({ page }) => {
+                            await page.goto('http://localhost:3000/');
+                        });
+                    基本:  #// baseURL を使う場合  #keyword: Playwright baseURL
+                        playwright.config.ts: |
+                            export default defineConfig({
+                                use: {
+                                    baseURL: 'http://127.0.0.1:3000',
+                        テスト: |
+                            test('has title', async ({ page }) => {
+                                await page.goto('/');
+                            });
+                    ローカル ファイル を開く場合:
+                        テスト:
+                            tests/test.spec.ts: |
+                                test('My First Test', async ({ page }) => {
+                                    await page.goto(`${__dirname}/test_target_1.html`);
+                            tests/test_target_1.html: |
+                                (HTML)
+                            確認済み:
+                                Windows
+                        値のサンプル:
+                            Windows + Chromium: file://C:/Users/user1/test_target_1.html
+                        注意: |
+                            playwright.config.ts の baseURL に  baseURL: 'file:///C:/Users/____' を設定しても機能しません
+                    関数にする場合:  #focus: goToPage
+                        __Project__/tests/example.ts: |
+                            import { test, expect } from '@playwright/test';
+                            import * as lib from 'tests/lib';
+
+                            test('has title', async ({ page }) => {
+                                await lib.goToPage(page, '/#/monthly-reports');
+                                await expect(page).toHaveTitle(/__Service__/);
+                            });
+                        __Project__/tests/lib.ts: |
+                            import { Page } from '@playwright/test';
+
+                            export async function  goToPage(page: Page, path: string) {
+                                await page.goto(`http://localhost:3000${path}`);
+                            }
+                クリック:
+                    - await page.locator(getTextSelector(["適用"])).click();  #search: Playwright getTextSelector
+                    - await page.getByTestId('select').click();
+                キーボード入力:  #search: Playwright input keyboard
+            get, Locators, GUI 部品の選択:  #search: Playwright get  #// GUI 部品の選択  #ref: https://playwright.dev/docs/locators
+                await page.getByTestId('directions').click();
+            チェック, アサーション: #keyword: Playwright assertion,  Playwright expect  #ref: https://playwright.dev/docs/test-assertions
+                表示内容のチェック:  #keyword: Playwright toBeVisible
+                    サンプル: |
+                        await expect(page.getByText('__VisibleText__', { exact: false })).toBeVisible();   // exact false は部分一致
+                        await expect( page.getByTestId('status') ).toHaveText('Submitted');
+                    参照:  #// GUI 部品の特定方法
+                        #search: Playwright CSS selector
+                        #search: Playwright getByTestId
+                        #search: Playwright assertion methods
+                    ダイアログ, alert:  #keyword: Playwright dialog assertion,  Playwright alert
+                        ダイアログに表示されるメッセージを待つ:
+                            コード: |  #focus: dialog
+                                test('wait for message', async ({ page }) => {
+                                    test.setTimeout((3*60+10)*1000);  // Time out of test case
+
+                                    await page.goto('https://______');
+                                    const dialog = await page.waitForEvent('dialog', {timeout: (3*60+10)*1000});  // Time out of this waiting
+                                    expect(dialog.message()).toContain('サーバーとの通信でエラーが発生');
+                                });
+                            setTimeout:
+                                待つ時間が長いときは、waitForEvent に指定したタイムアウトとは別に、
+                                テスト項目のタイムアウトも変える必要があります。
+                await の有無:
+                    サンプル:
+                        - expect(__Locator__).toHaveText(____);
+                        - await expect(__Locator__).toHaveText(____);
+                    違い:
+                        await が無い: すぐに判定します
+                        await がある: 期待値になるまで待ちます
+                メソッド: #keyword: Playwright assertion methods
+                    主なメソッド:
+                        toBeEmpty, toContainText, toHaveText, toHaveValue, toHaveValues, ...
+                        toBeFocused, toBeVisible,
+                        toHaveURL, toHaveTitle,
+                        toPass,
+                    toPass: #keyword: Playwright toPass  #ref: https://playwright.dev/docs/test-assertions
+                        書式:
+                            - await expect(__AssertionOperation__).toPass()
+                            - await expect(__AssertionOperation__).toPass(__Options__)
+                        サンプル: |
+                            await expect(async () => {
+                                const response = await page.request.get('https://api.example.com');
+                                expect(response.status()).toBe(200);
+                            }).toPass();
+                        __Options__:  #search: Playwright polling options
+                not など:  #// expect.not, expect.soft など
+                    not:  #// 指定した条件に満たないのが期待値
+                        expect(value).not.toEqual(0);
+                    soft:  #// エラーが発生しても中断しない
+                        expect(value).soft.toEqual(0);
+                    poll:  #// ポーリング。状態を得る処理を書きます  #ref: https://playwright.dev/docs/test-assertions
+                        書式: expect.poll(__GetOperation__, __Options__)
+                        __GetOperation__: |  #// テスト対象の値を返します
+                            async () => {
+                                const response = await page.request.get('https://api.example.com');
+                                return response.status();
+                            }
+                        __Options__:  #keyword: Playwright polling options
+                            サンプル: |
+                                {
+                                    message: 'make sure API eventually succeeds',
+                                    timeout: 10000,
+                                    intervals: [1_000, 2_000, 10_000],
+                                }
+                            intervals:  #// __GetOperation__ を呼び出す間隔
+                                デフォルト: [100, 250, 500, 1000]
+                                単位: ミリ秒
+                        関連:
+                            toPass,  expect を __GetOperation__ に書く場合, :  #search: Playwright toPass
+                    expect.configure: #search:
+                エラー メッセージ:  #// 標準的な エラー メッセージ から変える場合
+                    コード:
+                        expect(__Locator__, __ErrorMessage__).toBe___
+                        expect(page.getByText('Name'), 'should be logged in').toBeVisible();
+            ファイル: #keyword: Playwright file,  Playwright fixture  #// テストで プロジェクト にあるファイルを扱います
+                テキスト形式:  #// readFile の返り値は Buffer クラスです  #keyword: JavaScript Buffer
+                    const  customers = (await fs.readFile(`tests/fixtures/customers.json`)).toString();
+                JSON 形式をパースしたオブジェクト:  #keyword: Playwright node-fetch  #// JSON ファイルの内容をテストで使います
+                    テスト: |
+                        import * as lib from 'tests/lib';
+                        const  customers = await lib.fetchAPI('/api/customers');
+                    __Project__/tests/lib.ts: |
+                        import fetch from 'node-fetch'; // npm install node-fetch@2 @types/node-fetch@2 for Node.js 18 earlier
+
+                        export async function  fetchAPI(path: string) {
+                            return (await fetch(`http://localhost:3000${path}`)).json();
+                        }
+                    #// node-fetch は、baseURL の設定を使いません
+            テストごとに blank ページに移らせない:  #search: browser.newPage
+        実行します, テスト, デバッグ: #keyword: run Playwright
+            全部: #keyword: run all Playwright  #// プロジェクトを開いて、全てのテストを実行します
+                CLI, Linux:  #keyword: Playwright CLI  #// Linux または Windows git bash
+                    cd __Project__
+                    nvm use __NpmVersion__
+                    npm ci
+                    npx playwright install
+                    npx playwright test
+                    #search: install Playwright CentOS7
+                Windows: #keyword: run Windows Playwright
+                    テスト プロジェクト を Windows で git clone します:
+                        Linux で開発している場合、Linux と Windows の両方で git clone します。
+                        ブランチは Linux 環境で使うブランチと同じです。
+                        Windows で変更した内容を Linux 環境と同期するときは、git で行います。
+                    Playwright をインストールします:
+                        #search: install Playwright
+                    VS Code を開きます:
+                        code  "__ThisTestProject__"  #// Visual Studio Code の起動
+                    拡張機能をインストールします:
+                        Playwright Test for VSCode 拡張機能
+                    Testing ビュー を開きます:
+                        VSCode >> Testing（フラスコ ボタン：左）
+                    Testing ビューにテストが一覧されないとき:
+                        ビューをリロードする
+                            または
+                        npm install -D @playwright/test@latest
+                    実行します:
+                        VSCode >> Testing（フラスコ ボタン：左）>> Run Test（テスト項目にマウスを合わせて△ボタン）
+                    デバッグします:  #search: Playwright debug
+                WSL2 Windows: #keyword: run WSL2 Playwright  #// Windows 版 Playwright を WSL2 の Linux のフォルダー で実行します
+                    できるけど、すごい遅い
+            一部:  #// 一部の テスト コード をテストまたはデバッグします
+                CLI:  #// デバッガーなし
+                    基本的な実行ができることを確認します:
+                        #search: run all Playwright
+                    テスト名を正規表現で指定する場合:  #// describe
+                        - npx playwright test  --grep "__TestTitle__"
+                            #// または
+                        - npx playwright test  -g "__TestTitle__"
+                    ファイル名を指定する場合: |
+                        npx playwright test  tests/my-test.spec.ts
+                        npx playwright test  "example.spec.ts:42"   #// 42 行目にあるテスト
+                        npx playwright test  "example.spec.ts"
+                        npx playwright test  "example.spec.ts"  "folder/"  "folder2/"
+                    タグを指定する場合:
+                        テスト コード: |
+                            test('高速なテストケース', async ({ page }) => {
+                            // テスト内容
+                            }, { tags: ['fast'] });
+                        コマンド:
+                            npx playwright test --grep-tag "fast"
+                Visual Studio Code でデバッグします: #keyword: Playwright debug
+                    基本的な実行ができることを確認します:
+                        #search: run Windows Playwright
+                    設定 Reuse Browser にチェックを入れます: |
+                            VSCode >> 歯車 ボタン（左下）>> Settings >> Playwright: Reuse Browser（と入力）
+                        #// ちなみに Playwright: だけ入力すると Playwright に関する設定を一覧できます
+                    テストを実行します:
+                        VSCode >> Testing（フラスコ ボタン：左）>>（テストにマウスを合わせて）Run Test（デバッガーなし）または Debug Test（デバッガーあり）
+                        #// Debug Test で起動するデバッガーはテストに対してのみデバッグできます
+                    Web アプリケーション にブレークポイントを張ります:
+                        ブラウザーが開いたら、ブラウザーの開発者ツールを開いてブレークポイントを張ります
+                    テストを再実行します:
+                        #// ブラウザーがブレークします
+                    デバッグが終わったら:
+                        設定 Reuse Browser のチェックを外します
+                        #// チェックを外すと Run Test（デバッガーなし）で実行するときにブラウザーが開かないようになり、速くなります
+                    関連:
+                        CLI の場合:  #ref: https://playwright.dev/docs/debug#browser-developer-tools
+            サービスの状態別:  #// サービスの状態に応じて、一部のいくつかのテストだけ実行します
+                フィルターを使う場合:
+                    テスト コード:  #// タグのサンプル： @standard
+                        テスト名にタグをつける場合: |
+                            test('testDisplay @__Tag__', async ({ page }) => {
+                        フォルダー名にタグを付ける場合: |  #// 空白を付けても Linux でも動きます
+                            ./tests/1_first @__Tag__/
+                    VSCode の Testing ビューの場合:
+                        Filter に @playwright:@__Tag__ と入力します:
+                            手順:
+                                VSCode >> Testing ビュー >> Filter（左上）=  @playwright:@__Tag__
+                            入力バリエーション: |
+                                @playwright:@__Tag__     #// @__Tag__ を含むテストやファイルやフォルダー
+                                !@                       #// @ を含まないテストやファイルやフォルダー
+                        すべて実行します:  #// フィルタリングされて表示されたテストだけが対象です
+                            VSCode >> Testing ビュー >>（ルート のテストにマウスを合わせる）>> Run Test ボタン
+                    CLI の場合:
+                        - npx playwright test --grep @__Tag__   #// VSCode Testing view Filter: @playwright:@__Tag__
+                            #// 環境によっては nvm exec v16.20.1  npx ____ というコマンドになります
+                        - npx playwright test --grep-invert @__Tag__  #// 除外指定
+                        - npx playwright test --grep-invert "@"  #// VSCode Testing view Filter: "!@" or "@playwright:@standard"
+                            #// @ から始まるタグが付いているテストは全て除外
+                スキップを使う場合: |
+                    test('testDisplay', async ({ page }) => {
+                        test.skip(true, 'このテストは特定モードでのみ実行されます');
+        結果を見る:
+            動画を撮る:  #ref: https://zenn.dev/reflex4qa/articles/b9ce85908a9374
+                playwright.config.ts : |
+                    use: {
+                        video: 'on',
+            失敗したときのスクショを取る:
+                _: Playwright のテストが失敗した際に自動でスクリーンショットを取るには、テストの設定で onFailure オプションを利用します。以下のようにテストスクリプトに追加することができます
+                playwright.config.js : |
+                    import { PlaywrightTestConfig } from '@playwright/test';
+                    const config: PlaywrightTestConfig = {
+                        use: {
+                            screenshot: 'only-on-failure',
+                        },
+                    };
+                    export default config;
+    コマンド:
+        npx playwright test  #search: Playwright CLI
+    概念:
+        ブラウザー:  #// 画面  #search: Playwright viewport
+            storageState: #keyword: Playwright storageState  #// ブラウザーが現在開いている状態、および、それを保存したファイル
+                #ref: https://playwright.dev/docs/api/class-apirequestcontext#api-request-context-storage-state
+                ログイン後の状態を保存します: #keyword: save Playwright storageState
+                    #// ブラウザーが現在開いている状態をファイルに保存します。認証情報も含みます
+                    状態を作るコードに変更します:
+                        __Project__/playwright.config.ts: |  #focus: storageState  #// storageState フィールド をコメントアウトします
+                            export default defineConfig({
+                                use: {
+                                    // storageState: '_state.json',
+                        __Project__/tests/example.spec.ts: |  #focus: storageState  #// 保存するコードにあるコメントアウトを無くします
+                            test('open first page', async ({ page }) => {
+                                await page.goto('https://____/');
+                                await page.context().storageState({ path: '_state.json' });  // __Project__/_state.json にブラウザーの状態を保存します
+                                await expect(page).toHaveTitle(/__Title__/);
+                            });
+                    保存するコードに ブレーク ポイント を張ります:
+                        await page.context().storageState(____
+                    デバッガーでテストを起動します:
+                        VSCode >> Testing ビュー
+                    ブレークしたらブラウザーからログインします:
+                        ユーザー名: ____
+                        パスワード: ____
+                    ログインしたらブレークしていた場所から再開します:
+                        #// ブラウザーの状態が保存された storageState ファイル が作られます
+                        できるファイルは .gitignore に設定してください:
+                        storageState ファイル の概要:  #keyword: storageState contents  #// storageState には以下の情報が保存されます
+                            - Cookies
+                            - localStorage
+                            - ブラウザーの sessionStorage
+                            - Origins (サイトごとの権限設定など)
+                    状態を使うコードに戻します:
+                        __Project__/playwright.config.ts: |  #focus: storageState  #// storageState フィールド にあるコメントアウトを無くします
+                            export default defineConfig({
+                                use: {
+                                    storageState: '_state.json',
+                        __Project__/tests/example.spec.ts: |  #focus: storageState  #// 保存するコードをコメントアウトします
+                            test('open first page', async ({ page }) => {
+                                await page.goto('https://____/');
+                                // await page.context().storageState({ path: '_state.json' });  // __Project__/_state.json にブラウザーの状態を保存します
+                                await expect(page).toHaveTitle(/__Title__/);
+                            });
+            ブラウザー内: #search: Playwright page.evaluate  #// ブラウザー内でテストに書かれた JavaScript を実行します
+            セッション: #keyword: Playwright session
+                セッション ストレージ:  #ref: https://playwright.dev/docs/auth#session-storage
+            コンテキスト: #keyword: Playwright context  #// ユーザーに相当します
+                マルチ コンテキスト のテスト: #keyword: Playwright multi context
+                    #ref: https://playwright.dev/docs/browser-contexts#multiple-contexts-in-a-single-test
+            ページ: #keyword: Playwright page  #// ブラウザーのタブに相当します  #ref: https://playwright.dev/docs/pages
+                テストごとに blank ページに移らせない: #keyword: browser.newPage
+                    デフォルトの動き: すべての test 関数を呼び出す直前でブラウザーは blank ページ に飛びます
+                    サンプル: |  #ref: ${GitHub}/Trials/try_Playwright/try_Playwright_1_35/tests/2.spec.ts#browser.newPage
+                        test.beforeAll(async ({ browser }) => {
+                            page = await browser.newPage();
+                        });
+
+                        test.afterAll(async () => {
+                            await page.close();
+                        });
+                    #ref: https://stackoverflow.com/questions/69572778/playwright-browser-is-reopening-every-test-statement
+        URL:
+            ジャンプ:  #search: Playwright page.goto
+            ベース URL:  #search: Playwright baseURL
+            API モック:  #ref: https://playwright.dev/docs/mock-browser-apis
+                #ref: https://playwright.dev/docs/best-practices#avoid-testing-third-party-dependencies
+                #ref: https://playwright.dev/docs/best-practices#use-chaining-and-filtering
+        GUI 部品: #keyword: Playwright GUI parts
+            CSS セレクター:  #search: Playwright CSS selector
+            テキスト:  #ref: https://playwright.dev/docs/other-locators#css-matching-by-text
+                locator:  page.locator('#result-table  td:has-text("__Part__")')
+                入力: #keyword: Playwright input keyboard
+                    .fill(): #keyword: Playwright fill form  #// フォームフィールドにテキストを入力する最も一般的な方法
+                        await page.fill('input[name="username"]', 'ユーザー名');
+                        await page.fill('#password', 'パスワード');
+                    .pressSequentially: #keyword: Playwright pressSequentially keyboard #// （旧）実際のキーボード入力をシミュレートする。1文字ずつ入力
+                        await page.locator('input[name="username"]').pressSequentially('ユーザー名');
+                    .type(): #keyword: Playwright type keyboard #// （旧）実際のキーボード入力をシミュレートする。1文字ずつ入力
+                        #// Deprecated
+                        await page.type('input[name="username"]', 'ユーザー名');
+                    特殊キーの入力: #keyword: Playwright press  #// Enter キー など
+                        await page.fill('input[name="q"]', '検索ワード');
+                        await page.press('input[name="q"]', 'Enter');
+                        await page.keyboard.press('Enter');
+                    ショートカット:
+                        await page.keyboard.press('Control+A');
+                    キーを押したままにする:
+                        await page.keyboard.down('Shift');
+                        await page.click('div.selectable');
+                        await page.keyboard.up('Shift');
+                    複数のキーを順番に入力:  #search: Playwright type keyboard
+                        #// Deprecated
+                        await page.keyboard.type('こんにちは世界');
+            絞り込み: |
+                await page.locator('#table2  #input-text').fill('ABC');
+                await page.getByTestId('__Parent__').getByTestId('__Child__').click();
+            親 HTML 要素:
+                const  tr = td.locator('xpath=..');
+                const  tbody = td.locator('xpath=../..');
+            表の行番号:
+                getRowIndex: #keyword: Playwright getRowIndex  #// 指定した <td> タグがある行番号を返します。0以上
+                    使用例: |
+                        const  td = page.locator('#result-table  td:has-text("B")');
+                        const  index = await getRowIndex(page, td);
+                    定義:  #ref: ${GitHub}/Trials/try_Playwright/try_Playwright_1_35/tests/lib.ts
+            ブラウザー内: #search: Playwright page.evaluate
+        チェック, アサーション:  #search: Playwright assertion
+        ファイル:  #search: Playwright file
+    ファイル:
+        playwright.config.ts: #keyword: playwright.config.ts  #ref: https://playwright.dev/docs/api/class-testconfig
+            基本: |
+                import { defineConfig } from '@playwright/test';
+
+                export default defineConfig({
+                    use: {  // #search: Playwright defineConfig use
+                        baseURL: "http://localhost:3000",
+                        viewport: { width: 1280, height: 720 },
+                    },
+                    expect: {  // #search: Playwright defineConfig expect
+                        timeout: 10000,
+                        toMatchSnapshot: {
+                            maxDiffPixels: 10,
+                        },
+                    },
+                });
+            動的変更, expect.configure: | #keyword: expect.configure  #// 設定を変更してアサーションする expect
+                const slowExpect = expect.configure({ timeout: 10000 });
+                await slowExpect(locator).toHaveText('Submit');
+            変数参照: #// 未確認
+                testConfig.expect.timeout
+            リファレンス: #glossary: Playwright defineConfig
+                use: #glossary: Playwright  #ref: https://playwright.dev/docs/api/class-testoptions  #ref: https://playwright.dev/docs/api/class-testconfig#test-config-use
+                    baseURL:  #search: Playwright baseURL
+                    viewport: |
+                        export default defineConfig({
+                            use: {
+                                viewport: { width: 1280, height: 720 },
+                expect: #glossary: Playwright  
+        config.json:  #// 開発するテスト独自の設定ファイルによく使われるファイル名。プロジェクトのルートに置きます
+        .env:  #// 開発するテスト独自の環境変数
+        テスト データ:  #search: Playwright file
+    コード:
+        page:
+            goto:  #search: Playwright page.goto
+            evaluate:  #keyword: Playwright page.evaluate  #// ブラウザー内でテストに書かれた JavaScript を実行します
+                書式:
+                    - await page.evaluate(__0ParametersJavaScriptFunction__)
+                    - await page.evaluate(__1ParametersJavaScriptFunction__, __Parameter1__)
+                    - await page.evaluate(__2ParametersJavaScriptFunction__, __Parameter1__, __Parameter2__)
+                サンプル: |
+                    await page.evaluate((p) => p.el.setAttribute('data-unique-id', p.id), {el: tdParentElement, id: uniqueId});
+        locator, get: #keyword: Playwright locator,  Playwright get  #ref: https://playwright.dev/docs/locators
+            （分類）:  #search: Playwright GUI parts
+            locator, $:  #keyword: Playwright CSS selector  #ref: https://playwright.dev/docs/other-locators#css-locator
+                ブラウザーで場所を確認する:
+                    一度テストを実行します:  #// Playwright と接続したブラウザーを開きます
+                    テスト関数の中に page.locater を書きます:
+                        page.locator('//*[contains(text(), "有効")][1]');
+                    page.locater のコードにマウスを合わせます:
+                        ブラウザーに該当する場所が強調表示されます
+                page.locator と mocal.locator:
+                    モーダルダイアログ内の要素にアクセスする場合: mocal.locator
+                表示されているテキスト:
+                    page.locator('//*[contains(text(), "有効")][1]');
+                        または
+                    page.locator(getTextSelector(["有効"]));  #search: Playwright getTextSelector
+                指定のテストの後の最初のテキスト: |
+                    page.locator('//*[contains(text(), "暗号化")]/following::*[contains(text(), "有効")][1]');
+                        または
+                    page.locator(getTextSelector(["暗号化", "有効"]));  #search: Playwright getTextSelector
+                getTextSelector: | #keyword: Playwright getTextSelector  #// テキストを選択するセレクターを返す関数
+                    function  getTextSelector(texts: string[]): string {
+                        if (texts.length === 1) {
+                            return  `//*[contains(text(), "${texts[0]}")][1]`;
+                        } else if (texts.length === 2) {
+                            return  `//*[contains(text(), "${texts[0]}")]/following::*[contains(text(), "${texts[1]}")][1]`;
+                        } else {
+                            throw new Error('not supported parameters in selectorText function');
+                        }
+                    }
+                ボタン:
+                    page.locator('button:has-text("更新")')
+                HTML: |  #focus: input-text
+                    <input type="text" id="input-text"/>
+                locator を使うテスト: #keyword: Playwright locator
+                    - page.locator('#input-text').fill('ABC');
+                $ を使うテスト: #keyword: Playwright $  #// await と括弧が多いです
+                    - await (await page.$('#input-text'))?.fill('ABC');
+            get 系メソッド:
+                getByTestId: #keyword: Playwright getByTestId  #// <_ data-testid>  #ref: https://playwright.dev/docs/api/class-page#page-get-by-test-id
+                    HTML: |  #focus: directions  #keyword: Playwright data-testid
+                        <button data-testid="directions">Itinéraire</button>
+                    テスト:
+                        await page.getByTestId('directions').click();
+                    data-testid から変える場合:  #ref: https://playwright.dev/docs/locators#set-a-custom-test-id-attribute
+                getByLabel: #keyword: Playwright getByLabel  #// <label>  #ref: https://playwright.dev/docs/api/class-page#page-get-by-label
+                    <label><input>:  #focus: Password
+                        HTML: |
+                            <label for="password-input">Password:</label>
+                            <input id="password-input">
+                        テスト: |  #// <label> の中の一部？
+                            await page.getByLabel('Password').fill('secret');
+                    <input aria-label>:  #focus: Username
+                        HTML: |
+                            <input aria-label="Username">
+                        テスト: |
+                            await page.getByLabel('Username').fill('john');
+                getByPlaceholder: #keyword: Playwright getByPlaceholder  #// <input placeholder>  #ref: https://playwright.dev/docs/api/class-page#page-get-by-placeholder
+                    HTML: |  #focus: name@example.com
+                        <input type="email" placeholder="name@example.com" />
+                    テスト: |
+                        await page
+                            .getByPlaceholder("name@example.com")
+                            .fill("playwright@microsoft.com");
+                getByText: #keyword: Playwright getByText  #// <span>  #ref: https://playwright.dev/docs/api/class-page#page-get-by-text
+                    HTML: |  #focus: Welcome
+                        <span>Welcome, John</span>
+                    テスト:
+                        一部: |  #// テキストの一部を指定する場合
+                            await expect(page.getByText('Welcome')).toBeVisible();
+                        全体: |  #// テキストの全体を指定する場合
+                            await expect(page.getByText('Welcome, John', { exact: true })).toBeVisible();
+                        正規表現: |
+                            await expect(page.getByText(/welcome, [A-Za-z]+$/i)).toBeVisible();
+                getByRole: #keyword: Playwright getByRole  #ref: https://playwright.dev/docs/api/class-page#page-get-by-role
+                    サンプル:
+                        HTML: |
+                            <button>Sign in</button>
+                        テスト: |  #// ボタンの表示名？
+                            await page.getByRole('button', { name: 'Sign in' }).click();
+                    主なロール:
+                        'button':
+                        'checkbox':
+                        'heading': <h1>..<h6>
+        ElementHandle:  #// ElementHandle<SVGElement | HTMLElement>  #// get の返り値を await したもの  #search: Playwright get
+            click:
+                await page.locator('#input-button').click();
+            fill:  #// テキストを入力します。既存のテキストから置き換えます
+                await page.locator('#input-text').fill('ABC');
+            type:  #// テキストを追加入力します
+            getAttribute:  #// HTML の属性値を返します
+                const  id = await page.locator('#result-table  td:has-text("B")').getAttribute('id');
+            setAttribute: |  #// HTML の属性値を設定します  #search: Playwright page.evaluate
+                const  htmlElement = await page.locator('#example').elementHandles();
+                await page.evaluate(p => p.el.setAttribute('data-index', p.i), {el: htmlElement, i: '5'});
+                const  i = await htmlElement.getAttribute('data-index');
+        test:  #ref: https://playwright.dev/docs/test-annotations
+            test: |
+                test('has title', async ({ page }) => {
+                    await page.goto('http://localhost:3000/');
+                });
+            test.describe: |  #keyword: Playwright test.describe
+                test.describe('__Describe__', () => {
+                    test('has title', async ({ page }) => {
+                        await page.goto('http://localhost:3000/');
+                    });
+                });
+            test.beforeEach: |  #keyword: Playwright test.beforeEach
+                test.beforeEach(async ({ page }) => {
+                    await lib.goToPage(page, '/#/resource-vlan/customer');
+                });
+
+                test('has title', async ({ page }) => {
+                    await page.goto('http://localhost:3000/');
+                });
+
+                test('has title', async ({ page }) => {
+                    await page.goto('http://localhost:3000/');
+                });
+        チェック, アサーション:  #search: Playwright assertion methods
+    トラブルシューティング（Playwright）:
+        #↓ テスト開始前のエラー
+        Testing ビューを開けない:  #// テスト一覧が表示されない
+            原因: プロジェクトの中の Playwright のバージョンが、VSCode の Playwright 拡張機能がサポートするバージョンより古い
+            対処:  #// プロジェクトの中の Playwright のバージョンを最新にします
+                npm install -D @playwright/test@latest
+        import で エラー unable to connect to the test server playwright:
+            手順: |
+                import { defineConfig, devices } from '@playwright/test';
+            ログ: |
+                Internal error: unable to connect to the test server playwright
+            対処:
+                不明  #ref: https://github.com/microsoft/playwright/issues/31277
+        #↓ テスト実行中のエラー
+        async_hooks.AsyncLocalStorage is not a constructor:
+            ログ: |
+                $ npx playwright test
+                    _async_hooks.AsyncLocalStorage is not a constructor
+            原因:
+                Node.js のバージョンが違います
+            対処:
+                Node.js のバージョンが古いときは新しくします
+                #search: change Windows nvm version
+        Executable doesn't exist:
+            ログ: |
+                Error: browserType.launch: Executable doesn't exist at /home/user1/.cache/ms-playwright/chromium-1067/chrome-linux/chrome
+                ╔═════════════════════════════════════════════════════════════════════════╗
+                ║ Looks like Playwright Test or Playwright was just installed or updated.        ║
+                ║ Please run the following command to download new browsers:                     ║
+                ║                                                                                ║
+                ║     npx playwright install                                                     ║
+                ║                                                                                ║
+                ║ <3 Playwright Team                                                             ║
+                ╚═════════════════════════════════════════════════════════════════════════╝
+            対処:
+                npx playwright install
+cypress: #keyword:  #ref: ${programming}/方法論/テスト.svg#cypress
+    記号:
+        (@): エイリアスの参照  #search: 
+    手順, インストール:
+        インストール:
+            cypress を Windows にインストールします:  #keyword: install cypress for Windows
+                Node.js をインストールします:
+                    - https://nodejs.org/ja/download/ >> Windows Installer (.msi) >> 64-bit
+                    - node-v14.15.0-x64.exe をダブルクリックします
+                    - インストール オプションはデフォルトを使用
+                PowerShell を開き、スクリプトを実行できるようにします:
+                    - タスクバーにあるフォルダー（エクスプローラー）を右クリック >> デスクトップ
+                    - エクスプローラー >> ファイル >> Windows PowerShell を開く
+                    - PowerShell をタスクバーにピン留めする（推奨）
+                    - Set-ExecutionPolicy  RemoteSigned  -Scope CurrentUser  #// スクリプトを実行できるようにします
+                cypress をインストールします:
+                    cypress のプロジェクトを npm + TypeScript で新規作成する場合:  #keyword: install cypress Windows npm TypeScript
+                        cypress 12:
+                            #bash
+                            - mkdir "__Project__"
+                            - cd __Project__
+                            - npm init -y
+                            - npm install cypress typescript
+                            - npx tsc --init --types cypress --lib dom,es6
+                            - echo "import { defineConfig } from 'cypress'" > cypress.config.ts
+                            - echo "export default defineConfig({})"       >> cypress.config.ts
+                            - npx cypress open
+                        cypress 9:
+                            #PowerShell
+                            - mkdir "__Project__"
+                            - cd __Project__
+                            - npm init -y
+                            - npm install cypress typescript
+                            - npx tsc --init --types cypress --lib dom,es6
+                            - echo "{}" | Out-File "cypress.json" -Encoding ascii
+                            - npx cypress open
+                            #// 参考: https://typescript-jp.gitbook.io/deep-dive/intro-1/cypress#insutru
+                        古いバージョン:  #search: cypress old version
+                    cypress のプロジェクトを yarn + TypeScript で新規作成する場合:
+                        #PowerShell
+                        - mkdir "__Project__"
+                        - cd __Project__
+                        - yarn add cypress typescript
+                        - npx tsc --init --types cypress --lib dom,es6
+                        - echo "{}" | Out-File "cypress.json" -Encoding ascii
+                        - npx cypress open
+                    cypress のプロジェクトを JavaScript で新規作成する場合:
+                        #PowerShell
+                        - mkdir __Project__  #// デスクトップの直下など
+                        - cd __Project__
+                        - yarn add cypress  #// または npm install cypress 。これを実行しないと package.json ファイルができません
+                        - npx cypress open  #// %USERPROFILE%\AppData\Local\Cypress\Cache に作られます
+                    既存の cypress のプロジェクトで使ったバージョンの cypress をインストールする場合:
+                        #PowerShell
+                        - cd __Project__
+                        - package-lock.json ファイルがある場合:
+                            - npm ci
+                        - yarn.lock ファイルがある場合:
+                            - yarn install --frozen-lockfile
+                        - npx cypress open  #// %USERPROFILE%\AppData\Local\Cypress\Cache に作られます
+                    古いバージョンをインストールする場合:  #keyword: cypress old version
+                        概要: |
+                            package-lock.json が必要です。
+                            npm install cypress@6.6.0 typescript
+                            でインストールしても、古すぎると依存関係を解決できないため、エラーになります
+                                npm WARN deprecated querystring@0.2.0: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
+                        起動する場合:
+                            npm ci
+                            npx cypress open
+                        以前作ったもの: #keyword: cypress exapmle
+                            v12.10.0: #ref: ${GitHub}/Trials/try_cypress/try_cypress_12
+                            v9.1.1:   #ref: ${GitHub}/Trials/try_cypress/try_cypress_9
+                    古い情報:
+                        cypress をインストールします:
+                            #PowerShell
+                            - npm install -g cypress
+                        cypress のプロジェクトを新規作成します:
+                            #PowerShell
+                            - mkdir __Project__  #// デスクトップがおすすめ
+                            - cd __Project__
+                            - npx cypress open  #// しばらく待つと cypress のウィンドウが開きます
+                                #// cypress\integration フォルダーの内容が表示されます
+                                #// cypress.json ファイルと cypress フォルダーができます
+                初期設定をします:
+                    - パスをクリックしたときの動作を設定します:
+                        フォルダーを開く場合:
+                            デフォルトのまま
+                        テキスト エディター を開く場合:
+                            メニュー: cypress >> Settings（タブ）>> File Opener Preference >> Other
+                            メモ帳の場合: C:\Windows\notepad.exe
+                            Visual Studio Code の場合: __Value_of_USERPROFILE__\AppData\Local\Programs\Microsoft VS Code\Code.exe
+                                #// %USERPROFILE% の値を調べるには、%USERPROFILE% という文字列をコピー、
+                                #// Windows キーを押し、Ctrl + V で貼り付け、%USERPROFILE% フォルダーを開き、
+                                #// 開いたフォルダーのアドレスバーをクリックします。
+                    - たとえば、actions.spec.js をクリックすると自動テストが始まります
+                    - "*.js (.ts) ファイルを上書き保存すると、自動的にテストが再起動します"
+                    - 以上の動作確認をしたら、cypress/integration/1-getting-started, cypress/integration/2-advanced-examples フォルダーを削除します
+                （Web サーバーが __Project__ 内（ローカルのフォルダー）ではない場合）:
+                    テスト対象の Web の IP アドレスを修正します:
+                        __Project__/cypress.json : |   #search: cypress.json
+                            {
+                                "baseURL": "https://192.168.___.___:____/"
+                            }
+                        （必要なら）Windows の環境変数にプロキシに関する設定をします:
+                            HTTP_PROXY: ____
+                            NO_PROXY: 127.0.0.1, localhost, 192.168.___.___  #// 192.168.* では無視されます
+                            #// 変更して、すでに開いているシェルがあればシェルの再起動が必要です
+                    テスト対象の web と api を起動します:
+                        #// テスト用の環境に設定してあること
+                cypress を開きます:
+                    #PowerShell
+                    - cd __Project__  #// cypress フォルダーの親フォルダー
+                    - 既存のプロジェクトの場合:
+                        - npm ci  #// または yarn install
+                            #// node_modules フォルダーがなく、これを実行しない場合、package.json に書かれたバージョンは無視されます
+                    - npx cypress open
+                テスト項目をクリックします:
+                シンプルなサンプルを作ります:  #search: cypress first example
+            cypress を Linux にインストールします:  #keyword: install cypress for Linux
+                テスト対象の web と api を起動します:
+                    #// テスト用の環境に設定してあること
+                （必要なら）テスト対象の Web の IP アドレスを修正します:
+                    __Project__/cypress.json : |
+                        {
+                            "baseURL": "https://192.168.___.___:____/"
+                        }
+                    sudo nano /etc/profile :
+                        export http_proxy=____
+                        export no_proxy="127.0.0.1, localhost, 192.168.___.___"  #// 192.168.* では無視されます
+                        #// /etc/profile を変更したら、CentOS の再起動が必要です
+                cypress を開きます:
+                    ターミナル in GUI:
+                        - cd __Project__
+                        - yarn install  #// node_modules フォルダーがなく、これを実行しない場合、package.json に書かれたバージョンは無視されます
+                        - npx cypress open
+                テスト項目をクリックします:
+                シンプルなサンプルを作ります:  #search: cypress first example
+            古いバージョンをインストールする場合:  #search: cypress old version
+        cypress を CI 環境にインストールします: #keyword: cypress headless  #// Headless ブラウザー を使います。デバッグするときは WebUI がある環境のほうがやりやすいです
+            CentOS7 の場合:
+                Chromium をインストールします: #keyword: Chromium
+                    - sudo yum install -y  epel-release  #// すでに行っている場合は不要です
+                    - sudo yum install -y  chromium
+                    - chromium-browser --headless --disable-gpu --dump-dom https://www.chromestatus.com/  #// HTML のソースが表示されること
+                        #ref: https://developer.chrome.com/blog/headless-chrome/
+                        #// エラー Failed to read /proc/sys/fs/inotify/max_user_watches は無視できます
+                            #ref: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/base/files/file_path_watcher_inotify.cc
+                Xvfb をインストールします:
+                    sudo yum install -y  Xvfb
+                cpyress のプロジェクトを用意します:
+                    既存:
+                        #search: cypress exapmle
+                    新規:
+                        #search: install cypress Windows npm TypeScript  #// 別の環境で新規プロジェクトを作ってください
+                cypress をインストールします:
+                    cd __CypressProject__
+                    npm ci
+                Xvfb をバックグラウンドで起動します:
+                    新しい bash:
+                        Xvfb :99 -screen 0 1024x768x24
+                cypress を起動します:
+                    DISPLAY=:99  npx cypress run --browser chromium --headless
+                    #// ターミナルにテストの状況が表示されます
+                    #// ✔  All specs passed!                        03:03      124      124        -        -        - 
+        テスト作成:
+            シンプルなサンプルを作ります: #keyword: cypress first example
+                __Project__/test_target_1.html : |  #keyword: cypress input test_target_1.html
+                    <!DOCTYPE HTML><html><head>
+                    <meta charset="UTF-8">
+                    <title>cypress のサンプル 1</title>
+                    </head>
+                    <body>
+
+                        <input type="text" id="input-text"/>
+                        <input type="button" id="input-button" value="入力" onclick="onButton()"/>
+                        <div id="result">未入力</div>
+
+                        <script>
+                        function onButton() {
+                            document.getElementById('result').textContent =
+                                document.getElementById('input-text').value.toLowerCase();
+                        }
+                        </script>
+                    </body>
+                    </html>
+                Project/cypress/integration/test1.spec.ts : |  #// JavaScript の場合 .js
+                    describe('My First Test', () => {
+                        it('Input test', () => {
+                            cy.visit('test_target_1.html')  // または / または http://localhost:3000/ など
+
+                            cy.get('#input-text').clear().type('ABC')  // ABC と入力する
+                            cy.get('#input-button').click()  // ボタンを押す
+                            cy.get('#result').should('have.text', 'abc')  // 出力をチェックする
+                            cy.get('#input-text').should('have.value', 'ABC')  // input タグの場合
+                        })
+                    })
+                参考:
+                    導入: #ref: https://qiita.com/Takakiri/items/8eba48a7537a4a250afe
+            GUI 操作:  #// テスト コード による GUI の操作
+                URL 指定, ページ移動:  #search: cy.visit
+                    cy.visit('/')
+                ボタン:
+                    cy.get('button').contains('次へ').click()
+                プルダウンリスト:
+                    cy.get('#select').select('アイテム１')
+                イベントをトリガーします: #keyword: cypress trigger event
+                    書式サンプル: |
+                        cy.get(____).trigger('change', {force: true});
+                            // {force: true} is necessary to trigger the event to the hidden input tag.
+                    実用サンプル: #search: cypress uploadFile
+            cy.get, 選択:  #search: cy.get  #// GUI 部品の選択
+            チェック, アサーション: #keyword: cypress should
+                テキスト: cy.get('#result').should('have.text', 'abc');
+                テキストの一部:
+                    サンプル: cy.get('#result').should('contain', 'ab');
+                    should が必要な理由: #ref: https://stackoverflow.com/questions/50042670/cypress-test-is-contains-equivalent-to-shouldcontain
+                入力ボックス: cy.get('#input-text').should('have.value', 'ABC');  // input タグの場合
+                その他:
+                    BDD Chai assertions:  #search: BDD Chai assertions
+            ルーティング: #// Web API HTTP リクエストのルーティング, モック  #keyword: cypress routing, cypress stub server
+                公式:
+                    #ref: https://docs.cypress.io/guides/guides/network-requests
+                    #ref: https://docs.cypress.io/api/commands/intercept
+                サーバー応答かスタブ応答か: #keyword: cypress routing policy,  E2E モック 
+                    - （公式）通常は 1つの真の E2E テストを行い、残りの組み合わせテストをはスタブします。
+                            Mix and match, typically have one true end-to-end test, and then stub the rest
+                        #ref: https://docs.cypress.io/guides/guides/network-requests#Use-Server-Responses
+                    - 全てのテストを実行するときは、E2E テストとスタブのテストの両方を実行するようにすると、
+                        テストの実施手順がシンプルになります
+                GET の基本サンプル:  #focus: intercept, /users/1, result
+                    __Project__/cypress/integration/test1.spec.js : |
+                        describe('My First Test', () => {
+                            beforeEach(() => {
+                                cy.visit('test_target_1.html');
+                            })
+                            it('HTTP GET intercept', function () {
+                                cy.intercept('GET', '/users/1', {
+                                    body: {
+                                        name: 'Peter Pan',
+                                    }
+                                });
+
+                                cy.get('#get-button').click();
+                                cy.get('#result').should('have.text', '{"name":"Peter Pan"}');
+                            })
+                        })
+                    __Project__/test_target_1.html : |  #keyword: cypress GET test_target_1.html
+                        <!DOCTYPE HTML><html><head>
+                        <meta charset="UTF-8">
+                        <title>GET サンプル</title>
+                        </head>
+                        <body>
+
+                            <input type="button" id="get-button" value="GET" onclick="onButton()"/>
+                            <div id="result">未応答</div>
+
+                            <script>
+                            function onButton() {
+                                var http = new XMLHttpRequest();
+
+                                http.open("GET", '/users/1');
+                                http.onload = () => {
+                                    document.getElementById('result').innerHTML = http.responseText;
+                                };
+                                http.send(null);
+                            }
+                            </script>
+                        </body>
+                        </html>
+                GET で fixtures フォルダーにある JSON ファイルの全体を返す場合:  #focus: users.json, "Peter Pan"
+                    __Project__/cypress/integration/test1.spec.js : |
+                        describe('My First Test', () => {
+                            beforeEach(() => {
+                                cy.visit('test_target_1.html');
+                            })
+                            it('HTTP GET intercept', function () {
+                                cy.intercept('GET', '/users/1', { fixture: 'users.json' });
+
+                                cy.get('#get-button').click();
+                                cy.get('#result').should('have.text', '{"name":"Peter Pan"}');
+                            })
+                        })
+                    __Project__/cypress/fixtures/users.json : |
+                        {
+                            "name":"Peter Pan"
+                        }
+                    __Project__/test_target_1.html :  #search: cypress GET test_target_1.html
+                GET する URL によって応答を変える場合, fetch を使う場合: #keyword: cypress HTTP GET JSON
+                    #// JSON ファイルのそれぞれの一部を返します
+                    #// 2回目の GET で返す内容を変えます
+                    #focus: /users/1, /users/2, result-1, result-2, result-1f
+                    __Project__/cypress/integration/test1.spec.js : |
+                        describe('HTTP GET intercept to JSON fixture', () => {
+                            beforeEach(() => {
+                                cy.visit('test_target_1.html');
+                                cy.fixture('users_1.json').then((json) => {
+                                    cy.intercept('GET', '/users/1',     json["1"]);
+                                    cy.intercept('GET', '/users/2?v=1', json["2"]);  // ? より右も書くこと
+                                });
+                            });
+                            it('test', function () {  // function () を () => に変えても動きます
+                                cy.get('#get-button-1').click();
+                                cy.get('#get-button-2').click();
+                                cy.get('#result-1').should('have.text', '{"name":"Mario"}');
+                                cy.get('#result-2').should('have.text', '{"name":"Luigi"}');
+                            });
+                        });
+                        describe('Change fixtures', () => {
+                            beforeEach(() => {
+                                cy.visit('test_target_1.html');
+                                cy.fixture('users_1.json').as('usersJSON');  // 下記 it の中に入れると this.usersJSON == undefined になります
+                            });
+                            it('HTTP GET intercept', function () {  // function () を () => に変えると example1 がアクセスできないというエラーになります
+
+                                cy.intercept('GET', '/users/1', this.usersJSON["1"]);
+                                cy.intercept('GET', '/users/2?v=1', this.usersJSON["2"]);
+                                cy.get('#get-button-1').click();
+                                cy.get('#get-button-2').click();
+                                cy.get('#result-1').should('have.text', '{"name":"Mario"}');
+                                cy.get('#result-2').should('have.text', '{"name":"Luigi"}');
+
+                                cy.intercept('GET', '/users/1', this.usersJSON["2nd 1"]);
+                                cy.intercept('GET', '/users/2?v=1', {name: "2P Luigi"});
+                                cy.get('#get-button-1').click();
+                                cy.get('#get-button-2').click();
+                                cy.get('#result-1').should('have.text', '{"name":"2P Mario"}');
+                                cy.get('#result-2').should('have.text', '{"name":"2P Luigi"}');
+                            });
+                            it('HTTP GET intercept 2', function () {  // function () を () => に変えると example1 がアクセスできないというエラーになります
+                                cy.intercept('GET', '/users/1', this.usersJSON["1"]);
+                                cy.get('#get-button-1').click();
+                                cy.get('#result-1').should('have.text', '{"name":"Mario"}');
+                            });
+                            it.skip('Bad URL', function () {
+                                cy.intercept('GET', '/users',  this.usersJSON);
+                                cy.intercept('GET', '/users/', this.usersJSON);
+                                cy.get('#get-button-1').click();
+                                cy.get('#result-1').should('have.text', '{"name":"Mario"}');
+                            });
+                        });
+                        describe('fetch intercept to JSON fixture', () => {  // #keyword: cypress fetch
+                            beforeEach(() => {
+                                cy.fixture('users_1.json').then((json) => {
+                                    cy.intercept('GET', '/users/1',     json["1"]);
+                                    cy.intercept('GET', '/users/2?v=1', json["2"]);  // ? より右も書くこと
+                                });
+                                cy.visit('test_target_1.html');  // visit を fixture より後にしないと intercept が効かないことがあります
+                            });
+                            it('test', function () {  // function () を () => に変えても動きます
+                                cy.get('#fetch-button-1').click();
+                                cy.get('#result-1f').should('have.text', '{"name":"Mario"}');
+                            });
+                        });
+                    __Project__/cypress/fixtures/users_1.json : |
+                        {
+                            "1": {
+                                "name": "Mario"
+                            },
+                            "2": {
+                                "name": "Luigi"
+                            },
+                            "2nd 1": {
+                                "name": "2P Mario"
+                            }
+                        }
+                    __Project__/test_target_1.html : |  #keyword: cypress GET2 fetch test_target_1.html
+                        <!DOCTYPE HTML><html><head>
+                        <meta charset="UTF-8">
+                        <title>GET 2 fetch サンプル</title>
+                        </head>
+                        <body>
+
+                            <input type="button" id="get-button-1" value="GET" onclick="callByXHR('/users/1', 'result-1')"/>
+                            <div id="result-1">未応答</div>
+
+                            <input type="button" id="get-button-2" value="GET" onclick="callByXHR('/users/2?v=1', 'result-2')"/>
+                            <div id="result-2">未応答</div>
+
+                            <input type="button" id="fetch-button-1" value="GET" onclick="callByFetch('/users/1', 'result-1f')"/>
+                            <div id="result-1f">未応答</div>
+
+                            <script>
+                            function callByXHR(location, result) {
+                                var http = new XMLHttpRequest();
+
+                                http.open("GET", location);
+                                http.onload = () => {
+                                    document.getElementById(result).innerHTML = http.responseText;
+                                };
+                                http.send(null);
+                            }
+
+                            function callByFetch(location, result) {  // #keyword: HTTP fetch example
+                                fetch(location, {method: 'GET'})  // {method: 'GET'} は省略可
+                                    .then(function(response) {return response.text();})
+                                        // .text() を .json() に変えると下記の json は文字列からオブジェクトに変わります
+                                    .then(function(json) {
+                                        document.getElementById(result).innerHTML = json;
+                                    });
+                            }
+                            </script>
+                        </body>
+                        </html>
+                    参考: #ref: https://dev.classmethod.jp/articles/cypress-v6-supported-fetch/
+                その他のサンプル:
+                    __Project__/test_target_1.html : |  #keyword: cypress GET2 test_target_1.html
+                        <!DOCTYPE HTML><html><head>
+                        <meta charset="UTF-8">
+                        <title>GET 2 サンプル</title>
+                        </head>
+                        <body>
+
+                            <input type="button" id="get-button-1" value="GET" onclick="onButton('/users/1', 'result-1')"/>
+                            <div id="result-1">未応答</div>
+
+                            <input type="button" id="get-button-2" value="GET" onclick="onButton('/users/2?v=1', 'result-2')"/>
+                            <div id="result-2">未応答</div>
+
+                            <script>
+                            function onButton(location, result) {
+                                var http = new XMLHttpRequest();
+
+                                http.open("GET", location);
+                                http.onload = () => {
+                                    document.getElementById(result).innerHTML = http.responseText;
+                                };
+                                http.send(null);
+                            }
+                            </script>
+                        </body>
+                        </html>
+                experimentalFetchPolyfill: cypress 6 で廃止
+                    #ref: https://dev.classmethod.jp/articles/cypress-v6-supported-fetch/
+        サーバーのスクリプトを実行します: #keyword: cypress server script  #// たとえば、ブラウザー以外からイベントが発生したときのテストなど
+        方針: #search: cypress routing policy
+    ファイル:
+        cypress.config.ts:  #ref: https://docs.cypress.io/guides/references/configuration#Configuration-File
+            baseUrl: |  #keyword: cypress baseUrl
+                module.exports = defineConfig({
+                    e2e: {
+                        baseUrl: `http://localhost:3000`,
+        旧 cypress.json: #keyword: cypress.json  #// __Project__/cypress.json
+            サンプル: |  #// 保存すると cypress が再起動します  #keyword: old cypress baseURL
+                {
+                    "baseURL": "https://localhost:8000/",
+                    "viewportWidth": 480,
+                    "viewportHeight": 320
+                }
+        フィクスチャ:  #search: cypress cy.fixture
+    コード:
+        cy.get:  #keyword: cypress cy.get
+            data-test:  #keyword: cypress custom data attribute data-test  data-testid
+                cy.get(`[data-test=____]`)  #// <____ data-test="____">
+                #// 最も確実な方法です
+            ボタンのラベルの一部:
+                __Subject__.contains:
+                    cy.get('button').contains('次へ').click();
+            絞り込み:
+                find: #keyword: cypress find  #// __Subject__ の子孫～要素のみに限定して cy.get します
+                    サンプル: cy.get('ul').find('li[data-value=ID-0001]')
+                    公式: #ref: https://docs.cypress.io/api/commands/find
+                filter: #keyword: cypress filter  #// 集合要素である __Subject__ の中から cy.get します
+                    サンプル: cy.get('li').filter('[data-value=ID-0001]')
+                    公式: #ref: https://docs.cypress.io/api/commands/filter
+                contains: #keyword: cypress contains
+                    非推奨: data-test を使って絞り込むようにしてください  #search: data-test
+                    サンプル:
+                        - cy.contains('td', '◯◯株式会社').click();  #// セレクターでマッチした要素の子孫～要素のテキストの一部を検索します
+                        - cy.get('button').contains('次へ').click();  #// 集合要素である __Subject__ の中（子孫除く）から HTML のテキストの一部を検索します
+                            #// get したタグの間のテキストは検索対象外です。<td>次へ</td> は get されません
+                    完全一致: cy.contains('td', /^__Value__$/).click();  #// 正規表現を使います。正規表現の特殊記号に注意
+                    2つ目の要素: 複数マッチした場合、最初にマッチした要素だけが contains() から返ります。
+                        2つ目にマッチした要素を探す方法は不明？
+                    公式: #ref: https://docs.cypress.io/api/commands/contains
+                parent: #keyword: cypress parent
+                    サンプル:
+                        - cy.get('[#id]').parent();
+                        - cy.get('[#id]').parent('tr');  #// 親が 'tr' に一致することをチェックします
+                    関連: parentsUntil  #search: cypress parentsUntil
+                    公式: #ref: https://docs.cypress.io/api/commands/parent
+                parentsUntil: #keyword: cypress parentsUntil
+                    注意: １つ上の親にはヒットしません
+                    サンプル:
+                        - cy.get('[#id]').parentsUntil('table');  #// 'table' に一致するまで親方向に探します
+                    公式: #ref: https://docs.cypress.io/api/commands/parentsUntil
+            表の値から行を選択する場合:
+                サンプル:
+                    cy.contains('td', /^__Value__$/).parentsUntil('tr')
+                サンプル ファイル:
+                    __Project__/cypress/integration/test1.spec.ts : |
+                        describe('My First Test', () => {
+                            it('Input test', () => {
+                                cy.visit('test_target_1.html')  // または / または http://localhost:3000/ など
+
+                                cy.contains('td', /^value22$/).parent('tr').find('[data-test=id]').should('have.text', '22');
+                            })
+                        })
+                    __Project__/test_target_1.html : |  #keyword: cypress table test_target_1.html
+                        <!DOCTYPE HTML><html><head>
+                        <meta charset="UTF-8">
+                        <title>表のサンプル</title>
+                        </head>
+                        <body>
+                            <table style="border-width: 1pt">
+                                <tr>
+                                    <td data-test="id">11</td><td>value11</td>
+                                </tr><tr>
+                                    <td data-test="id">22</td><td>value22</td>
+                                </tr>
+                            </table>
+                        </body>
+                        </html>
+            React:
+                概要: Material-UI などの React コンポーネントでは、よく inputProps 属性で カスタム データ 属性などを指定できます
+                    #search: cypress custom data attribute
+                サンプル:  #focus: __ID__  #ref: https://mui.com/api/input/ >> Attributes applied to the input element.
+                    テスト コード:
+                        cy.get('[data-test=__ID__]')
+                    React コード: |
+                        <Input
+                            inputProps={{
+                                'data-test': '__ID__',
+                            }}
+                        >
+                アプリなどが定義する React コンポーネントの get:
+                    目的: get する対象を HTML で指定するのではなく、アプリなどが定義する React コンポーネントで指定できるようにすることで、
+                        定義内容が変わっても テスト コード が変わらないようにします。
+                    getPulldownContains:  #keyword:  #focus: getPulldownContains
+                        公式: #ref: https://docs.cypress.io/api/cypress-api/custom-commands#Parent-Commands
+                        非推奨:
+                            - 下記サンプルは contains を使っているので非推奨
+                            - get, contains を関数の中に入れるとエラーメッセージから問題の個所を特定することが難しくなるので非推奨
+                        #// 対象の React コンポーネントに get に指定する ID を直接指定できる場合は、不要です
+                        テスト コード:
+                            cy.getPulldownContains('顧客').type('ID-0001{Enter}');  // ID-0001 を選択
+                        __Project__/cypress/support/commands.js : |  #// プルダウンを get するサンプル
+                            Cypress.Commands.add('getPulldownContains', (label) => {
+                                return cy.get('div').contains(label).parent();  // "MySelect" component
+                            })
+                        __Project__/cypress/support/index.d.ts : |  #// VSCode の文法チェック用
+                            /// <reference types="cypress" />
+                            declare namespace Cypress {
+                                interface Chainable {
+                                    getPulldownContains(partText: string): Chainable<Element>
+                    selectPulldownContains:  #keyword:  #focus: selectPulldownContains
+                        公式: #ref: https://docs.cypress.io/api/cypress-api/custom-commands#Child-Commands
+                        テスト コード: |
+                            enum ID {
+                                顧客 = 'customer',
+                            }
+                            cy.get(`[data-testid=${ID.顧客}`).selectPulldownContains('ID-0001');
+                        __Project__/cypress/support/commands.js : |  #keyword: cypress prevSubject
+                            Cypress.Commands.add('selectPulldownContains', {prevSubject: true}, (prevSubject, partOfText) => {
+                                return cy.wrap(prevSubject).type(partOfText +'{Enter}');
+                            })
+                        __Project__/cypress/support/index.d.ts : |  #// VSCode の文法チェック用
+                            /// <reference types="cypress" />
+                            declare namespace Cypress {
+                                interface Chainable {
+                                    selectPulldownContains(partOfText: string): Chainable<Element>
+            参考:
+                #search: jQuery selector
+                #ref: ${programming}/方法論/テスト.svg#cypress_get
+        cy のメソッド:  #// cy.get, cy.wait など
+            cy.get:  #search: cypress cy.get
+            cy.intercept: #keyword: cypress cy.intercept  #// HTTP リクエストのルーティング, モック  #search: cypress routing
+            cy.request:  #search: cypress cy.request  #// HTTP リクエストを発行します  #ref: https://docs.cypress.io/api/commands/request
+                POST:  #// 未確認
+                    cy.visit('test_target_1.html')
+                    cy.request('POST', '/users')
+                cy.route: cy.request の古い名前
+            cy.server: #keyword: cypress cy.server  #// 非推奨になりました。ネットワークのモックを挿入します  #ref: https://docs.cypress.io/api/commands/server
+                代わり: #search: cy.intercept
+                参考: #ref: https://qiita.com/ryuseiyarou/items/686757e75773a9e3db9b
+            cy.visit: #keyword: cypress cy.visit  #// URL 指定, ページ移動
+                cy.visit('/')
+                #search: cypress baseUrl
+            cy.wait:  #search: cypress cy.wait  #// 待ちます
+                指定した時間だけ待つ場合:
+                    cy.wait(100)  // 数値を指定します
+                cy.intercept のエイリアスが使えるようになるまで待つ場合:
+                    cy.wait('@__Alias__')  // @ から始まる文字列を指定します
+                    #// cy.fixture のエイリアスに対する wait は不要です
+            cy.wrap:  #search: cypress cy.wrap  #// type などのメソッドが使えるオブジェクトにラップします
+                prevSubject のサンプル:  #search: cypress prevSubject
+            Cypress Testing Library:
+                cy.findByRole:
+                    cy.findByRole('button'
+                        Cypress Testing Library  https://testing-library.com/docs/cypress-testing-library/intro/
+    概念:
+        cy:  #search: cypress cy.get
+        チェック, アサーション:  #search: cypress should
+        フィクスチャ:  #keyword: cypress cy.fixture
+            公式: #ref: https://docs.cypress.io/api/commands/fixture
+                #ref: https://docs.cypress.io/guides/core-concepts/variables-and-aliases#Sharing-Context
+            基本:
+                cypress/fixtures/____.json をリードします:
+                    - cy.fixture('____.json').as('__VariableName__')
+                        #// または  cy.fixture('____').as('__VariableName__')
+                        #// as はエイリアスを定義します
+            サンプル:
+                __Project__/cypress/integration/test1.spec.js : |
+                    describe('My First Test', () => {
+                        beforeEach(() => {
+                            cy.fixture('example.json').as('example1')
+                        })
+                        it('gets JSON data', function () {  // function () を () => に変えると example1 がアクセスできないというエラーになります
+                            const email = this.example1.email  // hello@cypress.io
+                            debugger  // check the "email" value in the Chrome developer tools
+                        })
+                    })
+                __Project__/cypress/fixtures/example.json : |
+                    {
+                        "email": "hello@cypress.io"
+                    }
+                #// HTML ファイルは不要です
+            フィクスチャを HTTP リクエストの GET で返す場合: #search: cypress HTTP GET JSON
+            ファイルをアップロードします:  #keyword: cypress uploadFile
+                __Project__/cypress/fixtures/data.xlsx :  #// data.xlsx サンプル ファイル
+                __Project__/cypress/integration/test.ts :
+                    サンプル: |
+                        cy.get('[data-testid=fileUploadInput]').uploadFile('data.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                    書式: |
+                        cy.get(__Selector__).uploadFile(__FilePathInFixtures__, __MIME_Type__);
+                    書式の説明:
+                        __MIME_Type__: #search: MIME type
+                __Project__/cypress/support/index.d.ts : |
+                    /// <reference types="cypress" />
+                    declare namespace Cypress {
+                        interface Chainable {
+                            uploadFile(fileName: string, fileType: string): Chainable<Element>
+                __Project__/cypress/support/commands.js : |
+                    Cypress.Commands.add('uploadFile', { prevSubject: true }, (prevSubject, fileName, fileType) => {
+                        cy.wrap(prevSubject).then( (subject /*: JQuery<HTMLInputElement>*/ ) => {
+                            cy.fixture(fileName, 'base64')
+                                .then(Cypress.Blob.base64StringToBlob)
+                                .then( (blob) => {
+                                    cy.log(blob);
+                                    const el = subject[0];
+                                    const testFile = new File([blob], fileName, { type: fileType });
+                                    const dataTransfer = new DataTransfer();
+                                    dataTransfer.items.add(testFile);
+                                    el.files = dataTransfer.files;
+                                });
+                            cy.wrap(subject).trigger('change', {force: true});
+                                // {force: true} is necessary to trigger the event to the hidden input tag.
+                        });
+                    })
+            参考:
+                #ref: ${programming}/方法論/テスト.svg#cypress_file
+        エイリアス: #keyword: cypress alias  #ref: https://docs.cypress.io/guides/core-concepts/variables-and-aliases#Aliases
+            フィクスチャのエイリアス:  #search: cy.fixture
+            DOM オブジェクトのエイリアス:
+                サンプル:  #focus: .as, alias1
+                    __Project__/cypress/integration/test1.spec.js : |
+                        describe('My First Test', () => {
+                            beforeEach(() => {
+                                cy.visit('test_target_1.html')
+                                cy.get('#input-text').as('alias1')
+                            })
+                            it('DOM element alias', function () {
+                                cy.get('@alias1').type('abc')
+                            })
+                        })
+                    __Project__/test_target_1.html :  #search: cypress input test_target_1.html
+            DOM プロパティのエイリアス:
+                定義サンプル: #focus: .as, __AliasName__
+                    cy.get('button').invoke('text').as('__AliasName__')
+                参照サンプル:
+                    this.__AliasName__
+                サンプル: |  #focus: .as, __AliasName__  #// ❗未確認
+                    beforeEach(() => {
+                        // alias the $btn.text() as 'text'
+                        cy.get('button').invoke('text').as('textAlias')
+                    })
+
+                    it('has access to text', function () {
+                        this.textAlias // is now available
+                    })
+        スタブとモック: #keyword: cypress stub mock  #// 実質、違いなし
+            (AI)
+            スタブ（Stub）：関数の呼び出しを置き換え、その関数の動作をコントロールするために使われます。主に関数の戻り値を指定したり、関数の実行をトラッキングしたりするのに使用されます。cy.stub()で作成します。
+            モック（Mock）：一般的なテストフレームワークでは、モックはスタブの機能に加えて、呼び出し回数や引数の検証などの期待値を設定することができますが、Cypressには明示的な「モック」機能はありません。
+    参考:  #// Qiita 記事
+        導入: #ref: https://qiita.com/Takakiri/items/8eba48a7537a4a250afe
+        対策集: #ref: https://qiita.com/Takakiri/items/94af4a3c44859bd92010
+    トラブルシューティング(cypress):
+        - #// ログに出力します
+            pp: #keyword: cypress pp, cypress log
+                __Project__/cypress/integration/__Test__.ts : |
+                    import { pp } from 'cypress/support/lib';
+                    const obj = {attr: 2};
+                    pp(obj);
+                    obj.attr = 3;
+                __Project__/tsconfig.json: |
+                    {
+                        "compilerOptions": {
+                            "baseUrl": "."
+                __Project__/cypress/support/lib.ts: |
+                    // pp shows "assert expected pp to not equal __value__"
+                    // e.g. pp(variable)
+                    export function  pp(value: any) {
+                        const  label = 'pp';
+                        if (typeof value === 'object') {
+                            expect(label).to.not.eq( recursiveAssign( {}, value ) );
+                        } else if (label === value) {
+                            expect(label + ' ').to.not.eq(value);
+                        } else {
+                            expect(label).to.not.eq(value);
+                        }
+                    }
+
+                    // recursiveAssign is nested Object.assign
+                    function  recursiveAssign(a: any, b: any) {
+                        const bIsObject = (Object(b) === b);
+                        if (!bIsObject) {
+                            return b;
+                        }
+
+                        const aIsObject = (Object(a) === a);
+                        if (!aIsObject) {
+                            if (b instanceof Array) {
+                                a = [];
+                            } else {
+                                a = {};
+                            }
+                        }
+                        for (const key of Object.keys(b)) {
+                            a[key] = recursiveAssign(a[key], b[key]);
+                        }
+                        return a;
+                    }
+            print (command):  #keyword: cypress print command
+                ❗非推奨: 遅れて実行されてしまいます
+                __Project__/cypress/integration/__Test__.ts : |
+                    const obj = {attr: 2};
+                    cy.print(obj);
+                    obj.attr = 3;
+                __Project__/cypress/support/commands.js : |
+                    Cypress.Commands.add('print', (value) => {
+                        const label = ' print ';
+                        if (typeof value === 'object') {
+                            expect(label).to.not.eq( recursiveAssign( {}, value ) )
+                        } else if (label === value) {
+                            expect(label).to.eq(value)
+                        } else {
+                            expect(label).to.not.eq(value)
+                        }
+                    })
+
+                    // recursiveAssign is nested Object.assign
+                    function  recursiveAssign(a, b) {
+                        const bIsObject = (Object(b) === b);
+                        if (!bIsObject) {
+                            return b;
+                        }
+
+                        const aIsObject = (Object(a) === a);
+                        if (!aIsObject) {
+                            if (b instanceof Array) {
+                                a = [];
+                            } else {
+                                a = {};
+                            }
+                        }
+                        for (const key of Object.keys(b)) {
+                            a[key] = recursiveAssign(a[key], b[key]);
+                        }
+                        return a;
+                    }
+                __Project__/cypress/support/index.d.ts : |
+                    /// <reference types="cypress" />
+                    declare namespace Cypress {
+                        interface Chainable {
+                            print(value: any): void
+            log:  #keyword: cypress original log
+                ❗非推奨: オブジェクトを指定すると実行時の値ではなくデバッガーでツリーを展開したときの内容になります
+                サンプル: |
+                    cy.log(__Value__)
+        - #// デバッガーを使います
+            debugger:  #keyword: cypress debugger
+                cypress の管理下にあるブラウザーを開きます:
+                    cypress のウィンドウから対象のテストをクリックします
+                ブラウザーの開発者ツールを開きます:
+                テスト コード の中のブレークしたい場所に debugger と書きます: |
+                    it('____', function () {
+                        debugger
+                    })
+                ブラウザーをリロードします:
+                    #// ブレークします
+                （コードが表示されないとき）:
+                    F10 キーを押します
+        - #// Web が表示されない
+            手順: 最初に実行する任意のテスト
+            エラー: Web が表示されない
+            対処:
+                cypress が検出した proxy の設定を確認します:
+                    メニュー: cypress ウィンドウ >> Settings >> Proxy Settings  #// ここで設定の変更はできません
+                #// FireFox の設定は無視されます  #search: Firefox proxy
+        - #// cy.get に失敗する
+            手順: 最初に実行する任意のテスト
+            エラー: cy.get に失敗するエラーになる
+            対処:
+                非表示の HTML タグは get できません
+                #ref: https://qiita.com/Takakiri/items/94af4a3c44859bd92010
+        - #// エイリアス this.__Alias__ にアクセスできない
+            手順: エイリアス this.__Alias__ にアクセスしたとき
+            エラー: Cannot read properties of undefined (reading '__Alias__')
+            対処:
+                it() の第2引数がアロー関数なら function に置き換えます  #search: cy.fixture
+        - #// ルーティング(cy.intercept)されない
+            手順: #search: cypress HTTP GET JSON
+            エラー: Web サーバーが応答してしまう
+            対処A: ログ（cypress が開いたブラウザーの左半分）の ROUTE を確認します
+            対処B: ログ（cypress が開いたブラウザーの左半分）の (xhr) を確認します
+            対処C: HTTP の fetch を使っている場合、cy.fixture や cy.intercept した後で
+                cy.visit してください #search: cypress fetch
+BDD Chai assertions:  #keyword: Chai, BDD Chai assertions
+    つなぎ目(language chain): #ref: https://www.chaijs.com/api/bdd/#language-chains
+        キーワード: to, be, been, is, that, and, have, with, at, of, same
+        機能: 何もしないチェイン  #ref: https://lxyuma.hatenablog.com/entry/2013/12/15/211637
+    期待値:  #glossary: chai
+        .true: .to.be.true  #ref: https://www.chaijs.com/api/bdd/#true
+        .false: .to.be.false  #ref: https://www.chaijs.com/api/bdd/#false
+        .empty: expect([]).to.be.empty;
+        .a(__AnswerType__): expect('test').to.be.a('string');  #// 型をチェックします
+        .string(__Answer__): expect('foobar').to.have.string('bar');
+        .match(__RegularExpression__): expect('foobar').to.match(/^foo/);  #// 正規表現
+        .contains(__PartOfAnswer__), .includes, .contain, .include: #ref: https://www.chaijs.com/api/bdd/#includeval-msg
+        .equal(__Answer__):  #ref: https://www.chaijs.com/api/bdd/#equalval-msg
+        .eql(__AnswerObject__):  #// オブジェクトの中のオブジェクトも比較します  #ref: https://www.chaijs.com/api/bdd/#eqlobj-msg
+        .exist: expect(foo).to.not.exist;  #// null, undefined 以外
+        .null:
+        .undefined:
+    演算子:  #glossary: chai
+        .not: .not.equal('test')  #// 指定した値以外
+        .closeTo(1, 5): #// 範囲
+Jest: #keyword: Jest  #// JavaScript TypeScript test framework
+    手順:
+        インストール: #search: install VSCode Node.js Jest
+        初期設定:
+            自動起動オフ: #keyword: jest automatic start  #// 自動的にテストを実行開始しないようにします
+                settings.json : |  #ref: https://github.com/jest-community/vscode-jest?tab=readme-ov-file#runmode >> Run jest tests via UI only.
+                    {
+                        "jest.runMode": "on-demand"
+                    }
+                    または
+                    {
+                        "jest.runMode": {
+                            "type": "on-demand"
+                        }
+                    }
+        デバッグ: #// VSCode  #keyword: Jest VSCode,  Jest debuger  #// VSCode で Jest を使ったテストをデバッグします
+            VSCode:
+                開始します:  #// または、テストを再起動します
+                    全てのテスト:
+                        Testing ビュー から起動する場合:
+                            起動:
+                                VSCode >> Testing ビュー（左：フラスコ アイコン）>>（項目にマウスを合わせる）>> Debug Test ボタン
+                            準備:
+                                環境変数やオプションを設定する:  #// npm run test を VSCode でも実行します
+                                    package.json: | #keyword: package.json jest env,  package.json jest option
+                                        {
+                                            "scripts": {
+                                                "test": "TZ=UTC jest --watchAll",
+                                    test.ts: |
+                                        describe('a', () => {
+                                            test('b', () => {
+                                                console.log(process.env.TZ);  // UTC
+                        ターミナルから起動する場合:
+                            起動します:
+                                JavaScript Debug Terminal >> npm test
+                                    #// package.json に書かれた test （通常 jest --watchAll）を実行します
+                                    #search: VSCode jest --watchAll
+                            再起動します: #keyword: restart VSCode jest  #// ブレークポイントの有効無効を切り替えたときも再起動します
+                                すべてのブレークポイントを無効にします: 左下
+                                続きを実行します: 右上
+                                ソース ファイル を保存します:  Ctrl + S キー
+                                すべてのブレークポイントを有効にします: 左下
+                                Jest のメニュー: 右下
+                                起動します: F キー
+                    1つのファイルのテスト:
+                        起動します:
+                            JavaScript Debug Terminal >> npm test main
+                                #// package.json に書かれた test にパラメーター main を追加しただけのコマンドを実行しますが、
+                                #// 通常 jest --watchAll  main.test.ts と同じ処理が実行されます
+                                #// npm test の引数はファイル名の一部です
+                                #// フォルダーの指定（例：src/main.test.ts）はしなくても構いません
+                        再起動します: #search: restart VSCode jest
+                    参考: #ref: https://jestjs.io/ja/docs/cli
+                表示設定:  #search: Jest 表示設定
+            verbose 実行: #keyword: Jest verbose
+            コール スタック の見方: #keyword: Jest call stack  #// Jest の エラー メッセージ には コール スタック が表示されています
+                #focus: downloader.ts,  back.test.ts
+                エラー メッセージ: |  #// サンプル
+                    FAIL  src/test/case/back.test.ts
+
+                    ● Test suite failed to run
+                        SyntaxError: Cannot use import statement outside a module
+
+                        1 | import * as fs from 'fs';
+                        > 2 | import fetch from 'node-fetch';  // node-fetch, @types/node-fetch
+                            | ^
+
+                        at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1728:14)
+                        at Object.<anonymous> (src/downloader.ts:2:1)
+
+                    Test Suites: 1 failed, 1 total
+                コール スタック:  #// ここでは、上が浅いほうとして表現しています
+                    Jest:
+                        メイン .ts:  #ref: src/test/case/back.test.ts
+                            （要解析）:
+                                src/downloader.ts:2:1: import 'node-fetch';
+                                    #// エラー メッセージ に書いてある コール スタック の最も下にあるコードは、Jest が直接ロードしているわけではありません
+                                    #// エラー メッセージ にあるスタックは、下が浅いほうです（ここでは、上が浅いほうとして表現しています）
+                要解析部分の解析:  #// 上記（要解析）部分
+                    ボトムアップ解析:
+                        - エラーが発生しているコードに ブレーク ポイント を張り、デバッガーを起動してブレークさせます
+                        - デバッガーの コール スタック の中の Object.<anonumous> をクリックします。スタックの浅いほうにもあります
+                    トップダウン解析:
+                        - メイン .ts（起動するテストが書かれたファイル）の 1行目にブレークポイントを張って、ステップ実行します
+                        - ステップ オーバー したときにエラーになったら、import の from に書かれたファイルの 1行目にブレークポイントを張って、再起動して、ステップ実行します
+                            #// ステップ イン すると複雑になります
+    画面:
+        表示設定: #keyword: Jest 表示設定
+            日付チェックのタイムゾーン: #keyword: Jest expect time zone,  Jest TZ
+                状況:  #// UTC で表示されてしまう
+                    コード:
+                        expect(new Date("2025-03-01T12:00:00+09:00")).toEqual(new Date("2025-03-01T12:02:22+09:00"));
+                    表示: |
+                        Expected: 2025-03-01T03:02:22.000Z
+                        Received: 2025-03-01T03:00:00.000Z
+                対処A:
+                    方法なし。JST への変換を暗算する
+                対処B: |  #// AI に以下の質問をしたが、カスタムマッチャーを作るように言われ、手間が多い
+                    TZ環境変数を設定しましたが、JST表示になりません。
+                    package.json ファイルの内容は、
+                        "scripts": {
+                            "test": "TZ=JST-9 jest --watchAll",
+                    test.ts の内容は、
+                        describe('a', () => {
+                            test('b', () => {
+                                console.log(process.env.TZ);  // UTC
+                                expect(new Date("2025-03-01T12:00:00+09:00")).toEqual(new Date("2025-03-01T12:02:22+09:00"));
+                    実行した時のターミナルの出力は、
+                        console.log
+                            JST-9
+
+                        expect(received).toEqual(expected) // deep equality
+
+                        Expected: 2025-03-01T03:02:22.000Z
+                        Received: 2025-03-01T03:00:00.000Z
+                    期待するターミナルの出力は、
+                        console.log
+                            JST-9
+
+                        expect(received).toEqual(expected) // deep equality
+
+                        Expected: 2025-03-01T12:02:22.000+09:00
+                        Received: 2025-03-01T12:00:00.000+09:00
+    コマンド:
+        jest:
+            基本:  #search: package.json scripts
+                npx jest __TestCodePath__ -t "__TestName__"
+                #// __TestCodePath__ を指定すると、コードの解析も指定のファイルだけに限定します
+            verbose 実行: #keyword: Jest verbose
+                コマンド:  #search: package.json scripts
+                    npx jest --clearCache
+                    npx jest __TestCodePath__ -t "__TestName__" --no-cache --debug --verbose
+                実行内容:
+                    実際にロードした config (jest.config.js の内容や、グローバル設定) を表示します
+                    注目すべき出力（設定）は、cwd, setupFiles
+    構成:
+        内部処理:
+            jest -t "テスト名" を実行すると、内部で何が行われますか:
+                (AI) jest -t "テスト名" を実行すると、Jest の内部で以下のような処理が順番に行われます：
+                    コマンドライン引数の解析：
+                        Jest はまず -t "テスト名" というパターンマッチングオプションを解析します。これは「testNamePattern」というオプションとして内部で処理され、指定されたパターンに一致するテスト名を持つテストのみを実行するように指示します。
+                    設定ファイルの読み込み：
+                        Jest は jest.config.js や package.json の Jest セクションなど、プロジェクトの設定ファイルを読み込みます。これにより、テスト環境、変換設定、テストファイルのパターンなどが決定されます。
+                    ファイル検索：
+                        設定に基づいて、テストファイルを検索します。通常は **/__tests__/**/*.js, **/*.test.js, **/*.spec.js などのパターンに一致するファイルが対象となります。
+                    テストファイルの収集と分析：
+                        検出されたファイルから Jest はテストスイートとテストケースを解析します。この過程で、describe、it、test などの関数呼び出しを検出し、テスト構造を構築します。
+                    フィルタリング：
+                        -t オプションで指定されたパターンに基づいて、実行すべきテストをフィルタリングします。パターンはテスト名に対して正規表現として適用されます。
+                    テスト環境の準備：
+                        テスト実行前に、指定された環境（jsdom や node など）を設定し、グローバルオブジェクトにテスト用のユーティリティ関数（expect, jest.fn() など）を追加します。
+                    実行順序の決定：
+                        テストの実行順序を決定します。これは --runInBand や --maxWorkers などのオプションや、テストの優先度設定に影響されます。
+                    テストの実行：
+                        各テストを順番に（または並列に）実行します。各テストの前後に beforeEach、afterEach などのフックが実行されます。
+                    結果の収集：
+                        テスト実行中、各テストの結果（成功、失敗、スキップ）を収集します。テストが失敗した場合、詳細なエラー情報も記録されます。
+                    レポート生成：
+                        テスト実行が完了すると、結果がコンソールに表示されます。カバレッジレポートが有効になっている場合は、そのデータも収集されます。
+                    終了処理：
+                        すべてのテストが実行された後、テスト環境のクリーンアップが行われ、適切な終了コードで Jest プロセスが終了します。
+                VSCode の Jest 拡張機能は、この一連のプロセスの出力を解析して IDE 内に表示し、失敗したテストに対するナビゲーションやデバッグのオプションを提供します。
+        テスト結果別:
+            例外が期待値のテスト: |  #ref: https://qiita.com/rikegami/items/178ed17982b13535ad59
+                test('expect assertions exists', () => {
+                    expect.assertions(1); // Expected one assertion to be called but received zero assertion calls.
+                    return somePromise(true).catch(e => {
+                        expect(e.message).toBe('error!');
+                    });
+                });
+            スナップショット テスト:  #keyword: snapshot test, スナップショット テスト  #// テスト結果をファイルに書く
+                参考:
+                    - https://jestjs.io/ja/docs/snapshot-testing
+                    - https://numb86-tech.hatenablog.com/?page=1478404750
+                注意❗: スナップショット ファイル を編集しても元に戻ることがたまにあるため、スナップショット ファイル のコピーを必ずリポジトリに入れてください
+                チェックします:  #// 文字列やオブジェクト（JSON?）が初回実行したときと一致することをチェックします
+                    典型的なコード: |  #keyword: toMatchSnapshot
+                        expect(object1).toMatchSnapshot('object1');  #// toMatchSnapshot の引数はスナップショットのファイルの中に書かれるラベル
+                        expect(object2).toMatchSnapshot('object2');
+                    初回やスナップショットのファイルがないとき:
+                        必ず成功します:
+                            動作内容:
+                                - また、テスト ファイルがあるフォルダーと同じフォルダーに
+                                    __snapshots__/__TestSourceFileName__ ファイルができます。
+                                - そのファイルがすでにあるときは、新しいテストケースの比較対象データができます。
+                                    git diff（VSCode の GitLens など）で追加されたことが確認できます。
+                            .snap（スナップショットのファイル）の内容:  #search: Jest .snap file
+                    スナップショットのファイルがあるとき:
+                        比較チェックをします:
+                    スナップショットのファイルの内容を更新するとき:
+                        重要！:
+                            git diff（VSCode の GitLens など）で追加された範囲をチェックしてください。
+                            追加されたことが正しくない部分は削除します。
+                            もし削除した部分が必要だったとしても、再度テストを実行すれば正解データが作られるので気軽に削除できます。
+                        変更が少ないとき:
+                            - スナップショットのファイルを開きます
+                            - 該当するテストのスナップショットのデータを編集します
+                        変更が多いとき:
+                            - スナップショットのファイルを開きます
+                            - 該当するテストのスナップショットのデータを削除します
+                            - テストを実行してスナップショットのデータを作ります
+                        非推奨の手順:
+                            Jest の watch メニューの u コマンドで、__snapshots__/__TestSourceFileName__
+                            ファイル全体を更新します。ただし、コメントアウトしているテストのスナップショットが
+                            消えてしまいます。
+                入力データを作ります: #// 入力データをスナップショットのファイルに含めます
+                    参考 >> .snap（スナップショットのファイル）の内容:  #search: Jest .snap file
+                    入力データをスナップショットのファイルに追加します:
+                        __Project__/src/__snapshots__/main.test.ts.snap : |
+                            // Jest Snapshot v1, https://goo.gl/fbAQLP
+
+                            exports[`1 >> 1_first_1_ok_1_answer : sourceFileContents 1`] = `
+                            "This is an example of input data.
+                            Hello!
+                            "
+                            `;
+
+                            exports[`2 >> 2_options_1_command_1_answer : sourceFileContents 1`] = `
+                            "ABC
+                            DE
+                            [\\"A\\",\\"B\\"]
+                            "
+                            `;
+                    入力テキストの行番号を調べます:  #keyword: Jest .snap line number
+                        問題の状況: .snap ファイルに入力ファイルの テキスト データ を書くとその行番号が分からなくなります（1から始まりません）
+                        対処:
+                            VSCode で新しい テキスト エディター を開きます:
+                                開いているファイルを一覧しているタブの右の空いている領域をダブルクリックします
+                            テキスト データ を貼り付けます:
+                            行番号が分かります:
+                    テストコードのサンプル:
+                        __test__/main.test.ts : |
+                            import * as lib from "./lib";
+
+                            test("try input snapshot", () => {
+                                const inputData = lib.getSnapshot(`_____________`);
+                                console.log(inputData);
+                            })
+                        __test__/lib.ts : |
+                            const snapshots = require("./__snapshots__/main.test.ts.snap");
+
+                            // getSnapshot
+                            export function  getSnapshot(label: string) {
+                                const  snapshot = snapshots[label];
+                                return  snapshot.substr(2, snapshot.length - 4).replace('\\"', '"');
+                            }
+                .snap（スナップショットのファイル）の内容:  #keyword: Jest .snap file
+                    サンプル: |
+                        exports[`checks file contents >> OK in file_1_ok_and_bad, file/1 : stdout 1`] = `
+                        "正解データの1行目。ただし " は \\"
+                        2行目
+                        "
+                        `;
+                    exports のインデックスの書式:
+                        toMatchSnapshot の引数が無いとき: |
+                            exports[`(describe や test をスペース区切りで連結したもの) 1`] =
+                        toMatchSnapshot の引数が有るとき:  #focus: stdout
+                            コードのサンプル: |
+                                expect(result).toMatchSnapshot('stdout');
+                            .snap ファイル のサンプル: |
+                                exports[`checks file contents >> First >> OK: stdout 1`] =
+                            書式: |
+                                exports[`(describe や test をスペース区切りで連結したもの): (toMatchSnapshot の引数) 1`] =
+                    .snap ファイルを import します:  #keyword: import .snap
+                        lib.ts: |
+                            // @ts-ignore
+                            import { snapshots } from './lib-cjs.cjs';
+                        lib-cjs.cjs: |
+                            const fs = require('fs');
+                            const path = require('path');
+                            const projectPath = path.dirname(__dirname);
+                            const snapshotsPath = `${projectPath}/src/__snapshots__/main.test.ts.snap`;
+
+                            var snapshots = undefined;
+                            if (fs.existsSync(snapshotsPath)) {
+                                snapshots = require(snapshotsPath);
+                            }
+                            exports = snapshots;
+                        lib-cjs.d.cjs: |
+                            /// <reference types="node" />
+                            declare var snapshots: {[key: string]: string};
+                            export default snapshots;
+                        <reference types="node" />: #search:
+                トラブルシューティング (snapshot):
+                    - ケース:
+                        参考: https://stackoverflow.com/questions/57793527/what-are-obsolete-snapshots-and-snapshot-files
+                        警告メッセージ: |
+                            Snapshot Summary
+                                › 2 snapshots written in 1 test suite.
+                                › 50 obsolete snapshot files found, re-run with `-u` to remove them.
+                                › 3 obsolete snapshots found, re-run with `-u` to remove them.
+                        警告メッセージの解説:
+                            - スナップショットは、スナップショット ファイル と異なり、どこか別にあるデータのようです。
+                            - テストで比較するときは、スナップショット ファイルと比較するようです。
+                            - 古いスナップショットのことを obsolete snapshots（廃止されたスナップショット）と呼んでいるようです
+                            - 注意しなければならないのは、snapshot files に対して変更しようとするケースがあることです
+                        対処法:
+                            - u コマンドで更新する前に、現在の スナップショット ファイルのバックアップを作ります
+                            - u コマンドを実行したら、バックアップと比較して差分を確認します
+                    - ケース:
+                        警告メッセージ: |
+                            Snapshot Summary
+                                › 1 snapshot file obsolete from 1 test suites. To remove them all, press `u`.
+                                ↳   • src/__snapshots_confirm__/main.test.ts.confirmed.snap
+                        警告メッセージの解説:
+                            - 使っていない スナップショット ファイル を検出したので削除しようとしています
+                            - プロジェクト フォルダー以下の全てのフォルダー内にある拡張子が .snap のファイルを自動的に削除しようとします
+                            - Jest によって自動的に更新したスナップショットの内容が意図したとおりになる可能性は少ないため、
+                                更新差分の承認プロセスとしての更新前の バックアップ ファイル をプロジェクト内に作る場合、
+                                自動的に削除されないように注意する必要があります
+                        対処法:
+                            - スナップショット ファイルのバックアップは、拡張子を .snap 以外に改名してください
+        モック: #keyword: Jest mock,  jest.mock
+            リセット:  #keyword: reset jest mock
+                サンプル: |
+                    beforeEach(() => {
+                        jest.resetAllMocks();
+                    })
+            #↓ 置き換える対象
+            fetch: #keyword: Jest fetch mock
+                _: |  #// Node.js 18 以降の fetch 関数をモックに置き換えます
+                    describe('a', () => {
+                        test('b', async () => {
+
+                            fetchReturn = {
+                                "symbol": "USD_JPY",
+                                "timestamp": "2025-04-07T18:50:50.003578Z",
+                            };
+                        });
+                    });
+
+                    var  fetchReturn = {};
+                    (global as any).fetch = jest.fn().mockImplementation(()=> fetchReturn);
+                node-fetch: | #keyword:  #// Node.js 18 より前の fetch 関数をモックに置き換えます
+                    import 'node-fetch';  // Node.js 16 or earlier
+
+                    describe('a', () => {
+                        test('b', async () => {
+
+                            fetchReturn = {
+                                "symbol": "USD_JPY",
+                                "timestamp": "2025-04-07T18:50:50.003578Z",
+                            };
+                        });
+                    });
+
+                    var  fetchReturn = {};
+                    jest.mock('node-fetch', () => jest.fn().mockImplementation(()=> fetchReturn));
+            static メソッド:  #// クラスの static メソッドをモックに置き換えます
+                置き換える対象: |  #focus: getJsonFrom
+                    class  NetworkJSON {
+                        static  getJsonFrom(url: string): Promise<any> {
+                            return  {data:[{
+                                timestamp: new Date('2025-03-02T22:22:22+09:00'),
+                                bid: 149.9,
+                                status: "OPEN"
+                            }]};
+                        }
+                    }
+                テスト: |
+                    describe('a', () => {
+                        beforeEach(() => {
+                            jest.resetAllMocks();
+                        })
+                        test('b', async () => {
+                            setMock()
+
+                            // ...
+
+                            function  setMock() {
+                                jest.spyOn(NetworkJSON, 'getJsonFrom').mockImplementation((url: string): Promise<any> => (
+                                    Promise.resolve({data:[{
+                                        timestamp: new Date('2025-03-01T11:11:11+09:00'),
+                                        bid: 150.5,
+                                        status: "OPEN"
+                                    }]})
+                                ));
+                            }
+                        });
+                    });
+            defaule export メソッド:
+                指定する関数名: default  #// 未確認
+            #↓ 詳細
+            import前のホイスティング: #keyword: Jest mock hoisting  #// ホスティングではない not hosting
+                _: |
+                    テストファイル（たとえば back.test.ts）で先頭に
+                        jest.mock('node-fetch', () => ({ default: jest.fn() }))
+                    のようにモック化していると、jest.mock がテスト実行の“import前”にホイスティングされ、
+                    実際の require('node-fetch') が呼ばれずにモックオブジェクトが返るため、
+                    CJS ESM の違いのエラーが出たり出なかったりします
+                イメージ:
+                    実際のコード: |
+                        import { download } from './lib';
+                        jest.mock('node-fetch', () => ({ default: jest.fn() }));
+                    実際の動き: |
+                        jest.mock('node-fetch', () => ({ default: jest.fn() }));
+                        import { download } from './lib';
+                    しくみ:
+                        - Jest のプリプロセッサ（babel-plugin-jest-hoist 相当）が、ソース内の jest.mock(...) を検出
+                        - モック呼び出しをテストファイルの 一番上 に移動
+                        - その状態で import／require を実行
+                なぜホイスティングするのか？:
+                    (AI)
+                    依存先のモジュールを本物より先に置き換えるため
+                    テスト対象のコードが最初に依存先モジュールを読み込むとき、その依存先が本物の実装のままだと、テスト中に本物のネットワーク呼び出しやファイル操作が走ってしまうかもしれません。
+                    テスト実行の一貫性を担保するため
+                    テストの振る舞いを確実に制御するには、依存先が“完全に”モックに置き換わった状態でテストを始める必要があります。
+        グローバル変数:  #// 暗黙的になるので非推奨
+            ./setupTestFramework.js : |
+                global.context = describe
+            package.json : |
+                "jest": {
+                    "setupTestFrameworkScriptFile": "./setupTestFramework"
+        CommonJS で動作: #keyword: Jest CommonJS  #// テスト コード は ESM で書けても、Jest 本体は CommonJS で動作しています
+            require が使えてしまう問題:
+                Jest で実行すると ESM のコードでも require が使えてしまいます
+    ファイル:
+        jest.config.js, jest.config.cjs: #keyword:
+            jest.config.cjs:  ES modules のプロジェクトでは、拡張子を .cjs にしてください
+            テンプレート:
+                ESM にトランスパイルする場合: |  #// Jest が TypeScript を CJS にトランスパイルする場合  #// preset: 'ts-jest'
+                    module.exports = {
+                        preset: 'ts-jest/presets/default-esm',
+                        testEnvironment: 'node',
+                        roots: ['<rootDir>/src'],
+                        moduleNameMapper: {
+                            '^@src/(.*)$': '<rootDir>/src/$1',
+                        },
+                        testMatch: [
+                            '**/__tests__/**/*.+(ts|tsx|js)',
+                            '**/?(*.)+(spec|test).+(ts|tsx|js)'
+                        ],
+                        extensionsToTreatAsEsm: ['.ts', '.tsx'],
+                        globals: {
+                            'ts-jest': {
+                                useESM: true,
+                                tsconfig: 'tsconfig.json',
+                            }
+                        },
+                        transform: {
+                            '^.+\\.(ts|tsx)$': ['ts-jest', { useESM: true }],
+                        },
+                        maxWorkers: 1,
+                    };
+                CJS にトランスパイルする場合: |  #// Jest が TypeScript を EMS にトランスパイルする場合
+                    module.exports = {
+                        preset: 'ts-jest',
+                        testEnvironment: "node",
+                        roots: [
+                            "<rootDir>/src"
+                        ],
+                        moduleNameMapper: {
+                            "^@src/(.*)$": "<rootDir>/src/$1"
+                        },
+                        testMatch: [
+                            "**/__tests__/**/*.+(ts|tsx|js)",
+                            "**/?(*.)+(spec|test).+(ts|tsx|js)"
+                        ],
+                        transform: {
+                            "^.+\\.(ts|tsx)$": "ts-jest"
+                        },
+                        maxWorkers: 1
+                    };
+            package.json との対応関係:  #// jest.config.js を推奨します。package.json に入れない情報のほうがよく見つかります
+                jest.config.js: |  #focus: preset
+                    module.exports = {
+                        preset: "ts-jest",
+                        testEnvironment: "node",
+                        roots: [
+                            "<rootDir>/src"
+                        ],
+                        moduleNameMapper: {
+                            "^@src/(.*)$": "<rootDir>/src/$1"
+                        }
+                    };
+                package.json: | #keyword: package.json jest
+                    {
+                        "jest": {
+                            "preset": "ts-jest",
+                            "testEnvironment": "node",
+                            "roots": [
+                                "<rootDir>/src"
+                            ],
+                            "moduleNameMapper": {
+                                "^@src/(.*)$": "<rootDir>/src/$1"
+                            }
+                        }
+                    }
+            #↓ フィールド
+            maxWorkers: 1に設定すると、それぞれのテストを並行実行しなくなります
+        ファイル >> Jest のファイルを使ったチェック: #keyword: Jest diff
+            checkOutput:
+                _: ファイルをリードした内容を文字列として expect toBe に渡します。
+                呼び出すサンプル: |
+                    checkOutput(`${__dirname}/data/1.answer.log.txt`);
+                定義サンプル: |
+                    function  checkOutput(answerLogFilePath: string) {
+                        const  answer = fs.readFileSync(answerLogFilePath, 'utf-8');
+                        expect(testLog).toBe(answer);
+                    }
+                出力サンプル: |
+                    expect(received).toBe(expected) // Object.is equality
+
+                    - Expected  - 1
+                    + Received  + 1
+
+                    @@ -5,11 +5,11 @@
+                        100.333:
+                    2025-03-01 00:05:
+                        100.333:
+                            Periodic notification
+                                [Trade] Entry OpenPosition: {"position": "long", "entryPrice": "100.333", "volume": "1.0"}
+                    -     100.666:＠
+                    +     100.666:
+                        100.222:
+                        100.222:
+                    2099-09-09 09:09:
+                        100.222:
+                            Periodic notification
+
+                    28 |     function  checkOutput(answerLogFilePath: string) {
+                    29 |         const answer = fs.readFileSync(answerLogFilePath, 'utf-8');
+                    > 30 |         expect(testLog).toBe(answer);
+                        |                         ^
+                    31 |     }
+                    32 | });
+                    33 |
+
+                    at checkOutput (src/test/test.ts:30:25)
+                    at Object.<anonymous> (src/test/test.ts:25:9)
+    コード:
+        expect: #keyword: Jest expect,  JavaScript expect Jest assert
+            #ref: https://jestjs.io/docs/expect
+            基本: expect(result).toBe(answer);
+            配列:
+                toEqual:
+                    基本: expect(resultArray).toEqual(answerArray);
+                    順不同もOK: expect(resultArray.sort()).toEqual(answerArray.sort());
+                    #ref: https://stackoverflow.com/questions/40135684/is-there-an-array-equality-match-function-that-ignores-element-position-in-jest
+                arrayContaining:
+        test.each: #// ループ  #keyword: test.each, test loop
+            サンプル: |
+                test.each([
+                    [   "1st",     // [ と "1st" を同じ行にすると、折りたたんだときでも "1st" が見え、テスト ケース を一覧できるようになります
+                        ["search", "ABC"],
+                        {},
+                        `test_data/search/1/1.yaml\n`,
+
+                    ],[ "ignore case",
+                        ["search", "abc"],
+                        { folder: "test_data/search/1", test: "" },
+                        `test_data/search/1/1.yaml\n`,
+                    ],
+                ])("%s", async (_caseName, arguments_, options, answer) => {
+                    await callMain(arguments_, options);
+                    expect(main.stdout).toBe(answer);
+                    if ('folder' in options) {  // #keyword: test.each options
+                    }
+                });
+            test.each を使わないサンプル: |  #// 少しデータを変えるテストも行う場合
+                test("1st", () => {  // test.each を使わないことで Visual Studio Code でパンくずリストを表示できます
+                    const  testData: callMainTestData = {  // 型を指定すると、プロパティ名を変更するリファクタリング機能が使えます
+                        arguments_: ["search", "ABC"],  // プロパティ名が分かり理解を助けます
+                        options: { folder: "test_data/search/1", test: "" },
+                        answer: `test_data/search/1/1.yaml\n`,
+                    }
+                    simpleTestOfMain(testData);  // 呼び出し先の内容をここにコピペすると同じシンボルをクリックしたときに強調表示されるので、理解を助けます
+                    alternateTestsOfMain(testData);  // シンプルなテストと分けることで、シンプルなテストだけ見ればテスト対象の仕様の理解を助けます
+                });
+
+                test("ignore case", () => {
+                    const  testData: callMainTestData = {
+                        arguments_: ["search", "abc"],
+                        options: { folder: "test_data/search/1", test: "" },
+                        answer: `test_data/search/1/1.yaml\n`,
+                    }
+                    simpleTestOfMain(testData);
+                    alternateTestsOfMain(testData);
+                });
+
+                interface  callMainTestData {
+                    command: string[];
+                    options: {[name: string]: string}
+                    answer: string;
+                    alternate?: {  // alternate test 用の テスト データ はオプション
+                        answerInFile?: string;
+                    }
+                }
+
+                function  simpleTestOfMain(testData: callMainTestData) {
+                    var { arguments_, options, answer } = testData;
+
+                    await callMain(arguments_, options);
+                    expect(main.stdout).toBe(answer);
+                }
+
+                function  alternateTestsOfMain(testData: callMainTestData) {  // 複数のテストを含めてもよい
+                    var { arguments_, options, answer } = testData;  // const ではなく var にする場合、少しデータを変えることができます
+                    answer = answer || 'default';
+
+                    await callMain(arguments_, options);
+                    expect(main.stdout).toBe(answer);
+                    if (testData.alternate) {
+                        const { answerInFile } = testData.alternate;
+                        if (answerInFile) {
+                            expect(fileContents).toBe(answer);
+                        }
+                    }
+                }
+        describe のネスト: |  #keyword: describe
+            describe("replace >>", () => {
+                describe("basic >>", () => {
+                });
+                describe("(error) basic >>", () => {
+                });
+    参考:
+        なぜJestのmockライブラリに混乱してしまうのか？: https://qiita.com/s_karuta/items/ee211251d944e72b2517
+    トラブル シューティング (Jest): #keyword: Jest trouble
+        - #// 並列実行をなくす  #search: jest.config.js maxWorkers
+        - #// コール スタック の見方  #search: Jest call stack
+        - #// Jest encountered an unexpected token:
+            手順:
+                VSCode >> Jest 拡張機能 >> 1つのテストを実行
+                    または
+                npx jest -t "BackTest Suite" --no-cache --debug --verbose  #search: Jest verbose
+            ログ: |
+                FAIL  src/test/case/back.test.ts
+
+                ● Test suite failed to run
+
+                    Jest encountered an unexpected token
+
+                    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+                    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+                    By default "node_modules" folder is ignored by transformers.
+
+                    Here's what you can do:
+                    • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+                    • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+                    • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+                    • If you need a custom transformation specify a "transform" option in your config.
+                    • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+                    You'll find more details and examples of these config options in the docs:
+                    https://jestjs.io/docs/configuration
+                    For information about custom transformations, see:
+                    https://jestjs.io/docs/code-transformation
+
+                    Details:
+
+                    /Users/totadashi/GitProjects/GitHub/MyPrivateCode/Node_js/tradeBackTest/node_modules/node-fetch/src/index.js:9
+                    import http from 'node:http';
+                    ^^^^^^
+
+                    SyntaxError: Cannot use import statement outside a module
+
+                    1 | import * as fs from 'fs';
+                    > 2 | import fetch from 'node-fetch';  // node-fetch, @types/node-fetch
+                        | ^
+                    3 | import { getLocalISOString, SetTick, Time, TimeStampString } from './tick';
+                    4 | import { BarCSV, BarDataColumn, ChartCSV, SetChart } from './chart';
+                    5 | import { Scheduler } from './scheduler';
+
+                    at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1728:14)
+                    at Object.<anonymous> (src/downloader.ts:2:1)
+
+                Test Suites: 1 failed, 1 total
+            参考:
+                #search: Jest mock hoisting
+        - #// jest.config.js >> This file is being treated as an ES module because it has a '.js' file extension
+            手順: Node.js 実行
+            ログ: |
+                ReferenceError: module is not defined in ES module scope
+                This file is being treated as an ES module because it has a '.js' file extension and 'C:\Users\aa\GitHub\MyPrivateCode\Node_js\tradeBackTest\package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+                    at file:///C:/Users/aa/GitHub/MyPrivateCode/Node_js/tradeBackTest/jest.config.js:1:1
+                    at ModuleJob.run (node:internal/modules/esm/module_job:218:25)
+            対処:
+                jest.config.js を jest.config.cjs に改名します
+        - #// expect toBe Received serializes to the same string
+            手順: expect(resultMap).toBe(new Map<number, string>([
+            エラー: |
+                Expected: Map {
+                Received: serializes to the same string
+            対処:
+                toBe を toStrictEqual に変更します
+        - #// Timeout
+            手順: Jest でブレークしたとき
+            エラー: |  #keyword: Jest Timeout
+                Timeout - Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.Timeout
+                - Async callback was not invoked within the 5000 ms timeout specified by jest.setTimeout.Error:
+            原因:
+                テストの実行に 5秒以上かかったため。5秒以上ブレークしたときもこのエラーになります
+            対処A:
+                ブレークポイントを一時的にすべて無効にします。ブレークしないことで多くの場合 5秒以内になります。
+            対処B:
+                タイムアウトを延ばします:
+                    __Project__/package.json : |
+                        {
+                            "jest": {
+                                "setupFilesAfterEnv": ["./jest.setup.js"]
+                    __Project__/jest.setup.js : |
+                        jest.setTimeout(5*60*1000);
+            表示タイミング:
+                タイムアウトの時間が経ってもテストが終わらない場合、監視スレッドか何かによって
+                上記のエラーメッセージとテスト結果の一覧を表示します。
+                await をし忘れているわけではありません。
+        - #// 5秒以上ブレークさせてタイムアウトの例外が発生すると jest が終了してしまう
+            手順: jest test
+            エラー: |
+                [UnhandledPromiseRejection: This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not 
+                handled with .catch(). The promise rejected with the reason "Error: Caught error after test environment was torn down
+            対処:
+                タイムアウトを延ばします  #search: Jest Timeout
+            参考:
+                #ref: https://stackoverflow.com/questions/49603939/message-async-callback-was-not-invoked-within-the-5000-ms-timeout-specified-by
+            関連:
+                #ref: https://tekitoumemo.hatenablog.com/entry/2020/11/14/005243
+        - #// context は仕様から削除されました  #keyword: Jest context
+            対処A: describe に書き換えます
+            対処B: context を再定義します
+                #ref: https://github.com/facebook/jest/issues/2468
+            参考: context は describe のエイリアスです
+testinfra:  #// ヘルス チェック など  #search: Python testinfra
+google diff-match-patch: #keyword: google-diff-match-patch
+    #// 様々なプログラミング言語に対応
+    公式:  #ref: https://github.com/google/diff-match-patch
+    機能:
+        - diff ファイルを作ります
+        - diff ファイルをパッチとして適用します
+    パッチを作ります:  #// 行単位パッチのテキストを作ります
+        YAML の中に入れる場合: #keyword: google-diff-match-patch YAML  #search: patch in YAML
+            diff -u4rN  __OldFile__  __NewFile__ | sed "s/\(.*\)/        |\1/"
+        その他:
+            diff -u4rN  __OldFolder__  __NewFolder__  > a.patch
+        注意: パッチを作るときのマージンは Patch_Margin(=4) 以上にしてください
+        #// -u4 の数字は変更できます。差分がある部分の周りの行数。ただし、Patch_Margin(=4) 以上にしてください
+        #// -p オプションを付けないでください。diff-match-patch が対応していません
+        #search: google-diff-match-patch Python YAML
+    Python:  #search: google-diff-match-patch  Python
+Drone CI: #keyword:  #ref: https://iij.github.io/bootcamp/cicd_infra/drone/  #// 一般公開情報
+GoCD: #keyword:  #// Go Continuous Delivery
+    概要:
+        自動的にテストやデプロイを行います:
+        Git のリポジトリなどのマテリアルが更新されるとパイプラインが動きます:
+            マテリアル:    #search: GoCD material
+            パイプライン:  #search: GoCD pipeline
+            起動条件:  #search: GoCD pipeline trigget
+            処理結果:  #search: GoCD result
+    手順:
+        プロジェクト: #keyword: GoCD project  #search: single GoCD
+            #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD
+        チュートリアル:
+            インストール: #keyword: install GoCD  #ref: https://docs.gocd.org/current/installation/installing_go_server.html
+                GoCD をインストールします:
+                    docker あり WSL2 の場合:
+                        公式:
+                            #ref: https://hub.docker.com/r/gocd/gocd-server/
+                            #ref: https://hub.docker.com/r/gocd/gocd-agent-ubuntu-20.04
+                        設定: #settings__:
+                            __GoCDLinuxDistribution__: Ubuntu-20.04-GoCD
+                            __GoCDVersion__: v22.3.0
+                        WSL2 と Docker を起動します:
+                            WSL2 Ubuntu をインストールします:
+                                #search: install Docker for WSL2
+                            起動します:  #keyword: start GoCD WSL2
+                                PowerShell:
+                                    wsl -d  "Ubuntu-20.04-GoCD"
+                                bash:
+                                    - cd $HOME
+                                    - service-start  #// Windows 10 の WSL2 の場合
+                                    - code $HOME
+                        GoCD サーバー のコンテナーを起動します:  #ref: https://hub.docker.com/r/gocd/gocd-server/
+                            新しい VSCode Terminal >> bash:
+                                コマンド:
+                                    - mkdir $HOME/godata  #// UID 1000 のユーザー（既定のユーザー）で作ります
+                                    - docker run -it --rm  --name gocd-server-1  -v $HOME/godata:/godata  -v $HOME:/home/go  -p8153:8153  gocd/gocd-server:v22.3.0
+                                次の出力があるまで待ちます: |
+                                    jvm 1    | 2023-01-01 01:51:47,673 INFO  [Thread-79] DefaultPluginJarChangeListener:67 - Plugin load starting: /go-working-dir/plugins/bundled/gocd-filebased-authentication-plugin.jar
+                            GoCD の WebUI を開き、エージェントのページを開きます:
+                                Windows のブラウザー: http://localhost:8153/go/agents
+                        GoCD エージェント のコンテナーを起動します:  #ref: https://hub.docker.com/r/gocd/gocd-agent-ubuntu-20.04
+                            #// docker コンテナーではないエージェントと docker のサーバーの組み合わせもできます
+                                #search: install GoCD repository
+                                #search: install GoCD agent without docker
+                            #// docker のエージェントが使う Python3 などのインストールは、docker イメージに対して行う必要があります
+                            新しい VSCode Terminal >> bash:
+                                コマンド:
+                                    docker run -it --rm  --name gocd-agent-1  -e GO_SERVER_URL=http://$(docker inspect --format='{{(index (index .NetworkSettings.IPAddress))}}' gocd-server-1):8153/go \
+                                        -v $HOME/godata:/godata  -v $HOME:/home/go  gocd/gocd-agent-ubuntu-20.04:v22.3.0
+                            WebUI にエージェントの ID が表示されまで待ちます:
+                                #// 約1分弱
+                        #// 以下に続きます
+                    docker なし WSL2 の場合:  #ref: https://tracpath.com/works/devops/how-to-install-the-gocd/
+                        WSL2 に Ubuntu をインストールします:
+                            - Ubuntu-16.04
+                            - sudo apt update -y && sudo apt upgrade -y
+                            #search: install WSL2 Ubuntu
+                        GoCD のリポジトリ情報をインストールします:  #keyword: install GoCD repository
+                            - echo "deb https://download.gocd.io /" | sudo tee /etc/apt/sources.list.d/gocd.list
+                            - curl https://download.gocd.io/GOCD-GPG-KEY.asc | sudo apt-key add -
+                            - sudo apt-get update
+                        GoCD のサーバーをインストールします:  #// (2023-01-23) インストールしても失敗します。WebUI が表示できません
+                            - sudo apt-get install go-server
+                            - sudo /etc/init.d/go-server start
+                        GoCD のエージェントをインストールします:  #keyword: install GoCD agent without docker
+                            コマンド:  #// WSL2 Ubuntu 20.04 の場合
+                                - sudo apt-get install -y  go-agent
+                                - sudo /etc/init.d/go-agent start
+                                - go-agent-__Version__/bin/go-agent start
+                            WebUI にエージェントの ID が表示されまで待ちます:
+                                http://localhost:8153/go/agents  #// 約20秒
+                            補足:
+                                go-agent start のエラー:
+                                    エラー メッセージ: |
+                                        Failed to create bus connection: No such file or directory
+                                    対処:
+                                        無視できます
+                                go-agent start のエラー2:
+                                    エラー メッセージ: |
+                                        Must be root to run with RUN_AS_USER=go.
+                                    対処A:
+                                        sudo を付けて go-agent を起動します
+                                    対処B:  #// 未確認
+                                        sudoを実行できるグループにgoユーザーを追加すると、それが修正されました:
+                                            sudo usermod -aG sudo go
+                                        go ユーザーにパスワードなしの sudo ができるようにします:
+                                            visudo : |  #// 最も下に下記を追加
+                                                Defaults:go !requiretty
+                                                go ALL=(ALL) NOPASSWD:ALL
+                                複数エージェント:
+                                    Run multiple agents on the same host:
+                                        #ref: https://github.com/gocd/gocd/blob/master/installers/go-agent/release/README-running-multiple-agents.md
+                        #// 以下に続きます
+                    CentOS7 + Vagrant の場合:  GoCD をインストールします
+                    エージェントを Enabled にします:  #ref: https://docs.gocd.org/22.3.0/configuration/managing_a_build_cloud.html
+                        http://localhost:8153/go/
+                        チェックを入れる >> ENABLE ボタン
+                        STATUS = Idle になったことを確認します
+                        #// DELETE は絶対にしないでください。下記の方法でも復活できません。
+                        #ref: https://stackoverflow.com/questions/58081659/how-do-you-undo-a-deleted-agent-for-a-gocd-server
+                    #// 以下に続きます
+                GoCD の初期設定をします:
+                    GoCD の WebUI: #// version 22.2  #keyword: create GoCD first pipeline
+                        開きます:  #// Windows のブラウザーで
+                            http://localhost:8153/go  #// または DASHBOARD ボタンを押します
+                        Part 1; Material:
+                            Repository URL: https://github.com/Takakiriy/first  #// 例。存在するリポジトリであること
+                            Advanced Settings:
+                                Repository Branch: main
+                            Test Connection ボタン:
+                                エラーが出るとき:
+                                    エラー メッセージ に含まれるコマンドを実行できるようにします:
+                                        例: git ls-remote -- https://github.com/Takakiriy/first refs/heads/main
+                                    対処例:
+                                        正しい URL を指定します:
+                                            ブラウザーで URL を確認します
+                                        git を バージョン アップ します:  #search: update Ubuntu git
+                        Part 2; Pipeline Name:
+                            Pipeline Name: firstPipeline
+                        Part 3; Stage Details:
+                            Stage Name: defaultStage
+                        Part 4; Job and Tasks:
+                            Job Name: defaultJob
+                            Type your tasks below at the prompt: pwd  (Enter) #// 実行するコマンド  #search: GoCD custom command
+                        Save + Run This Pipeline ボタン:
+                    インストール直後に実行された結果を確認します:
+                        #// 自動的に実行開始します
+                        #search: GoCD result
+                    #// 以下に続きます
+                （必要なら）poetry をインストールします: #keyword: GoCD poetry
+                    poetry をインストールします:
+                        全てのユーザーで使えるようにします。
+                        再起動以降は下記。
+                        #search: install poetry
+                    GoCD と Ubuntu を再起動します:
+                        #search: restart GoCD WSL2 Ubuntu 20.04
+                    カスタム コマンド を作ります: #search: GoCD custom command
+                        #// 既存の書き換えでも OK
+                        Command: poetry
+                    パイプラインを実行します:
+                        poetry のバージョンとオプションが表示されること
+                #// インストールは以上です
+                関連 >> 終了:  #search: restart GoCD WSL2 Ubuntu 20.04
+            GoCD を起動して、その WebUI を開きます: #keyword: start GoCD
+                WSL2 Ubuntu 20.04 の場合:
+                    （再起動する場合）GoCD と Ubuntu を終了します: #keyword: restart GoCD WSL2 Ubuntu 20.04
+                        サービスを終了します:
+                            GoCD サーバーが動いているターミナルで Ctrl + C
+                            sudo /etc/init.d/go-agent stop
+                            #// VSCode を閉じます
+                        PowerShell:
+                            wsl --terminate  "Ubuntu-20.04-GoCD"
+                    GoCD と Ubuntu を起動します: #keyword: start GoCD WSL2 Ubuntu 20.04
+                        PowerShell:
+                            - wsl -d "Ubuntu-20.04-GoCD"
+                            - cd $HOME
+                            - service-start  #// Windows 10 の WSL2 のみ
+                            - code $HOME
+                            #// PowerShell を閉じます
+                        gocd-server を起動します:
+                            VSCode の 新しい bash (1):
+                                docker あり WSL2 の場合:
+                                    docker run -it --rm  --name gocd-server-1  -v $HOME/godata:/godata  -v $HOME:/home/go  -p8153:8153  gocd/gocd-server:v22.3.0
+                                その他の場合:
+                                    #search: start GoCD without WSL2
+                            エージェントの STATUS が Missing になったことを確認します:
+                                http://localhost:8153/go/agents   #// リロードしてから確認します
+                        gocd-agent を起動します:
+                            新しい bash (2):
+                                docker なし WSL2 の go-agent の場合:
+                                    sudo /etc/init.d/go-agent start
+                                    #// ログを見る場合 sudo less /var/log/go-agent/go-agent.log
+                                その他の場合:
+                                    #search: start GoCD WSL2
+                            エージェントの STATUS が Idle になるまで待ちます:
+                                http://localhost:8153/go/agents
+                                #// 約30秒
+                            （Idle にならない場合）:
+                                #// #search: restart GoCD WSL2 Ubuntu 20.04
+                                #// 下記のエラーがエージェントのログにある場合
+                                #// ログ）java.lang.RuntimeException: org.apache.http.conn.HttpHostConnectException:
+                                #//         Connect to localhost:8153 [localhost/127.0.0.1] failed: Connection refused
+                                #//       2023-01-24 23:24:23,894 ERROR [scheduler-2] AgentHTTPClientController:104 -
+                                #//           Error occurred when agent tried to ping server: 
+                                #//           java.lang.RuntimeException: org.apache.http.conn.HttpHostConnectException:
+                                #//           Connect to localhost:8153 [localhost/127.0.0.1] failed: Connection refused
+                                #// 30秒で ps aux に go ユーザーのプロセスが無くなります
+                                #// 10分待ち
+                                #//     sudo /etc/init.d/go-agent start して 10秒後に sudo /etc/init.d/go-agent stop
+                                #// ログ） 2023-01-24 23:35:20,070 INFO  [Thread-3] ClassPathXmlApplicationContext:985 -
+                                #//     Closing org.springframework.context.support.ClassPathXmlApplicationContext@4135c3b:
+                                #//     startup date [Tue Jan 24 23:35:13 JST 2023]; root of context hierarchy
+                                #// sudo /etc/init.d/go-agent start
+                .zip 展開の場合: #keyword: start GoCD .zip  #// GoCD の .zip と JDK (Java) を展開したフォルダーがある場合  #ref: https://docs.gocd.org/current/installation/install/server/zip.html
+                    コマンド: |
+                        cd __GoCD__
+                        ls
+                            # go-agent-20.8.0  go-server-20.8.0  jdk-11.0.9+11
+                        export JAVA_HOME=$(pwd)/jdk-11.0.9+11
+                        PATH=$JAVA_HOME/bin:$PATH
+                        go-agent-20.8.0/bin/go-agent start
+                    トラブルシューティング:
+                        - #// WARNING: go-agent may have failed to start.
+                            手順: bin/go-agent start
+                            エラー: |
+                                WARNING: go-agent may have failed to start.
+                            対処A:
+                                less logs/go-agent.log
+                                less logs/go-agent-bootstrapper-wrapper.log
+                            対処B:
+                                適切なバージョンの Java を使うように JAVA_HOME と PATH を設定します  #search: start GoCD .zip 
+            パイプラインを起動します: #keyword: GoCD start pipeline  #// 以下は手動で起動する場合です
+                GoCD の WebUI を開きます:
+                    http://localhost:8153/go
+                        #search: start GoCD
+                （必要なら）処理内容を確認します:
+                    GoCD WebUI >> DASHBOARD タブ >> 歯車 ボタン（パイプライン名の右）>>（ステージ名）>>（ジョブ名）
+                git リポジトリにコミットを push して、パイプラインを起動します:
+                    git の ワーキング フォルダー で:
+                        git add
+                        git commit -m "____"
+                        git push
+                結果を確認します:  #keyword: GoCD result
+                    （色のついたバーをクリック）>> コンソール ボタン（ジョブ名の右）>>
+                    ▼（実行したコマンドの左）
+                （終わらない場合）:  #// 黄色いバーが動いていても、Console を見ても何も表示されない場合
+                    go-agent を起動します
+                手動でパイプラインを起動します:
+                    GoCD WebUI >> DASHBOARD タブ >> 再生 ボタン（パイプライン名の下）
+                結果を確認します(2):  #search: GoCD result
+            コンフィグを含むリポジトリをインポートします:  #search: GoCD import config  #// コードからパイプラインを作ります
+            シェルからタスクのコマンドを実行します: #search: GoCD bash
+        公式チュートリアル:  #ref: https://www.gocd.org/getting-started/part-1/
+        コマンドを確認・修正します:  #search: GoCD custom command
+        処理結果:  #keyword: GoCD result
+            Stage Details: #keyword: GoCD Stage Details  #// ジョブの結果の一覧
+                GoCD WebUI >> DASHBOARD タブ >>
+                （色のついたバーをクリック）>> Go to Stage Details Page（右上）
+            Job Details: #keyword: GoCD Job Details  #// コマンドの実行結果。シェルで実行したときのログ
+                GoCD WebUI >> DASHBOARD タブ >>
+                （色のついたバーをクリック）>> コンソール ボタン（ジョブ名の右）>>
+                ▼（実行したコマンドの左）
+        再実行:  #keyword: GoCD Rerun jobs  #// ジョブを再実行します
+            方法1:
+                （色のついたバーをクリック）>>（ジョブにチェックを入れます）>> Rerun Selected ボタン
+            方法2: #// この方法は失敗することがありました。原因不明
+                処理結果 Stage Details のページ >> Jobs タブ >>（ジョブにチェックを入れます）>> RERUN SELECTED ボタン
+    概念:
+        サーバー関係:  #// エージェント、ランナー  #ref: https://www.gocd.org/getting-started/part-1/#concept1
+            サーバー: #keyword: GoCD server  #// GoCD サービスが動くホスト、またはそのサービス
+                インストール:  #search: install GoCD
+                起動:  #search: start GoCD
+            エージェント: #keyword: GoCD agent
+                インストール:  #search: install GoCD
+                起動:  #search: start GoCD
+                作業フォルダー:  #search: GoCD PWD
+                複数エージェント: #keyword: GoCD multi agent
+                    インストールと起動:
+                        start_gocd_agents.sh スクリプトを作ります:  #keyword: start_gocd_agents.sh
+                            参考: #ref: https://github.com/gocd/gocd/blob/master/installers/go-agent/release/README-running-multiple-agents.md
+                            AGENT_COUNT: 3  #// サンプル
+                            /var/go/.profile を追加する場合:  #search: EnvironmentFile
+                                start_gocd_agents.sh : |  #// 下記を bin/go-agent を編集する部分に追加します
+                                    sed -i  '/Environment=/a \          echo "EnvironmentFile=/var/go/.profile" >> "${SYSTEMD_SERVICE_FILE}"'  /usr/share/${AGENT_ID}/bin/go-agent
+                    コマンド:  #// インストール後に使えます。go-agent-1 の最後の数字はエージェントの識別番号です。数字は編集してください
+                        ヘルプ表示:
+                            /usr/share/go-agent-1/bin/go-agent
+                        エージェントの状態を表示します:
+                            コマンド:
+                                /usr/share/go-agent-1/bin/go-agent status
+                            表示例: |  #// 以下のいずれか
+                                go-agent-1 (not installed) is not running.
+                                go-agent-1 (installed with systemd) is not running.
+                                go-agent-1 (installed with systemd) is running: PID:111, Wrapper:STARTED, Java:STARTED
+                        アンインストール:  #// 停止とアンインストール
+                            sudo /usr/share/go-agent-1/bin/go-agent remove
+                        再インストール:
+                            #// 上記 start_gocd_agents.sh または
+                            sudo /usr/share/go-agent-1/bin/go-agent installstart
+                リソース: #keyword: GoCD resource  #// ジョブを実行するのに必要なソフトウェアをエージェントが持っていることを示します
+                    #ref: https://docs.gocd.org/current/introduction/concepts_in_go.html#resources
+        実行関係:  #// パイプライン >> ステージ >> ジョブ >> タスク  #ref: https://www.gocd.org/getting-started/part-1/#concept4
+            VSM, Value Stream Map: #keyword: GoCD VSM  #ref: https://www.gocd.org/getting-started/part-3/
+                表示:
+                    ダッシュボードから:
+                        GoCD WebUI >> DASHBOARD タブ >>（表示するパイプラインの）VSM（パイプラインのカードの中央）
+                        #// 関係するパイプラインしか表示されません  #search: https://www.gocd.org/getting-started/part-3/  >>  Navigating to the VSM
+                    マテリアル（リポジトリ）から:
+                        GoCD WebUI >> MATERIALS タブ >>（表示するマテリアルの）VSM（コミットIDの右）
+                編集:
+                    ダウンストリームを作ります: #search: create GoCD downstream pipeline
+                ファンアウト, ファンイン: #keyword: GoCD fan in fan out
+                    ファン アウト: 下流のパイプラインが複数あること
+                    ファン イン: 上流のパイプラインが複数あること
+            コンフィグ リポジトリ: #keyword: GoCD config repositories,  GoCD pipelines as code
+                YAML, JSON:
+                    #// コードとしてのパイプライン
+                    #ref: https://docs.gocd.org/current/advanced_usage/pipelines_as_code.html
+                    #// 以下は、パイプラインの複製を作り、バージョン管理を始めます
+                    コードを作ります:  #// パイプラインのコードを作ります
+                        基本サンプル: |  #keyword: GoCD pipeline code example
+                            format_version: 10
+                            pipelines:
+                                firstPipeline:  #// pipeline name
+                                    group: defaultGroup
+                                    materials:
+                                        git-1:
+                                            git: https://github.com/Takakiriy/first/
+                                            branch: main
+                                    stages:
+                                        -   Test:  #// stage name
+                                                jobs:
+                                                    firstJob:  #// job name
+                                                        tasks:
+                                                            -   exec:
+                                                                    command: ls
+                                                                    arguments:
+                                                                        -   -la
+                                                                    working_directory: __RelativePath__
+                        手動で作ったパイプラインをコードに変換します:  #// デフォルトの値の（不要な）フィールドも含まれます
+                            メニュー: GoCD WebUI >> ADMIN タブ >> Pipelines >>（対象のパイプラインの行の）ダウンロード ボタン >> YAML Configuration Plugin
+                            #// YAML ファイルがダウンロードされます
+                    パイプラインの構成が書かれたファイルを git push します:
+                        リポジトリの編集を始めます:
+                            https://github.com/Takakiriy/first/
+                            #// すでにパイプラインのコードとして登録されたリポジトリは指定できません。
+                            #// 「リポジトリのパス」または「ブランチ名」が異なれば登録できます
+                        パイプラインのコードを作ります:
+                            https://github.com/Takakiriy/first/ci.gocd.yaml
+                            #ref: https://github.com/tomzo/gocd-yaml-config-plugin#example
+                            #// ci2.gocd.yaml ファイルでもマッチします。２つ以上マッチするファイルがあるとマージして、複数のパイプラインができます
+                        （必要なら）パイプライン名を変更します:  #// 既存のパイプラインと同じ名前のパイプラインを作ることはできません
+                            ci.gocd.yaml: |
+                                ...
+                                pipelines:
+                                    __PipelineName__:
+                                ...
+                            #// 既存のパイプラインを消してからインポートする（パイプラインを作る）なら、変更不要です
+                            #// インポートした後で ci.gocd.yaml ファイルを更新したときは、パイプライン名は同じで構いません。
+                        git push:
+                    コードからパイプラインを作ります: #keyword: GoCD import config
+                        GoCD WebUI:
+                            メニュー: GoCD WebUI >> ADMIN タブ >> Config Repositories（中央）>> Add（右上）
+                            Config repository name: __PipelineName__Config  #// パイプライン名 + Config がよいでしょう
+                            Plugin ID: YAML Configuration Plugin
+                            URL: https://github.com/Takakiriy/first/  #// ____.gocd.yaml ファイルを含むリポジトリの例  #search: GoCD pipeline code example
+                            Branch: main  #// 例
+                            Test Connection ボタン:
+                            Rules:
+                                + New Permission ボタン:
+                                    DIRECTIVE: Allow
+                                    TYPE: All
+                                    RESOURCES: "*"    #// " " は入力不要
+                                関連 >> 別の方法:  #search: GoCD config XML rules
+                            Save ボタン（右下）:
+                            （エラーが発生した場合）:
+                                #// 下記のエラーは ____.gocd.yaml ファイルを含むリポジトリを指定していないときに発生します
+                                #//     This repository does not define any pipelines or environments.
+                                #// 下記のエラーは上記 Rules の設定で対処します
+                                #//     Not allowed to refer to ____. Check the 'Rules' of this config repository.;; 
+                        パイプラインのコードをリロードします:
+                            メニュー: GoCD WebUI >> ADMIN タブ >> Config Repositories（中央）>>（対象のコンフィグの）リロード ボタン
+                        実行します:  #search: GoCD pipeline trigget
+                        （メモ）Rules を設定する別の方法: #keyword: GoCD config XML rules
+                            命名ルールを変更します:
+                                メニュー: GoCD WebUI（ブラウザーのタブの複製）>> ADMIN タブ >> Config XML（左下）>> Edit（右上）
+                                編集前:
+                                    <config-repo id="__PipelineName__Config" pluginId="yaml.config.plugin">
+                                        ...
+                                    </config-repo>
+                                編集後: #ref: https://docs.gocd.org/current/advanced_usage/pipelines_as_code.html  >>  Allow everything (ignore security)
+                                    <config-repo id="__PipelineName__Config" pluginId="yaml.config.plugin">
+                                        ...
+                                        <rules>
+                                            <allow action="refer" type="*">*</allow>
+                                        </rules>
+                                    </config-repo>
+                                #// インデントは保存すると自動的に整形されます
+                                Save ボタン（右上）:
+                HCL:  #search: HCL GoCD  #// HCL で GoCD のパイプラインを作る場合
+            パイプライン: #keyword: GoCD pipeline  #// ステージの集まり。パイプライン（VSM）の構成要素  #search: GoCD start pipeline
+                手順:
+                    追加: #keyword: create GoCD pipeline
+                        初回:  #search: create GoCD first pipeline  #// マテリアルを別のパイプラインのステージにする場合
+                        ダウンストリーム: #keyword: create GoCD downstream pipeline  #// マテリアルを別のパイプラインのステージにする場合
+                            メニュー: GoCD WebUI (version 22.2) >> DASHBOARD タブ >> New Pipeline（右上）>> Use Pipeline Wizard >>
+                            Part 1; Material:
+                                Material Type: Another Pipeline
+                                Upstream Pipeline: firstPipeline  #// 例。以下略
+                                Upstream Stage: defaultStage
+                            Part 2; Pipeline Name:
+                                Pipeline Name: secondPipeline
+                            Part 3; Stage Details:
+                                Stage Name: secondPipelineStage
+                            Part 4; Job and Tasks:
+                                Job Name: defaultJob
+                                Type your tasks below at the prompt: echo "Hello, world!" > my-artifact.html  #// 実行するコマンド
+                            Save + Run This Pipeline ボタン:
+                            #// または
+                            トリガーされるのを待つ状態にします:
+                                Save + Edit Full Config ボタン >> DASHBOARD タブ >>（作ったパイプラインの）PAUSE ボタン（ポーズを解除）
+                            （必要なら）入力するアーティファクトを公開します:
+                                #search: create GoCD artifact
+                        コードから追加します:  #search: GoCD pipelines as code
+                    削除:  #search: delete GoCD pipeline
+                        メニュー: GoCD WebUI (version 22.2) >> ADMIN タブ >> Pipelines >>（削除するパイプラインの）ゴミ箱 ボタン
+                        ゴミ箱ボタンが押せないとき:
+                            コードとしてのパイプラインのコンフィグを削除します:  #search: GoCD pipelines as code
+                    表示, 設定:  #keyword: show GoCD pipeline,  read GoCD pipeline
+                        依存関係:  #search: GoCD VSM  #// パイプラインとパイプラインの依存関係
+                        パイプライン等の設定: #keyword: GoCD pipeline settings
+                            パイプラインの一覧や、依存関係などを表示します:
+                                パイプラインの一覧:  GoCD WebUI >> DASHBOARD タブ
+                                VSM:  #search: GoCD VSM
+                            パイプラインの設定:
+                                歯車 ボタン（パイプラインの右上）
+                            ステージの設定:
+                                パイプラインの子要素（ツリー内：左）
+                            ジョブの設定: #🌟  #keyword: GoCD job settings
+                                ステージの子要素（ツリー内：左）
+                            タスクの設定:
+                                TASKS タブ
+                    実行:
+                        起動条件: #keyword: GoCD pipeline trigget
+                            マテリアルがリポジトリの場合: リポジトリにコミットが追加されたとき
+                            マテリアルがステージの場合: ステージの処理が正常終了したすぐ。失敗したときは起動しません
+                        実行内容:  #search: GoCD custom command
+            ステージ: #keyword: GoCD stage  #// ジョブの集まり。
+                表示 >> 設定:  #search: show GoCD pipeline
+            ジョブ: #keyword: GoCD job  #// タスクの集まり。並列実行可能
+                概要:
+                    並列実行可能:
+                        #// 公式の文章を和訳すると違うけど  #ref: https://www.gocd.org/getting-started/part-1/#concept4  >> ステージ
+                表示:
+                    設定, パイプラインの構成:  #search: show GoCD pipeline
+                    処理結果:  #search: GoCD result
+                    できたアーティファクト:  #search: GoCD artifact
+                        WebUI:
+                            （処理結果の）Artifacts タブ
+                        CLI:
+                            $ sudo ls -l /var/lib/go-agent/pipelines/firstPipeline/my-artifact.html
+                            -rw-r--r-- 1 go go 14 Oct  6 19:55 /var/lib/go-agent/pipelines/firstPipeline/my-artifact.html
+                リソース:
+                    サンプル: python37, golang, nodejs
+                タスクの順番:  #search: GoCD task order
+                再実行:  #search: GoCD Rerun jobs
+                追加: #keyword: GoCD add new job
+                    メニュー: ステージの設定画面 >> Jobs タブ >> Add new job
+                    Job Name: ____
+                    Job Timeout: Use Default
+                    Run Type: Run on one instance
+                    Command: ___  #// pwd など
+            タスク: #keyword: GoCD task  #// シェルのコマンドを実行します。全てのタスクは同じエージェントが実行します
+                種類:
+                    カスタム コマンド: #keyword: GoCD custom command
+                        Command: 実行ファイル名  #// GoCD エージェントが動いているサーバーで使えるコマンドであること
+                        Arguments: 改行が引数の区切りになります。空白は引数の区切りになりません。
+                            環境変数は展開されません
+                        Working Directory: 相対パス。省略すると /var/lib/go-agent/pipelines/__PipelineName__
+                            このパスは、マテリアルに指定した Git リポジトリから clone した Git の ワーキング フォルダー です。
+                            /var/lib/go-agent/pipelines/__PipelineName__/.git フォルダーがあります。
+                        ヒント:
+                            テスト実行（ls コマンドを実行）する場合:
+                                Command: bash
+                                Arguments: |  #// サンプル
+                                    -c
+                                    ls
+                            複数のコマンドを実行する場合:
+                                Command: bash
+                                Arguments: |  #// サンプル
+                                    -c
+                                    __CommandLine1__  &&  __CommandLine2__ | __CommandLine3__ > __OutputFilePath__
+                            環境変数: #keyword: GoCD environment variables
+                                GoCD 管理下:  #// パイプライン、ステージ、ジョブ のそれぞれに環境変数を定義できます
+                                    #search: GoCD pipeline settings
+                                    - パイプライン >> ENVIRONMENT VARIABLE タブ
+                                    - ステージ >> ENVIRONMENT VARIABLE タブ
+                                    - ジョブ >> ENVIRONMENT VARIABLE タブ
+                                    #ref: https://docs.gocd.org/current/faq/dev_use_current_revision_in_build.html
+                                GoCD エージェントのサービスに設定する場合:
+                                    共通:
+                                        - go ユーザーにシェルでログインして printenv コマンドで不足している環境変数を調べます。
+                                            なお GoCD パイプライン内では /bin/printenv はエラーになります  #search: GoCD bash
+                                        - PATH=____:$PATH という書き方はできません。systemctl start に失敗します
+                                        #// 他に下記の固有の場合も参照
+                                    unit file や .profile に設定する場合:  #search: systemd unit file
+                                        - unit file に環境変数を定義すると、GoCD のパイプライン実行時にその環境変数を参照できるようになります
+                                            #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/playbooks/gocd_agent.yml#EnvironmentFile
+                                        - /var/go/.bashrc, /var/go/.bash_profile, /var/go/.profile に PATH=____ などを書いても参照できませんが、
+                                            /var/go/.profile を unit file の EnvironmentFile に指定すれば参照できるようになります
+                                        - /var/go/.profile は go ユーザーにログインしたときも設定されます。/var/go/.bash_profile, /var/go/.bashrc には書いても設定されません
+                                    go-agent/bin/go-agent.shconf に設定する場合:  #ref: https://github.com/gocd/gocd/issues/7556#issuecomment-575888284
+                                        echo 'source /var/go/.bash_profile' > /usr/share/go-agent/bin/go-agent.shconf
+                                        chmod 755 /usr/share/go-agent/bin/go-agent.shconf
+                                        /etc/init.d/go-agent restart
+                                ジョブのコマンド内に設定する場合:
+                                    Command: bash
+                                    Arguments: |  #// サンプル
+                                        -c
+                                        export PATH="/home/user1/.local/bin:$PATH" && bash -c 'echo $PATH  &&  poetry'
+                                    #search: GoCD bash
+                                表示する カスタム コマンド:
+                                    Command: bash  #// bash 以外を実行するときに存在しない、または値が異なる環境変数もあるので注意
+                                    Arguments: |  #// サンプル
+                                        -c
+                                        echo 1 $USER $HOME $PWD $PATH
+                                    #// Command: echo,  Arguments: $USER では $USER と表示されます。USER 変数の値は表示されません。
+                                値のサンプル:
+                                    $USER: go
+                                    $HOME: /var/go  #// cat /etc/passwd で確認できます
+                                    $PWD:  /var/lib/go-agent/pipelines/__PipelineName__  #keyword: GoCD PWD  #// /var/lib/go-agent は、エージェントのサンドボックスの設定によります
+                                        #// GoCD の Web UI >> AGENTS タブ >> SANDBOX に書かれたパスを基準にした pipelines/__PipelineName__ です
+                                    $PATH: /usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin  #// WSL2 Uubntu 20.04 の場合
+                                        #search: GoCD PATH
+                                    $HTTP_PROXY: （なし。エージェントがいるサーバーで定義されている値ではない）
+                                環境変数以外:
+                                    CentOS7:
+                                        UID: 996 (go)  #search: GoCD bash  #// cat /etc/passwd では go:x:996:991:GoCD User:/var/go:/bin/bash
+                                        GID: 991 (go)
+                                    Ubuntu:
+                                        UID: 999 (go)
+                                PATH: #keyword: GoCD PATH
+                                    注意:
+                                        - /home/vagrant/.bashrc に PATH=____ を書くと、vagrant up で起動できなくなります
+                                    設定: #search: GoCD environment variables
+                                    参照: #// PATH 変数の値を表示します
+                                        タスクが実行するコマンドを不正なコマンド名に変えてパイプラインを動かすと、
+                                        エラーメッセージに PATH の値が表示されます。
+                            シェルから実行します: #keyword: GoCD bash
+                                注意: エージェントのユーザー(go)のパスワードを変更してはいけません。変更すると、
+                                    エージェントがパイプラインを開始できなくなります
+                                手順:
+                                    go ユーザーにログインします:
+                                        su -
+                                        su - go
+                                    マテリアルを用意します:
+                                        #search: show GoCD material
+                                        cd  $HOME
+                                        git clone  -b __Branch__  __URL__
+                                    コマンドを実行します:
+                                        #search: GoCD custom command
+                                        cd  __WorkingDirectory__
+                                        __Command__
+                                    環境変数:  #search: GoCD environment variables
+                                旧）user2 の場合:
+                                    （必要なら）エージェントのユーザー(go)のシェル:
+                                        go ユーザーに環境が近い user2 ユーザーを作って試します  #search: user2
+                                        #// 現在のユーザー user1 でも同じ問題が発生しそうな場合、user1 のままで作業するほうがよいでしょう
+                    Ant:
+                    NAnt:
+                    Rake:
+                    Fetch Artifact:  #search: GoCD downstream artifact
+                表示 >> 設定:  #search: show GoCD pipeline
+                タスクの順番: #keyword: GoCD task order
+                    ジョブのページにあるタスクの表のうち上の行から順次実行します。
+                    順番を変えるには、タスクの左端のハンドルをつかみます（ドラッグ＆ドロップします）
+                追加: #keyword: GoCD add task
+                    メニュー: ジョブの設定画面 >> Add task
+                    Command: ____
+                    Arguments: ____
+                    Working Directory: ____
+                    Save ボタン:
+            処理結果:  #search: GoCD result
+            再実行:  #search: GoCD Rerun jobs
+        処理対象関係:  #// ソース コード, ビルドしたファイル
+            マテリアル: #keyword: GoCD material  #// パイプラインへ入力するファイルなど
+                参照: #keyword: show GoCD material
+                    パイプラインの設定 >> MATERIALS タブ
+                    #search: GoCD pipeline settings
+                リポジトリ:  #// Git リポジトリなど  #ref: https://www.gocd.org/getting-started/part-1/#concept2
+                    Material Type: Git
+                    URL: （git のリポジトリの URL）
+                    Branch: ____
+                別のブランチのパイプライン:
+                    コードとしてのパイプラインを使えば対応できます:  #search: GoCD pipelines as code
+                        feature ブランチ に分かれるとき:
+                            ブランチを作って、.gocd.yaml ファイル の中のパイプライン名とブランチ名を変更してコミット、コンフィグ リポジトリ を追加
+                        feature ブランチ から develop ブランチ にそのままマージすると:
+                            コンフィグ リポジトリ を更新する処理で、パイプライン名が重複するエラーになります。
+                            feature ブランチ で元に戻して develop ブランチ にマージすると正しく戻ります。
+                    補足:
+                        -   構成のオーバーヘッドを削減するには、GoCD のコードとしてのパイプライン機能を使用してパイプラインをデータ構造として git リポジトリに書き込み、
+                            テンプレートを使用してそのリポジトリを生成できます  #search: GoCD pipelines as code
+                        -   GoCD チームは、このようなテンプレートを使用してワイルドカード ブランチのサポートを実装することを検討していますが、まだ完了していません。
+                        #ref: https://stackoverflow.com/questions/56805304/gocd-pull-from-multiple-branches-and-deploy-to-different-environments
+                別のパイプラインのステージ: #keyword: GoCD pipeline material  #// パイプラインのマテリアルに、別のパイプラインのステージを指定できます
+                    公式:  #ref: https://www.gocd.org/getting-started/part-2/#pipeline_as_material
+                        図に間違いがあるようです。
+                        アップストリーム パイプライン（上流）のマテリアルは MATERIAL 1。
+                        ダウンストリーム パイプライン（下流）のマテリアルは アップストリーム パイプライン の ステージ 2。
+                    手順 >> 追加:  #search: create GoCD downstream pipeline
+                GitHub プルリクエスト との連携: 
+                    gocd-build-github-pull-requests: #keyword:  #ref: https://github.com/ashwanthkumar/gocd-build-github-pull-requests
+                        GoCD サーバー ~/.github:  #// GitHub との通信にトークンを使います
+                            login=__UserName__
+                            oauth=__Token__
+                            endpoint=https://github.com/api/v3
+            アーティファクト: #keyword: GoCD artifact  #// ジョブが出力したファイルなど  #ref: https://www.gocd.org/getting-started/part-2/#using_artifacts
+                例: #// ビルドしたもの, テスト レポート, など
+                手順:
+                    アーティファクトを次のパイプラインのマテリアルにする場合:
+                        上流パイプラインでの手順: #keyword: GoCD upstream artifact
+                            パイプラインを作ります:
+                                #search: create GoCD downstream pipeline
+                            公開するように設定します: #keyword: publish GoCD artifact,  create GoCD artifact  #// 次のパイプラインがアーティファクトを使えるようにします
+                                #// 公開しなくても次のパイプラインを起動させることはできますが、
+                                #// 公開しないと次のパイプラインがアーティファクトを使えません。
+                                アーティファクトを出力するジョブの設定ページを表示します:
+                                    #search: show GoCD pipeline
+                                メニュー: GoCD WebUI (version 22.2) >> ARTIFACTS タブ
+                                Type:
+                                    Build: 基本
+                                    Test: アーティファクトをテストレポートとして GoCD が解析します
+                                Add Artifact ボタン:
+                                Source: my-artifact.html  #// ジョブが出力するファイル名。以下では __FileName__ で表記します
+                                Destination: （空欄） #// 空欄＝アーティファクトがルートで独自の名前でアクセスできる(?)  #ref: https://www.gocd.org/getting-started/part-2/#using_artifacts
+                                SAVE ボタン:
+                            パイプラインを動かして、アーティファクトを作ります:
+                                成功した場合: |
+                                    [go] Start to upload __PipelineName__/__InstanceID__/__StageName__/1/__JobName__ on __HostName__ [/var/lib/go-agent]
+                                    [go] Uploading artifacts from /var/lib/go-agent/pipelines/__PipelineName__/__FileName__ to [defaultRoot]
+                            できたアーティファクトがある場所:
+                                Artifacts タブなど  #search: GoCD Job Details
+                        下流パイプラインでの手順: #keyword: GoCD downstream artifact
+                            下流の TASKS タブを表示します:
+                                下流パイプラインのジョブの設定（を表示）>> TASKS タブ
+                                #search: GoCD job settings
+                            Fetch Artifact タスクの設定:
+                                メニュー: ドロップダウン＝Fetch Artifact（左下） >> Add Task ボタン
+                                Pipeline: 上流のパイプライン名  #// 直接の上流以外も指定できます
+                                Stage: 上流のステージ名
+                                Job: 上流のジョブ名
+                                Source: アーティファクトのファイルまたはフォルダーのパス  #// 上流が出力するファイル名やフォルダー名に合わせる必要があります
+                                Source is a file: Source がファイルならチェックします。チェックしないとフォルダーの zip を転送します
+                                Destination: Source に指定したファイルまたはフォルダーを保存するフォルダー。省略時は sandbox のルート
+                                SAVE ボタン:
+                                Fetch Artifact タスクを最初に実行するように配置します:
+                                    Fetch Artifact タスクを先頭にドラッグ＆ドロップ（タスクの左端のハンドルをつかむ）して保存します
+                            Custom Command タグの設定:
+                                メニュー: ドロップダウン＝Custom Command（左下） >> Add Task ボタン
+                                Command: cat  #// サンプル
+                                Arguments: Fetch Artifact タスクの Source に指定したファイル名
+            カスタム タブ: #keyword: GoCD tab  #// ジョブの処理結果に出力したアーティファクトのタブを追加します  #ref: https://www.gocd.org/getting-started/part-2/#custom_tabs
+                #// ARTIFACT タブの中から表示することもできます
+                追加:
+                    ジョブの設定を表示します:
+                        #search: show GoCD pipeline
+                    メニュー:
+                        ジョブの設定画面 >> CUSTOM TABS タブ >> + Add ボタン
+                    Tab Name: MyArtifact  #// 処理結果に表示されるタブの名前。空白を入れることはできません
+                    Path: my-artifact.html  #// タブのページに表示するファイルのパス。HTML など。
+                        #// アーティファクトとして公開されている必要があります  #search: GoCD artifact
+                表示:  #// ジョブの処理結果
+                    ジョブの処理結果に Tab Name に設定したタブが追加されているので、そのタブをクリックします
+                    #search: GoCD result
+    ファイル:
+        __PipeLine__.gocd.yaml:  #search: GoCD pipelines as code  #ref: https://github.com/tomzo/gocd-yaml-config-plugin#setup
+            基本サンプル:  #search: GoCD pipeline code example
+用語: #glossary: test
+    モック, mock: #keyword: モック  #// テストするときに置き換えるもの
+        アタッチ: #keyword: mock attach  #// モックに置き換えること  #ref: https://docs.python.org/3/library/unittest.mock.html
+    テスト ダブル: #search: モック  #// Stub、Fake、Dummy
+    テスト代役: #search: テスト ダブル
+テスト環境、テストデータ: #search:
