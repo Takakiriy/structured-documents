@@ -123,7 +123,7 @@ IPアドレス: #keyword:
         変更時の反映時間:
             VRRP などを使わない場合よりは早いらしい  #search: VIP update time
 firewalld:  #// ファイアー ウォール 機能。CentOS8 Linux の標準。使えるのは CentOS7～。iptables の filter テーブル
-nftables: #keyword:  #// NAT 機能。CentOS8 Linux の標準。nftコマンド  #ref: https://wiki.nftables.org/wiki-nftables/index.php/Main_Page
+nftables: #keyword: nftables,  nf_tables  #// NAT 機能。CentOS8 Linux の標準。nftコマンド  #ref: https://wiki.nftables.org/wiki-nftables/index.php/Main_Page
     手順:
         表示: |  #keyword: sudo nft list ruleset  #// 現在の設定を表示します。サーバー側（リクエストを受ける側）で実行します。現在の設定はカーネルのメモリー内にあります
             sudo nft -a list ruleset    #// -a オプションは # handle ____ も表示します。nft のすぐ右に書く必要があります。handle の番号はソートされていないこともあります
@@ -148,11 +148,16 @@ nftables: #keyword:  #// NAT 機能。CentOS8 Linux の標準。nftコマンド 
                         type filter hook output priority filter; policy accept;
                     }
                 }
+        動いているのは iptables か nftables か確認します: #keyword: iptables or nftables
+            $ sudo iptables --version
+            iptables v1.8.10 (nf_tables)
+            #// iptables コマンドのバージョンが v1.8.10
+            #// 動いているのは nftables
         編集:
             行ごとのコマンドで編集する場合: #keyword: edit nftables
                 基本:  #// 末尾に追加します
                     サンプル: |
-                            sudo nft add rule  inet filter input  ip saddr 192.168.1.0/24  accept
+                            sudo nft add rule  inet filter Input  ip saddr 192.168.1.0/24  accept
                             sudo nft list ruleset  |  sudo tee  /etc/sysconfig/nftables.conf  #// 起動時に読む場所へ設定を保存します。/etc/sysconfig/nftables.conf は RHEL系 の場合
                         #template__: nft add rule  inet __Table__ __Chain__  __MatchingExpression__  __Statement__
                     __MatchingExpression__: ip saddr 192.168.1.0/24  #// いろいろな書き方があります → #search: nftables matching expressions
@@ -160,10 +165,19 @@ nftables: #keyword:  #// NAT 機能。CentOS8 Linux の標準。nftコマンド 
                     構成:  #search: nftables concept tree
                 挿入する場所を指定する場合: #keyword: nft insert example
                     #// nft add の代わりに nft insert を使います
-                    サンプル:
-                        sudo nft insert rule  inet filter input  index 0  ip saddr 192.168.1.0/24  accept
-                        #template__: nft insert rule  inet __Table__ __Chain__  index __Index__  __MatchingExpression__  __Statement__
-                    __Index__: 0 が最初。 type が最も上にあるチェインでは、0 は type の直下になります
+                    先頭に挿入する場合:  #// handle や index を指定しません
+                        sudo nft insert rule  inet filter Input  ip saddr 192.168.1.0/24  accept
+                    handle を指定する場合:  #// ハンドル番号
+                        サンプル:
+                            sudo nft -a list ruleset
+                                ハンドル番号を確認します
+                            sudo nft insert rule  inet filter Input  handle 0  ip saddr 192.168.1.0/24  accept
+                            #template__: nft insert rule  __Table__ filter __Chain__  handle __HandleNumber__  __MatchingExpression__  __Statement__
+                    index を指定する場合:  #// 相対位置
+                        サンプル:
+                            sudo nft insert rule  inet filter Input  index 0  ip saddr 192.168.1.0/24  accept
+                            #template__: nft insert rule  __Table__ filter __Chain__  index __Index__  __MatchingExpression__  __Statement__
+                        __Index__: 0 が最初。指定した場所の上に挿入されます。type が最も上にあるチェインでは、0 は type の直下になります。handle 番号ではありません。
                 削除:  #search: nft delete
             既存の設定をインポートする場合: #keyword: import nftables
                 編集と構文チェック:
@@ -322,7 +336,59 @@ nftables: #keyword:  #// NAT 機能。CentOS8 Linux の標準。nftコマンド 
                 jump __Chain__: 別のチェーンへジャンプ（戻ってくる）
                 goto __Chain__: 別のチェーンへ移動（戻らない）
                 counter: カウンタのみ（処理は継続）
-    トラブルシューティング:  #search: iptables trouble
+    トラブルシューティング (nftables): #keyword: nftables trouble
+        動いているのは iptables か nftables か確認します:  #search: iptables or nftables
+        reject したルールを探します:
+            reject した回数を表示します:
+                sudo nft -a list ruleset | grep -E "[1-9][[0-9]* reject"
+            通信します:
+                curl など
+            reject が増えたルールを探します:
+                sudo nft -a list ruleset | grep -E "[1-9][[0-9]* reject"
+        特定のルールにマッチしたかどうかを確認します:
+            特定のルールの 1つ前に、カウンターを挿入します:  #// 特定のルールに到達しない可能性があるため
+                sudo nft -a list ruleset
+                sudo nft insert rule  inet filter AllowFromRepositoryClient  handle 27  tcp dport 8087  counter  comment "MARK"
+                    #template__: nft insert rule  __Table__ __Chain__  handle __HandleNumer__  tcp dport __Port__  counter  comment "MARK"
+            通信します:
+                curl など
+            特定のルールと、1つ前のルールのカウンターを確認します:
+            挿入したカウンターを削除します: |  #// 元に戻します
+                sudo nft -a list ruleset | grep MARK
+                    #// ハンドル番号を確認します
+                sudo nft delete rule  inet filter AllowFromRepositoryClient  handle __Handle__
+        （未確認）カウンターをリセットします:  #// できていません
+            $ sudo nft list tables
+            table inet filter
+            $ sudo nft reset counters table inet filter
+            $ sudo nft reset counters inet filter
+            $ sudo nft -a list ruleset
+                カウンターはリセットされてない
+        トレースします, ログを表示します:  #// nftables に関する通信ログを表示します。
+            ログの表示を開始するルールを追加します:  #// 特定のポートのみ表示する場合
+                sudo nft -a list ruleset
+                sudo nft insert rule inet filter Input tcp dport 8087 meta nftrace set 1  #// 先頭に追加します
+                    #template__: nft insert rule  __Table__ filter __Chain__  tcp dport __Port__  meta nftrace set 1
+            ログが表示されるようにします:
+                （別のターミナルで）
+                sudo nft monitor trace
+                    #// 待ち状態になります。通信が来たら、ログが表示されます
+            通信します:
+                curl など
+            表示例: |  #focus: verdict,  saddr,  daddr
+                trace id ab3cfe31 inet filter Input packet: iif "eth1" ether saddr 08:00:27:7c:d8:cb ether daddr 08:00:27:e4:61:ed ip saddr 192.168.229.21 ip daddr 192.168.229.20 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 24870 ip protocol tcp ip length 60 tcp sport 51130 tcp dport 8087 tcp flags == syn tcp window 64240 
+                trace id ab3cfe31 inet filter Input unknown rule handle 32 (verdict continue)
+                trace id ab3cfe31 inet filter Input rule jump __Rule1__ (verdict jump __Rule1__)
+                trace id ab3cfe31 inet filter __Rule1__ rule ip saddr 192.168.34.0/24 udp dport 53 counter packets 0 bytes 0 accept (verdict continue)
+                trace id ab3cfe31 inet filter Input rule goto __Rule2__ (verdict goto __Rule2__)
+                trace id ab3cfe31 inet filter __Rule2__ rule counter packets 30 bytes 3027 jump __Rule3__ (verdict jump __Rule3__)
+                trace id ab3cfe31 inet filter __Rule3__ rule ip saddr 172.31.192.0/18 counter packets 13 bytes 1104 accept (verdict continue)
+                trace id ab3cfe31 inet filter __Rule2__ rule meta l4proto tcp counter packets 1 bytes 60 reject with tcp reset (verdict drop)
+            トレースをしないように戻します: |
+                sudo nft -a list ruleset | grep "tcp dport 8087 meta nftrace"
+                    tcp dport 8087 meta nftrace set 1 # handle __Handle__
+                sudo nft delete rule  inet filter Input  handle __Handle__
+        その他:  #search: iptables trouble
 iptables:  #keyword:  #// Rocky8, CentOS7 Linux の標準。ファイアー ウォール 機能 と NAT 機能。CentOS8 では firewalld, nftables（nftコマンド）が標準
     関連:
         CentOS8:
@@ -671,6 +737,7 @@ iptables:  #keyword:  #// Rocky8, CentOS7 Linux の標準。ファイアー ウ�
                 diff-iptables-test.sh:  #ref: ${GitHub}/MyPrivateCode/bash/normalize-iptables/diff-iptables-test.sh
                     修正:  #search: diff-iptables-test.sh  anonymization
     トラブルシューティング (iptables): #keyword: iptables trouble
+        （nftabes の場合）:  #search: nftables trouble
         telnet で疎通確認します:
             #search: Linux telnet port
         curl -v [--noproxy "*"] で疎通確認します:  #search: ACL 疎通確認 (cURL)
@@ -763,7 +830,7 @@ DNS: #keyword: DNS,  name server  #// Domain Name Service  #glossary: DNS  #ref:
             ドメイン名:
                 .local: マルチキャスト DNS（mDNS、Bonjour など）で使用される特殊なドメイン
             DNS 名: #keyword:  #// DNS サーバーの名前ではなく、DNS によって名前解決が行われるホスト名です
-    BIND:  #// Linux に ローカル のネットワークで使える DNS
+    BIND: #keyword: BIND, BIND9  #// Linux に ローカル のネットワークで使える DNS
         インストール: #keyword: install BIND
             本体をインストールします:
                 (DNS サーバーにする VM の bash):
@@ -1576,6 +1643,13 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             対策:
                 個人で取れる対策:  #ref: https://ja.wikipedia.org/wiki/SIMスワップ詐欺#個人で取れる対策
                     公開しない: 氏名、住所、生年月日等、携帯電話番号、契約先事業者名、インターネットバンキングのID、パスワード
+                謎の Yahoo 確認コード 6桁: #keyword: 謎の Yahoo! 確認コード
+                    yahoo 確認コード 覚えがない
+                    Yahoo!JAPANにログインしていればこちらから確認できます。
+                    https://id.yahoo.co.jp/security/login_history.html
+                    メッセージの情報を、他人に教えない限りログインする事は出来ません。
+                    なので、削除して終わりです。残念ながら特に対策は無いですね。
+                    https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q13296678478
         MFA, 多要素認証: #keyword:
         PGP: #keyword:  #// Pretty Good Privacy
             OpenPGP, RFC 4880: #keyword:
@@ -1599,7 +1673,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 手順:
                     インストールします: #keyword: install GPG  #// GPG をインストールします
                         Windows: #keyword: GPG Windows  #// Kleopatra (GUI) もインストールします
-                            Git bash を使う場合:  #// Git bash に gpg コマンドは入っています
+                            Git bash を使う場合:
+                                #// Git bash に gpg コマンドは入っています
                                 インストールします:
                                     #search: install Git bash
                                 インポートする場合:
@@ -1624,14 +1699,16 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                             #ref: https://www.kkaneko.jp/tools/win/gnupg.html
                         mac:
                             #ref: https://www.gnupg.org/download/index.html >> binary releases >> Mac GPG
-                            GnuPG for OS X:  #ref: https://sourceforge.net/p/gpgosx/docu/Download/ >> Long Term Support (LTS) version >>
+                            GnuPG for OS X:  #ref: https://sourceforge.net/p/gpgosx/docu/Download/ >> Long Term Support version (LTS) >>
                                 disk image をダウンロードします:
                                 ダウンロードしたファイルの SHA256 をチェックします:
                                     シェル:
+                                        sha1sum ____/GnuPG-2.4.7.dmg
                                         shasum -a 256 ____/GnuPG-2.2.36.dmg
                                 インストールします:
                                     GnuPG-2.2.36.dmg をダブルクリック >> Install.pkg（をダウンロードにドラッグ＆ドロップ）>>
                                     Install.pkg（を右クリック）>> このアプリケーションで開く >> インストーラ（デフォルト）>> 開く
+                                    #search: open mac blocked application
                                 バージョンを確認します:
                                     シェル:
                                         gpg --version
@@ -1655,13 +1732,9 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                                 #// 完全な ID は gpg --list-secret-keys コマンドで確認できるので、普段は 4C43F3F7 を ID として使います
                             鍵の所有者の名前: user1
                             鍵の所有者のメールアドレス: user1@example.com
-                        期限: #keyword: my GPG key expires
-                            2024-11-30:
-                                更新日: 2024-11-30
-                                有効期限: 2026-11-19
-                            2022-11-11:
-                                作成日: 2022-11-11
-                                有効期限: 2024-11-10
+                        鍵の生データ: #keyword: GPG raw data
+                            export すると見えます  #search: export GPG
+                        実際の期限:  #search: my GPG key expires
                     新規作成します: #keyword: create GPG  #// 鍵を作ります
                         パスフレーズを決めます:
                             ヒントをメモします  #// PGP 2022-11-19
@@ -1681,23 +1754,30 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                             gpg --list-keys
                         鍵を編集するモードに入ります:  #search: GPG key ID
                             gpg --edit-key __KeyID__
-                        延長する期間を入力します: |  #focus: 2y  #// expire と入力し、2年延長の場合 2y と入力します
-                            gpg> expire
-                            Changing expiration time for the primary key.
-                            Please specify how long the key should be valid.
-                                    0 = key does not expire
-                                <n>  = key expires in n days
-                                <n>w = key expires in n weeks
-                                <n>m = key expires in n months
-                                <n>y = key expires in n years
-                            Key is valid for? (0) 2y
-                            Key expires at Mon Sep 31 20:23:30 2026 JST
-                            Is this correct? (y/N) y
-                            ...
-                            [ultimate] (1). __Name__ <yourname@example.com>
-                            gpg: WARNING: Your encryption subkey expires soon.
-                            gpg: You may want to change its expiration date too.
-                            gpg> save
+                        （必要なら）主キーの期限を更新します:
+                            延長する期間を入力します: |  #focus: 2y, save  #// expire と入力し、2年延長の場合 2y と入力します
+                                gpg> expire
+                                Changing expiration time for the primary key.
+                                Please specify how long the key should be valid.
+                                        0 = key does not expire
+                                    <n>  = key expires in n days
+                                    <n>w = key expires in n weeks
+                                    <n>m = key expires in n months
+                                    <n>y = key expires in n years
+                                Key is valid for? (0) 2y
+                                Key expires at Mon Sep 31 20:23:30 2026 JST
+                                Is this correct? (y/N) y
+                                ...
+                                [ultimate] (1). __Name__ <yourname@example.com>
+                                gpg: WARNING: Your encryption subkey expires soon.
+                                gpg: You may want to change its expiration date too.
+                                gpg: WARNING: No valid encryption subkey left over.
+                                gpg> save
+                        （必要なら）サブ キー の期限を更新します:  #search: update GPG subkey
+                            編集中とするキーを設定します:
+                                gpg> key 1   #// 1つ目の サブ キー
+                            延長する期間を入力します:
+                                #// 主キーの更新と同じ手順です
                         期限を再確認します:
                             gpg --list-keys
                         メモを更新します:  #search: my GPG key expires
@@ -1711,22 +1791,28 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     エクスポート、インポートします: #keyword: export GPG
                         エクスポートします:  #// 秘密鍵と公開鍵をエクスポートします。 バックアップ、または他クライアントに移動・コピーします
                             mac の場合:
+                                前提条件:
+                                    #search: install GPG
                                 テキスト形式にする場合:
                                     gpg --armor --export-secret-keys __KeyID__ > ~/__KeyID__.private-key.gpg
-                                    #// 秘密鍵から公開鍵が作れるから不要？⇒ gpg --armor --export             __KeyID__ > ~/__KeyID__.public-key.gpg
+                                    #// 秘密鍵から公開鍵が作れるから不要？⇒ gpg --armor --export   __KeyID__ > ~/__KeyID__.public-key.gpg
+                                    #// __KeyID__ は #search: GPG key ID
                                 バイナリ形式にする場合:
                                     gpg --export-secret-keys __KeyID__ > ~/__KeyID__.private-key.gpg
-                                    #// 秘密鍵から公開鍵が作れるから不要？⇒ gpg --export             __KeyID__ > ~/__KeyID__.public-key.gpg
+                                    #// 秘密鍵から公開鍵が作れるから不要？⇒ gpg --export   __KeyID__ > ~/__KeyID__.public-key.gpg
                                 #// --armor オプションを付けると出力ファイルはテキスト形式になります。 付けないとバイナリ形式になります。どちらでも構いません
                         USB メモリー などに移動して、インポートする PC に移動します:
                             パスフレーズを入力しないと使えないのである程度は安全です
                         インポートします: #keyword: import GPG  #// 秘密鍵と公開鍵をインポートします
-                            bash の場合: |
-                                cd  __FolderWithKeys__
-                                gpg --allow-secret-key-import --import  ~/__KeyID__.private-key.gpg
-                                    #// パスワードの入力を求められます
-                                または
-                                gpg --import  ~/__KeyID__.public-key.gpg
+                            mac の場合:
+                                初回のみ:
+                                    #search: install GPG
+                                bash の場合: |
+                                    gpg --allow-secret-key-import --import  ~/__KeyID__.private-key.gpg
+                                        #// パスワードの入力を求められます
+                                    または
+                                    gpg --import  ~/__KeyID__.public-key.gpg
+                                #search: GPG key ID
                             Windows の Kleopatra の場合:
                                 Windows ボタン >> Kleopatra（と入力して選ぶ）>> インポート ボタン >> __KeyID__.private-key.gpg
                                 #search: install GPG
@@ -1779,6 +1865,26 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                                     #// 復号化の後にも必要なコマンドがあります  #search: GPG 暗号化 コマンド
                                 オプション: 暗号化の説明を参照
                             応用:  #search: delayed scp
+                構成:
+                    GPG キー, 鍵:
+                        （一覧など）:  #search: gpg --list-secret-keys
+                        主キー: #keyword: GPG primary key,  GPG master key
+                        サブ キー: #keyword: GPG subkey  #// 
+                            表示:
+                                期限切れではない場合:
+                                    gpg --list-keys
+                                期限切れの場合:
+                                    コマンド:
+                                        gpg --edit-key  __KeyID__
+                                        gpg> list
+                                        gpg> quit
+                                    出力例: |  #focus: ssb  #// sec が主キー, ssb が サブ キー です。usage（用途）によって鍵を使い分けています
+                                        sec  rsa4096/__KeyID__
+                                            created: 2020-01-01  expires: 2026-01-01  usage: SC
+                                        ssb  rsa4096/__SubKeyID__
+                                            created: 2020-01-01  expires: 2024-01-01  usage: E
+                            更新: #keyword: update GPG subkey
+                        期限:  #search: gpg --list-secret-keys
                 参考:
                     Git でコミット作成者を偽装する方法／署名付きコミットでの対策: #ref: https://qiita.com/s6n/items/bb869f740a53a3bf169e
                 トラブルシューティング:
@@ -2928,6 +3034,14 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                             go.sum の中を Repository 名 で検索します:
                 Go 言語のバージョンを調べます:
                     #search: Go version in executable binary file
+            サービス, パッケージ:
+                バージョン番号: rpm -qa
+                サービスの稼働状態:  #// プリインストールされていても Active になっていなければ使っていません
+                    systemctl status
+                        または
+                    ps aux | grep __PartOfPackageOrOthers__
+                ポートが開いているか:  #// 通常、サービスを Active にすると同時に開く
+                    ss -anp | grep :__PortNum__
         個別の脆弱性:
             XZ Utils CVE-2024-3094:
                 対象バージョン: 5.6.0, 5.6.1
@@ -3079,8 +3193,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             L3のソフトウェアはL2のAPIで制御します。IPアドレスでクライアントを識別します。
             L2のソフトウェアはMACアドレスで識別します。
 トラブルシューティング（ネットワーク）:  #keyword: network trouble shooting
-    #// デバッグ
-    - ブラウザーのログを記録します: #keyword: browser network log
+    #↓ デバッグ
+    ブラウザーのログを記録します: #keyword: browser network log
         （必要なら）Chrome のシークレット モード（Edge の In Private ブラウズ）を開きます:
         問題が発生するページを表示します:
         ネットワークとコンソールのログの記録します:
@@ -3123,8 +3237,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 の「4. F12 キーを押す」から
         保存したログファイルをご返送ください:
             必要なら暗号化するか、安全な ストレージ サイト を経由します
-    #// エラー メッセージ
-    - #// Connection refused  #keyword: Connection refused
+    #↓ エラー メッセージ
+    Connection refused:  #keyword: Connection refused
         タイムアウトする場合:
             proxy: #search: curl Connection refused
             ACL (cURL): #search: ACL 疎通確認 (cURL)
@@ -3138,7 +3252,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             nginx: #search: nginx Connection refused
             ElasticSearch: #search: ElasticSearch Connection refused
             Docker: #search: Docker Connection refused
-    - #// curl >> (111) Connection refused  #keyword: curl Connection refused
+    curl >> (111) Connection refused:  #keyword: curl Connection refused
         操作: curl http://localhost:10080/
         エラー: |
             The requested URL could not be retrieved
@@ -3148,9 +3262,9 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 プロキシを使わないようにします: #keyword: curl --noproxy
                     curl --noproxy "*" http://localhost:10080/
             その他の対策:  #search: Connection refused
-    - #// curl: (5) Could not resolve proxy: __ProxyHost__  #keyword: curl: (5) Could not resolve proxy:
+    curl:;; (5) Could not resolve proxy:;; __ProxyHost__:  #keyword: curl: (5) Could not resolve proxy:
         手順: curl
-        ログ: |
+        ログ: |  #keyword: curl: (5) Could not resolve proxy:
             $ curl -v  google.com
                 curl: (5) Could not resolve proxy: __ProxyURL__
             $ nslookup  google.com
@@ -3161,16 +3275,44 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             WSL2 または Windows を再起動します
         対処B:
             /etc/resolv.conf の内容を、既存の内容と比較します
-    - #// curl: (6) Could not resolve host: __HostName__  #keyword: curl: (6) Could not resolve host:
+    curl:;; (6) Could not resolve host:;; __HostName__:  #keyword: curl: (6) Could not resolve host:
         手順: curl
-        エラー: |
+        エラー: |  #keyword: curl: (6) Could not resolve host:
             curl: (6) Could not resolve host: __HostName__
         原因:
             ホスト名を DNS に問い合わせても解決できませんでした
         対処A:
             Docker コンテナーで実行したときのエラーの場合:
                 #search: docker DNS trouble
-    - #// telnet: connect to address 192.168.0.82: Connection refused  #keyword: telnet Connection refused
+    curl:;; (7) Failed to connect to __Server__ port __Port__:;; Connection refused:
+        手順: curl
+        エラー: |  #keyword: curl: (7) Failed to connect to
+            curl: (7) Failed to connect to __Server__ port __Port__: Connection refused
+        状況:
+            - サーバーまでは到達しているが、接続を受け付けてもらえませんでした
+        原因:
+            - サービスが起動していない
+            - 間違ったポート番号
+            - ファイアウォールでブロック
+            - サーバーが特定のインターフェースのみリッスン
+        対処:  #// 原因を特定します
+            サービスが起動しているか確認します:
+                (@サーバー側)
+                sudo ss -tlnp | grep __Port__
+                #search: Linux ss
+            ファイアウォールの設定を確認します:
+                #search: iptables or nftables
+            ポートスキャンします:  #// 未確認
+                nmap -p __Port__ __Server__
+    curl:;; (56) Received HTTP code 403 from proxy after CONNECT:
+        手順: curl
+        エラー: |  #keyword: curl: (56) Received HTTP code 403 from proxy after CONNECT
+            curl: (56) Received HTTP code 403 from proxy after CONNECT
+        対処:
+            no_proxy を設定してください
+        原因:
+            HTTPS 接続 をプロキシ経由で張ろうとしたときに、プロキシが CONNECT 要求を拒否しました。
+    telnet:;; connect to address 192.168.0.82:;; Connection refused:  #keyword: telnet Connection refused
         操作: |
             telnet server 22
             Trying 192.168.0.82...
@@ -3181,7 +3323,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         対処:
             #search: port 22 Connection refused
         関連:  #search; port 22 No route to host
-    - #// telnet: connect to address 202.100.100.2: No route to host  #keyword: port 22 No route to host
+    telnet:;; connect to address 202.100.100.2:;; No route to host:  #keyword: port 22 No route to host
         エラー: |
             $ telnet intra-gitlab.com
             Trying 202.100.100.2...
@@ -3195,7 +3337,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         対処B:
             intra-gitlab.com にアクセスしているので、認証を設定した git clone では成功するかもしれません。
             同じホストかつ同じポートなので、No route to host というエラーメッセージは適切ではないかもしれません。
-    - #// ping: icmp_seq=1 Destination Host Unreachable
+    ping:;; icmp_seq=1 Destination Host Unreachable:
         手順: ping intra-gitlab.com
         エラー: |
             PING intra-gitlab.com (202.100.100.2) 56(84) bytes of data.
@@ -3207,7 +3349,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         対処:
             intra-gitlab.com にアクセスしているので、認証を設定した git clone では成功するかもしれません。
             同じホストかつ同じポートなので、Destination Host Unreachable というエラーメッセージは適切ではないかもしれません。
-    - #// サーバーのサービス（ポート）に到達しないか拒否される  #keyword: Docker Connection refused
+    サーバーのサービス（ポート）に到達しないか拒否される:  #keyword: Docker Connection refused
         手順: curl  http://172.17.0.2:8500  または ブラウザーに http://192.168.33.51:8500 と入力したとき
         エラー: |
             Failed to connect to 172.17.0.2 port 8500: Connection refused
@@ -3264,11 +3406,11 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                                     #// 拒否されるときは以下へ
                     Docker の ポートフォワーディング オプション を設定します:  #search: docker port forwarding
             その他の対策:  #search: Connection refused
-    - #// 同じ LAN 内のサーバーにアクセスしようとして、プロキシーサーバーが応答してしまう  #keyword: LAN access proxy server squid responds
+    同じ LAN 内のサーバーにアクセスしようとして、プロキシーサーバーが応答してしまう:  #keyword: LAN access proxy server squid responds
         手順: http://localhost
         エラー: <p>Generated __DateTime__ by __ProxyServer__ (squid)</p>
         対処: no_proxy 環境変数を設定します
-    - #// Wi-Fi に接続できない  #keyword: Windows Wi-Fi password reset
+    Wi-Fi に接続できない:  #keyword: Windows Wi-Fi password reset
         操作: Windows 10 21H1, 1909 >>（通知領域のネットワーク アイコン）>>（SSID＝Wi-Fi のアクセスポイント名）>>
             接続 ボタン
         エラー:
@@ -3279,7 +3421,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                      （無線LANの名前）>> 削除
                 Windows 10 21H1, 1909: 設定 >> ネットワークとインターネット >> Wi-Fi（左）>> 既知のネットワークの管理（中央上）>>
                     （無線LANの名前）>> 削除
-    - 参考: 初心者でもよくわかる！VPSによるWebサーバー運用講座  https://knowledge.sakura.ad.jp/3424/
+    #↓ 参考
+    初心者でもよくわかる！VPSによるWebサーバー運用講座:  https://knowledge.sakura.ad.jp/3424/
 用語:  #glossary:
     Active Directory:  #// Windows の ディレクトリ サービス
         社内でログインするときは多くの場合、Active Directory が承認します。
