@@ -129,6 +129,7 @@
     emphasize: 強調する
     enumerator: 「イニュームレイター」  #ref: https://www.google.com/search?q=enumerator+発音
     et al.: その他
+    even if: たとえ〜だとしても
     exist:
         - A does not exist.  #// A が存在しません
     experimental: 実験的な
@@ -193,6 +194,9 @@
     plain: 無地の,  plain text  #// 類似: plane
     plane: 飛行機, 平面  #// 類似: plain
         #ref: https://chisou-media.jp/posts/5451
+    please:
+        遠回しな表現を使うべきです:
+            Could you please
     polling: ポーリング
     portion: 部分、量や割合を重視する「部分」  #keyword: English part
     practice: 練習。 best practice 最も優れている手法
@@ -242,6 +246,15 @@
             using
             Set default values using Bash parameter expansion.
     vault: 保管庫  #// ボールト。valut ではない
+    via: 経由して、～によって
+    want:
+        遠回しな表現を使うべきです:
+            would like to
+        したくない:
+            I wouldn't like to ～
+            I don't want to ～
+        したいわけではない:
+            It's not that I want to ～
     wild card:  #// wildcard ではない
     whether: かどうか。Whether she will succeed is another story. 彼女が成功するかどうかはまた別の話だ
     another: 別のもう１つ。 another __Object__ than __That__
@@ -284,6 +297,9 @@
     警告: warning
     警告を抑制する: suppress/disable/ignore/skip warning
     動作確認: operation confirmation 
+    社内:
+        in-house training（社内研修）、in-house system（社内システム）
+        internal
     クソリプ: hate comments
     クソリプする人: trolls, haters
     ワイドショー: talk show, tabloid show, gossip show
