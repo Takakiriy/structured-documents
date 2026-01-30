@@ -63,6 +63,8 @@ mac:  #keyword: mac  #ref: ${programming}/ユーザインターフェイス/iPho
             control + ▲ キー（▲ の下に _ ）>> tab キー を押して再起動に枠を合わせる >> スペース キー
     初期設定をします:  #keyword: mac initialize
         参考: #ref: ${programming}/ユーザインターフェイス/iPhone/iPhone.svg >> mac
+        mac OS を初期化します:
+            すべてのコンテンツと設定を消去:  #ref: https://support.apple.com/ja-jp/102664
         フォルダーのパスを表示します:
         日本語変換（JapaneseIM）の設定をします:  #keyword: mac JapaneseIM 初期設定, 日本語変換
             設定:
@@ -268,6 +270,15 @@ mac:  #keyword: mac  #ref: ${programming}/ユーザインターフェイス/iPho
             http://inforati.jp/apple/mac-tips-techniques/system-hints/how-to-change-the-default-application-of-a-specific-file-in-macos.html
         メニュー: ファイルを右クリック >> 情報を見る >> このアプリケーションで開く >> 
             （ドロップダウンリストからアプリケーションを選ぶ）>> すべてを変更 ボタン
+    Gatekeeper: #keyword: Gatekeeper,  mac セキュリティ
+        ブロックされたアプリを実行します: #keyword: open mac blocked application
+            ログ:
+                Apple は、"____" に Mac に損害を与えたり、プライバイシーを侵害する可能性のあるマルウェアが含まれていないことを検証できませんでした。
+            対処:
+                🍎 >> システム設定 >> プライバシーとセキュリティ >>（最も下へスクロール）>> お使いの Mac を保護するために "____" がブロックされました。 >>
+                このまま開く
+            参考:
+                #search: Karabiner Elements
     Karabiner Elements:  #// キーボード　 #keyword: Karabiner Elements
         Karabiner Elements をインストールする:
             - .dmg ファイルをダウンロードします
@@ -6412,6 +6423,8 @@ Apple Developer: #keyword: Apple Developer Program,  Xcode ライセンス,  App
             自動更新:  #// 表示されない
                 https://developer.apple.com/account  >> メンバーシップの詳細 タブ >> 自動更新
                     #ref: https://developer.apple.com/jp/support/renewal/
+        合意文書:
+            2026-01:  #ref: ${typrm_files}/2026/Apple_Developer_Program_License_Agreement_TF9M42S8SS.pdf
         EU デジタルサービス法への対応: #keyword: App Store Connect EU デジタルサービス法
             _: 住所氏名などを入力します
             メニュー: App Store Connect のアプリ >> アプリ情報（左）>> デジタルサービス法
@@ -6617,7 +6630,7 @@ Apple Developer: #keyword: Apple Developer Program,  Xcode ライセンス,  App
                         -   提出準備中（など）>> App Reviewに関する情報（をページ内検索）
         更新: #keyword: update Apple Developer Program  #// Apple Developer Program の契約を更新します
             注意: お金払えなくなると、登録してたアプリも消えてしまいます
-            更新: https://developer.apple.com/account >> メンバーシップを更新（青）
+            更新: https://developer.apple.com/account >> メンバーシップを更新（青）  #// 青いボタンが表示されないときは、ブラウザーをリロードしてください
             注文履歴, 注文内容を見る:
                 mac >> https://www.apple.com/jp/ >>（最も下へスクロール）>>（アカウント）Apple Storeアカウント >>
                 （少し下へスクロールして真ん中）（注文内容）注文内容を見る >>
@@ -6826,7 +6839,7 @@ Apple Developer: #keyword: Apple Developer Program,  Xcode ライセンス,  App
                 さらにサポートが必要な場合（最も下へスクロール）
 iPhone:
     写真のバックアップ、取り出し:  #keyword: iPhone back up pick up, iPhone 容量不足
-        動画: #keyword: iPhone 動画 バックアップ
+        動画: #keyword: iPhone 動画 バックアップ  #ref: ${smart_phone_movies}  #search: NAS
             RLFiles を使う:
                 初期設定:
                     iPhone の自動ロックを無効にします: #// ロックされてアップロードが中断されないようにします

@@ -106,6 +106,8 @@ CSS プロパティ:  #glossary: CSS
         #search: height, max-height
     div:
     テキスト:
+        折り返し: | #keyword: CSS pre
+            white-space: pre;
 選択子 (CSS セレクター): #keyword: CSS selector
     基本:
         (div): <div>
@@ -240,7 +242,7 @@ Bootstrap:
                 <button ...>OK</button>
                 <div ...>div tag</div>
             参照: #ref: https://stackoverflow.com/questions/59698113/how-to-use-as-props-elementtype-in-react-bootstrap-components
-Material-UI: #keyword:  #// マテリアル デザインの React components  #ref: ${programming}/HTML ブラウザ/CSS.svg#MaterialUI
+Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザインの React components  #ref: ${programming}/HTML ブラウザ/CSS.svg#MaterialUI
     Version 5, @mui/styles:  #keyword: @mui/styles
         公式: #ref: https://mui.com/styles/basics/
         コンポーネント:
@@ -354,6 +356,13 @@ Material-UI: #keyword:  #// マテリアル デザインの React components  #r
                 Breadcrumbs:  #// パンくずリスト  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#breadcrumbs(core)
                 Drawer:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#drawer(core)
                 Link:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#link(core)
+                    サンプル:
+                        リンク元: |
+                            <Link to={{ pathname: '/contracts', state: {filter: x}}}>
+                        リンク先: |
+                            const location = useLocation();
+                            console.log(location.state); // {filter: 'active', sortBy: 'date'}
+                    state:  #search: HTML history.state
                 Menu:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#menu(core)
                     MenuList:  #ref: https://v4.mui.com/components/menus/
                 Stepper:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#stepper(core)

@@ -28,11 +28,12 @@
         「____」が示されている小学校の教科書はありますか？出版社名　学年も
     4コマ漫画: #keyword: 4コマ漫画, 画像生成 4コマ漫画 4コママンガ
         Chat: ChatGPT4o「〜する4コマ漫画を生成してください。日本語で。」  #// 約1分かかります
-    保存: #keyword: save AI answer,  save AI
-        HTML+SVG 形式: #keyword: AI HTML SVG  #// 表示が簡単です。多少の編集もできます
+    保存: #keyword: save AI answer,  save AI  #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
+        HTML+SVG 形式: #keyword: AI HTML SVG  #// 表示が簡単です。多少の編集もできます。Mermaid より遅いです。
             描かせます:
                 プロンプト:
-                    ____ のイメージを HTML+SVG で描いてください
+                    ____ のイメージを HTML+SVG で描いてください。ただし、デスクトップPC で普通に表示できるようレスポンシブではなくしつつ、iPhone の Safari でも viewport の問題が出ないようにしてください。CSS は class で指定してください。@media は使わないでください。
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 ファイルを作ります:
                     一時的な HTML ファイルを開きます:  #ref: ${steps}/!Temp1.html
                     コピーボタン（出力された HTML の右上）:
@@ -40,6 +41,8 @@
                 表示します:
                     エクスプローラーからファイルを開きます:
             （必要なら）修正します:
+                ビューを調整します: |
+                    <svg viewBox="0 0 600 200"
                 編集箇所を探します:
                     ブラウザーの開発者ツールの要素を探すツールで探せます
                 数式から描いたグラフが正しいことを確認します:  #keyword: 数式 グラフ プロット
@@ -814,6 +817,8 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
         個人情報保護の促進
         プライバシーポリシーの強化
         AIのリスク監視を通じて人権を擁護
+    ハッキング, ジェイルブレイク: #keyword: AI ハッキング,  AI ジェイルブレイク
+        #ref: https://gigazine.net/news/20230317-gpt-4-jail-break/
 著作権: #keyword: AI 著作権  #// AI イラスト
     AI イラスト生成と応用:
         Chat GPT4o: 〜を描いて、と入力するとイラストを生成します
@@ -947,6 +952,9 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
         Content Credentials cloud:
             画像検索のような仕組みで元のコンテンツを探し出し、メタデータを復元することができるとされています。
         #ref: https://gigazine.net/news/20231016-content-credentials-ai-images/
+    HTTP >> RSL 1.0:  #// HTTP 402 レスポンス
+        #ref: https://gigazine.net/news/20251211-really-simple-licensing-1-0/
+        #ref: https://claude.ai/share/6dc93803-4734-447f-881a-0baaad8e3361
 用語: #glossary: AI
     ハルシネーション: #// 幻覚
         _: 真実ではないことを真実かのように話すこと

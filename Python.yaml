@@ -2518,7 +2518,15 @@
                                     return dumps(*args, **{"ensure_ascii": False, **kwargs})
                     例外を発生させる場合:
                     メソッドを置き換える場合:
-                        side_effect: #keyword: Python unittest side_effect
+                        テスト関数に @patch.object デコレーターを書きます: |  #focus: __MethodNameA__,  side_effect
+                            class Test_get_site:
+                                @patch.object(__ClassB__, '__MethodNameB__')
+                                @patch.object(__ClassA__, '__MethodNameA__')
+                                def test(self, mock___MethodNameA__, mock___MethodNameB__, __Fixtures__):  #// 引数名は自由です。引数 は、指定したメソッドを置き換えたモックを指しています。
+                                    mock___MethodNameA__.side_effect = (lambda x: x)  #// モックのシステムは lambda に self を渡しません
+                        インスタンスのメソッドを置き換えるとエラーになります: |
+                            controller.assemble = (lambda self, x: x)  #// AttributeError: 'Controller' object attribute 'assemble' is read-only
+                        旧）side_effect: #keyword: Python unittest side_effect
                             サンプル:
                                 target_object = create_autospec(__Class__, instance=True)
                                 target_object.target_method.side_effect =  [4, 5, 6]
@@ -2536,6 +2544,13 @@
                                         side_effect に指定した配列の要素数を増やしてください  #search: Python unittest side_effect
                         関連:
                             ファクトリ フィクスチャ:  #search: pytest factory fixture
+                    #↓ 属性を置き換えます
+                    ネストした属性をモックの値に設定します: |  #// obj.a.b.c = "モックの値"
+                        mock_obj = MagicMock()
+                        mock_obj.a.b.c = "モックの値"
+
+                        object.obj = mock_obj
+                        object.obj.a.b.c == "モックの値"
                     #↓ オブジェクトを置き換えます
                     オブジェクトをモックに置き換えます: |  #search: Python SSH mock  #keyword: mock.patch.object
                         def  enable_mock():
@@ -2546,6 +2561,7 @@
                                 OneMock.__sub(originalObject, name)
                             def __sub(originalObject, name: str):
                                 logger.info('OneMock.connect')
+                    モック オブジェクト を渡します:  #search: unittest  create_autospec
                     #↓ その他
                     トラブルシューティング:
                         - #// クラスがモックに置き換わらない
@@ -2770,7 +2786,7 @@
                     テストを実行します, Testing ビュー使用:  #keyword: VSCode testing debug UI
                         Testing ビューを表示します:  #keyword: start Python testing view
                             VSCode >> Testing（フラスコ ボタン：左）
-                            #search: Python testing view trouble
+                            #search: testing view trouble
                         コードから:  #// test メソッドがあるファイルを開いているとき
                             早く実行する場合:
                                 ソース ファイル に表示されている、テスト用のアイコンをクリックします（test メソッドの左）
@@ -3499,7 +3515,7 @@
                         テスト実行時のコマンド。 これを書かなくても多くのものはテストを実行できます。
             コード:  #search: pytest test.py
             トラブルシューティング (pytest):  #keyword: pytest Testing error,  VSCode debug pytest
-                - 環境構築 >> Testing ビューにテスト項目が一覧されない場合:
+                環境構築 >> Testing ビューにテスト項目が一覧されない場合:
                     Testing ビューのボタンが表示されない場合:  #// VSCode >> Testing（フラスコ ボタン：左）
                         Python 拡張機能をインストールします:
                             VSCode >> Extensions（ボタン：左）
@@ -3575,10 +3591,10 @@
                             pytest コマンドで実行してください。-vv オプションを指定すると、テストの一覧を正しく表示できます
                         デバッグするとき:
                             問題がある .py ファイルの中について、周辺のテストを一時的にコメントアウトします
-                - 拡張機能の対応 Python バージョン: #search: VSCode Python extension
-                - #search: pytest debug
-                - #search: pytest logger trouble
-                - #// Testing ビューに pytest のツリーが表示されない  #keyword: Python testing view trouble
+                拡張機能の対応 Python バージョン: #search: VSCode Python extension
+                #search: pytest debug
+                #search: pytest logger trouble
+                Testing ビューに pytest のツリーが表示されない:  #keyword: Python testing view trouble
                     手順: VSCode >> Python Testing 拡張機能（左）>> リロード
                     対処A:
                         __Project__/.vscode/settings.json の pytestArgs の値を修正します。
@@ -3594,7 +3610,7 @@
                         import するモジュールは、__Project__/.venv に入れます。 ../../../.pyenv/ の python を実行したように見えてもです。
                     対処H: 拡張機能がサポートしている Python のバージョンに合わせて、拡張機能をダウングレードします  #search: VSCode Python extension
                     対処I: #search: pytest debug
-                - #// テストがスキップされる  #keyword: pytest skipped warning
+                テストがスキップされる:  #keyword: pytest skipped warning
                     手順: pytest コマンド
                     エラー: |
                         tests/test.py sssss
@@ -3608,7 +3624,7 @@
                             対処:  #search: pytest --hosts
                                 --hosts オプションに指定した __AnsibleHostGroup__ と __InventoryFolderPath__ が正しいことをチェックしてください。
                                 __AnsibleHostGroup__ のハイフンとアンダースコアの違いに注意してください。
-                - #// ansible_inventory を参照できない  #keyword: --hosts=ansible
+                ansible_inventory を参照できない:  #keyword: --hosts=ansible
                     手順: pytest tests  --hosts=ansible://server-?ansible_inventory=/home/user1/hosts/local-1  -p  no:warnings  --inventory-env=local-1 
                     エラー: |
                         ERROR: usage: pytest [options] [file_or_dir] [file_or_dir] [...]
@@ -3616,7 +3632,7 @@
                         unrecognized arguments --hosts
                     対処:
                         pip install testinfra
-                - #// Testing ビューの テスト関数名 をクリックしたら The editor could not be opened because file was not found.
+                Testing ビューの テスト関数名 をクリックしたら The editor could not be opened because file was not found.:
                     手順: VSCode >>（pytest）Testing ボタン（左）>>（テスト関数名）
                     エラー:
                         Editor: |
@@ -3651,13 +3667,13 @@
                         __Project__/pyproject.toml があれば tool.taskipy.tasks の値を変えます
                         Testing ビュー >> リロード
                         Testing ビュー >> テストのメソッド名 >> Go to Test  #// エラー
-                - #// Error discovering pytest tests (see Output > Python)
+                Error discovering pytest tests (see Output > Python):
                     手順: VSCode >> Python Testing 拡張機能（左）>> リロード
                     エラー: |
                         Pytest Discovery Error [__Project__]
                         Error discovering pytest tests (see Output > Python)
                     対処:  #search: pytest debug
-                - #// AppRegistryNotReady 例外
+                AppRegistryNotReady 例外:
                     手順: tox で pytest 実施
                     ログ: |
                         django.core.exceptions.AppRegistryNotReady: The translation infrastructure cannot be initialized before the apps registry is ready. Check that you don't make non-lazy gettext calls at import time.
@@ -3671,7 +3687,7 @@
                                 django.setup()
                         __DjangoSettingFilePeriodPath__:
                             website.settings など  #// __Project__/website/settings.py
-                - #// Python: Debug All Tests が選べない
+                Python:;; Debug All Tests が選べない:
                     手順: |
                         VSCode >> F1 キー >> Python: Debug All Tests と入力
                     症状: |
@@ -4132,17 +4148,22 @@
                     from typing import Callable
                     lambda_: Callable[[str, str], int] = lambda var1, var2: var1 + var2  #// same operations as function
                 ジェネリクス:  #keyword: Python generics  #ref: https://docs.python.org/ja/3/library/typing.html#generics
-                    書式: |
-                        __Variable__: __Type__[__Type__] = [__InitialValues__]
-                    Python3.9 以降:
-                        import しない小文字から始まる型を使います: |
-                            list[int] = [1,2,3]
-                            variable: dict[str, int] = {'size': 12, 'age': 24}
-                    Python3.8 まで:
-                        import した大文字から始まる型を使います: |
-                            from typing import List, Dict
-                            list[int] = [1,2,3]
-                            variable: Dict[str, int] = {'size': 12, 'age': 24}
+                    書式:
+                        一般的な形: |  #focus: __Type__
+                            __Variable__: __GenericType__[__TypeArgument__] = [__InitialValues__]
+                        書式の説明:
+                            __GenericType__: ジェネリック型、元の型 (origin)
+                            __TypeArgument__: 型引数。型を渡します
+                        Python3.9 以降:
+                            import しない小文字から始まる型を使います: |
+                                list[int] = [1,2,3]
+                                variable: dict[str, int] = {'size': 12, 'age': 24}
+                        Python3.8 まで:
+                            import した大文字から始まる型を使います: |
+                                from typing import List, Dict
+                                list[int] = [1,2,3]
+                                variable: Dict[str, int] = {'size': 12, 'age': 24}
+                    Typing:  #ref: https://docs.python.org/3/library/typing.html#typing.get_origin
             関数: |  #focus: ->  #keyword: Python function typing hint
                 def __FunctionName__(__Argument__: __Type__)-> __ReturnType__:
                 def __MethodName__(self, __Argument__: __Type__)-> __ReturnType__:
@@ -4213,6 +4234,7 @@
                 定数: |
                     TABLE_NAME: Final[str] = 'sample'
                     TABLE_NAME = 'A'  #// Error that "TABLE_NAME" is declared as Final and cannot be reassigned
+            型情報の取得:  #// ランタイムでの型情報の取得（イントロスペクション）
             参考 >> 型を導入することのメリット:  #search:: type merit
         配列:  #keyword: Python list, Python array  #ref: ${programming}/スクリプト/Python.svg#seq
             list:  #keyword: Python list append
@@ -5204,6 +5226,21 @@
                 #ref:
             (@enum.unique):  #// 重複させない
                 値が重複したらエラーにします
+            派生属性:  #// 列挙値のグループ化
+                定義: |  #// is_active = NOT_START or RUNNING
+                    from enum import Enum
+
+                    class Status(Enum):
+                        NOT_START = "not_start"
+                        RUNNING = "running"
+                        FINISHED = "finished"
+                        
+                        @property
+                        def is_active(self):
+                            return self in (Status.NOT_START, Status.RUNNING)
+                使用例: |
+                    status = Status.RUNNING
+                    if status.is_active:
             別名: #keyword: Python TypeAlias  #// 列挙型の別名を作ります
                 Python 3.9 以前: |
                     __MyStatusEnum__ = __StatusEnum__
@@ -5249,6 +5286,8 @@
             グローバル変数よりクラス属性を推奨します:  #search: Python class attribute
             サンプル: |  #keyword: Python global variable
                 cc = 0
+
+                ___debug   #// アンダーバーを付けると、クラス属性になったりするので非推奨。
 
                 def increment(x):
                     global cc
@@ -7680,6 +7719,74 @@
                     QuerySets を使ったプログラムに共通するコード:
                         -   from django.db import models
                         -   .objects
+                翻訳ファイル: #keyword: Django 翻訳ファイル
+                    手順:
+                        キャッシュのクリア:  #// これが正しく翻訳されない原因の可能性は低いです
+                            from django.utils import translation
+                            translation._trans.__dict__.clear()
+                    API:
+                        準備:
+                            settings.py: |
+                                MIDDLEWARE = [
+                                    'django.middleware.locale.LocaleMiddleware
+                        HTTP ヘッダー を使う場合:
+                            日本語でリクエスト: |
+                                curl -H "Accept-Language: ja" http://localhost:8000/api/users/
+                            英語でリクエスト: |
+                                curl -H "Accept-Language: en" http://localhost:8000/api/users/
+                        クエリー パラメーター を使う場合:
+                            http://localhost:8000/api/users/?lang=ja
+                            http://localhost:8000/api/users/?lang=en
+                    ファイル:  #// 翻訳する文章や、言語設定
+                        .po:
+                            場所: locale/ja/LC_MESSAGES/django.po  #keyword: locale/ja/LC_MESSAGES/django.po
+                        .mo:
+                            .po をコンパイルしたファイル
+                        settings.py: |  #focus: LANGUAGE_CODE
+                            USE_I18N = True
+                            LANGUAGE_CODE = 'ja'
+
+                            LANGUAGES = [
+                                ('ja', 'Japanese'),
+                                ('en', 'English'),
+                            ]
+
+                            LOCALE_PATHS = [
+                                BASE_DIR / 'locale',  # または os.path.join(BASE_DIR, 'locale')
+                            ]
+
+                            MIDDLEWARE = [
+                                # ...
+                                'django.middleware.locale.LocaleMiddleware',  # これが必要
+                                'django.middleware.common.CommonMiddleware',
+                                # ...
+                            ]
+                    コード:  #// 翻訳処理
+                        翻訳関数 gettext, _L, _: #keyword: Django 翻訳関数,  Django gettext _L _
+                            サンプル _L: |
+                                from django.utils.translation import gettext as _L
+
+                                # これは同じ意味：
+                                message = gettext("こんにちは")
+                                message = _L("こんにちは")
+                            サンプル _: |
+                                from django.utils.translation import gettext as _
+
+                                # これは同じ意味：
+                                message = gettext("こんにちは")
+                                message = _("こんにちは")
+                        内部コード:
+                            gettext:
+                                # def gettext(message):
+                                #     _default = _default or translation(settings.LANGUAGE_CODE)
+                                #     translation_object = getattr(_active, "value", _default)
+                                #     result = translation_object.gettext(eol_message)
+                                gettext:
+                                    # def gettext(self, message):
+                                    #     tmsg = self._catalog.get(message, missing)
+                    トラブルシューティング:
+                        正しく翻訳されない:
+                            .mo ファイルがあることをチェックしてください
             ログ:  #keyword: Django logger,  logging.getLogger
                 手順 >> 基本:
                     ____/file.py: |

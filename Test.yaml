@@ -186,14 +186,39 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                                 await page.goto(`http://localhost:3000${path}`);
                             }
                 クリック:
-                    - await page.locator(getTextSelector(["適用"])).click();  #search: Playwright getTextSelector
                     - await page.getByTestId('select').click();
+                    - await page.locator(getTextSelector(["適用"])).click();  #search: Playwright getTextSelector
                 キーボード入力:  #search: Playwright input keyboard
             get, Locators, GUI 部品の選択:  #search: Playwright get  #// GUI 部品の選択  #ref: https://playwright.dev/docs/locators
                 await page.getByTestId('directions').click();
             チェック, アサーション: #keyword: Playwright assertion,  Playwright expect  #ref: https://playwright.dev/docs/test-assertions
+                チェックの基本: #keyword: Playwright assertion methods
+                    サンプル: |
+                        import { test, expect } from '@playwright/test';
+
+                        await expect(__Locator__).toHaveText(__Text__);
+                    主なメソッド:
+                        toBeEmpty, toContainText, toHaveText, toHaveValue, toHaveValues, ...
+                        toHaveCount(__Count__),
+                        toBeFocused, toBeVisible, toBeAttached,
+                        toHaveURL, toHaveTitle,
+                        toPass,
+                    toPass: #keyword: Playwright toPass  #ref: https://playwright.dev/docs/test-assertions
+                        書式:
+                            - await expect(__AssertionOperation__).toPass()
+                            - await expect(__AssertionOperation__).toPass(__Options__)
+                        サンプル: |
+                            await expect(async () => {
+                                const response = await page.request.get('https://api.example.com');
+                                expect(response.status()).toBe(200);
+                            }).toPass();
+                        __Options__:  #search: Playwright polling options
+                    toHaveCount: #// Locators などでマッチした数
+                    その他のチェック:  #search: Playwright not expect
                 表示内容のチェック:  #keyword: Playwright toBeVisible
                     サンプル: |
+                        import { test, expect } from '@playwright/test';
+                        await expect(__Locator__).toHaveText(__Text__);
                         await expect(page.getByText('__VisibleText__', { exact: false })).toBeVisible();   // exact false は部分一致
                         await expect( page.getByTestId('status') ).toHaveText('Submitted');
                     参照:  #// GUI 部品の特定方法
@@ -215,30 +240,16 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                                 テスト項目のタイムアウトも変える必要があります。
                 await の有無:
                     サンプル:
-                        - expect(__Locator__).toHaveText(____);
-                        - await expect(__Locator__).toHaveText(____);
+                        - expect(__Locator__).toHaveText(__Text__);
+                        - await expect(__Locator__).toHaveText(__Text__);
                     違い:
                         await が無い: すぐに判定します
                         await がある: 期待値になるまで待ちます
-                メソッド: #keyword: Playwright assertion methods
-                    主なメソッド:
-                        toBeEmpty, toContainText, toHaveText, toHaveValue, toHaveValues, ...
-                        toBeFocused, toBeVisible,
-                        toHaveURL, toHaveTitle,
-                        toPass,
-                    toPass: #keyword: Playwright toPass  #ref: https://playwright.dev/docs/test-assertions
-                        書式:
-                            - await expect(__AssertionOperation__).toPass()
-                            - await expect(__AssertionOperation__).toPass(__Options__)
-                        サンプル: |
-                            await expect(async () => {
-                                const response = await page.request.get('https://api.example.com');
-                                expect(response.status()).toBe(200);
-                            }).toPass();
-                        __Options__:  #search: Playwright polling options
-                not など:  #// expect.not, expect.soft など
+                not などを使ったチェック: #keyword: Playwright not expect  #// expect.not, expect.soft など
                     not:  #// 指定した条件に満たないのが期待値
-                        expect(value).not.toEqual(0);
+                        await expect(__Locator__).not.toEqual(0);
+                    toHaveCount: #// Locators などでマッチした数。削除処理が成功したことをチェックするときは 0 を指定します
+                        await expect(__Locator__).toHaveCount(0);
                     soft:  #// エラーが発生しても中断しない
                         expect(value).soft.toEqual(0);
                     poll:  #// ポーリング。状態を得る処理を書きます  #ref: https://playwright.dev/docs/test-assertions
@@ -545,34 +556,65 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
         locator, get: #keyword: Playwright locator,  Playwright get  #ref: https://playwright.dev/docs/locators
             （分類）:  #search: Playwright GUI parts
             locator, $:  #keyword: Playwright CSS selector  #ref: https://playwright.dev/docs/other-locators#css-locator
-                ブラウザーで場所を確認する:
-                    一度テストを実行します:  #// Playwright と接続したブラウザーを開きます
-                    テスト関数の中に page.locater を書きます:
-                        page.locator('//*[contains(text(), "有効")][1]');
-                    page.locater のコードにマウスを合わせます:
-                        ブラウザーに該当する場所が強調表示されます
+                第1引数:  #// locator の第1引数
+                    XPath: #search:
+                        - xpath= から始めます
+                        - // から始めます  #// "//" から始まるときは xpath= を書かなくても XPath として解釈されます 
+                    CSSセレクター:
+                        - xpath= や // 以外
+                ブラウザーで場所を確認する: #keyword: Playwright locator highlighting
+                    基本手順:
+                        一度テストを実行します:  #// Playwright と接続したブラウザーを開きます
+                        テスト関数の中に page.locater を書きます:  #// 引数はリテラルである必要があります
+                            基本: #keyword: Playwright page.getByText, Playwright nth, Playwright locator
+                                - page.getByText('有効')
+                                - page.getByText('有効').nth(0)   #// 1つ目にマッチしたものを取得するときは nth(1) ではなく nth(0) です。XPath と異なります
+                                - page.getByText('有効').locator('xpath=..//input')  #// 子孫要素のうちの input 
+                                - page.getByText('有効').nth(1).locator('xpath=..//input')
+                                - page.locator('xpath=(//*[contains(text(), "有効")])');
+                            応用:
+                                await page.getByText('有効').click();  #search: Playwright GUI parts
+                        page.locater のコードにマウスを合わせます:
+                            ブラウザーに該当する場所が強調表示されます
+                        または、文末をクリックして上下のカーソルキーを押します:
+                    リテラルを指定しない場合:
+                        await input.highlight(); // Playwright 1.27+  #// 未確認
                 page.locator と mocal.locator:
                     モーダルダイアログ内の要素にアクセスする場合: mocal.locator
                 表示されているテキスト:
-                    page.locator('//*[contains(text(), "有効")][1]');
-                        または
-                    page.locator(getTextSelector(["有効"]));  #search: Playwright getTextSelector
+                    page.locator('xpath=(//*[contains(text(), "有効")])');
+                    #// page.locator(getTextSelector(["有効"])); ではハイライトできません #search: Playwright getTextSelector
+                複数マッチした場合: #keyword: Playwright locator 2nd match
+                    page.locator('xpath=(//*[contains(text(), "有効")])[2]');  #// 1つ目にマッチしたものを取得するときは [0] ではなく [1] です。2つ目は [2] です
                 指定のテストの後の最初のテキスト: |
                     page.locator('//*[contains(text(), "暗号化")]/following::*[contains(text(), "有効")][1]');
                         または
                     page.locator(getTextSelector(["暗号化", "有効"]));  #search: Playwright getTextSelector
-                getTextSelector: | #keyword: Playwright getTextSelector  #// テキストを選択するセレクターを返す関数
-                    function  getTextSelector(texts: string[]): string {
-                        if (texts.length === 1) {
-                            return  `//*[contains(text(), "${texts[0]}")][1]`;
-                        } else if (texts.length === 2) {
-                            return  `//*[contains(text(), "${texts[0]}")]/following::*[contains(text(), "${texts[1]}")][1]`;
-                        } else {
-                            throw new Error('not supported parameters in selectorText function');
-                        }
-                    }
                 ボタン:
+                    page.getByRole('button',{name:'削除'})
                     page.locator('button:has-text("更新")')
+                表:
+                    1列目:  #// nth(0) が 1行目を指します。nth(1) にすると 2行目を指します。
+                        page.locator('table td:first-child').nth(0).locator('xpath=..//button')
+                    2列目が特定のテキストの 1列目:
+                        page.locator('//tr[td[2]="特定のテキスト"]/td[1]')
+                    末尾の列:
+                        page.locator('table td:last-child').nth(0).locator('xpath=..//button')
+                    2列目が特定のテキストの末尾の列のボタン:
+                        page.locator('//tr[td[2]="特定のテキスト"]/td[last()]//button')
+                getTextSelector: #keyword: Playwright getTextSelector  #// テキストを選択するセレクターを返す関数
+                    非推奨:
+
+                    コード: |
+                        function  getTextSelector(texts: string[]): string {
+                            if (texts.length === 1) {
+                                return  `//*[contains(text(), "${texts[0]}")][1]`;
+                            } else if (texts.length === 2) {
+                                return  `//*[contains(text(), "${texts[0]}")]/following::*[contains(text(), "${texts[1]}")][1]`;
+                            } else {
+                                throw new Error('not supported parameters in selectorText function');
+                            }
+                        }
                 HTML: |  #focus: input-text
                     <input type="text" id="input-text"/>
                 locator を使うテスト: #keyword: Playwright locator

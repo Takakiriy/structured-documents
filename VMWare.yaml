@@ -4778,15 +4778,27 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                 起動時間: コンテナのコールドスタートが 1分から 10秒へ
         共有フォルダー: #keyword: WSL2 shared folder,  WSL2 path  #// Windows と Linux の間でファイルのやり取りをします
             場所:
-                ホストOS からゲストOS のフォルダーを表示します:  #keyword: \\wsl$\
+                Windows → Linux:  #keyword: \\wsl$\  #// ホストOS からゲストOS のフォルダーを表示します
                     Windows エクスプローラーで開きます:
                         書式: \\wsl$\__DistoributionName__  #// Linux のルート
                         サンプル: \\wsl$\Ubuntu-20.04
                     ReadWrite: 可能
-                ゲストOS からホストOS のフォルダーを表示します:  #keyword: /mnt/c/
+                Linux → Windows:  #keyword: /mnt/c/  #// ゲストOS からホストOS のフォルダーを表示します
                     ls:
                         ls /mnt/c/
                     ReadWrite: 可能
+                    Windows の ThisScriptFullPath: #keyword: /mnt/c/ ThisScriptFullPath,  /mnt/c/ ThisFolderFullPath
+                        概要:
+                            Windows Git bash で実行している スクリプト ファイル に Linux からアクセスするときのパスは、
+                            Windows Git bash での フル パス の前に //mnt を付けるだけで得られます。
+                            #search: ThisScriptFullPath
+                            #search: ThisFolderFullPath
+                        サンプル:
+                            (Windows Git bash): |
+                                ThisScriptFullPath="$( readlink -f "${0##*/}" )"    #// "/c/Users/user1/project"
+                                wsl -d __DistroName__  bash  "//mnt${ThisScriptFullPath}"
+                            (Linux): |
+                                ThisScriptFullPath="$( readlink -f "${0##*/}" )"    #// "//mnt/c/Users/user1/project"
                 #ref: https://qiita.com/Takakiri/items/41d0d1ed67e9505598a1#windows-と-wsl2-と-git-bash-のパスの関係
             IP アドレスを調べます:  #search: Linux ip route
             コピー:  #keyword: WSL2 copy,  cp WSL2  #// Windows と WSL2 Linux の間でコピーします
@@ -6549,6 +6561,7 @@ Ansible: #keyword: Ansible, an
                         サンプル: |
                             TASK [system-yum-repo : clean metadata] *****
                             changed: [server1]] => {"changed": true, "dest": 
+                        関連 >> タスクの標準出力:  #search: Ansible task stdout
                         --verbose オプション, -v オプション:
                             - ansible-playbook  playbook.yml --verbose --check
                                 #// プロビジョニングする内容の表示を詳しくします
@@ -7733,6 +7746,7 @@ Ansible: #keyword: Ansible, an
                     参考: #ref: https://docs.ansible.com/ansible/2.9_ja/modules/authorized_key_module.html  #template: __DocumentVersion__
                 command:     #// シェルのコマンドを実行します。冪等性はありません  #keyword: ansible command module
                     #// 通常は shell モジュールを使うのがよいでしょう
+                    #// shell 以外の Ansible モジュールを使う場合、shell よりも command のほうが環境が近いです
                     #// 環境変数($HOMEなど)や、 “<”, “>”, “|”, “;” などのパイプやリダイレクトは使えません（←ansible shell との違い）
                     #search: ansible shell
                 debug:       #// デバッグ用に変数の値の表示や任意の文字列メッセージの表示をします  #keyword: ansible debug
@@ -7744,6 +7758,7 @@ Ansible: #keyword: Ansible, an
                         #// environment フィールド（環境変数）は Ansible の変数ではないので、
                         #// debug タスクに environment フィールドをコピーしても見えません。
                         #// {{ result }} で展開されるのは Ansible 変数だけです。
+                        #// 辞書を指定すると、すべてのキーと値が表示されます
                     型の表示:
                         -   name: debug print
                             debug: msg="type={{ result | type_debug }}"
@@ -7762,7 +7777,7 @@ Ansible: #keyword: Ansible, an
                                 -   name: print message
                                     debug:
                                         msg: result  #// result と表示します（msg パラメーターの機能）
-                    応用サンプル playbook.yml:
+                    応用サンプル playbook.yml:  #// 以下にいくつかあります
                         -   hosts: all
                             become: true
                             tasks:
@@ -7835,6 +7850,7 @@ Ansible: #keyword: Ansible, an
                                 dnf:
                                     name: https://dev.mysql.com/get/mysql80-community-release-el8-1.noarch.rpm  #template) name: __URL__
                                     state: present  #search: Ansible yum state
+                    #search: ansible yum
                 docker_image:  #// Docker のイメージのビルドなど  #keyword: Ansible docker_image module
                     #ref: https://docs.ansible.com/ansible/2.9_ja/modules/docker_image_module.html  #template: __DocumentVersion__
                 docker_container:  #// Docker コンテナーを起動します  #keyword: Ansible docker_container module,  docker_container,  Ansible docker run
@@ -8013,6 +8029,7 @@ Ansible: #keyword: Ansible, an
                 shell:       #// シェルのコマンドを対象ホストで実行します。冪等性はありません  #keyword: ansible shell
                     参考: #ref: https://docs.ansible.com/ansible/2.9_ja/modules/shell_module.html  #template: __DocumentVersion__
                     #// 環境変数($HOMEなど)や、 “<”, “>”, “|”, “;” などのパイプやリダイレクトは使えます（←ansible command との違い） #search: ansible command module
+                    #// shell 以外の Ansible モジュールを使う場合、shell よりも command のほうが環境が近いです
                     基本サンプル.yml:
                         -   tasks:  #// roles/__RoleName__/tasks/____.yml では tasks の行は不要
                             -   name: ____
@@ -8040,54 +8057,7 @@ Ansible: #keyword: Ansible, an
                                     chdir: /current/folder
                                     cmd: somecommand parameters
                     環境変数: #keyword: Ansible shell env  #// 環境変数を設定してコマンドを実行する場合
-                        基本, no_proxy などの設定: | #keyword: Ansible proxy,  Ansible http_proxy, https_proxy, no_proxy
-                            -   name: コマンド実行
-                                shell: your_command
-                                environment:
-                                    no_proxy: "localhost,127.0.0.1,.example.com"
-                                    http_proxy: "{{ http_proxy }}"
-                                    https_proxy: "{{ https_proxy }}"
-                        まとめる場合:
-                            tasks/main.yml: |
-                                -   name: install minio
-                                    yum: name="minio"
-                                    become: yes
-                                    become_user: root
-                                    environment: "{{ proxy_env }}"
-                            group_vars/____/____.yml: |
-                                proxy_env:
-                                    http_proxy:  "http://{{ proxy_host }}:{{ proxy_port }}/"
-                                    https_proxy: "http://{{ proxy_host }}:{{ proxy_port }}/"
-                                    no_proxy: "____"
-                        import_tasks にまとめて定義する場合: |  #keyword: Ansible import_tasks environment  #search: ansible environment in server
-                            -   name: ____
-                                import_tasks: ____.yml
-                                environment:
-                                    __Name__: __Value__
-                        block で定義する場合: |  #focus: LD_LIBRARY_PATH   #// block 必要ないかも
-                            -   name: environment variabe example
-                                block:
-                                    -   name: shell in environment variabe example
-                                        become: yes
-                                        become_user: root
-                                        shell:
-                                            cmd: "echo ${LD_LIBRARY_PATH}"
-                                environment:
-                                    LD_LIBRARY_PATH: "/etc/lib"
-                        コマンドに埋め込む場合:
-                            playbook.yml: |
-                                -   name: ____
-                                    shell: __Name__="__Value__"  __Command__
-                            参考 >> コマンドが長いとき, 複数行:  #search: Ansible shell long command
-                        env フィールド は未サポート:
-                            playbook.yml: |
-                                -   name: ____
-                                    shell:
-                                        cmd: __Command__
-                                        env:
-                                            __Name__: __Value__
-                            エラー: |
-                                Unsupported parameters for (command) module: env Supported parameters
+                        #search: Ansible environment in server
                     実行環境:  #// PATH, ユーザー  #// コマンドを実行する ターゲット ノード の環境
                         PATH: #keyword: Ansible PATH
                             デフォルト:
@@ -8392,8 +8362,21 @@ Ansible: #keyword: Ansible, an
                                 enablerepo: epel
                     CentOS7 の yum は CentOS8 の dnf です:  #search: ansible dnf  #keyword: ansible RPM
                     更新されないとき: state="latest" update_cache="yes"
-                    proxy 環境変数: #keyword: Ansible yum proxy environment variable
-                        #search: Ansible proxy
+                    トラブルシューティング: #keyword: Ansible yum trouble
+                        proxy 環境変数: #keyword: Ansible yum proxy environment variable
+                            #search: Ansible proxy  #search: Ansible debug
+                        サーバー（repomd.xml）にアクセスできるか確認します:
+                            Ansible で確認する場合:
+                            問題がある場合の対処法:
+                                #search: repodata/repomd.xml trouble
+                        yum repos の内容を確認します:  #search: yum repos
+                            less  /etc/yum.repos.d/____.repo
+                                baseurl
+                                proxy
+                        repolist に対象バージョンがあるか確認します:
+                            問題がある場合の対処法:
+                                対処A. RPM を登録します:
+                                対処B. リポジトリがミラーの場合、ミラーを作り直します:
                 yum_repository:  #// /etc/yum.repos.d/____.repo ファイルを作ります
                     ❗注意: dnf config-manager --add-repo コマンド で .repo ファイルダウンロードすることと同じ処理をする場合、
                         yum_repository モジュールは使いません。shell モジュールを使います
@@ -8433,6 +8416,8 @@ Ansible: #keyword: Ansible, an
                         TASK [__TaskName__] のときに実行しています。
                     実行が長すぎるとき:
                         git clone|checkout コマンドを使ったほうが早いかもしれません。ただし冪等性を確保するのが難しいかもしれません
+                    途中で止まることがあるとき:  #// .git フォルダー が中途半場な状態になって、git タスクが動かなくなるとき
+                        トランザクションを作ります:  #search: Ansible transaction file
                     差分表示が長すぎるとき:  #search: disable Ansible diff
                     Git サーバーに接続できないとき:  #keyword: Ansible git URL trouble
                         手順: ansible-playbook コマンドを実行して、git モジュールのタスクで
@@ -8749,7 +8734,7 @@ Ansible: #keyword: Ansible, an
                     参考: #ref: https://stackoverflow.com/questions/47535197/regex-ansible-lineinfile-subsection
                 stat:        #keyword: ansible stat module         #// ファイルやフォルダーの存在など
                     ファイルまたはフォルダーが存在することをチェックします: #keyword: Ansible stat exists
-                        同じタスク内の場合:
+                        同じタスク内の場合:  #// ファイルまたはフォルダーが存在しなければ失敗させるなど
                             -   tasks:  #// roles/__RoleName__/tasks/____.yml では tasks の行は不要
                                 -   name: Check the ____ exists
                                     stat:
@@ -8773,6 +8758,37 @@ Ansible: #keyword: Ansible, an
                                     debug:
                                         msg: "The file or directory does not exist"
                             #ref: https://phoenixnap.com/kb/ansible-check-if-file-exists
+                        トランザクションにする場合: | #keyword: Ansible transaction file  #// トランザクションの中なら一時ファイルが存在するとし、トランザクションの途中で失敗したかどうかを判定します
+                            -   name: Check __Path__ creating file exists
+                                stat:
+                                        path: "__Path___creating"
+                                register: creating
+
+                            -   name: Create __Path__ creating file
+                                become: yes
+                                file:
+                                    path: "__Path___creating"
+                                    state: touch
+
+                            -   name: Remove __Path__ directory
+                                become: yes
+                                file:
+                                    state: absent
+                                    path: "__Path__"
+                                when: creating.stat.exists
+
+                            -   name: git clone or pull __Path__
+                                git:
+                                    repo: 'https://____'
+                                    dest: "__Path__"
+                                    version: "develop"
+                                environment: "{{ proxy_env }}"
+
+                            -   name: Remove __Path__ creating file
+                                become: yes
+                                file:
+                                    state: absent
+                                    path: "__Path___creating"
                 template:    #keyword: ansible template module     #// ホスト マシーンにあるテンプレート ファイルの一部を置き換えて、ゲスト マシーンにファイルを配置します
                     参考:
                         - https://tekunabe.hatenablog.jp/entry/2019/03/03/ansible_template_intro
@@ -9773,6 +9789,7 @@ Ansible: #keyword: Ansible, an
                     #// tasks の直下に __ModuleName__ を書けることを Action Shorthand と呼びます  https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_intro.html#action-shorthand  #template: __DocumentVersion__
                     基本的なコマンド:  copy, shell, template, yum など  #search: ansible modules catalog
                 environment セクション:  #keyword: Ansible environment in server,  ansible environment  #// このタスクに限りホスト内の環境変数を設定します
+                    #search: Ansible shell env
                     参考:
                         - https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_environment.html  #template: __DocumentVersion__
                         - https://stackoverflow.com/questions/27733511/how-to-set-linux-environment-variables-with-ansible
@@ -9786,6 +9803,32 @@ Ansible: #keyword: Ansible, an
                                         state: present
                                     environment:                                         #// ここ
                                         http_proxy: http://proxy.example.com:8080
+                    ❗注意: CLI から実行する場合と、Ansible で実行する場合では環境変数は異なる可能性があります。
+                        debug モジュール で環境変数の値を確認してください  #search: Ansible debug
+                    no_proxy などの設定: #keyword: Ansible proxy,  Ansible http_proxy,  https_proxy,  no_proxy
+                        1か所に書く場合:  #// たとえば、プロキシの設定を 1か所にまとめて書く場合
+                            #focus: proxy_env
+                            tasks/main.yml: |
+                                -   name: debug print              #// デバッグする場合のみ書きます
+                                    debug: msg="{{ proxy_env }}"   #// デバッグする場合のみ書きます
+
+                                -   name: install minio
+                                    yum: name="minio"
+                                    become: yes
+                                    become_user: root
+                                    environment: "{{ proxy_env }}"
+                            group_vars/____/____.yml: |
+                                proxy_env:
+                                    http_proxy:  "http://{{ proxy_host }}:{{ proxy_port }}/"
+                                    https_proxy: "http://{{ proxy_host }}:{{ proxy_port }}/"
+                                    no_proxy: "____"
+                        単純な実装の場合: |
+                            -   name: コマンド実行
+                                shell: your_command
+                                environment:
+                                    no_proxy: "localhost,127.0.0.1,.example.com"
+                                    http_proxy: "{{ http_proxy }}"
+                                    https_proxy: "{{ https_proxy }}"
                     辞書を指定した場合:  #keyword: Ansible dictionary environment in server  #// 辞書を指定すると、辞書の内容が展開されます
                         コード: |  #focus: second_vars,  variable1
                             vars:
@@ -9800,6 +9843,35 @@ Ansible: #keyword: Ansible, an
                                 variable2: value2
                     VM 内に環境変数を設定し続ける場合:  #search: Ansible lineinfile module
                         lineinfile モジュールを使って /etc/profile (CentOS7) などを編集します
+                    import_tasks にまとめて定義する場合: |  #keyword: Ansible import_tasks environment  #search: ansible environment in server
+                        -   name: ____
+                            import_tasks: ____.yml
+                            environment:
+                                __Name__: __Value__
+                    block で定義する場合: |  #focus: LD_LIBRARY_PATH   #// block 必要ないかも
+                        -   name: environment variabe example
+                            block:
+                                -   name: shell in environment variabe example
+                                    become: yes
+                                    become_user: root
+                                    shell:
+                                        cmd: "echo ${LD_LIBRARY_PATH}"
+                            environment:
+                                LD_LIBRARY_PATH: "/etc/lib"
+                    コマンドに埋め込む場合:
+                        playbook.yml: |
+                            -   name: ____
+                                shell: __Name__="__Value__"  __Command__
+                        参考 >> コマンドが長いとき, 複数行:  #search: Ansible shell long command
+                    env フィールド は未サポート:
+                        playbook.yml: |
+                            -   name: ____
+                                shell:
+                                    cmd: __Command__
+                                    env:
+                                        __Name__: __Value__
+                        エラー: |
+                            Unsupported parameters for (command) module: env Supported parameters
                 vars:  #// １つのタスクの中からだけ参照できる変数を定義します  #keyword: Ansible tasks.vars
                     サンプル __Playbook__.yml:
                         tasks:
@@ -10142,14 +10214,14 @@ Ansible: #keyword: Ansible, an
                         変数によって値を変える場合:  #search: Ansible vars condition
                 loop:  #// for 文のようにタスクを繰り返し定義します  #keyword: ansible loop, ansible item
                     参考: #ref: https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_loops.html  #template: __DocumentVersion__
-                    __Playbook__.yml のサンプル: |
+                    delegate_to >> __Playbook__.yml のサンプル: |
                         ---
                         -   hosts: all
                             become: yes
                             gather_facts: False
 
                             tasks:
-                                -   name: copy file
+                                -   name: Copy file
                                     copy:
                                         src: /etc/ansible/qiita.txt
                                         dest: /tmp/dir
@@ -11347,7 +11419,7 @@ Terraform, HCL 言語: #keyword:
             HCL を Parse する:  #ref: https://qiita.com/TsuyoshiUshio@github/items/ba4a2101be4784253cc5
             HCL をパースして、構造を組み替えて再出力する:  #ref: https://chroju.dev/blog/hcl_parse_and_output
             Build your own DSL with Go & HCL:  #ref: https://blog.devgenius.io/build-your-own-dsl-with-go-hcl-602c92ce24c0
-Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール,  オートスケーリング ツール
+Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツール,  オートスケーリング ツール
     概要:
         サービスの配置:  #search: Nomad placement
         Nomad と Docker の違い:
@@ -11362,6 +11434,8 @@ Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール, 
             nomad ができないこと:  #// GitHub Actions などで実行。ローカルでは act コマンドで .github/workflows/.yml を実行できます
                 - Docker イメージのビルド
                 - Docker イメージをレジストリへ登録
+            同じ:
+                コンテナ化されたアプリケーションのデプロイ
         RPM Ansible と Docker イメージ nomad:
             _: テスト環境でDockerイメージ内にRPMをインストールしてテストするのはベストプラクティスですが、
                 コンテナネイティブのほうがかなりビルドが速いです
@@ -11373,6 +11447,9 @@ Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール, 
                     6ヶ月以内: 移行成功サービスの本番展開
                     1年以内: 新規サービスは全てDocker、既存は選択的移行
                     2年以内: レガシーシステムを除いて大部分をDocker化
+        GitHub Actions でも使えます:
+            セルフホステッドランナー（実行環境）に Nomad CLI もしくは Nomad への到達手段（HTTP API）があれば、
+            GitHub Actions のジョブから nomad job run / nomad job dispatch / nomad job promote などでデプロイできます。
         #ref: ${typrm_files}/ref/VMWare-AI.yaml#label: nomad
     手順:
         インストールと起動: #keyword: install Nomad
@@ -11512,13 +11589,14 @@ Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール, 
                         sudo vi /etc/nomad.d/nomad.hcl  #search: nomad.hcl with Vault
                         sudo systemctl restart nomad
                         #// nomad node status -self -verbose  #// "nomad.hcl" ファイルの acl が enabled の場合、nomad コマンドを実行するには bootstrap トークン（下記）が必要なので、まだ実行できません。
-                    Nomad の ACL システム を初期化します:
+                    Nomad の ACL システム を初期化します: |
                         export VAULT_ADDR="http://localhost:8200"
                         nomad acl bootstrap
                             表示された内容（特に以下のキー）を安全な場所 ~/.secrets/nomad_acl_bootstrap.log に保存します。
                                 Accessor ID  = __NomadAccessorID__
                                 Secret ID    = __BootstrapToken__
                             すでに実行済みならエラーになります。再初期化されません
+                            エラー Unexpected response code: 400 (ACL support disabled) が発生するときは sudo systemctl restart nomad
                         export VAULT_ADDR="http://localhost:8200"
                         export NOMAD_TOKEN=__BootstrapToken__
                         nomad node status -self -verbose
@@ -11723,6 +11801,9 @@ Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール, 
             再初期化します:  #// 未確認。 Ansible でのみ確認済みだが内容は未知
                 #search: install Nomad
         手順のテスト: #keyword: NomadTutorial, NomadVaultTutorial  #ref: ${GitHub}/MyPrivateCode/Nomad/Nomad_Django_REST_API/nomad_test.sh
+        スケール アウト:  #// グループ単位
+            nomad job scale example optional 1
+                #template__: nomad job scale __Job__ __Group__ __Count__
         公式 CLI クイック スタート:
             参考:
                 - https://learn.hashicorp.com/tutorials/nomad/get-started-install
@@ -11910,6 +11991,13 @@ Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール, 
                 以下のように実行される場合、ネームスペースは default 固定です。
                 $ nomad namespace list
                 No namespaces found
+        環境変数: #keyword: nomad CLI environment  #glossary:
+            NOMAD_ADDR:
+                未設定の場合、http://127.0.0.1:4646
+            NOMAD_CACERT: |
+                export NOMAD_CACERT="/etc/nomad.d/tls/tls.crt"
+                設定しないと以下のようなエラーになります。
+                    tls: failed to verify certificate: x509: certificate signed by unknown authority
         （接続できないとき）:  #search: NOMAD_ADDR
     構成:
         #↓ 概要
@@ -12036,7 +12124,7 @@ Nomad: #keyword: HashiCorp Nomad  #// オーケストレーション ツール, 
             ジョブ:  #// 1つ以上のタスクを含む 1つ以上のタスク・グループ
                 jobspec（ジョブ仕様）:  #// ジョブのスキーマ。種類、実行に必要なタスクとリソース、スプレッド、自動スケーラー ポリシー、Consul サービス情報など
                     ジョブの定義を表示します: Nomad Web UI >> Jobs（左上）>> 行（右半分）>> Definition（タブ）>> command（を検索）
-            タスク グループ:  #// 一緒に実行する必要があるタスクのセット
+            タスク グループ:  #// 一緒に実行する必要があるタスクのセット。スケール アウト の単位
             タスク:  #// Docker コンテナー など
                 タスク ドライバー:  #// タスクのコマンド？
             allocation（割り当て）:  #// タスク グループとクライアント ノード間のマッピング。タスク グループのインスタンス
@@ -12843,6 +12931,7 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             コマンド名: vault, bao
             ファイル名: /etc/vault.d/vault.hcl,  /etc/vault.d/openbao.hcl
         インストール: #keyword: install HashiCorp Vault
+            #// 以下は HTTP の場合（HTTPS ではない場合）
             プログラムをインストールします:
                 sudo dnf config-manager --add-repo  https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
                 sudo dnf install -y  vault
@@ -12967,10 +13056,18 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                 VAULT_ADDR=http://localhost:8200 vault operator init
     コマンド:  #glossary:
         #// OpenBao では valut → bao
-        環境変数を設定します, vault コマンド用: | #keyword: vault CLI environment
-            export VAULT_ADDR=http://localhost:8200   #// コンテナ―内なら http://172.17.0.1:8200
-            vault ____
-            #// 関連: less  ~/.vault-token  #// コマンドが処理できる権限を持ったトークン。開発環境では root token  #search: ~/.vault-token
+        環境変数を設定します, vault コマンド用: #keyword: vault CLI environment  #glossary:
+            VAULT_ADDR: |
+                export VAULT_ADDR=http://localhost:8200   #// コンテナ―内なら http://172.17.0.1:8200
+                vault ____
+                #// 関連: less  ~/.vault-token  #// コマンドが処理できる権限を持ったトークン。開発環境では root token  #search: ~/.vault-token
+            VAULT_CACERT: |
+                Vault CLI（Vault クライアント）が Vault サーバーの証明書を検証するための CA 証明書 の場所
+                設定しないと以下のようなエラーになります。
+                    Get "https://127.0.0.1:8200/v1/sys/seal-status": tls: failed to verify certificate: x509: certificate signed by unknown authority
+            VAULT_SKIP_VERIFY:  #// Vault サーバーの証明書を検証する内部手順をスキップします
+                export VAULT_SKIP_VERIFY=1
+                #// 通常、VAULT_CACERT を設定するように変えます
         vault login:  #search: ~/.vault-token
         vault status:
         vault policy write:
@@ -13242,6 +13339,16 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             設定: vault login  __Token__  #// Initial Root Token など
     トラブルシューティング: #keyword: HashiCorp Vault trouble
         権限があるか確認します:  #search: vault token capabilities example
+        エラー, x509 certificate signed by unknown authority:
+            手順:
+                sudo vault operator init
+                    または
+                sudo bao operator init
+            エラー: |
+                Get "https://127.0.0.1:8200/v1/sys/seal-status": tls: failed to verify certificate: x509: certificate signed by unknown authority
+            対処A:
+                開発環境なら
+                sudo BAO_SKIP_VERIFY=1  vault operator init
         エラー, no handler for route "auth/jwt-nomad/config". route entry not found.:
             手順: vault write "auth/jwt-nomad/config"  @__FilePath__
             ログ: |

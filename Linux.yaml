@@ -526,8 +526,9 @@ for Windows:
                         #// set -u を定義せずに
                         InstallApplication="console"  #// --app option default.  "", "console" or "web"
                     ワンライナー版: | #keyword: set -u default value  #// set -u 対応
-                        set -u
-                        if ! [[ -v __VariableName__ ]]; then  __VariableName__=""  ;fi  #// Set default values. "! -v" means that variable is not defined.
+                            set -u
+                            if ! [[ -v __Variable__ ]]; then  __Variable__=""  ;fi  #// Set default values. "! -v" means that variable is not defined.
+                        #// mac にも対応する場合  #search: ${__-__}
                     関数のデフォルト引数: #keyword: bash set -u default argument
                         - |
                             "${1-""}"  #// "${1-""}" means that "$1" default is "".
@@ -542,26 +543,47 @@ for Windows:
                     ワンライナー版 (2):
                         if [ "$1" == "--app" ]; then  Options_App="$2";  shift 2;  fi  #search: Linux option shift
                 特殊記号版:  #// 非推奨
-                    ${__:-__}:  #keyword: variable with default value,  bash use default values,  ${__:-__}  #search: bash parameter expansion  #// デフォルト値の参照
-                        ${__VariableName__:-"__DefaultValue__"}  #// variable with default value
-                        #// ${__VariableName__} の書き方のデフォルト値は "" です
-                    ${__:=__}:  #keyword: bash assign default values,  ${__:=__}  #search: bash parameter expansion  #// デフォルト値の代入
-                        （推奨）: |  #search: set -u default value
-                            #snip:
-                                set -u
-                                if ! [[ -v __VariableName__ ]]; then  __VariableName__=""  ;fi  #// Set default values. "! -v" means that variable is not defined.
+                    ${__-__}:  #keyword: variable with default value,  bash use default values,  ${__-__}  #search: bash parameter expansion  #// デフォルト値の参照
+                        動き: 未定義のときは、__DeafultValue__ を返します。 定義済みのときは、値を返します
+                        書式:
+                            ${__Variable__-"__DefaultValue__"}  #// variable with default value
+                        サンプル:
+                            #// Set default values.
+                            #// "${__Variable__-"__Default__"}" returns "__Default__" if __Variable__ is NOT defined; otherwise, it returns "${__Variable__}".
+                            Options_SearchPath="${Options_SearchPath-""}"
+                            Opt="${Opt-"(default)"}"
+                    ${__+__}:  #keyword: bash variable is defined
+                        動き: 定義済みのときは、__DefinedCaseValue__ を返します。 未定義のときは、"" を返します
+                        書式:
+                            ${__Variable__+"__DefinedCaseValue__"}  #// variable with default value
+                            #// + の前に空白を入れることはできません
+                        サンプル: |
+                            if [ "${Options_SearchPath+"_is_defined"}" != "_is_defined" ]; then
+                                echo "ERROR"; exit 1
+                            fi
+                    ${__:-__}: #// 非推奨  #keyword: ${__:-__}  #search: bash parameter expansion  #// デフォルト値の参照
+                        ❗: 非推奨。空文字列 "" が設定できなくなるため。読みやすいですが残念ながらその問題があります。
+                            __DefaultValue__ が "" の場合でも、この書き方をすると、デフォルト値が変わったときに問題になる可能性が高いため。
+                            推奨は #search: variable with default value
+                        動き: 未定義 または "" のとき、__DeafultValue__ を返します
+                        書式:
+                            ${__Variable__:-"__DefaultValue__"}  #// variable with default value
+                            #// ${__Variable__} のデフォルト値は "" です
+                    ${__:=__}: #// 非推奨  #keyword: bash assign default values,  ${__:=__}  #search: bash parameter expansion  #// デフォルト値の代入
+                        ❗: 非推奨。空文字列 "" が設定できなくないため。また、行頭のコロンがタイプミスに見えてしまうため。
+                            推奨は #search: variable with default value
+                        サンプル: |  #// 非推奨。代入すること（の可能性）が分かりにくいため
+                            : ${__Variable__:=__DefaultValue__}
+                            echo  ${__Variable__:=__DefaultValue__}
+                        コロン: 何もしない命令。ただし引数は評価します
+                        動作: ${__:=__} を評価すると、__Variable__ 変数が空文字列だったら __Variable__ 変数に __DefaultValue__ を代入します。
+                            また、__Variable__ 変数の値が返ります。__Variable__ 変数が空文字列だったら __DefaultValue__ が返ります。
                         その他: |
-                            variable="${__VariableName__-"__DefaultValue__"}"  #search: bash Parameter Expansion
+                            variable="${__Variable__-"__DefaultValue__"}"    #search: bash Parameter Expansion
                                 または
                             #// Set default values using Bash parameter expansion.
                             #// ${__Variable__-"__Default__"} returns __Default__, if __Variable__ is not defined.
-                            if [ "${__VariableName__}" == "" ]; then  __VariableName__=__DefaultValue__  ;fi
-                        サンプル: |
-                            : ${__VariableName__:=__DefaultValue__}
-                            echo  ${__VariableName__:=__DefaultValue__}
-                        コロン: 何もしない命令。ただし引数は評価します
-                        動作: ${__:=__} を評価すると、__VariableName__ 変数が空文字列だったら __VariableName__ 変数に __DefaultValue__ を代入します。
-                            また、__VariableName__ 変数の値が返ります。__VariableName__ 変数が空文字列だったら __DefaultValue__ が返ります。
+                            if [ "${__Variable__}" == "" ]; then  __Variable__=__DefaultValue__  ;fi
                         #ref: https://unix.stackexchange.com/questions/25425/what-does-param-value-mean
                 未定義時の返り値, パラメータ展開: #keyword: bash Parameter Expansion
                     未定義のときの値を指定します:
@@ -572,6 +594,8 @@ for Windows:
                     未定義または空文字列のときの値を指定します:
                         ${variable:-"default"}
                 set -u: #keyword:  #// 未定義のときにエラーになります
+                    エラー メッセージ: | #keyword: unbound variable
+                        __ScriptFilePath__: line __Number__: __Variable__: unbound variable
                     互換性:
                         Rocky9 ではエラーになります:
                             コマンド:
@@ -588,6 +612,8 @@ for Windows:
                                         #     BASHRCSOURCED="Y"
                             対処:
                                 SetShellOptions で一時的にデフォルト設定に戻します  #search: SetShellOptions
+                    トラップ:
+                        ERR ではトラップされません。EXIT でトラップできます
                     関連 >> set -e:  #search: set -e
             関数内ローカル: #keyword: bash local
                 サンプル:
@@ -615,38 +641,52 @@ for Windows:
                 - ファイル間で共有  #search: DefineGlobalVariablesSafely  #search: SubScriptOptions
                 #search: ModifyGlobalVariables USERPROFILE
             ファイル間で共有, 動的定義: #keyword: bash global export  #// 変数定義のスクリプト（文字列）から変数を定義します。source や eval の安全なバージョン
-                DefineGlobalVariablesSafely: | #keyword:
-                    function  DefineGlobalVariablesSafely() {
-                        local  defineScriptString="$1"
-                        local  cr=$'\r'
-                        local  regularExpression="^([A-Za-z_][A-Za-z0-9_]*)='([^']*)' *${cr}?$"  #// Name='Value' format
+                DefineGlobalVariablesSafely: #keyword:  #// 他のスクリプトが定義する変数の値をインポートすることもできます
+                    定義: |  #// import する側に定義します
+                        function  DefineGlobalVariablesSafely() {
+                            local  defineScriptString="$1"
+                            local  cr=$'\r'
+                            local  regularExpression="^([A-Za-z_][A-Za-z0-9_]*)='([^']*)' *${cr}?$"  #// Name='Value' format
 
-                        local line
-                        while IFS= read -r line; do  #// line=( read line from "defineScriptString" )
+                            local line
+                            while IFS= read -r line; do  #// line=( read line from "defineScriptString" )
 
-                            if ! [[ "${line}" =~ ${regularExpression} ]]; then  #// =~ operator is faster than grep command.
-                                continue
-                            fi
-                            local  name="${BASH_REMATCH[1]}"   #// from =~ operator
-                            local  value="${BASH_REMATCH[2]}"  #// from =~ operator
+                                if ! [[ "${line}" =~ ${regularExpression} ]]; then  #// =~ operator is faster than grep command.
+                                    continue
+                                fi
+                                local  name="${BASH_REMATCH[1]}"   #// from =~ operator
+                                local  value="${BASH_REMATCH[2]}"  #// from =~ operator
 
-                            if [ "${GlobalVariablesWhiteList[${name}=]}" != "" ]; then  #// Check by using white list
+                                if [ "${GlobalVariablesWhiteList[${name}=]}" != "" ]; then  #// Check by using white list
 
-                                #// Define "${name}" global variable.
-                                printf -v "${name}" '%s' "${value}"  #// "printf -v" is bash builtin
-                            fi
-                        done <<< "${defineScriptString}"
-                    }
+                                    #// Define "${name}" global variable.
+                                    printf -v "${name}" '%s' "${value}"  #// "printf -v" is bash builtin
+                                fi
+                            done <<< "${defineScriptString}"
+                        }
+                    import します: | #keyword: import bash global variables,  GlobalVariablesWhiteList
+                        declare -A  GlobalVariablesWhiteList=(
+                            #// [__Name__=]=1
+                            [VarA=]=1
+                            [VarB=]=1
+                        )
 
-                    declare -A  GlobalVariablesWhiteList=(
-                        #// [__Name__=]=1
-                        [VarA=]=1
-                        [VarB=]=1
-                    )
+                        DefineGlobalVariablesSafely  "$( ./sub-script.sh --variables )"
+                        echo  "VarA: ${VarA}"
+                        echo  "VarB: ${VarB}"
+                    export します: | #keyword: export bash global variables,  ShowGlobalVariables,  --variables
+                        case ____
+                            --variables)   Options_Variables="yes";  shift;;
 
-                    DefineGlobalVariablesSafely  "$( ./sub-script.sh --variables )"
-                    echo  "VarA: ${VarA}"
-                    echo  "VarB: ${VarB}"
+                        function  Main() {
+                            if [ "${Options_Variables}" != "" ]; then
+                                ShowGlobalVariables
+
+                        function  ShowGlobalVariables() {
+                            #// ${ThisScriptFullPath} --variables
+                            echo  "VMGroup='${VMGroup}'"
+                            echo  "VMGroupDefault='${VMGroupDefault}'"
+                        }
                 オプションの継承, SubScriptOptions:  #keyword: SubScriptOptions,  sub child options shell script 継承
                     #// 他の シェルスクリプト ファイル を呼び出すときに常に設定するオプションを集めた変数を定義すると便利です
                     local  groupOption="$( MakeOptionString  "  --group"  "${Options_Group}" )"
@@ -676,7 +716,7 @@ for Windows:
                     "${__Variable__[0]} ${__Variable__[1]} ${__Variable__[2]}"
             全ての引数をコマンドに渡します:  #// コマンドの全体は配列に入っているケース
                 概要: 必要に応じて shift してから、"$@" を書きます。
-                    $* や $@ は、非推奨です。空白を含む場合に正しく処理されないため。
+                    $* や $@（""なし）は、非推奨です。空白を含む場合に正しく処理されないため。
                     #ref: https://superuser.com/questions/360966/how-do-i-use-a-bash-variable-string-containing-quotes-in-a-command
                     #ref: https://stackoverflow.com/questions/1668649/how-to-keep-quotes-in-bash-arguments#:~:text=When%20you%20want%20to%20pass,(without%20escaping%20your%20quotes).&text=See%20this%20answer%3A%20Difference%20between%20single%20and%20double%20quotes%20in%20Bash.
                 bash サンプル:
@@ -802,6 +842,10 @@ for Windows:
                         TestOfBashC
                     fi
                 #ref: https://ja.stackoverflow.com/questions/8746/bashにおけるクォートを含む文字列の展開について
+            変数に配列として代入します:
+                arguments=("$@")
+            変数に文字列として代入します:
+                arguments="$@"
         未定義の判定:
             ${__VariableName__+set}
                 #// __VariableName__ が定義されていたら "set" を返します。
@@ -917,7 +961,7 @@ for Windows:
                 空行判定:  #keyword: bash 空行
                     サンプル:
                         if [ "${__LineVariable__/[[:space:]]/}" == "" ]; then
-                    [[:space:]]:
+                    特殊指定 [[:space:]]: #// [[:space:]] を指定します
                         POSIX character classで、全ての水平または垂直の空白文字を表します
                 空行削除:  #keyword: bash 空行 削除
                     sed '/^$/d'
@@ -1036,8 +1080,14 @@ for Windows:
                     出力: |
                         ./_sh: line 1: syntax error: unexpected "("
                     参考:  #search: busybox "$@"
-            要素数:
-                "${#__Array__[@]}"
+            要素数:  #keyword: bash array count,  bash array length
+                配列: "${#__Array__[@]}"  #// 2 のとき [1] まで存在します (${__Array__[1]})
+                引数: "$#"                #// 2 のとき [2] まで存在します ($2)
+                要素数チェック:  #keyword: check bash array count
+                    local  countOf__Array__="${#__Array__[@]}"
+                    if (( "${countOf__Array__}" >= 1 )); then
+                        echo  "${__Array__[1]}"
+                    fi
                 #// 関連: 行数 → #search: bash str line count
             ループ: #keyword: Linux bash array loop
                 for in 形式: |
@@ -1288,9 +1338,13 @@ for Windows:
                 #// (( )) の中で代入する場合、演算結果が 0 なら終了コードが 1 になります
                 #// 演算結果は echo $(( )) で確認できます。a++ は +1 する前、++a は +1 した後、a+=1 は +1 した後です。
                 #search: bash 数値比較
-            日時: #keyword: bash 日時 計算,  bash 計算 日付 時刻 時間
+            日時: #keyword: bash 日時 計算,  date calc,  bash 計算 日付 時刻 時間
                 現在と加減算:
-                    -   date -d '7 days ago' +%Y%m%d
+                    -   date -d '1 day'                  #// 今日から 1日後
+                    -   date -d '2024-01-15 +7 days' +%Y-%m-%d  #// 指定日から 7日後
+                    -   date -d '+1 day' +%Y-%m-%d       #// 今日から 1日後
+                    -   date -d '-1 day' +%Y-%m-%d       #// 今日から 1日前
+                    -   date -d '7 days ago' +%Y-%m-%d   #// 今日から 7日前
         ファイル名:  #keyword: bash file path name,  Linux bash shell script file name
             基本: |
                 # full_path
@@ -2238,6 +2292,9 @@ for Windows:
             ANSIエスケープシーケンス チートシート:
                 #ref: https://qiita.com/PruneMazui/items/8a023347772620025ad6
     エイリアス: #keyword: Linux alias
+        定義: |  #// sudo は未確認
+            alias sudo='sudo '  #// If the last character of the alias value is a blank, then the next command word following the alias is also checked for alias expansion.
+            alias ll='ls -al'
         スクリプトでの実行: |
             エイリアスは export ではない変数と同様に、サブプロセスに継承されません。
             なので、スクリプトの内部で使うにはエイリアスの再定義が必要です。
@@ -2629,8 +2686,11 @@ for Windows:
                 サンプル:
                     - cd  "__Folder__"
                     - find "."  -name "*.html"  -exec echo "= {}" ";"
-                {}:   パスに置き変わります。パスの先頭は find の第1引数が付きます
-                ";":  -exec コマンドの最後に必要です。\; でも構いません。; ではシェルが奪ってしまいコマンドに渡せません
+                _ {}:  #// {}
+                    パスに置き変わります。  
+                    パスの先頭は find の第1引数が付きます
+                _ ;:  #// ;
+                    -exec コマンドの最後に必要です。\; でも構いません。; ではシェルが奪ってしまいコマンドに渡せません
                 関連:
                     xargs:  #search: xargs
             スクリプトで一覧します:  #keyword: bash find
@@ -3294,6 +3354,8 @@ for Windows:
             スクリプトを削除します:
                 rm ~/_renamer.sh
     scp: #keyword:  #// SSH 接続できるマシンとの間でアップロード・ダウンロードします
+        非推奨: #// scp は非推奨になりました
+            代わり ⇒ rsync  #ref: https://japan.zdnet.com/article/35242719/
         設定: #settings:
             __FileName__: file.zip
             __ServerNameOrIPAddress__: server1
@@ -3586,7 +3648,7 @@ for Windows:
     ln:  #keyword: symbolic link, ln, シンボリック リンク
         作成:
             コマンド:
-                基本: ln -sf  __Target__  __LinkFilePath__   #// ❗注意 POSIX 公式では ln -sf  __Source__ __Target__ という表現をしていて、逆のイメージなので注意。頭おかしい
+                基本: ln -sf  "__Target__"  "__LinkFilePath__"   #// ❗注意 POSIX 公式では ln -sf  __Source__ __Target__ という表現をしていて、逆のイメージなので注意。頭おかしい
                     #// __Target__ は フル パス または 相対パス
                     #// ls -l で表示すると、__LinkFileName__ => __Target__ と表示されます
                     #// ファイルへのリンクの場合、相対パスは __LinkFilePath__ があるフォルダーからの相対パス
@@ -3722,6 +3784,8 @@ for Windows:
             mac:
                 SHA256 を計算して表示します:  #keyword: shasum
                     shasum -a 256 __FilePath__
+                SHA1 を計算して表示します:  #keyword: sha1sum
+                    sha1sum __FilePath__
         cat:  #// ファイルを結合します
             - cd  __InputFileFolder__
             - cat "__Prefix__"?? > "__Prefix__"
@@ -5226,7 +5290,7 @@ for Windows:
             ファイルの属性を変えます:  #// 書き込み属性や実行属性をオンまたはオフにします
                 一般的な属性:
                     ファイル:   644
-                    フォルダー: 755
+                    フォルダー: 755    #// 実行属性が無ければ、フォルダー内のファイルに read/write アクセスもできません
                     実行ファイル: 755
                     秘密のファイル: 600  #keyword: chmod 600  #// 特定のサーバーの特定の Linux ユーザー にログインできる人だけがアクセスできます
                         #// 自アカウントと root のみリードとライトができます
@@ -5493,7 +5557,14 @@ for Windows:
                 基本:  #// root ユーザーでコマンドを実行します
                     sudo __Command__
                 ユーザー指定:  #// ユーザーを指定してコマンドを実行します
-                    sudo --user __User__  __Command__
+                    基本:
+                        sudo --user user1  printenv  #template__: sudo --user __User__  __Command__
+                    通常:
+                        sudo su -
+                        cd ____
+                        sudo --user __User__  __Command__
+                    グループに所属させる:  #// 毎回ユーザーを指定しなくても済みます（所有グループなら）
+                        #search: usermod -aG
                     #search: bash variables in command
                 ファイルを作ります:  #search: sudo tee  #// root ユーザーだけがアクセスできる場所にファイルを作ります
                 リダイレクト: #search: sudo tee  #// 標準出力のリダイレクト先が root ユーザーのみがアクセスできるとき
@@ -5527,8 +5598,14 @@ for Windows:
             man: #ref: https://www.google.com/search?q=usermod+man
             グループ:
                 追加: #keyword: usermod -aG
+                    注意: リード権限が必要なら、グループに所属させなくても All のパーミッション +r すればいいことが多いです
                     指定したユーザーを指定したグループに追加します:
-                        コマンド: sudo usermod -aG __GroupName__ __UserName__
+                        設定します: sudo usermod -aG __GroupName__ __UserName__
+                            #// __UserName__ に ${USER} を指定すると、現在のユーザーをグループに所属させます
+                            #// 追加後にシェルの再起動等（以下）が必要です
+                        反映します:
+                            開発環境: newgrp __Group__ （すぐに反映、簡単）
+                            本番環境: 再ログイン（最も確実）
                         -a オプション: 所属グループ全置き換えではなく追加になります
                         __GroupName__:
                             Ubuntu の特権グループ: sudo
@@ -5595,7 +5672,8 @@ for Windows:
     whoami:  #// ユーザー名を表示します  #keyword: whoami, user name username
     ssh:  #keyword: ssh
         #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#ssh
-        手順:
+        手順: #keyword: ssh steps
+            #↓ SSH を使った通信
             アップロードやダウンロードをします: #keyword: SSH upload download  #search: scp
             ログイン, 接続テスト: #keyword: SSH login,  ssh command,  SSH client
                 基本:
@@ -5668,13 +5746,14 @@ for Windows:
                         service sshd restart
                 多段ログイン:  #// ログインしたサーバーから更にログインするスクリプト
                     #search: Linux expect
-            クライアントで使われる SSH キー: #keyword: using client SSH key
+            クライアントで使われる SSH キー: #keyword: using client SSH key  #// ssh コマンド などで SSH キー を指定する方法
                 __User__@__Host__ 形式の場合:
                     - ssh-agent で指定したもの  #search: ssh-agent
                     - ~/.ssh/config の HostName にマッチする設定の IdentityFile の値  #search: ~/.ssh/config
                     - ~/.ssh/id_rsa  または  ~/.ssh/id_ecdsa  または  ~/.ssh/id_ed25519
                 __ConfigName__ 形式の場合:
                     ~/.ssh/config の Host にマッチする設定の IdentityFile の値
+                #search: SSH key
             システムが SSH を使う場合:  #search: SSH VIP StrictHostKeyChecking
             サーバーを一覧します:  #search: ssh host list
             リモート実行: #keyword: ssh remote command
@@ -5734,6 +5813,7 @@ for Windows:
 
                     Main  "$@"
                 関連 >> docker の場合:  #search: docker exec
+            ポートフォワーディング:  #search: SSH port forwarding
             -N オプション: #keyword: ssh -N  #// リモートコマンドを実行しません   
             SSH サーバーを立てます:  #keyword: set up sshd
                 Docker を使う場合:
@@ -5803,6 +5883,8 @@ for Windows:
                     参考: #ref: https://hub.docker.com/r/sickp/alpine-sshd
                 Windows の場合:
                     #search: Windows SSH server
+            #↓ 鍵の管理
+            #search: SSH key
         概念, 構成:
             SSH キー, 鍵ファイル: #keyword: SSH key
                 設計:  #// 誰が鍵を持つか
@@ -5820,28 +5902,29 @@ for Windows:
                 SSH キーを生成します:  #keyword: create SSH key,  ssh-keygen,  ssh-keygen command
                     #// 既存のキーと共通の鍵にするときは生成不要です。コピーで使えます
                     Linux の場合:  #// WSL 以外の場合
-                        サーバーに配置する SSH キーを作りなおします:
-                            既存のキーの暗号方式を確認します: #keyword: 秘密鍵 ヘッダー
-                                /home/__User__/.ssh/id_rsa:  #keyword: SSH 秘密鍵 ヘッダー
-                                    先頭行が -----BEGIN OPENSSH PRIVATE KEY-----: OpenSSH 形式  #// OpenSSH 7.8 以降。2014年から
-                                    先頭行が -----BEGIN RSA PRIVATE KEY-----: RSA 形式  #// OpenSSH 7.8 より前
-                                    サンプル >> RSA 形式:
-                                        -----BEGIN RSA PRIVATE KEY-----
-                                        MIIEowIBAAKCAQEA07Rse29DKaOpqdNzBok82tHnWmjUfcFxG3dSSPoMmyA6tGCd
-                                        （中略）
-                                        5eBhPx+OsXvA1uY45Qfa6pIr/3B2n1zi4P1Q9dxmyRYJ2bD9nRPQ
-                                        -----END RSA PRIVATE KEY-----
-                                    #// バージョンの確認方法は ssh -V
-                                関連:  #glossary:
-                                    .pem:  #// Privacy Enhanced Mail 形式,  PEM 形式
-                                        先頭行が -----BEGIN CERTIFICATE-----:
-                                            Unix/Linux環境で一般的
-                                    .crt, .cer:  #// X.509証明書
-                                        バイナリ(DER)形式またはテキスト(PEM)形式で保存可能
-                            既存のキーのビット数を確認します:  #// 下記 2048 がビット数です
-                                #// Git bash
-                                $ ssh-keygen -lf /home/__User__/.ssh/id_rsa
-                                2048 d1:cb:15:df:5d:44:...
+                        サーバーに配置する SSH キー（公開鍵）を作りなおします:
+                            作るべき暗号方式とビット数を調べます:
+                                既存のキーの暗号方式を確認します: #keyword: 秘密鍵 ヘッダー
+                                    /home/__User__/.ssh/id_rsa:  #keyword: SSH 秘密鍵 ヘッダー
+                                        先頭行が -----BEGIN OPENSSH PRIVATE KEY-----: OpenSSH 形式  #// OpenSSH 7.8 以降。2014年から
+                                        先頭行が -----BEGIN RSA PRIVATE KEY-----: RSA 形式  #// OpenSSH 7.8 より前
+                                        サンプル >> RSA 形式:
+                                            -----BEGIN RSA PRIVATE KEY-----
+                                            MIIEowIBAAKCAQEA07Rse29DKaOpqdNzBok82tHnWmjUfcFxG3dSSPoMmyA6tGCd
+                                            （中略）
+                                            5eBhPx+OsXvA1uY45Qfa6pIr/3B2n1zi4P1Q9dxmyRYJ2bD9nRPQ
+                                            -----END RSA PRIVATE KEY-----
+                                        #// バージョンの確認方法は ssh -V
+                                    関連:  #glossary:
+                                        .pem:  #// Privacy Enhanced Mail 形式,  PEM 形式
+                                            先頭行が -----BEGIN CERTIFICATE-----:
+                                                Unix/Linux環境で一般的
+                                        .crt, .cer:  #// X.509証明書
+                                            バイナリ(DER)形式またはテキスト(PEM)形式で保存可能
+                                既存のキーのビット数を確認します:  #// 下記 2048 がビット数です
+                                    #// Git bash
+                                    $ ssh-keygen -lf /home/__User__/.ssh/id_rsa
+                                    2048 d1:cb:15:df:5d:44:...
                             キーを生成します:
                                 ~/.ssh/id_rsa とは別のキーを追加します: #keyword: ssh-keygen example
                                     Git bash:
@@ -5856,6 +5939,7 @@ for Windows:
                                                 ssh-keygen  -f ~/.ssh/debug_id_rsa  -t rsa  -b 2048  -m PEM
                                             OpenSSH 7.8 より前:
                                                 ssh-keygen  -f ~/.ssh/debug_id_rsa  -t rsa  -b 2048
+                                        #// ssh-keygen コマンドで鍵を作ると自動的に chmod 600（した結果）になります
                                     -f オプション: 新規作成する秘密鍵ファイルのパス。 その末尾に .pub を追加した公開鍵ファイルも作られます
                                         すでにファイルがあるときは、上書き確認されます
                                     -t オプション:  #// 暗号方式
@@ -5928,6 +6012,7 @@ for Windows:
                                 ssh  -o 'StrictHostKeyChecking no'  ${my_hosts}
                                 exit
                 ~/.ssh/id_rsa（秘密鍵）と ~/.ssh/id_rsa.pub（公開鍵）はコピーしても使えます:
+                鍵を更新します:  #search: SSH key 有効期限
                 秘密鍵, 公開鍵, ログイン >> ユーザーの認証に使うキー:  #keyword: SSH keys
                     関連 >> ログイン手順:  #search: SSH login
                     id_rsa, 秘密鍵: #keyword: 秘密鍵,  id_rsa,  SSH (@client) ~/.ssh/id_rsa  #// クライアントの秘密鍵。ログイン元のマシーン内
@@ -5996,6 +6081,12 @@ for Windows:
                         参考: https://www.it-swarm-ja.com/ja/authentication/sshのauthorizedkeysファイルとknownhostsファイルの違いは何ですか？/l958432138/
                     __KeyName___id_rsa:  #// id_rsa とは異なる秘密鍵を使うサーバーのための秘密鍵（独自命名ルール） #search: SSH IdentityFile in config
                     インストール, upload_SSH_keys.sh:  #search: register to authorized_keys
+                秘密鍵のファイルから公開鍵を調べます:  #keyword: SSH show public key,  ssh-keygen -yf,  公開鍵 表示
+                    #Git bash
+                    - ssh-keygen -yf  ~/.ssh/id_rsa  >  ~/.ssh/id_rsa.pub   #または
+                    - ssh-keygen -yf  __SecretKeyFilePath__   #// 公開鍵が表示されます
+                    #search: SSH (@client) ~/.ssh/id_rsa.pub
+                    #search: authorized_keys,  ~/.ssh/authorized_keys
                 ログイン >> サーバーの認証に使うキー:
                     known_hosts:  #// クライアントが知っているサーバーの公開鍵  #keyword: SSH (@client) known_hosts,  ~/.ssh/known_hosts,  /etc/ssh/ssh_known_hosts
                         役割: ファイルに登録されていないサーバーと接続しようとすると接続してよいか確認が求められます
@@ -6048,23 +6139,17 @@ for Windows:
                         #// これでログインすると（ログインに失敗しても？）~/.ssh/known_hosts に追加されます
                         #// 上記のコマンドはログインしてすぐ exit コマンドでログアウトします
                         #// No route to host エラーになったら追加されません
-                ユーザー切り替え: #keyword: SSH change user  #// サーバー内で使われるユーザーを変えます。ssh __User__@__Server__ の __User__ 部分
-                    ~/.ssh/config :  ~/.ssh/config の User を変えたコンフィグを追加します  #search: ~/.ssh/config
-                    クライアントの鍵を作成:  たとえば、(client@) ~/.ssh/user1_id_rsa を新規作成します
-                    公開鍵をサーバーに設定:  #// クライアントの公開鍵をサーバーに設定します
-                        ログインします:  サーバー内にログインします。SSH でログインできる既存のユーザーで
-                        ユーザーを切り替えます:  サーバー内で使われるユーザーに切り替えます  #search: su user via root
-                        (server_user1@) ~/.ssh/authorized_keys : クライアントの公開鍵（~/.ssh/user1_id_rsa.pub）の内容を追加貼り付けします
+                #↓ 属性
+                フィンガー プリント:  #// 鍵を識別するための値。SSH キー の フィンガー プリント をハッシュ値で表示します
+                    #// 同じ フィンガー プリント でも各種方式のハッシュ値を表示できます
+                    MD5 ハッシュ値:  #// MD5:__:__:__:__ ...
+                        ssh-keygen -l -E md5 -f __PubOrPrivateFilePath__
+                            2048 MD5:11:11:10:33:33:22:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx user@hostname (RSA)
+                    SHA256 ハッシュ値:  #// SHA256://____
+                        ssh-keygen -l -f __PubOrPrivateFilePath__
+                            2048 SHA256://__Hash__ vagrant@localhost.localdomain (RSA)
                 パスワードの変更: #keyword: change SSH password
                     ssh-keygen -p  -f ~/.ssh/id_rsa
-                /etc/ssh/ssh_host_rsa_key:  #// SSHD が通信に使うキー。通常、ユーザーが管理しません
-                    #ref: ${typrm_files}/ref/Linux-AI.yaml#label: ssh_host_rsa_key
-                秘密鍵のファイルから公開鍵を調べます:  #keyword: SSH show public key,  ssh-keygen -yf,  公開鍵 表示
-                    #Git bash
-                    - ssh-keygen -yf  ~/.ssh/id_rsa  >  ~/.ssh/id_rsa.pub   #または
-                    - ssh-keygen -yf  __SecretKeyFilePath__   #// 公開鍵が表示されます
-                    #search: SSH (@client) ~/.ssh/id_rsa.pub
-                    #search: authorized_keys,  ~/.ssh/authorized_keys
                 パスフレーズの有無を調べます: #keyword: SSH key passphrase request
                     #// 右記をコマンドは同じ  #search: SSH show public key
                     コマンド:
@@ -6073,18 +6158,24 @@ for Windows:
                         パスフレーズの入力が求められます。 Ctrl + C で終了します
                     パスフレーズがないときの動き:
                         パスフレーズの入力が求められないで、公開鍵が表示されます
-                表示: #// 鍵の情報を表示します。 chmod 600 であること
-                    ssh-keygen -l -f __PubOrPrivateFilePath__
-                        2048 SHA256://__Hash__ vagrant@localhost.localdomain (RSA)
-                    ssh-keygen -l -E md5 -f __PubOrPrivateFilePath__
-                        2048 MD5:11:11:10:33:33:22:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx user@hostname (RSA)
-                有効期限:  #keyword: SSH key 有効期限
+                有効期限:  #keyword: SSH key 有効期限,  update SSH key
                     SSH キー: 公開鍵、秘密鍵ともに有効期限はありません
                     ~/.ssh/authorized_keys:  #// 未確認  #// ログインを許可する期限。下記は 2023-04-12T00:00:00。デフォルトでは validbefore は付きません（無期限）
                         from="10.0.0.1",validbefore="20230412000000" ssh-rsa AAAAB3NzaC1yc2EAA...
-                    関連:
-                        SSL証明書の有効期限:  #search: SSL証明書 有効期限
-                        PGPキーの期限を更新:  #search: extend GPG
+                    GitLab に登録する SSH キー:  #search: GitLab SSH key
+                    鍵を作り直します:  #search: ssh-keygen example
+                    SSL証明書の有効期限:  #search: SSL証明書 有効期限
+                    PGPキーの期限を更新:  #search: extend GPG
+                ユーザー切り替え: #keyword: SSH change user  #// サーバー内で使われるユーザーを変えます。ssh __User__@__Server__ の __User__ 部分
+                    ~/.ssh/config :  ~/.ssh/config の User を変えたコンフィグを追加します  #search: ~/.ssh/config
+                    クライアントの鍵を作成:  たとえば、(client@) ~/.ssh/user1_id_rsa を新規作成します
+                    公開鍵をサーバーに設定:  #// クライアントの公開鍵をサーバーに設定します
+                        ログインします:  サーバー内にログインします。SSH でログインできる既存のユーザーで
+                        ユーザーを切り替えます:  サーバー内で使われるユーザーに切り替えます  #search: su user via root
+                        (server_user1@) ~/.ssh/authorized_keys : クライアントの公開鍵（~/.ssh/user1_id_rsa.pub）の内容を追加貼り付けします
+                #↓ 鍵の種類
+                /etc/ssh/ssh_host_rsa_key:  #// SSHD が通信に使うキー。通常、ユーザーが管理しません
+                    #ref: ${typrm_files}/ref/Linux-AI.yaml#label: ssh_host_rsa_key
                 SSH 証明書: #keyword:  #// SSH の接続に使うキー（秘密鍵・公開鍵）とは別物です
                     #ref: ${typrm_files}/ref/Linux-AI.yaml#label: SSH 証明書
             ポートフォワーディング: #keyword: SSH port forwarding  #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#ssh_L_option
@@ -6126,7 +6217,9 @@ for Windows:
                 -L:  #search: SSH port forwarding
                 -N:  #// リモートコマンドを実行しません  #search: ssh -N
                 -p:  #// ポート番号。接続する相手のポート番号  #search: ssh port
-                （その他）:  #search: SSH login
+                （その他）:
+                    #search: SSH login
+                    #search: ssh steps
         スクリプト実行:  #search: SendAndRunViaSSH
             #search: SSH upload and run script
         ログ:
@@ -6746,8 +6839,9 @@ for Windows:
                             SSL証明書を自動発行, 自動更新
                         #↓ 参考
                         さくらの SSL:  #ref: https://ssl.sakura.ad.jp/column/letsencrypt/
-                CA 証明書:  #// 認証局の証明書。ca.crt
+                CA 証明書: #keyword:  #// 認証局の証明書。ca.crt, tls.crt。公開鍵を含む証明書
                     自己署名証明書の場合、CA 証明書の欄に、サーバー証明書を指定できます
+                CA 秘密鍵:  #// ca.key, tls.key
                 コモンネーム: #keyword: common name
                     FQDN のこと。example.com など  #// コモンネームは SSL 用語
                 サーバーの秘密鍵: #// server_private.key
@@ -6995,6 +7089,7 @@ for Windows:
                 DNS サーバー指定  #search: dig connect at DNS
             VirtualBox:  #// VirtualBox の ホスト オンリー ネットワーク の中にある接続先
                 #search: VirtualBox dig 
+        関連:  #search: BIND
     ip コマンド:  #keyword: ip, Linux ip addr, Linux ip address, Linux ifconfig
         参考: #ref: https://www.atmarkit.co.jp/ait/articles/1709/22/news019.html
         関連 >> シェルがあるホストの IP アドレス:  #search: hostname -I
@@ -7793,6 +7888,9 @@ for Windows:
                 - ntpdate -q ntp.nict.jp
                 - ntpq -p
             #↓ 原因の候補   #keyword: 疎通確認 trouble
+            サービスの起動状態:  #search: Linux ss
+                (@サーバー側)
+                sudo ss -tlnp | grep __Port__
             nftables, iptables:  #search: nftables  #search: iptables
             IP Accounting: #search: Systemd IP Accounting  #// iptables によるチェックの前にこのチェックが行われます
             ホスト ベース 認証: #search:
@@ -12325,7 +12423,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                 起動 >> サービス（デーモン）を起動または終了します:  #glossary: systemctl  #search: systemctl command
                     daemon-reload: sudo systemctl daemon-reload
                         #// unit ファイル などを変更した場合に start する前に実行する必要があります
-                    start:   sudo systemctl start   __ServiceName__
+                    start:   sudo systemctl start   __ServiceName__  #// 起動終了日時: #search: journalctl active date
                     stop:    sudo systemctl stop    __ServiceName__  #// stop しても再開される場合、.socket が再開している可能性があります  #search: systemd.socket
                     restart: sudo systemctl restart __ServiceName__
                     reload:  sudo systemctl reload  __ServiceName__  #// サービスが reload に対応している必要があります。stop と start は行われません
@@ -12374,7 +12472,17 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             概念, 構成:
                 サービス:
                     一覧 >> サービス名を探します: #keyword: service name (systemctl)
-                        list-unit-files: systemctl list-unit-files --type=service | grep __PartOfServiceName__  #keyword: systemctl list-unit-files
+                        list-unit-files:
+                            コマンド: systemctl list-unit-files --type=service | grep __PartOfServiceName__  #keyword: systemctl list-unit-files
+                            indirect: #keyword: systemctl list-unit-files indirect
+                                _:
+                                    - 他のユニットから依存関係（Wants=, Requires=, Also= など）を通じて間接的に有効化される
+                                    - そのサービスユニット自体は直接 systemctl enable で有効化されない
+                                    - または、ユニットファイルに [Install] セクションが存在しないか、独立して有効化できない設定になっている
+                                種類:
+                                    list-unit-files コマンドで表示したときに、サービス名に @ が付くとき:  #search: systemd@.service
+                                    その他:
+                                        未調査
                 バージョン: #// サービスのバージョン
                     RPM のバージョンを確認します  #keyword: systemctl version  #serach: RPM installed list
                 ログ、起動ログ、ステータス: #keyword: systemctl log,  Linux log,  systemctl follow
@@ -12478,6 +12586,11 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             -e オプション: 最近のログを表示します
             -x オプション: 詳細を表示します
             -u __ServiceName__ オプション, --unit: 特定サービスのメッセージだけを表示します
+            --grep 検索, 起動終了日時: | #keyword: journalctl active date,  systemctl journalctl active inactive date time
+                    journalctl  --identifier systemd  --grep '__ServiceName__' --no-pager
+                        __DateTime__ __Host__ systemd[1]: Stopped __ServiceName__.
+                        __DateTime__ __Host__ systemd[1]: Started __ServiceName__.
+                #// --identifier の短い名前は -t
             --since, --until, 時間指定:  #// 指定した期間のログだけ表示します
                 日時指定:
                     journalctl --since "2024-01-09 10:00:00" --until "2024-01-09 11:00:00" ____
@@ -12485,6 +12598,9 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     journalctl --since "1 hour ago"
                     journalctl --since "yesterday"
                     journalctl --since "today"
+                最古のログの日時:  #// 全サービスの最古
+                    journalctl --lines 1
+                    #// --lines の短い名前は -n
                 プロセスが起動してから後:  #// 再起動前や最後に止めたときより前は表示しません
                     journalctl  -u "__ServiceName__"  --since "$(systemctl show "__ServiceName__" --property=ActiveEnterTimestamp --value)"
                 指定した日時以降: #keyword: journalctl --since start
@@ -12918,6 +13034,20 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                 systemctl enable しても自動起動しない
                             rescue.target:       # レスキューモード（旧ランレベル1）
                             emergency.target:    # 緊急モード
+                    systemd@.service: #keyword: systemd@.service,  テンプレート ユニット
+                        #// テンプレートと同様のサービスのインスタンスを１つ以上作れます
+                        unit file のパス:
+                            /usr/lib/systemd/system/__ServiceName__@.service
+                        list-unit-files:  #focus: indirect  #search: systemctl list-unit-files
+                            systemctl list-unit-files --type=service | grep __ServiceName__@
+                                __ServiceName__@.service        indirect
+                        インスタンス一覧、状態一覧: |
+                            systemctl list-units '__ServiceName__@*'
+                                __ServiceName__@__InstanceName1__.service loaded active running __ServiceName__
+                                __ServiceName__@__InstanceName2__.service loaded failed failed __ServiceName__   
+                        インスタンスの systemctl status: |
+                            systemctl status __ServiceName__@__InstanceName__.service | less
+                                Active: active (running) since Wed 2025-12-17 14:31:54 JST; 1 weeks 6 days ago
                     systemd.socket: #keyword: systemd.socket, ソケット ユニット  #ref: https://www.freedesktop.org/software/systemd/man/systemd.socket.html
                         概要:
                             -   ソケット ユニット の設定ファイル。
@@ -13231,6 +13361,10 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                             Which service name?: nginx_docker  nginx_docker_compose
                     エディター変更: #keyword: tasks.sh EDITOR
                         EDITOR 環境変数を設定すると テキスト エディター を変更できます。デフォルトは code コマンドです。
+                内容を検索する:
+                    サブフォルダーも含めて tasks.sh ファイルを対象に絞って検索すると、検索ノイズが減ります。
+                    プロジェクトのちょっとした自動手順を tasks.sh に書いておけば、tasks.sh を検索することで手順が見つかります。 
+                    たとえば、migrate で検索すると、プロジェクト固有のマイグレーションの手順がすぐに見つかり、すぐに実行できます。
             コマンド: #keyword: tasks.sh command
                 一覧: #search: tasks.sh methods
                 tasks.sh コマンド >> 基本書式:
@@ -13545,7 +13679,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     - 1-5    #// 1,2,3,4,5
                     - 1-5/2  #// 1,3,5。1～5 分の間を 2分間隔で（2 は割る数ではなく足す数）
                     - 0/33   #// 0,33。毎時 0 分から 33分間隔で
-                    - */33   #// 0,33,66,...。33分間隔  (開始は？)
+                    - _ */33 #// */33: 0,33,66,...。33分間隔  (開始は？)
                         #ref: https://localcoder.org/cron-expression-to-run-every-n-minutes
                 その他:
                     - "* * * * *"  #// 毎分
@@ -14319,6 +14453,14 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             (%R): 実際の時間
             (%U): ユーザー モード でのCPU実行時間
             (%S): システム モード でのCPU実行時間
+    faketime: #keyword:  #// 現在日時を指定した日時で実行します
+        インストールします:
+            sudo dnf install -y  libfaketime
+        CLI の場合:
+            faketime '2001-01-01 00:00:00' date
+                Mon Jan  1 00:00:00 JST 2001
+        VSCode デバッガー の場合:
+            Go 言語の場合:  #search: Go GetFakeTimeInJST  #search: Go libfaketime
     現在日時の同期:  #// インターネットから現在日時を取得して同期します
         VirtualBox の場合:
             VirtualBoxのVM内での時刻同期には特有の問題が存在することが知られています。
@@ -14788,6 +14930,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                                     ThisScriptFullPath="$( readlink -f "${0##*/}" )"
                                     ThisFolderFullPath="${ThisScriptFullPath%/*}"
                                     ParentFolderName="${ThisFolderFullPath##*/}"
+                                WSL2 共有フォルダー:  #search: /mnt/c/ ThisFolderFullPath
                             古い方法: |  #// カレント フォルダー をスクリプトがあるフォルダーに移動します
                                 if [ "${_Dbg_DEBUGGER_LEVEL}" != "" ]; then            
                                     ThisScriptFullPath="${HOME}/tasks.sh"  #// Because $0 is not correct
@@ -14797,6 +14940,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 ThisFolderFullPath="${ThisScriptFullPath%/*}"
                                 cd  "${ThisFolderFullPath}"
                     _Dbg_DEBUGGER_LEVEL 環境変数: 空でなければ、デバッガーに接続しています
+                関連 >> set -x:
                 関連 >> pp: |  #keyword: bashlib pp  #// デバッグ用表示。複数行の値も表示できます
                     #section: Debug
 
@@ -15029,13 +15173,14 @@ bash: #keyword: bash  #// Bourne Again Shell
                 #search: find grep
     オプション指定: #keyword: bash options,  bash arguments and options  #// コマンドに指定するオプション
         指定:  #// ユーザー向け  #search: command line options
-        引数をループします:  #search: bash arguments loop
+        #↓ スクリプト内
+        引数をループします:  #search: bash arguments loop  #// オプションではない
         解析:  #// 開発者向け  #search: Linux flag option shift
             超シンプル版:
                 if [ "$1" == "--in-remote" ]; then
                     Options_InRemote="yes"
                 fi
-            shift 版: #🌟 #keyword: Linux option shift  #ref: ${typrm_files}/Qiita下書き/11_bash_getopts/11_bash_getopts.md
+            shift 版: #🌟 #keyword: Linux option shift  #ref: ${typrm_files}/Qiita下書き/33_bash_getopts_2/33_bash_getopts_2.md
                 サンプル >> 値なし最小: #keyword: PositionalArgs
                     ~/bin/_try_option.sh : | #keyword: Linux flag option shift  #// 末尾は .sh でなくても構いません
                         PositionalArgs=()
@@ -15174,18 +15319,45 @@ bash: #keyword: bash  #// Bourne Again Shell
                         set -- "${PositionalArgs[@]}"  #// set $1, $2, ...
                         unset PositionalArgs
 
-                        #// set -u を使う場合
-                        #// Set default values. "! -v" means that variable is not defined.
-                        if ! [[ -v Options_SearchPath ]]; then  Options_SearchPath=""  ;fi
-                        if ! [[ -v Options_Flag ]]; then  Options_Flag=""  ;fi
-                        if ! [[ -v Options_Help ]]; then  Options_Help=""  ;fi
+                        #//// 以下のコードは、下のほう（Main 関数を呼び出す直前）に書くと Main 関数の定義をすぐ読めるようになります。 ////
 
-                        #// 動作確認
-                        echo "\$SearchPath = \"${Options_SearchPath}\""
-                        echo "\$Flag       = \"${Options_Flag}\""
-                        echo "\$Help       = \"${Options_Help}\""
-                        echo "\$1          = \"$1\""
-                        echo "\$2          = \"$2\""
+                        set -u
+                            #// set -u is optional.
+                        #// Set default values. "! -v" means that variable is not defined.
+                        #// if ! [[ -v __Variable__ ]]; then  __Variable__=""  ;fi
+                        if ! [[ -v Options_SearchPath ]]; then  Options_SearchPath=""  ;fi
+                        if ! [[ -v Options_SearchPath ]]; then  Options_SearchPath="${HOME}/.my_script"  ;fi
+                        if ! [[ -v Options_Flag ]]; then  Options_Flag="false"  ;fi
+                        if ! [[ -v Options_Help ]]; then  Options_Help="false"  ;fi
+                        # if [ "${Options_SearchPath}" == "" ]; then  #// 必須オプションの場合
+                        #     echo "ERROR: Not set -s or --search-path option"; exit 1
+                        # fi
+                        # if ! [[ -v Options_SearchPath ]]; then  #// 必須オプションに空文字列を指定できる場合
+                        #     echo "ERROR: Not set -s or --search-path option"; exit 1
+                        # fi
+                        #// または
+                        #// Set default values.
+                        #// "${__Variable__-"__Default__"}" returns "__Default__" if __Variable__ is NOT defined; otherwise, it returns "${__Variable__}".
+                        Options_SearchPath="${Options_SearchPath-""}"
+                        Options_ConfigPath="${Options_ConfigPath-"${HOME}/.my_script"}"
+                        Options_Flag="${Options_Flag-"false"}"
+                        Options_Help="${Options_Help-"false"}"
+
+                        #// Example
+                        echo "\$Options_SearchPath = \"${Options_SearchPath}\""
+                        echo "\$Options_Flag = \"${Options_Flag}\""
+                        echo "\$Options_Help = \"${Options_Help}\""
+                        NumOfArguments="$#"
+                        if (( "${NumOfArguments}" >= 1 )); then
+                            echo "\$1 = \"$1\""
+                        else
+                            echo "\$1 is not defined."
+                        fi
+                        if (( "${NumOfArguments}" >= 2 )); then
+                            echo "\$2 = \"$2\""
+                        else
+                            echo "\$2 is not defined."
+                        fi
                     実行できるようにします:
                         chmod +x ~/bin/_try_option.sh
                     実行します:  #// ~/bin に PATH が通っているものとします
@@ -15194,24 +15366,24 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 コマンド: _try_option.sh  --help
                                 出力:
                                     $SearchPath = ""
-                                    $Flag        = ""
-                                    $Help        = "yes"
+                                    $Flag        = "false"
+                                    $Help        = "true"
                                     $1           = ""
                                     $2           = ""
                             短いオプション名:  #// -f
                                 コマンド: _try_option.sh  -h
                                 出力:
                                     $SearchPath = ""
-                                    $Flag        = ""
-                                    $Help        = "yes"
+                                    $Flag        = "false"
+                                    $Help        = "true"
                                     $1           = ""
                                     $2           = ""
                             連続した短いオプション名:  #// -fh
                                 コマンド: _try_option.sh  -fh
                                 出力:
                                     $SearchPath = ""
-                                    $Flag        = "yes"
-                                    $Help        = "yes"
+                                    $Flag        = "true"
+                                    $Help        = "true"
                                     $1           = ""
                                     $2           = ""
                         空白の右の値:  #// -s ____ , --long-name ____
@@ -15219,16 +15391,16 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 コマンド: _try_option.sh  --search-path ./conf
                                 出力:
                                     $SearchPath = "./conf"
-                                    $Flag        = ""
-                                    $Help        = ""
+                                    $Flag        = "false"
+                                    $Help        = "false"
                                     $1           = ""
                                     $2           = ""
                             短いオプション名:  #// -s ____
                                 コマンド: _try_option.sh  -s ./conf
                                 出力:
                                     $SearchPath = "./conf"
-                                    $Flag        = ""
-                                    $Help        = ""
+                                    $Flag        = "false"
+                                    $Help        = "false"
                                     $1           = ""
                                     $2           = ""
                         = の右の値:  #// -s=____ , --long-name=____
@@ -15236,40 +15408,40 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 コマンド: _try_option.sh  --search-path=./conf
                                 出力:
                                     $SearchPath = "./conf"
-                                    $Flag        = ""
-                                    $Help        = ""
+                                    $Flag        = "false"
+                                    $Help        = "false"
                                     $1           = ""
                                     $2           = ""
                             短いオプション名:
                                 コマンド: _try_option.sh  -s=./conf
                                 出力:
                                     $SearchPath = "./conf"
-                                    $Flag        = ""
-                                    $Help        = ""
+                                    $Flag        = "false"
+                                    $Help        = "false"
                                     $1           = ""
                                     $2           = ""
                             空白を含む値:
                                 コマンド: _try_option.sh  -s="./conf 2"
                                 出力:
                                     $SearchPath = "./conf"
-                                    $Flag        = ""
-                                    $Help        = ""
+                                    $Flag        = "false"
+                                    $Help        = "false"
                                     $1           = ""
                                     $2           = ""
                         オプションではない引数:
                             コマンド: _try_option.sh  -s ./conf  arg1
                             出力:
                                 $SearchPath = "./conf"
-                                $Flag        = ""
-                                $Help        = ""
+                                $Flag        = "false"
+                                $Help        = "false"
                                 $1           = "arg1"
                                 $2           = ""
                         右または任意の位置にあるオプション:
                             コマンド: _try_option.sh  arg1  -s ./conf  arg2
                             出力:
                                 $SearchPath = "./conf"
-                                $Flag        = ""
-                                $Help        = ""
+                                $Flag        = "false"
+                                $Help        = "false"
                                 $1           = "arg1"
                                 $2           = "arg2"
                         オプション名が誤っているときのエラー表示:
@@ -15286,40 +15458,70 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 出力:
                                     Unknown option -u
                             （共通）終了コード: 1
+                配列の場合:  #// 同じオプションを複数受け入れる場合
+                    ~/bin/_try_option.sh : |
+                        PositionalArgs=()
+                        Options_SearchPath=()
+                        while [[ $# -gt 0 ]]; do
+                            case $1 in
+                                -s|--search-path)  Options_SearchPath+=("$2"); shift; shift;;
+                                -s=*|--search-path=*) Arg="$1";  Options_SearchPath+=("${Arg#*=}"); unset Arg; shift;;
+                                --) shift;  PositionalArgs+=("$@"); set --;;
+                                -*) echo "ERROR: Unknown option $1"; exit 1;;
+                                *)  PositionalArgs+=("$1"); shift;;
+                            esac
+                        done
+                        set -- "${PositionalArgs[@]}"  #// set $1, $2, ...
+                        unset PositionalArgs
+
+                        set -u
+                            #// set -u is optional.
+
+                        #//// Options_SearchPath が未定義の場合はないため、それに対応するコードは不要です
+
+                        #// Example
+                        for elem in "${Options_SearchPath[@]}" ;do
+                            echo "\$Options_SearchPath = \"${elem}\""
+                        done
                 デフォルト値:  #search: bash default value
                 参考: #ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
             getopts 版:  #keyword: bash getopts
                 注意: 長いオプション名が使えません。例 --help は使えません
                 参考: #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#opt
-            サブコマンド: #keyword: bash subCommand  #// ハイフン無し
-                入力サンプル:
-                    ./command.sh  2
-                コード command.sh: |
-                    #!/bin/bash
-                    if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
-                    cd  ..
-                    echo  "$ cd \"${PWD}\""
-
-                    function  Main() {
-                        local  subCommand="$1"
-                        if [ "${subCommand}" == "1" ]; then
-
-                            echo  "Sub command 1"
-                        elif [ "${subCommand}" == "2" ]; then
-                            echo  "Sub command 2"
-                        elif [ "${subCommand}" == "3" ]; then
-                            echo  "Sub command 3"
-                        else
-                            echo  "ERROR: Not found subCommand \"${subCommand}\"." >&2
-                            exit  2
-                        fi
-                    }
-
-                    Main  "$@"
             参考:
                 Stack overflow: #ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
                 bash によるオプション解析: #ref: https://qiita.com/b4b4r07/items/dcd6be0bb9c9185475bb
                 Snap Note: #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#bash_param
+        継承して指定: #keyword: bashlib MakeOptionString example  #search: bashlib MakeOptionString
+            local  testOption="$( MakeOptionString  "  --test"  "${Options_Test}" )"
+            command  ${testOption}
+            SubScriptOptions="${testOption}${anotherOption}"
+            sub-script  ${SubScriptOptions}
+        サブコマンド: #keyword: bash subCommand  #// ハイフン無し
+            入力サンプル:
+                ./command.sh sub2  __Parameters__
+            コード command.sh: |
+                #!/bin/bash
+                if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
+                cd  ..
+                echo  "$ cd \"${PWD}\""
+
+                function  Main() {
+                    local  subCommand="$1"
+                    if [ "${subCommand}" == "sub1" ]; then
+
+                        echo  "Sub command sub1"
+                    elif [ "${subCommand}" == "sub2" ]; then
+                        echo  "Sub command sub2"
+                    elif [ "${subCommand}" == "sub3" ]; then
+                        echo  "Sub command sub3"
+                    else
+                        echo  "ERROR: Not found subCommand \"${subCommand}\"." >&2
+                        exit  2
+                    fi
+                }
+
+                Main  "$@"
     制御構文: #keyword: bash if  #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#control
         条件式: #keyword: bash 条件式  #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#bash_cond
             基本, 判定対象:
@@ -15532,6 +15734,25 @@ bash: #keyword: bash  #// Bourne Again Shell
                     local  expect=""  #// This expect indicates to test the exit code  #// expect の代わりに assert でもよい
                     $expect echo  "${status}" | grep  "${AheadPhrase}"  > /dev/null  ||  Error  #// grep して見つかったら成功。終了コードが 0 だったら Error を呼び出しません
                     $expect echo  "${status}" | grep  "${BadPhrase}"    > /dev/null  &&  Error  #// grep して見つからなかったら成功。終了コードが 0 以外だったら Error を呼び出しません
+                #↓ チェック関数
+                CheckFileList: | #keyword: bash CheckFileList
+                    AnswerFiles=\
+                    "data/11.log.gz
+                    data/12.log.gz
+                    data/13.log.gz"
+
+                    function  CheckFileList() {
+                        local  folderPath="$1"
+                        local  answerFileList="$2"
+                        echo  "CheckFileList ${folderPath}"
+                        pushd  "files"  > /dev/null  ||  Error
+
+                        local  filePaths="$( find "${folderPath}" -type f  |  sort )"
+                        echo  "${filePaths}"
+                        popd  > /dev/null  ||  Error
+
+                        test  "${filePaths}" == "${answerFileList}"  ||  Error
+                    }
                 #↓ テスト スイート
                 テスト コマンド 版, RunTest:  #// １つの テスト ケース を実行するコマンドを呼び出し、エラーの数を集計する場合
                     function  RunTest() {
@@ -15691,6 +15912,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                             unset IFS
                     1行: |
                         find . -type f -exec echo {} \;
+                ファイル一覧をチェックします:  #search: bash CheckFileList
             ループ条件: #keyword: bash while
                 while [ __Condition__ ]; do
                 done
@@ -15825,7 +16047,9 @@ bash: #keyword: bash  #// Bourne Again Shell
                                     function  AtExit() {
                                         echo "in AtExit. Exit code: $?"  #// 終了コードを確認できます
                                     }
-                                    trap AtExit EXIT
+                                    if false; then
+                                        trap AtExit EXIT
+                                    fi
 
                                     echo  "Hello"
                                 出力: |
@@ -15988,23 +16212,38 @@ bash: #keyword: bash  #// Bourne Again Shell
                 GitHub Actions: 有効
                 GitLab CI:      無効  #search: GitLab CI set -e
                 Jenkins:        無効
+            パイプと || true の組み合わせ: |
+                (grep a b.txt || true) | wc -l
+                    または
+                { grep a b.txt || true; } | wc -l
             ( ) の中のコマンドのとき:  #search: sub shell set -e
             trap があるとき:  #search: set -e trap
         set -o: #keyword:  #// すべての POSIX シェル オプション
             #ref: ${typrm_files}/ref/Linux/set-o.md
-            コマンド:
+            コマンド:  #glossary: bash
                 set -u: -o nounset  #search: set -u  #// 未定義変数の使用を禁止。未定義の変数を参照したらエラーになり、（子）プロセスは終了し(?)、返り値は 0以外になります
                 set -e: -o errexit  #search: set -e  #// エラー発生時にスクリプトを終了。サブシェルは対象外
                 set -E: -o errtrace  #// サブシェルや関数内も ERR イベントの対象にします。終了するかは set -e によります。POSIX にはありません
-                set -x: -o xtrace    #❗CI/CD 環境ではパスワードが漏洩する可能性あり  #// （未確認）実行コマンドを表示（デバッグ用） 全部表示されるので、読みにくくなります。読みやすいのは #search: RunInGitBash
+                set -x: -o xtrace    #search: set -x  #❗CI/CD 環境ではパスワードが漏洩する可能性あり  #// 実行コマンドを表示（デバッグ用）
                 set -T: -o functrace #// サブシェルや関数内も DEBUG イベントの対象にします。POSIX にはありませ
                 set -v: -o verbose   #// （未確認）読み込んだ行を表示
                 set -n: -o noexec    #// （未確認）構文チェックのみを行い、コマンドは実行しません
                 set -o pipefail:  #// （未確認）パイプラインのどこかが失敗したら全体を失敗とみなす
-            bashlib:  #glossary: bashlib set -o
+            一時退避, bashlib:  #glossary: bashlib set -o
                 GetCurrentShellOptions:
                 SetShellOptions:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#SetShellOptions()
                 GetOptionForCommandSubstitusion:
+        set -x:  #❗CI/CD 環境ではパスワードが漏洩する可能性あり  #// 実行コマンドを表示（デバッグ用）
+            #// 全部表示されるので、読みにくくなります。読みやすいのは  #search: RunInGitBash
+            注意喚起:
+                --xtrace|--set-x) Options_XTrace="yes";  shift;;
+                if ! [[ -v Options_XTrace ]]; then  Options_XTrace=""  ;fi
+                if [ "${Options_XTrace}" == "true" ]; then
+                    echo  "set -x may display passwords and expose them to leakage. Please press Enter to continue with caution."
+                    echo  "set -x は、パスワードが表示され漏洩する可能性があります。注意して続行するなら Enter キーを押してください。"
+                    read  -p ""  dummyVariable
+                    set -x
+                fi
         shopt: #keyword: shopt
             #ref: ${typrm_files}/ref/Linux/set-o.md#shopt
             設定状況によって分岐します: |  #// set コマンドに -q オプションはありません
@@ -16066,8 +16305,8 @@ bash: #keyword: bash  #// Bourne Again Shell
                 RunInGitBash で使われています:  #search: RunInGitBash
                 ssh に渡します:  #search: SendAndRunViaSSH
         引数の数:
-            -   local numOfArguments="$#"
-            -   local lastArgument="${!#}"   #// 最後の引数
+            -   local  numOfArguments="$#"
+            -   local  lastArgument="${!#}"   #// 最後の引数
             -   for argument in "$@"; do
                 done
         デフォルト引数:  #search: bash default argument
@@ -16091,6 +16330,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                 ModifyGlobalVariables: 階層化する
             Ensure 関数: #keyword: bash Ensure function,  ensure  #// RabbitMQ では ensure ではなく declare という単語を使っています
                 内容:  #search: getter
+                    グローバル変数の値を設定します。
                     依存関係とコードの位置関係を独立させることで、依存関係の修正が簡単になります
                 名前:
                     配列などを返せないときに、getter の代わりに呼び出す関数の名前は Ensure から始めます。
@@ -16834,6 +17074,8 @@ expect: #keyword: Linux expect
     参考:
         expectを使って自動化してみよう:  #ref: https://qiita.com/Mskmemory/items/013dff1a76e58fcdc364
         Oracle:  #ref: https://docs.oracle.com/cd/E40528_01/b72807/vmcli-script.html
+カーネル: #keyword: Linux kernel,  Linux source code
+    参照:  #ref: https://codebrowser.dev/linux/linux/
 gcc: #keyword:
     インストール: #keyword: install gcc
         WSL2 Ubuntu 20.04:

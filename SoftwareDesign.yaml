@@ -117,6 +117,7 @@
             リッスン, ロング ポーリング
         メッセージ ブローカー: #keyword: message broker
             メッセージの配信を仲介するシステム（RabbitMQ、Apache Kafka等）
+        図表現:  #search: シーケンス図の書き方
         デバッグ: #keyword: debug 非同期通信
             ログ: #keyword: ログ, メッセージ ログ, メッセージ ブローカー ログ
                 コード: | #keyword: MESSAGE_BROKER_LOG
@@ -227,6 +228,10 @@
             ウォークスルー: 作成者が主体的に開催する
             ピアレビュー: OJTを兼ねる。ピア=同僚
             パスアラウンド: 個々がオンラインでチェック。承認されても好感は持たれない可能性があるので注意
+            コーティング レビュー: #search:
+            レビュー アンチパターン: #keyword:
+                粗探し: #keyword: 粗探し,  重箱の隅をつつく, 揚げ足取りではない
+                #ref: https://blogs.oracle.com/otnjp/five-code-review-antipatterns-ja
             #ref: https://www.shukuzawa.com/diary/diary071001.html
             #search: 指摘と承認の心理
         カール・E・ウィーガーズによるレビュー:  #// Karl E.Wiegers「ピアレビュー 高品質ソフト開発のために」
@@ -263,7 +268,7 @@
         uuidgen:  #// Linux コマンド。UUID を生成します。Git bash では使えません
         ReplaceUUID (bashlib):  #search: ReplaceUUID
 デザイン パターン:  #keyword: design pattern
-    GoF:  #ref: ${programming}/方法論/オブジェクト指向.svg#gof
+    GoF: #keyword:  #ref: ${programming}/方法論/オブジェクト指向.svg#gof
         Abstract Factory パターン: #keyword:
             _: パラメーターによって異なるサブクラスのオブジェクトを生成する
                 create(name)
@@ -283,6 +288,19 @@
         Adapter パターン: #keyword:
             Target Interface - Adapter - Adaptee
             #ref: https://qiita.com/shoheiyokoyama/items/bd1c692db480b640c976
+        Chain of Responsibility パターン: #keyword:
+            解説:  #ref: https://refactoring.guru/ja/design-patterns/chain-of-responsibility
+            不要なケース:  #// 関数コールで十分なケース
+                処理者が事前に決まっている
+                すべての処理を必ず実行
+            有用なケース:
+                条件分岐が複雑
+                処理者が動的に変わる
+                最初にマッチしたら終了
+                ハンドラーの追加頻度が高い
+            関数呼び出しや Pipeline/Middleware との比較:
+                #ref: ${typrm_files}/ref/SoftwareDesign/Chain_of_Responsibility_Compare.md
+                #search: Middleware pattern
         Facade パターン: #keyword:  #// ファサード
             概要: 大きなプログラムを使って処理を行う場合、 関係しあっているたくさんのクラスを適切に制御しなくてはいけません。
                 その処理を行うための「窓口」を用意しておくと、 個別にたくさんのクラスを制御しなくても、「窓口」に対して、要求するだけですみます。
@@ -326,6 +344,8 @@
     その他:
         DI: #search:
         DTO: #search:
+        Middleware: #keyword: Middleware pattern
+            概要図: #ref: ${typrm_files}/ref/SoftwareDesign/PipelineMiddleware_pattern.html
         Shim: #keyword:
             古い環境で新しいAPIを使うためのライブラリ。Adapter パターン。
             es5-shim npm パッケージは、ECMAScript 5 (ES5) をサポートしていないブラウザーで ES5 を動かせるようにする Shim です。
@@ -343,6 +363,7 @@
             ==[具体化]==> 業務における別のユースケースでの実施
     一般的な概念化:
         参考: #ref: https://studyhacker.net/conceptual-skill
+        抽象化の難しさ: それはピント。一方向に動かすだけではピントは合わない
     クラスの依存関係: #keyword: クラスの依存関係,  include 親子関係 階層構造 オブジェクト指向
         継承関係: #keyword:
             スーパー クラス: #keyword:
@@ -385,7 +406,10 @@
                     参照されているオブジェクトが解放された場合に自動的にnilになります。
                     #ref: ${typrm_files}/ref/Swift-AI.yaml#label: weak reference
             その他: プロジェクト名 + import で検索
-    過度な抽象化, 早すぎる抽象化: #keyword: Over-abstraction,  Premature Abstraction,  将来を見越して抽象的なモジュールを開発したけど、いざその時になったら使い物にならなかった
+    疎結合, 独立性: #keyword: 疎結合, 独立性 モジュール化 モジュール性 高凝集 凝集性 カプセル化 分離
+        制御の抽象化
+    過度な抽象化, 早すぎる抽象化: #keyword: Over-abstraction,  Over-engineering,  Premature Abstraction,  オーバー エンジニアリング,  過剰な抽象化, 行き過ぎた抽象化, 野心的
+        #// 将来を見越して抽象的なモジュールを開発したけど、いざその時になったら使い物にならなかった
         _: 実際に共通化ができるまでは、公式化しないでください。
         #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: Over-abstraction
         3回ルール: #keyword: rule of three,  3回ルール  #ref: https://en.wikipedia.org/wiki/Rule_of_three_(computer_programming)
@@ -398,7 +422,7 @@
         クラス図:
         ユースケース図:
         コラボレーション図:
-        シーケンス図:
+        シーケンス図:  #search: シーケンス図の書き方
         ステートチャート図:
         アクティビティ図:
         コンポーネント図:  #// サーバー（仮想）と（コンポーネントやクラス）の対応関係と一覧
@@ -691,7 +715,31 @@
                 - Java で s.equals("x") の s が null でもいいように "x".equals(s)
         IT ニュース＆コラム 697:  #ref: http://www.sage-p.com/news/697.txt
         IT ニュース＆コラム 695:  #ref: http://www.sage-p.com/news/695.txt
+    リーダブル コード:  #keyword: readable code
+        コード解析: #keyword:
+            #↓ 調べる手段
+            定義へジャンプする:
+            デバッガーや print を動かして型やサンプルを確認する:
+            型のサブクラスや実装のサンプルを確認する:
+            ブレークポイントや print でメソッドが呼ばれる順番を確認する:
+            変数を代入しているコードを静的に確認する:
+            呼び出し元を確認して、コールツリーを作る:
+                呼び出し順序も確認する
+            テスト コード を確認する:
+            Git コミット メッセージ を確認する:
+            公式ドキュメントを確認する:
+            チーム メンバー や開発者に聞く:
+            #↓ 改善する
+            コメントやドキュメントを追加する:
+            型ヒントを追加する:
+            構造化ドキュメンテーションにまとめる:
+            #↓ 調べる内容
+            型と意味:
+            メソッドを呼び出す順序:
+            独自定義か公式定義か:
+            サンプル:
     コーディング レビュー: #keyword:
+        レビュー: #search:
         Lint: 最低限の コーディング スタイル のチェック。不要な関数や変数などの削除
             #search: コーディング スタイル
         getter の一元化: | #keyword:
@@ -767,6 +815,11 @@
             Go には行の長さ制限がありません。 パンチカードが溢れる心配はありません。 行が長すぎると感じる場合は、行を折り返して追加のタブでインデントします。
             #ref: https://go.dev/doc/effective_go#formatting
         縦をそろえる:
+            縦揃えが有効な例:
+                net/ip.h: |  #ref: https://codebrowser.dev/linux/linux/include/net/ip.h.html
+                    52	#define IPSKB_FORWARDED		    BIT(0)
+                    53	#define IPSKB_XFRM_TUNNEL_SIZE	BIT(1)
+                    54	#define IPSKB_XFRM_TRANSFORMED	BIT(2)
             不合理に禁止しているルール:
                 Don’t use spaces to vertically align tokens on consecutive lines, since it becomes a maintenance burden
                 #ref: https://google.github.io/styleguide/pyguide.html#36-whitespace
@@ -1621,6 +1674,13 @@
         データベースのレプリケーションを使う:
             #ref: https://www.ashisuto.co.jp/delphix_blog/article/201709-test-data.html
     ユニットテスト: #keyword: ユニット テスト,  単体テスト
+        負債:
+            単体テストはただの負債だから今すぐ書くのをやめるべき (かもしれない):
+                #ref: https://zenn.dev/miketako3/articles/b6bb71c8d9946e
+                - 内部の実装によって書かれるホワイトボックスのテストはメインコードの修正のたびに変更が必要になる可能性が高いため、何かが間違っている、すなわち書く方がおかしいということである。
+                - ユニットが公開しているAPI  システムの公開APIに対して呼び出しを行うということだ。
+                - 基本的にビジネス価値はより粒度の高いテストで表現すべきである
+                - ビジネス価値のあるテストとは、ビジネス要求に由来するテストだけです。ユニットテストは完成した機能ではなく構成部品を検証するテストに過ぎないため、信頼を得られません。
         アルゴリズムのテスト:
             ユニットテストは、テストデータがテーブルの場合にのみ作ります。
             テスト対象となる処理のうち、アルゴリズム（ビジネス ロジック）に関する入出力だけに絞り込んだ関数（テスト対象）

@@ -404,6 +404,12 @@
         Println: #keyword: Go Println,  fmt.Println
             #ref: ${programming}/プログラミング言語、環境/go_language.svg#Println
         文字列: #keyword: Go string
+            リテラル: #keyword: Go string literal
+                ("____"): \ がエスケープシーケンスになります "C:\\Users"
+                (`____`): \ がそのまま \ 文字になります。`C:\Users`
+                Sprintf:  #// JavaScript の テンプレート リテラル に相当します  #search: go fmt.Sprintf
+                text/template パッケージ:
+                    複雑なテンプレート向け
             一部: #keyword: Go string part
                 インデックスで要素を指定:  #search: Go array element
                 インデックスで範囲を指定:  #search: Go slice
@@ -435,6 +441,9 @@
                     補足:
                         改行文字は \r\n であっても Go 言語のデータとしては \n になります。
                 変数を埋め込むリテラル: #search: Go template literal
+            長さ:
+                バイト数: len(__String__)
+                UTF8: utf8.RuneCountInString(__String__)
             変数を埋め込むリテラル: #keyword: Go template literal  #ref: ${typrm_files}/ref/Go_language-AI.yaml#label: Go template literal from AI
                 Go 言語 の場合: |  #// 言語仕様にはありません
                     "string text "+ fmt.Sprint(expression) +" string text"
@@ -445,7 +454,7 @@
             置き換え:
                 基本: #ref: https://pkg.go.dev/strings#ReplaceAll
                     wholeAfter = strings.ReplaceAll(wholeBefore, partBefore, partAfter)
-                正規表現で置き換え: |
+                正規表現で置き換え: | #keyword: Go regexp ReplaceAllString
                         re := regexp.MustCompile(`[A-Za-z]+`)
                         replaced := re.ReplaceAllString("123abc456def789", "--")
                     #ref: ${GitHub}/Trials/go/try_go/example/4_string/replace/replace_example.go
@@ -470,12 +479,57 @@
                     import "strings"
                     notFound := -1
                     if strings.LastIndex( aString, "Keyword" ) >= 0 { ... }
+                regexp: #keyword: Go regexp
+                    MustCompile: #keyword: Go regexp MustCompile
+                        正規表現が固定で、コード内にハードコードされている場合に使います。エラー時にパニックを起こします。
+                        グローバル変数に代入することで、処理が早くなり、文法エラーを早期に検出できます。
+                    Compile:
+                        通常、MustCompile を使います。
+                        ユーザー入力や設定ファイルから正規表現を読み込む場合は Compile を使い、エラー処理をします
+                    FindString: | #keyword: Go regexp FindString  #// 最初のマッチ  #focus: MustCompile, FindString
+                        text := "メールアドレスは test@example.com と admin@sample.jp です"
+    
+                        var (
+                            re = regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
+                        )
+
+                        match := re.FindString(text)
+                        fmt.Println("最初のマッチ:", match)  // 出力: 最初のマッチ: test@example.com
+
+                        // マッチしなかったら空文字が返ります
+                    FindStringSubmatch: | #keyword: Go regexp FindStringSubmatch  #// グループ。括弧で囲んタブ部分
+                        text := "日付: 2024-01-15"
+                        
+                        // カッコでグループ化
+                        var (
+                            var re = regexp.MustCompile(`(\d{4})-(\d{2})-(\d{2})`)
+                        )
+                        
+                        // マッチ全体とグループを取得
+                        matches := re.FindStringSubmatch(text)
+                        if matches != nil {
+                            fmt.Println("マッチ全体:", matches[0]) // 2024-01-15
+                            fmt.Println("年:", matches[1])         // 2024
+                            fmt.Println("月:", matches[2])         // 01
+                            fmt.Println("日:", matches[3])         // 15
+                        }
             比較:
                 strings.HasPrefix("hello world", "hello")
                 strings.HasSuffix("hello world", "world")
+            ファイル名, split:
+                ファイル名:  #search: Go file path library
+                Split:
+                SplitN: #keyword: Go SplitN  #ref: https://pkg.go.dev/strings#SplitN  #// 最大制限あり
+                    書式:
+                        func SplitN(s, sep string, n int) []string
+                    n:
+                        n > 0: 最大で n個の部分文字列  最後の部分文字列は分割されていません
+                        n == 0: 常に nil が返ります
+                        n < 0: Split と同じ
             fmt.Sprintf: #keyword: go fmt.Sprintf
                 サンプル:
                     an_string = fmt.Sprintf( "value = %v",  an_object )
+                    fmt.Sprintf("名前は%s、年齢は%d歳です", name, age)
                 書式指定:  #ref: https://pkg.go.dev/fmt  #ref: ${programming}/プログラミング言語、環境/go_language.svg#fmt_format
                 (%v):  #ref: https://pkg.go.dev/fmt  >>  The default format for %v is
                 #// JavaScript の テンプレート リテラル と同じ書き方はできません
@@ -538,6 +592,14 @@
                     }
                 上記を 1行で書く場合: |
                     b := map[bool]int{true: 2, false: 3}[a == 1]
+        型エイリアスと型定義: #keyword: Go type alias
+            型エイリアスと型定義の違い:
+                type __NewType__ = __TargetType__  // 型エイリアス。同じ型として扱われます
+                type __NewType__ __TargetType__    // 型定義。異なる型として扱われます
+            型エイリアス:
+                他のパッケージで定義された型を、現在のパッケージでも定義でき、現在のパッケージから参照することができます。
+            型定義:
+                type __NewType__ string  // 異なる型として扱われ、参照する側は、型を合わせなければならなくなります
         配列: #keyword: Go array  #ref: ${programming}/プログラミング言語、環境/go_language.svg#array
             #ref: https://go.dev/tour/moretypes/6
             キーワード:
@@ -605,10 +667,10 @@
                         func p(_ string, slice []int) []int {  #search: Go p int array
             長さと容量, 追加: #keyword: Go len, Go cap  #ref: https://go.dev/doc/effective_go#append  #ref: ${programming}/プログラミング言語、環境/go_language.svg#len_cap
                 参照:
-                    len:
+                    len:  #// 要素数
                         len(array)
-                        len だけをずらすことはできません。append を使ってください
-                    cap:
+                        #// cap が大きいときに len だけを増やす（ずらす）ことはできません。append を使ってください
+                    cap:  #// 容量。内部的に要素が入っていない部分も含んだ数。要素数と同じか大きい
                         cap(array)
                 append: #keyword: Go append
                     容量の増え方: |  #focus: cap
@@ -683,6 +745,7 @@
             includes, contains: #// 文字列配列に含まれるかどうかをチェックします
                 map を検討してください
                 includes, contains は Go 言語の標準にありません
+                文字列には Contains があります
                 #ref: https://stackoverflow.com/questions/10485743/contains-method-for-a-slice/66361144
             ソート:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#sort
         map, 辞書: #keyword: go map,  go dict  #ref: ${programming}/プログラミング言語、環境/go_language.svg#map
@@ -815,10 +878,24 @@
                 フィールド名のスタイル:  #search: Go coding style
                     Pascal ケースまたは Camel ケース。決まっていない。
                     Pascal ケースが基本。ただし、Getter がある場合は Camel ケース。が良いでしょう。
-                タグ文字列: #keyword: Go tag string
+                タグ文字列: #keyword: Go tag string,  Go struct tag
                     概要: タグ文字列は、Go言語の構造体を別の形式にマーシャリングするときに参照されます。
-                        タグ文字列は、通常 ` ` （バッククォート）で囲む文字列を使うことで、文字列中に
-                        " " ダブルクォートを入れることができるようにします。
+                    書式:
+                        _: |
+                            `__TagKey__:"__TagValue__"`
+                            `__TagKey1__:"__TagValue1__" __TagKey2__:"__TagValue2__"`
+                        バッククォート:
+                            タグ文字列は、通常 ` ` （バッククォート）で囲む文字列を使うことで、文字列中に
+                            " " ダブルクォートを入れることができるようにします。
+                        複数指定:
+                            空白で区切ります。
+                            区切りも含めた全体をバッククォートで囲みます。 
+                            `json:"detail" yaml:"detail" mapstructure:"back-up"`
+                        タグ キー と値の意味: #keyword: Go struct tag key
+                            json: json.Unmarshal がリードする JSON のフィールド名
+                            yaml: yaml.Unmarshal がリードする YAML のフィールド名
+                            mapstructure: viper.Unmarshal や mapstructure がリードする JSON または YAML のフィールド名
+                        注意 >> 大文字: フィールド名を大文字から始めないと JSON などをリードできません
                     サンプル: |  #// フィールド X のタグ文字列は、json:"x"
                         type Vertex struct {
                             X int `json:"x"`
@@ -829,7 +906,15 @@
                             型定義: |
                                 type Data struct {
                                     Name   string             `json:"name"`
-                                    Detail map[string] string `json:"detail"`
+                                    Detail map[string] string `json:"detail" yaml:"detail" mapstructure:"back-up"`  #search: Go struct tag key
+                                    BackUpConfig struct {
+                                        Enabled bool
+                                        Dir     string `json:"dir"`
+                                    } `json:"back-up-config"`
+                                    BackUpConfig2 []struct {
+                                        Enabled bool
+                                        Dir     string
+                                    } `json:"back-up-config2"`
                                 }
                             サンプル JSON: 
                                 {
@@ -1113,6 +1198,101 @@
                     - インスタンスを生成する関数
                     - コンパイル時に Wire ツールによって生成されます
         日時: #keyword: Go time
+            time.Time:
+                デバッグ表示:
+                    _: 変数にマウスを合わせて、最も上（灰色部分）に表示されます
+                    古い手順:
+                        メニュー: VSCode >> Terminal（右下）>> DEBUG CONSOLE タブ >>（入力エリア：下）
+                        入力: call expire.String()  #search: go debug call
+                        出力: "2026-01-13 12:41:03.415853505 +0900 JST"
+                            #// LocationFromOffset で取得したタイムゾーンの場合、UTC で表示されますが、タイムゾーンの情報は入っています
+                        ext:
+                            エポック秒 +1969年 が表示されます。UTC  #search: エポック秒（UNIX秒）
+                ISO 8601:  #search: Go ParseISO8601
+                LocationFromOffset:  #search: Go LocationFromOffset
+                月:
+                    // int型で取得(1-12の数字)
+                    monthNum := int(now.Month())
+                In メソッド: #keyword: Go time In  #// タイムゾーンを変更します。時刻の値が変わります
+                    now := time.Now()   // UTC。例 "10:00"
+                    nowTz := now.In(tz) // 現地の日時。例 "19:00"
+                    now.Hour()     // UTC の時刻。例 10
+                    nowTz.Hour()   // 現地の時刻。例 19
+                テスト用, GetFakeTimeInJST: #keyword: Go GetFakeTimeInJST,  Go ParseISO8601,  Go LocationFromOffset,  FAKETIME 環境変数
+                    独自実装版: |
+                        ////////// debug start
+                        if os.Getenv("FAKETIME") != "" {
+                            now, _ = GetFakeTimeInJST()
+                        }
+                        ////////// debug end
+
+                        func GetFakeTimeInJST() (time.Time, error) {
+                            fakeTime := os.Getenv("FAKETIME") // "2026-11-11 12:00:00+04:00" or "2026-11-11T12:00:00+04:00"
+
+                            nowTz, err := ParseISO8601(fakeTime) // 2026-11-11 12:00:00 +0400 +04:00
+                            if err != nil {
+                                return time.Time{}, err
+                            }
+                            jst, err := time.LoadLocation("Asia/Tokyo")
+                            if err != nil {
+                                return time.Time{}, err
+                            }
+                            now := nowTz.In(jst) // 2026-11-11 17:00:00 +0900 JST
+                            ////////// debug start
+                            fmt.Println(nowTz)        // 2026-11-11 12:00:00 +0400 +04:00
+                            fmt.Println(now)          // 2026-11-11 17:00:00 +0900 JST
+                            fmt.Println(nowTz.Hour()) // 12
+                            fmt.Println(now.Hour())   // 17
+                            ////////// debug end
+                            return now, err
+                        }
+
+                        func ParseISO8601(value string) (time.Time, error) {
+                            // value: "2006-01-02 15:04:05+09:00" or "2006-01-02T15:04:05+09:00"
+                            dateTimePart := strings.ReplaceAll(value[0:19], "T", " ")
+                            timeZonePart := value[19:]
+                            timeZoneOffset, err := LocationFromOffset(timeZonePart)
+                            if err != nil {
+                                return time.Time{}, err
+                            }
+
+                            timeValue, err := time.ParseInLocation("2006-01-02 15:04:05", dateTimePart, timeZoneOffset)
+                            if err != nil {
+                                return time.Time{}, err
+                            }
+                            return timeValue, nil
+                        }
+
+                        func LocationFromOffset(offset string) (*time.Location, error) {
+                            // offset: "+09:00"
+                            sign := 1
+                            if offset[0] == '-' {
+                                sign = -1
+                            }
+                            if offset[0] != '+' && offset[0] != '-' {
+                                return nil, fmt.Errorf("invalid offset: %s", offset)
+                            }
+
+                            hour, err := strconv.Atoi(offset[1:3])
+                            if err != nil {
+                                return nil, err
+                            }
+                            min, err := strconv.Atoi(offset[4:6])
+                            if err != nil {
+                                return nil, err
+                            }
+
+                            seconds := sign * (hour*3600 + min*60)
+                            return time.FixedZone(offset, seconds), nil
+                        }
+                    libfaketime 版: #keyword: Go libfaketime  #// 未確認。 以下は、現在日時が 2009年になるが変更できない
+                        #search: faketime
+                        .vscode/launch.json: |
+                            "configurations": [
+                                "env": {
+                                    "LD_PRELOAD": "/usr/lib64/faketime/libfaketime.so.1",
+                                    "FAKETIME": "2001-01-01 00:00:00"
+                            "buildFlags": "-tags faketime -ldflags '-X main.fakeTime=2024-04-01T12:34:56+09:00'",
             Duration: #keyword: Go Duration  #ref: https://pkg.go.dev/time#Duration
                 単位: ナノ秒 (1/1000,000,000 秒)
                 扱える範囲: 約290年 (64bit)
@@ -1142,7 +1322,7 @@
                     #search: Go private method test
     パッケージ:  #search: Go package
 ファイル: #keyword: Go file
-    ファイル名: #ref: https://golang.hateblo.jp/entry/golang-filepath-split-path
+    ファイル名: #keyword: Go file path library  #ref: https://golang.hateblo.jp/entry/golang-filepath-split-path
         サンプル: |
             name := "/path/to/dir/filename.txt"
 
@@ -1244,12 +1424,14 @@
                     func (dec *Decoder) Decode(v any) error {
                         n, err := dec.readValue()
                         // dec.buf ([]byte 型) を表示
+        タグ文字列:  #search: Go tag string
         #search: go UnmarshalTypeError
     YAML: #keyword: go YAML
         公式: #ref: https://pkg.go.dev/gopkg.in/yaml.v2
         サンプル プロジェクト:  #ref: ${GitHub}/Trials/go/try_go/example/yaml/yaml_example.go
         YAML から map にします, Unmarshal:
         YAML から構造体にします, UnmarshalStrict:
+        タグ文字列:  #search: Go tag string
         参考: #ref: https://golang.hateblo.jp/entry/2018/11/08/183555
     XML: #keyword: go XML
         Unmarshal:  #// XML をパースします
@@ -1848,10 +2030,17 @@
                     src/try/sub/try.go
                         package try2
                         try2
-        constructor: #keyword: Go constructor  #ref: https://go.dev/doc/effective_go#composite_literals
-            New__Type__:
+            ファイル名の命名規則: #search: Go coding style file name
+        constructor: #keyword: Go constructor,  Go create function  #ref: https://go.dev/doc/effective_go#composite_literals
+            New__Type__: |
                 インスタンスを生成する関数名は New と型名 にします。
                 その関数はコンストラクターと呼ばれます。
+                    func NewUser(name string, age int) *User {
+                        return &User{
+                            Name: name,
+                            Age: age,
+                        }
+                    }
             New: #keyword: Go New
                 もし、パッケージに１つのクラスしかエクスポートされない場合、コンストラクターの名前は New にします。
                 #ref: https://go.dev/doc/effective_go#package-names  >>  NewRing
@@ -1871,8 +2060,85 @@
                 -   GOPATH または go.mod ファイルがあるフォルダーの親フォルダーからの相対パスで、拡張子 .go は省略します
                 -   別名の記述がない場合、指定したフォルダーの中にある package に指定したパッケージ名が使えるようになります
                 -   通常、フォルダー名とパッケージ名を一致させますが、そうでない場合は注意が必要です
-        トラブルシューティング:
-            循環エラー, import cycle not allowed エラーの対策:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#import_cycle_not_allowed
+        循環エラー, import cycle not allowed エラーの対策: #keyword: Go import cycle not allowed
+            #// パッケージを分離します
+            分離前:
+                __Package__/__File__.go : |
+                    package __PackageName__
+
+                    type LogType string
+
+                    func (t LogType) String() string {
+                        return string(t)
+                    }
+
+                    const (
+                        LogTypeSystemLog   LogType = "systemlog"
+                        LogTypeAccessLog   LogType = "accesslog"
+                    )
+
+                    func logTypeFromString(s string) (LogType, error) {
+                        for _, t := range LogTypes {
+                            if string(t) == s {
+                                return t, nil
+                            }
+                        }
+
+                        return "", errors.New("invalid")
+                    }
+            分離後（レシーバーも一緒に移動する場合）:
+                __Package__/__Package__types/types.go : |  #// ファイルを新規作成して、コードを移動し、package 名の末尾に types を付けます
+                    package __PackageName__types
+
+                    type LogType string
+
+                    func (t LogType) String() string {
+                        return string(t)
+                    }
+
+                    const (
+                        LogTypeSystemLog   LogType = "systemlog"
+                        LogTypeAccessLog   LogType = "accesslog"
+                    )
+
+                    func LogTypeFromString(s string) (LogType, error) {
+                        for _, t := range LogTypes {
+                            if string(t) == s {
+                                return t, nil
+                            }
+                        }
+
+                        return "", errors.New("invalid")
+                    }
+                __Package__/__File__.go : |  #// 同じ名前で型エイリアスを定義します。定数の値をリテラルでは無くします。こうすることで、既存のコードは変更しなくて済みます
+                    package __PackageName__
+
+                    import (
+                        t "__Source__/__Package__/__Package__types"
+                    )
+
+                    type LogType = t.LogType
+
+                    // レシーバーのエイリアスに相当するコードは不要です
+
+                    const (
+                        LogTypeSystemLog = t.LogTypeSystemLog
+                        LogTypeAccessLog = t.LogTypeAccessLog
+                    )
+
+                    func logTypeFromString(s string) (LogType, error) {
+                        return t.LogTypeFromString(s)     // そのまま呼び出します。private だったら public にします
+                    }
+            分離後（新しい型とレシーバーを別のパッケージにする場合）:
+                __Package__/__File__.go : |  #// 型エイリアスではなく型定義をします
+                    type LogType t.LogType
+
+                    func (t LogType) String() string {
+                        return string(t)
+                    }
+            補足 >> パッケージ名の制限:
+                __PackageName__types
+                #// 読みにくさの問題  #ref: ${programming}/プログラミング言語、環境/go_language.svg#import_cycle_not_allowed
     go help modules: #keyword:
         英語: |
             Modules are how Go manages dependencies.
@@ -2342,6 +2608,26 @@
 スタイル: #keyword: Go coding style,  Go 命名規則
     #ref: https://zenn.dev/kenghaya/articles/1b88417b1fa44d
     #ref: https://go.dev/doc/effective_go#names
+    パッケージ名:
+        小文字、1単語、区切りなし
+        問題点  #ref: ${typrm_files}/ref/Go/import_cycle_package_name.html
+    ファイル名:  #keyword: Go coding style file name
+        基本:
+            小文字のスネークケース
+            構造体名がよい。複数の構造体があってもよい
+        型パッケージ:  #// 循環参照を避ける  #search: Go import cycle not allowed
+        特殊なサフィックス: |
+            *_test.go      # テストファイル
+            *_unix.go      # Unix系OS用
+            *_linux.go     # Linux専用
+            *_windows.go   # Windows専用
+            *_amd64.go     # amd64アーキテクチャ用
+            *_arm64.go     # arm64アーキテクチャ用
+        NG: |
+            UserService.go    # 大文字（Windowsで問題になる可能性）
+            user-service.go   # ハイフン
+            userService.go    # キャメルケース
+            user service.go   # スペース
     その他:  #search: coding style
 Linter: #keyword: Go lint
     gofmt:  #keyword: gofmt,  Go auto formatter  #ref: https://pkg.go.dev/cmd/gofmt
@@ -2390,6 +2676,7 @@ Linter: #keyword: Go lint
             watch := debuggingFunction()
             _ = watch            // ここはブレークできません
             fmt.Println(watch)   // ここはブレークできます
+            if strings.Contains( aString, "Keyword" ) { ... }
             ////////// debug end
         サンプルの解説:
             //////////: コメントも含めて自動的にインデントされてしまうため、一時コードの範囲を目立たせます
@@ -2477,6 +2764,10 @@ Linter: #keyword: Go lint
         ウォッチ等で値を取得します:
         参考:
             デバッグ用 printf （toDebugString）:  #ref: ${programming}/プログラミング言語、環境/go_language.svg#toDebugString
+    - #// 関数を呼び出します  #keyword: go debug call
+        注意: コールスタックのトップに移動にする必要があります。そこから見える関数（メソッド）だけ呼び出せます
+        メニュー: VSCode >> Terminal（右下）>> DEBUG CONSOLE タブ >>（入力エリア：下）
+        入力: call __Expression__.String()
     - #// 一部のコードの処理をスキップします  #keyword: go skip code,  go comment out
         スキップした後のコードを上側にコピーします。
         コメントアウトすると、依存関係エラーになる可能性が高いです。

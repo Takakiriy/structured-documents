@@ -76,7 +76,7 @@ IPアドレス: #keyword:
                 無線LAN のオフ・オン:  #// RDP の接続先には使えません
             端末に固定IPを設定したら ipconfig /all の IPv4 アドレスが重複と表示されたら:
                 自動IPに戻し、ルーターの固定DHCP の IPアドレスを変えます  #search: 固定DHCP
-    CIDR: #keyword:  #// IP アドレスとネットマスク。例 192.168.100.101/24, (IPv6→) 2001:db8::/32
+    CIDR: #keyword:  #// IP アドレスとネットマスク。例 192.168.100.101/24, (IPv6→) 2001:db8::1/128
         /24: サブネットマスク長、プレフィックス長。IP アドレス の上位 24ビットが同じ相手（ホスト）が、同じサブネット内にいます。
     VIP: #keyword: VIP,  Virtual IP,  Virtual IP (address) 仮想IPアドレス
         参考: #ref: https://techblog.yahoo.co.jp/web/auctions/vip/
@@ -804,6 +804,11 @@ iptables:  #keyword:  #// Rocky8, CentOS7 Linux の標準。ファイアー ウ�
 DNS: #keyword: DNS,  name server  #// Domain Name Service  #glossary: DNS  #ref: ${programming}/ネットワーク・セキュリティ/TCP／IP/TCP_IP.svg#dns
     実験サイト:
         mess with dns: #keyword:  #ref: https://messwithdns.net
+    手順:
+        DNS を立てます:  #search: install BIND
+        SSL 証明書の必要性:
+            同じドメイン名でDNSレコード（AレコードやCNAMEなど）を更新するだけなら、証明書はそのまま使える
+            IPアドレスの変更だけなら証明書の変更は不要
     機能 >> DNS の連携:
         upstream DNS server: #keyword:  #// 上位の DNS サーバー  #// 名前解決できないときの転送先（forwarders）
         parental DNS server: #keyword:  #// 親の DNS サーバー  #// example.com の親サーバーは .com のDNSサーバー
@@ -1207,7 +1212,8 @@ FTP, SFTP: #keyword:  #// ファイル転送プロトコル。最近では主に
         手順:
             インストール:
                 ダウンロードします:
-                    Apple Silicon 用（ARM 用）
+                    #ref: https://filezilla-project.org
+                    FileZilla Client >> Apple Silicon 用（ARM 用）
                 展開します:
                     FileZilla_3.67.0_macos-arm64.app.tar.bz2 を ダブル クリック します
                 アプリケーション フォルダー に移動します:
@@ -1229,7 +1235,7 @@ FTP, SFTP: #keyword:  #// ファイル転送プロトコル。最近では主に
                         ローカル: ____  #// 初回は、入力して Enter キー を押すと、関係ないフォルダーへのアクセス権を求められます。許可しないほうがよいでしょう
                         リモート: ____
                 サイト マネージャー を使う場合:
-                    追加: #keyword: add FileZilla site
+                    追加: #keyword: add FileZilla site  #search: XServer FTP
                         メニュー: FileZilla >> ファイル メニュー >> サイト マネージャー >> 新しいサイト（左下）
                         一般 タブ:  #// デフォルト
                             名前の変更（左下）: __ReadableHostName__
@@ -1478,6 +1484,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         場所: 特定の一時フォルダーとリポジトリ
                         内容: パスワード, PAT, API キー など
                     保存手順:  #search: make password file
+                    #search: Secret Zero Problem
                 メモリー: #keyword: password variable  #// メモリーにのみパスワードを保存する。ワンタイム パスワード や一定時間入力不要にする場合
                     bash の環境変数を unset しても参照元が無くなるだけで、メモリーには残ります。メモリーを覗けば見つけられる可能性が無くもありません。
                     メモリーに保存しないためには ssh などへ直接入力する方法があります。
@@ -1511,7 +1518,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                             → 鍵付きの場所に保管等、アクセス制限
                         - 変更管理が困難（新PWに直さない）
                     #ref: https://x.com/oryzae1824/status/1873609032197722462
-                #search: パスワード漏洩リスク
+                パスワード漏洩リスク:  #search: パスワード漏洩リスク
+                Secret Zero 問題:  #search: Secret Zero Problem
             パスワードの条件, 初期パスワード発行:  #// ユーザーが設定できるパスワードの条件
                 #ref: https://www.ipa.go.jp/files/000017316.pdf#page=57
             ワンタイム パスワード: #keyword:  #// 一度認証したら無効になります
@@ -2001,7 +2009,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         RBAC:  #// Role-based access control。ロール ベース アクセス 制御
         テスト:  #search: 権限 テスト
         ファイアーウォール:  #search: iptables
-    Secret Zero 問題:  #keyword: Secret Zero Problem,  シークレット・ゼロ問題,  最初の鍵 ゼロ ブートストラップ問題に似た問題
+    Secret Zero 問題:  #keyword: Secret Zero Problem,  シークレット・ゼロ問題,  Secret Zero,  Secret 0,  secret0,  last one key of key 鍵の鍵 最後に残る鍵 最初の鍵 ゼロ ブートストラップ問題に似た問題
         #ref: https://infisical.com/blog/solving-secret-zero-problem
         #ref: https://www.google.com/search?q=Secret+Zero+Problem
         _: 以下の認証方式のうち、「ecret Zero ベースの認証」に関する問題です
@@ -2009,7 +2017,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             秘密情報へアクセスするためのトークンやパスワード Secret 1, 2, 3... を、App Zone の中のホストに置きます。
             ローテーションするときに、すべてのホストの中を更新する必要があります。
             シークレットの大元（コピー元、マスター）の置き場所を決めておきます。
-        Secret Zero ベースの認証: #keyword:
+        Secret Zero ベースの認証: #keyword: 
             シークレット管理システムにアクセスするためにホストを識別するトークン Secret 0 を、App Zone の中のホストに置きます。
             Secret 1, 2, 3... をローテーションするときに、シークレット管理システムの中だけ更新すればよくなります。
             Secret 0 をローテーションするときだけ、ホストの中を更新する必要があります。
@@ -3471,6 +3479,14 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         - 最も多く連続する 0000 を「::」に置き換え。連続数が同じときは左側を「::」に置き換え
                         - a-f は小文字
                     #// プログラミング言語におけるライブラリ関数の大半のバージョンでは、上記の推奨表記で出力する実装が行われています
+                CIDR:  #// IPv6 アドレス / プレフィックス長
+                    2001:db8::/128
+                最大文字数:
+                    IPv6 アドレス: 最大 39文字
+                    CIDR: 最大 43文字
+            構造:
+                IPv6 のアドレス構造と割り当て方法:  #ref: ${typrm_files}/ref/Network/IPv6_address_1.html
+                IPv6アドレスの型, ループバック, マルチキャスト, グローバルユニキャスト:  #ref: ${typrm_files}/ref/Network/IPv6_address_2.html
             パース, 書式チェック: #keyword: check IP address format
                 #// プログラミング言語におけるライブラリ関数の大半のバージョンでは、上記の推奨表記で出力する実装が行われています  #ref: https://www.nic.ad.jp/ja/newsletter/No46/0800.html
                 Go 言語 net.ParseIP: #keyword:

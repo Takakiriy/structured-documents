@@ -58,7 +58,7 @@
                                 マージを記録します:
                                     theirs から ours へのマージを行います（記録します）。
                                     #// こうすることで、theirs の変更（ours で変更しない内容）を受け入れるマージが後でもできるようになります。
-                git commit コマンドの実行、または、署名付きコミットを行います:
+                git commit、署名付きコミット:  #// git commit コマンドの実行、または、署名付きコミットを行います
                     git commit -m "__CommitMessage__"
                     #serach: git commit command
                     #search: Git signed commit
@@ -80,10 +80,11 @@
                         example.csv diff=sjis
                     ____/example.csv:
                         (Shift-JIS のファイル)
-                前回のコミットのメッセージを変更します:  #search: git commit --amend
+                前回のコミットのメッセージなどを変更します:  #search: git commit --amend
                 同じ内容のコミットを追加します:  #keyword: git commit --allow-empty
                     git commit --allow-empty  -m "__CommitMessage__"
                     #// 新しくコミットが作られます
+                変更します:  #search: git commit --amend  #// 前回のコミットのメッセージを変更します
             更新があるときだけ自動的にコミットします:
                 git status が clean でないときに git commit するスクリプト:
                     #search: git commit back up
@@ -186,7 +187,7 @@
 
                                 Otherwise, please use 'git cherry-pick --skip'
             コミットを禁止します:  #search: disabled git commit
-            コミットのメッセージを変更します:  #search: git commit --amend
+            コミットのメッセージなどを変更します:  #search: git commit --amend
         情報表示:
             コミットIDを表示します: #keyword: Git rev-parse commit ID
                 bashlib:  #search: GetCommitID
@@ -313,7 +314,7 @@
                         git commit --amend を実行してもコミットの日時や署名の日時は変わりません
                     過去の コミット メッセージ もまとめて変更する場合:  #search: git rebase reword
                 過去の コミット メッセージ を変更します:  #search: git rebase reword
-                前回のコミットの編集者を修正します:
+                編集者を修正します:  #// 前回のコミットの編集者を修正します
                     git push 前の場合:
                         Git に設定されている編集者を修正します:
                             #search: Git username example
@@ -1957,6 +1958,7 @@
     タグ:  #// 特定のコミットに対して付けることができる別名  #keyword: git tag
         概要:
             .git/ref にある「参照」の１つであるが、コミットしても移動しない。
+            一部の機能がテスト済みのコミットにタグをつけるのも良いでしょう
         実践例 >> 新機能を入れる前のリビジョンにタグを追加します:  #keyword: git tag stable version
             最終的なブランチの形:
                 0.1.x --> new 0.1.x --> new 0.2.x [develop ブランチ]
@@ -2675,54 +2677,7 @@ Git: #keyword: git
                                 #// または
                                     git merge  "origin/develop" -m "Merge branch 'develop' into master: merge"
                                             #template: git merge  "origin/__SourceBranchName__" -m "Merge branch '__SourceBranchName__' into __DestinationBranchName__: __MergeCommitMessage__"
-                            コンフリクトした場合: #keyword: Git conflict
-                                コンフリクトの一覧:
-                                    git diff --name-only --diff-filter=U  #// または  git diff --check
-                                コンフリクトした部分に現在のブランチの内容を採用する場合: #keyword: Git checkout --ours
-                                    - git checkout --ours  "__FilePath__"     #// current を採用します
-                                        #// または
-                                    - git checkout --ours  "."                #// すべてのコンフリクトに current を採用します
-                                    #// git add _____ も必要です
-                                コンフリクトした部分にマージ元のブランチの内容を採用する場合: #keyword: Git checkout --theirs  #// 受け入れる場合
-                                    - git checkout --theirs  "__FilePath__"   #// Incoming を採用します
-                                        #// または
-                                    - git checkout --theirs  "."              #// すべてのコンフリクトに Incoming を採用します
-                                    #// git add _____ も必要です
-                                編集する場合: #keyword: Git conflict basic
-                                    エラー メッセージ: |
-                                        $ git merge develop --no-edit
-                                        Auto-merging __ConflictedFilePath__
-                                        CONFLICT (content): Merge conflict in __ConflictedFilePath__
-                                        Auto-merging __MergedFilePath__
-                                        Automatic merge failed; fix conflicts and then commit the result.
-                                    コンフリクトしたファイルに追加される内容のサンプル: |
-                                        ...
-                                        <<<<<<< HEAD
-                                            my edit
-                                        =======
-                                            others edit
-                                        >>>>>>> __Others__
-                                        ...
-                                    ステータス: マージ中のステータスになります
-                                    どのように編集したらいいか分からない場合:
-                                        編集後に定義が無くなるシンボルがある場合:
-                                            そのシンボルで全文検索して、他で使われていたら、その定義を残します
-                                        編集後に参照が無くなるシンボルがある場合:
-                                            そのシンボルで全文検索して、定義だけになったら、その参照を残します
-                                    編集が完了したら: |
-                                        git add "."
-                                        git commit -m "Merge branch 'develop' into master: merge"
-                                            #template: git commit -m "Merge branch '__SourceBranchName__' into __DestinationBranchName__: merge"
-                                        #// 必要なら git push も
-                                    マージした結果を確認します:  #search: git merge result
-                                #↓ 関連
-                                2回目以降のマージの場合:  #search: Git resolve conflict again
-                                git rebase のコンフリクト:  #search: git rebase conflict
-                                git revert のコンフリクト:  #search: git revert conflict
-                                develop-wip のコンフリクト:  #search: Git conflict develop-wip
-                                過去に解消したコンフリクトを再び行う場合:  #search: Git resolve conflict again
-                                Git 以外のコンフリクト:
-                                    #search: 設定ファイルの監視
+                            コンフリクトした場合: #search: Git conflict
                             リモート リポジトリ がない場合: #search:
                         マージした結果を確認します:  #keyword: git merge result
                             master の差分＝マージした内容:  #template: __DestinationBranchName__ の差分＝マージした内容
@@ -3303,76 +3258,130 @@ Git: #keyword: git
                                 親の番号を git cherry-pick に指定します:
                                     （上記）git cherry-pick -m
                 マージやリベースしたとき:  #search: Git rebase cherry-pick  #snip: cherry-pick したコミットは、リベース先のブランチにあるコミットに統合されます。コミットが減ります
-            コンフリクトが iPhone で発生した場合: #keyword: conflict in iPhone  #// Working Copy アプリ によるマージがうまくいかず、広い範囲でコンフリクトした場合
-                最新:
-                    WorkingCopy の Resolveが異常（予期せぬ大量の追加など）なら、Textastic などでコンフリクトのタグを直接編集します。(<)を7つ並べて検索できます。
-                新:
-                    iPhone で両方を含むように保存します:  #// このファイルに含む内容を A, B とし、A をコンフリクトしたときに受け入れた部分とします
-                        #// iPhone で正しくマージするのは諦めて、PC でマージします
-                    A.PC_current と B.PC_old を作ります:
-                        PC で git pull する前かつ clean 状態なら:
-                            現在のファイルの内容を B.PC_old へコピーします:
-                                ____-B.PC_old.yaml ファイルを作っても、エディターの新しいタブを作るだけでもよいです
-                            PC で git pull します:
-                                コンフリクトしたら theirs を採用します
-                            #// 現在のファイルは A.PC_current です。
-                        PC で git pull した後なら:
-                            #// 現在のファイルは A.PC_current です。
-                            PC の git pull する前の最新コミットを B.PC_old へコピーします:
-                                そのコミットにブランチを作ります
-                                そのブランチにスイッチします
-                                B.PC_old へコピーします
-                                元のブランチに戻ります
-                                作ったブランチを削除します
-                    C.PC_merging の初期状態を作ります:
-                        B.PC_old を C.PC_merging にコピーします
-                            #// 以後、基本的に B.PC_old は使いませんが、作業中に必要になったら参照します
-                    C.PC_merging を更新します:
-                        PC で更新があった部分のうち、大きく追加された部分「以外」を C.PC_merging とマージします:
-                            - A.PC_current → C.PC_merging の差分を表示して、対象部分を手動でマージします。
-                                #// A.PC_current と C.PC_merging の両方を編集できるように、A.PC_current はクリップボードにコピーして比較するのではなく A.PC_current のファイルと比較します
-                            - 最終的に大きく追加された１つの部分だけになるようにします
-                    D.big_accept を作ります:
-                        大きい差分を D.big_accept に移動します:  #// A.PC_current は、D.big_accept の内容の部分が削除されます
-                            A.PC_current → C.PC_merging の差分を表示します:
-                            一旦、差分の下端にジャンプします:
-                                ↑↓（Previous Change, Next Change：右上）を押します  #// 差分の上端にはジャンプできません
-                            差分の上端にジャンプします:
-                                右半分（C.PC_merging）をクリックして、キーボードの ↑ キーを押します
-                            移動する範囲の最初の行の行頭をクリックします:
-                                左半分（A.PC_current）をクリックします
-                            差分の下端にジャンプします:
-                                ↓（Next Change：右上）を押します
-                            移動する範囲の次の行の行頭をクリックします:
-                                Shift キーを押しながら、左半分（A.PC_current）をクリックします
-                            カットします:
-                                Ctrl + X キー
-                            D.big_accept に貼り付けます:
-                                Ctrl + V キー
-                                #// クリップボードが変わっていたら、左半分（A.PC_current）をアンドゥして再度カットします
-                    C.PC_merging を削除します:
-                        #// A.PC_current と C.PC_merging が同じ内容になっているはずです
-                    A.PC_current と D.big_accept の差分を表示して、手動でマージします:
-                        #// 通常、差分はほとんどありません
-                旧:
-                    iPhone で両方を含むように保存します:  #// このファイルに含む内容を A, B とし、A をコンフリクトしたときに受け入れた部分とします
-                        #// iPhone で正しくマージするのは諦めて、PC でマージします
-                    （参考）以下で作るファイル:
-                        A: ____-A-base.yaml    #// iPhone でコンフリクトしたときに受け入れた部分（それ以外は含めなくて良い）
-                        B: ____-B-iPhone.yaml  #// base を除いた iPhone の最新
-                        C: ____-C-PC.yaml      #// PC のマージ前。 またはマージ後の base を除いた部分
-                        D: ____.yaml           #// マージした結果を作るファイル
-                    PC の git pull する前の内容を C へコピーします:  #// このファイルに含む内容を C とします
-                        ____-C-PC.yaml
-                    PC で git pull します:
-                        コンフリクトしたら theirs を採用します
-                    マージした結果から、A の部分を新しいファイルへ移動します:  #// 移動した内容は最新ファイルから削除します
-                        ____-A-base.yaml
-                    最新ファイルを B へコピーします:  #// 最新ファイルを D とします
-                        ____-B-iPhone.yaml
-                    A, B, C を 3 way merge して D を更新します:
-                        - A→B 差分を D へ
-                        - A→C 差分を D へ
+            コンフリクトした場合: #keyword: Git conflict
+                コンフリクトの一覧:
+                    git diff --name-only --diff-filter=U  #// または  git diff --check
+                コンフリクトした部分に現在のブランチの内容を採用する場合: #keyword: Git checkout --ours
+                    - git checkout --ours  "__FilePath__"     #// current を採用します
+                        #// または
+                    - git checkout --ours  "."                #// すべてのコンフリクトに current を採用します
+                    #// git add _____ も必要です
+                コンフリクトした部分にマージ元のブランチの内容を採用する場合: #keyword: Git checkout --theirs  #// 受け入れる場合
+                    - git checkout --theirs  "__FilePath__"   #// Incoming を採用します
+                        #// または
+                    - git checkout --theirs  "."              #// すべてのコンフリクトに Incoming を採用します
+                    #// git add _____ も必要です
+                編集する場合: #keyword: Git conflict basic
+                    エラー メッセージ: |
+                        $ git merge develop --no-edit
+                        Auto-merging __ConflictedFilePath__
+                        CONFLICT (content): Merge conflict in __ConflictedFilePath__
+                        Auto-merging __MergedFilePath__
+                        Automatic merge failed; fix conflicts and then commit the result.
+                    コンフリクトしたファイルに追加される内容のサンプル: |
+                        ...
+                        <<<<<<< HEAD
+                            my edit
+                        =======
+                            others edit
+                        >>>>>>> __Others__
+                        ...
+                    ステータス: マージ中のステータスになります
+                    どのように編集したらいいか分からない場合:  #search: Git conflict technique
+                    編集が完了したら: |
+                        git add "."
+                        git commit -m "Merge branch 'develop' into master: merge"
+                            #template: git commit -m "Merge branch '__SourceBranchName__' into __DestinationBranchName__: merge"
+                        #// 必要なら git push も
+                    マージした結果を確認します:  #search: git merge result
+                #↓ 関連
+                2回目以降のマージの場合:  #search: Git resolve conflict again
+                git rebase のコンフリクト:  #search: git rebase conflict
+                git revert のコンフリクト:  #search: git revert conflict
+                develop-wip のコンフリクト:  #search: Git conflict develop-wip
+                過去に解消したコンフリクトを再び行う場合:  #search: Git resolve conflict again
+                Git 以外のコンフリクト:
+                    #search: 設定ファイルの監視
+            コンフリクト解消テクニック: #keyword: Git conflict technique
+                基本:  #search: Git conflict
+                編集後に定義が無くなるシンボルがある場合:
+                    そのシンボルで全文検索して、他で使われていたら、その定義を残します
+                編集後に参照が無くなるシンボルがある場合:
+                    そのシンボルで全文検索して、定義だけになったら、その参照を残します
+                コンフリクトが iPhone で発生した場合: #keyword: conflict in iPhone  #// Working Copy アプリ によるマージがうまくいかず、広い範囲でコンフリクトした場合
+                    最新:
+                        WorkingCopy の Resolveが異常（予期せぬ大量の追加など）なら、Textastic などでコンフリクトのタグを直接編集します。(<)を7つ並べて検索できます。
+                    新:
+                        iPhone で両方を含むように保存します:  #// このファイルに含む内容を A, B とし、A をコンフリクトしたときに受け入れた部分とします
+                            #// iPhone で正しくマージするのは諦めて、PC でマージします
+                        A.PC_current と B.PC_old を作ります:
+                            PC で git pull する前かつ clean 状態なら:
+                                現在のファイルの内容を B.PC_old へコピーします:
+                                    ____-B.PC_old.yaml ファイルを作っても、エディターの新しいタブを作るだけでもよいです
+                                PC で git pull します:
+                                    コンフリクトしたら theirs を採用します
+                                #// 現在のファイルは A.PC_current です。
+                            PC で git pull した後なら:
+                                #// 現在のファイルは A.PC_current です。
+                                PC の git pull する前の最新コミットを B.PC_old へコピーします:
+                                    そのコミットにブランチを作ります
+                                    そのブランチにスイッチします
+                                    B.PC_old へコピーします
+                                    元のブランチに戻ります
+                                    作ったブランチを削除します
+                        C.PC_merging の初期状態を作ります:
+                            B.PC_old を C.PC_merging にコピーします
+                                #// 以後、基本的に B.PC_old は使いませんが、作業中に必要になったら参照します
+                        C.PC_merging を更新します:
+                            PC で更新があった部分のうち、大きく追加された部分「以外」を C.PC_merging とマージします:
+                                - A.PC_current → C.PC_merging の差分を表示して、対象部分を手動でマージします。
+                                    #// A.PC_current と C.PC_merging の両方を編集できるように、A.PC_current はクリップボードにコピーして比較するのではなく A.PC_current のファイルと比較します
+                                - 最終的に大きく追加された１つの部分だけになるようにします
+                        D.big_accept を作ります:
+                            大きい差分を D.big_accept に移動します:  #// A.PC_current は、D.big_accept の内容の部分が削除されます
+                                A.PC_current → C.PC_merging の差分を表示します:
+                                一旦、差分の下端にジャンプします:
+                                    ↑↓（Previous Change, Next Change：右上）を押します  #// 差分の上端にはジャンプできません
+                                差分の上端にジャンプします:
+                                    右半分（C.PC_merging）をクリックして、キーボードの ↑ キーを押します
+                                移動する範囲の最初の行の行頭をクリックします:
+                                    左半分（A.PC_current）をクリックします
+                                差分の下端にジャンプします:
+                                    ↓（Next Change：右上）を押します
+                                移動する範囲の次の行の行頭をクリックします:
+                                    Shift キーを押しながら、左半分（A.PC_current）をクリックします
+                                カットします:
+                                    Ctrl + X キー
+                                D.big_accept に貼り付けます:
+                                    Ctrl + V キー
+                                    #// クリップボードが変わっていたら、左半分（A.PC_current）をアンドゥして再度カットします
+                        C.PC_merging を削除します:
+                            #// A.PC_current と C.PC_merging が同じ内容になっているはずです
+                        A.PC_current と D.big_accept の差分を表示して、手動でマージします:
+                            #// 通常、差分はほとんどありません
+                    旧:
+                        iPhone で両方を含むように保存します:  #// このファイルに含む内容を A, B とし、A をコンフリクトしたときに受け入れた部分とします
+                            #// iPhone で正しくマージするのは諦めて、PC でマージします
+                        （参考）以下で作るファイル:
+                            A: ____-A-base.yaml    #// iPhone でコンフリクトしたときに受け入れた部分（それ以外は含めなくて良い）
+                            B: ____-B-iPhone.yaml  #// base を除いた iPhone の最新
+                            C: ____-C-PC.yaml      #// PC のマージ前。 またはマージ後の base を除いた部分
+                            D: ____.yaml           #// マージした結果を作るファイル
+                        PC の git pull する前の内容を C へコピーします:  #// このファイルに含む内容を C とします
+                            ____-C-PC.yaml
+                        PC で git pull します:
+                            コンフリクトしたら theirs を採用します
+                        マージした結果から、A の部分を新しいファイルへ移動します:  #// 移動した内容は最新ファイルから削除します
+                            ____-A-base.yaml
+                        最新ファイルを B へコピーします:  #// 最新ファイルを D とします
+                            ____-B-iPhone.yaml
+                        A, B, C を 3 way merge して D を更新します:
+                            - A→B 差分を D へ
+                            - A→C 差分を D へ
+                コンフリクトした部分が広い場合:
+                    - コンフリクトした部分を別の一時ファイルに移動させます
+                    - コンフリクトした部分の一部が、コンフリクトしていない部分にあれば、どちらかを削除します
+                    - 前のコミットからの差分を確認しながら編集します
             参照:
                 プルリクエストによるマージを一覧します: #search: GitHub list pull request merge
                 マージした内容を確認します:
@@ -4138,6 +4147,10 @@ Git: #keyword: git
                 git merge-base __BranchA__ __BranchB__
                 #search: VSCode git merge-base
             git pull: #keyword:
+                git stash をしなくて済むようにします:  #// ワーキング フォルダー が clean ではないときに git pull すると git stash する必要がありますが、それを自動で行います
+                    cd  __Project__
+                    git config pull.rebase true
+                    git config rebase.autoStash true  #// --autostash は rebase モード でのみ機能します
                 別のブランチを同期（git pull）します:
                         #// 1つのコマンドではできません
                     -   git stash   #// git status が clean ではないときだけ
@@ -4290,6 +4303,7 @@ Git: #keyword: git
                                 -   git rebase --continue
                                 #// 複数回実行する場合もあります
                                 #// 戻すときは git rebase --abort
+                                #// コンフリクトが多いときは、コミットをまとめます
                             結果を確認します:
                                 -   gitlog
                                 -   git diff  feature-lock  --name-only  #// feature-lock を作ったときのみ
@@ -4914,6 +4928,7 @@ Git: #keyword: git
                 git remote get-url:  #search:
                 関連: #search: リモート追跡ブランチ
             git rev-parse:  #// コミットIDを表示します  #search: Git rev-parse commit ID
+                注意: リモートを見るときは git fetch してから git rev-parse origin/__Branch__ してください 
             git reflog:  #keyword: git 操作履歴,  git reflog #// ローカルにのみ存在  #ref: https://stackoverflow.com/questions/16842529/is-there-a-way-in-git-to-push-the-reflog
                 #search: git cancel
                 git reflog コマンド:
@@ -5996,11 +6011,13 @@ Git: #keyword: git
                             echo 'TZ="Asia/Tokyo"  git log --oneline --decorate --graph --branches --tags --remotes --pretty=format:"%C(auto)%h %d %s %C(cyan)%an %C(green)%ad" --date=iso-local  "$@"' >> ~/bin/gitlog
                             echo '    #// --date-order: コミット単位で日付順のソートを行います' >> ~/bin/gitlog
                             chmod +x ~/bin/gitlog
+                            gitlog
                         Git 1.8.3.1 の場合:
                             mkdir -p ~/bin
                             echo "git fetch -p" > ~/bin/gitlog
                             echo "git log --oneline --decorate --graph --branches --tags --remotes --pretty=format:\"%C(auto)%h %d %s %C(cyan)%an %C(green)%ad\"" >> ~/bin/gitlog
                             chmod +x ~/bin/gitlog
+                            gitlog
                     参考 >> git log のオプション:  #search: git log options
                 PowerShell:
                     インストール スクリプト:
@@ -6142,12 +6159,19 @@ Git: #keyword: git
                     & "C:\Program Files\Git\bin\bash" $HOME/bin/gitpull
             ~/bin/gitstatus のサンプル: |
                 #!/bin/bash
-                function  Main() {
-                    echo  ""
 
+                function  Main() {
+                    BackUp
+                    GitStatusAndNGWord
+                }
+
+                function  BackUp() {
                     cp  "${HOME}/bin/typrm"  "${GitHub}/MyPrivateCode/settings/M1-mac"
                     find  "${GitHub}/MyPrivateCode/settings/company/desktop"  -type f  -mtime +30  |  xargs -r ls -l --time-style=full-iso
+                }
 
+                function  GitStatusAndNGWord() {
+                    #// git status and check NG word.
                     local  checkingPath="${GitHub}/typrm"
                     cd  "${checkingPath}"
                     git status --short  |  sed -E "s|^|$( GetCurrentFolder ): |"
@@ -7027,10 +7051,13 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                 関連するプロジェクト ボードを表示します:
                     Issue の画面 >> Projects（右の列の上から3番目）
                         #// そこからプロジェクトボードの列を変更することもできます
-                クローズします:
-                    メニュー: https://github.com/ >>（リポジトリ）（左）>> Issues（タブ）>>（イシュー）
-                    Write（タブ）: ____
-                    Close issue ボタン:
+                クローズします: #keyword: GitHub issue close
+                    Desktop:
+                        メニュー: https://github.com/ >>（リポジトリ）（左）>> Issues（タブ）>>（イシュー）
+                        Write（タブ）: ____
+                        Close issue ボタン:
+                    iPhone:
+                        Issue の Top >> …（右上）>> クローズする
                 マイルストーン: #search: GitHub milestones
             Pull requests タブ:  #keyword: GitHub pull requests, GitHub プルリクエスト, プルリク,  pull requests
                 手順: #keyword: GitHub pull request steps  #// ブランチをマージしてもらうためにプルリクエストしてレビューしてマージします
@@ -7296,7 +7323,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                 プルリクエスト: #search: GitHub pull request steps
                         必須ステータスチェック: #// 自動テストをパスする必要があります
                             ステータス チェック をパスしないとマージできない設定:  #ref: https://docs.github.com/ja/github/administering-a-repository/defining-the-mergeability-of-pull-requests/managing-a-branch-protection-rule
-                        ステータス チェック:  #keyword: GitHub status check  #// 自動テスト
+                        ステータス チェック:  #keyword: GitHub status check,  GitHub pull requests check  #// 自動テスト
                             公式: #ref: https://docs.github.com/ja/github/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks
                             概要:
                                 - git push したり、プルリクエストを生成したりしたら、Web Hook (HTTPS) により GitHub ランナーや Jenkins などに通知されます
@@ -7715,6 +7742,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                 https://github.com/ >> アカウント ボタン（右上）>> Settings >> SSH and GPG keys
                             SSH Keys >> New SSH key ボタン:
                                 Title: （マシン名など）
+                                Key type: Authentication Key
                                 Key: （公開鍵の内容） #search: SSH show public key
                                 Add SSH key ボタン:
                             接続できないとき: | #// GitHub サーバーに ssh コマンドで接続します
@@ -7759,7 +7787,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         概要: 書類やコミットに付いている署名に書かれたメールアドレスが秘密鍵によって保証できるようにします（偽装があったらバレます）。
                             メールアドレスの所有者 ⇒ 秘密鍵の所有者 ⇒ 署名を付けた人
                         手順:
-                            署名付きコミットをします: #keyword: Git signed commit,  署名付きコミット  Git signature commit
+                            署名付きコミットをします, その準備をします: #keyword: Git signed commit,  署名付きコミット  Git signature commit
                                 CLI の場合:
                                     概要: 
                                         証明するもの: コミットした人
@@ -7775,26 +7803,27 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                             バックアップから復帰する場合:
                                                 #search: import GPG
                                                 #search: Secret Vault USB memory
-                                        GitHub に GPG キー を登録します:
-                                            URL: #ref: https://github.com/settings/keys  >> New GPG key（右）
-                                            （または）メニュー: ログイン >> アカウント ボタン（右上）>> Settings >> SSH and GPG Keys（左）>> New GPG key（右）
-                                            Title: My-__KeyID__  #// サンプル
-                                            GPG の公開鍵をテキスト形式で表示します:
-                                                gpg --armor --export  __KeyID__ | less  #search: export GPG
-                                            Key: |
-                                                -----BEGIN PGP PUBLIC KEY BLOCK-----
-                                                ...
-                                                -----END PGP PUBLIC KEY BLOCK-----
-                                            Add GPG Key ボタン:
-                                        警戒モードを有効にします: #keyword: GitHub Vigilant mode  #// Verified と Partially verified を区別します
-                                            URL: #ref: https://github.com/settings/keys  >> Vigilant mode（下）
-                                            （または）メニュー: ログイン >> アカウント ボタン（右上）>> Settings >> SSH and GPG Keys（左）>> Vigilant mode（下）
-                                            Flag unsigned commits as unverified: オン
-                                        GPG キーに登録されたメールアドレスを git に設定します: #keyword: git config GPG
-                                            - cd  __Project__
-                                            - git config --local user.email  "__EMail__"  #search: GPG email
-                                            - git config --local user.name  "__Name__"
-                                            #// user.name は違っていても構いませんが設定したほうがよいでしょう。git log では user.name が表示され、GitHub ではアカウント名が表示されます
+                                        GitHub に各種設定をします:
+                                            GitHub に GPG キー を登録します:  #// 期限切れになった鍵を更新する時は、GitHub への登録を削除してから同じ手順で再登録してください
+                                                URL: #ref: https://github.com/settings/keys  >> New GPG key（右）
+                                                （または）メニュー: ログイン >> アカウント ボタン（右上）>> Settings >> SSH and GPG Keys（左）>> New GPG key（右）
+                                                Title: My-__KeyID__  #// サンプル  #search: gpg --list-secret-keys
+                                                GPG の公開鍵をテキスト形式で表示します:
+                                                    gpg --armor --export  __KeyID__ | less  #search: export GPG
+                                                Key: |
+                                                    -----BEGIN PGP PUBLIC KEY BLOCK-----
+                                                    ...
+                                                    -----END PGP PUBLIC KEY BLOCK-----
+                                                Add GPG Key ボタン:
+                                            警戒モードを有効にします: #keyword: GitHub Vigilant mode  #// Verified と Partially verified を区別します
+                                                URL: #ref: https://github.com/settings/keys  >> Vigilant mode（下）
+                                                （または）メニュー: ログイン >> アカウント ボタン（右上）>> Settings >> SSH and GPG Keys（左）>> Vigilant mode（下）
+                                                Flag unsigned commits as unverified: オン
+                                            GPG キーに登録されたメールアドレスを git に設定します: #keyword: git config GPG
+                                                - cd  __Project__
+                                                - git config --local user.email  "__EMail__"  #search: GPG email
+                                                - git config --local user.name  "__Name__"
+                                                #// user.name は違っていても構いませんが設定したほうがよいでしょう。git log では user.name が表示され、GitHub ではアカウント名が表示されます
                                         ローカルの Git が使う GPG キーを設定します: #keyword: Git config gpg.program
                                             (bash):
                                                 -   which gpg  #// __GpgExecutableFilePath__ が表示されます
@@ -7805,10 +7834,15 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                                     git config --local commit.gpgsign true
                                     コミットに署名を付けます:
                                         commit.gpgsign = true の場合:
-                                            - git add ____
-                                            - git commit -m "Signed commit"  #// コマンドに変更なし。
-                                                #// パスワードの入力が求められます
-                                            - git push
+                                            手順:
+                                                - git add ____
+                                                - export GPG_TTY=$(tty)
+                                                - git commit -m "Signed commit"  #// 通常のコマンドから変更なし
+                                                    #// パスワードの入力が求められます
+                                                - git push
+                                            しなかったときの エラー メッセージ: |
+                                                error: gpg failed to sign the data:
+                                                gpg: signing failed: Inappropriate ioctl for device
                                         それ以外の場合:
                                             - git add ____
                                             - git commit -S -m "Signed commit"  #// -S オプションを追加しないと署名は付きません
@@ -7827,22 +7861,12 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                     コミットします:
                                     #// 以上でコミットに署名が付きます
                             署名を確認します:
-                                GitHub の場合: #keyword: show GitHub signed commit
-                                    メニュー: GitHub >> ... >>（コミット一覧）  #ref: https://github.com/Takakiriy/signatures/commits/main
-                                    サンプル: #ref: https://github.com/Takakiriy/signatures/commits/main
-                                    キー ID:  Verified ラベル をクリック
-                                    表示されるアイコン: 署名の有無にかかわらず、メールアドレスから表示しています
-                                    表示されるラベル:
-                                        Verified: 署名付きコミットである && コミットの署名のメールアドレスが GitHub の GPG キー に登録済み
-                                        Partially verified: コミッターではない場合
-                                        Unverified: 検証できず
-                                    表示される日時: 署名された日時
-                                git log の場合: #keyword: git log --show-signature
+                                git push 前, git log の場合: #keyword: git log --show-signature
                                     コマンド:
                                         git log --show-signature
                                             または
                                         git show  --show-signature
-                                    表示: |  #focus: takakiriy@gmail.com,  19:00:00
+                                    表示: |  #focus: using RSA key,  takakiriy@gmail.com,  19:00:00
                                         commit 7c512ee242146b51a220bc7a653bde4a87976e1f (HEAD -> main, origin/main)
                                         gpg: Signature made Sat Dec 24 00:57:02 2022 JST
                                         gpg:                using RSA key 37FF980CF5F2E902A7BC7840E8099F204C43E3F7
@@ -7859,9 +7883,25 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                         上記は下記のコマンドで日付を詐称していますが署名の日時は詐称されていません。
                                         git commit --amend --no-edit --date="2022-12-23 19:00:00 +0900"
                                         #ref: https://stackoverflow.com/questions/68764231/can-someone-check-i-changed-the-date-of-git-commits
+                                git push 後, GitHub の場合: #keyword: show GitHub signed commit
+                                    メニュー: GitHub >> ... >>（コミット一覧）  #ref: https://github.com/Takakiriy/signatures/commits/main
+                                    サンプル: #ref: https://github.com/Takakiriy/signatures/commits/main
+                                    キー ID:  Verified ラベル をクリック
+                                    表示されるアイコン: 署名の有無にかかわらず、メールアドレスから表示しています
+                                    表示されるラベル:
+                                        Verified:  #// 署名付きコミット
+                                            - 署名付きコミットである && コミットの署名のメールアドレスが GitHub の GPG キー に登録済み。
+                                            - 対応する秘密鍵によって署名されたコミットは、公開鍵が削除されても、引き続き検証済みとして表示されます。
+                                                #ref: https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account
+                                            - ただし、GitHub に登録されているキーが期限切れの場合、Verified をクリックすると Expired（青）が表示されます。
+                                                GitHub に GPG キー を再登録してください  #search: Git signed commit
+                                        Partially verified: コミッターではない場合
+                                        Unverified: 検証できず
+                                    表示される日時: 署名された日時
                             コミット日時を証明します:
                                 #search: Git commit date
                             （必要なら）キー サーバー に登録します:  #search: synchronizing key server
+                            GPG 署名関連: #search: GPG 署名
                         キー サーバー: #keyword: synchronizing key server,  SKS キー サーバー
                             概要: 公開鍵を登録するサーバー。追加のみで削除はできない。
                                 有効な キーID であることを示すだけであれば、GitHub などに登録するだけでよい。 #search: show GitHub signed commit
@@ -9252,6 +9292,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         メニュー の場合: GitLab のプロジェクトの Web ページ >> Packages & Registries（左）>> Package Registry
                         メニューに表示させる: GitLab のプロジェクトの Web ページ >> Settings（左）>> General >> Visibility >> Packages >> Save changes ボタン
                     #↓ 言語別
+                    （private 対応状況）:  #search: GitLab private project
                     Python, PyPI: #keyword: GitLab PyPI
                         .whl をアップロードまたは削除します: #keyword: upload .whl to GitLab Package Registry
                             準備: |
@@ -12124,6 +12165,7 @@ Gradle: #keyword:  #ref: ${programming}/方法論/CVS/SubVersion.svg#Gradle
             OS package 関連:  #search: gradle-ospackage-plugin
     nebula-release-plugin: #keyword: nebula-release-plugin, nebula.release, com.netflix.nebula.release, RPM Git rc version  #// Git リポジトリににタグをつける？
         #ref: https://github.com/nebula-plugins/nebula-release-plugin
+        _: RPM のファイル名や Git タグ に含まれるバージョン番号を自動的に更新します
         手順:
             プロジェクトをビルドします:  #search: gradlew nebula-release-plugin
             ブランチ名に使えるパターンを追加します: #keyword: nebula-release-plugin  addReleaseBranchPattern
@@ -12141,6 +12183,7 @@ Gradle: #keyword:  #ref: ${programming}/方法論/CVS/SubVersion.svg#Gradle
         機能, 構成:
             git タグ:  #// バージョン番号を自動的に上げて、git タグ を追加します
                 できる Git タグ名: v3.12.0-rc.1 など  #// ./gradlew candidate コマンドの場合、そのコマンドでできる標準な名前と同じです
+            マージ漏れチェック:  #// develop ブランチへマージし忘れた release ブランチを検出できます
         コマンド:  #keyword: nebula-release-plugin options
             サンプル: #keyword: gradlew nebula-release-plugin
                 - ./gradlew :__FolderName__:buildRpm  #// develop バージョンの一部のパッケージを作ります
@@ -12262,7 +12305,6 @@ Gradle: #keyword:  #ref: ${programming}/方法論/CVS/SubVersion.svg#Gradle
                 #search: nebula-release-plugin  addReleaseBranchPattern
         参考: #ref: ${programming}/方法論/CVS/SubVersion.svg#nebula-release-plugin
     gradle-ospackage-plugin: #keyword: gradle-ospackage-plugin, nebula.ospackage, com.netflix.nebula.ospackage  #// Debian パッケージや RPM パッケージを作ります
-        _: RPM のファイル名や Git タグ に含まれるバージョン番号を自動的に更新します
         公式情報:  #ref: https://plugins.gradle.org/plugin/com.netflix.nebula.ospackage
         参考: #ref: ${programming}/方法論/CVS/SubVersion.svg#gradle_ospackage_plugin
         手順:

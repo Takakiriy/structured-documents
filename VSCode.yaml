@@ -230,152 +230,165 @@
         続き:
             拡張機能:  #search: VSCode extension
             推奨初期設定:  #search: VSCode recommended initialize
-    vscode.dev: #ref: https://insiders.vscode.dev/  #keyword: VSCode クラウド  #// ブラウザーで実行する軽量版 Visual Studio Code
-        GitHub リポジトリを開きます:
-            ブラウザーに URL を入力します:
-                codediff: #ref: https://insiders.vscode.dev/github/Takakiriy/codediff
-        0_memo を共有する場合:  #search: 0_memo 自動アップロード
-    プロジェクトを開きます: #keyword: VSCode open folder,  VSCode open  #// Visual Studio Code でプロジェクトのフォルダーを開きます
-        マウスを使う方法: #copy: open VSCode
-            Visual Studio Code を右クリック（Windows の タスク バー または mac の Dock）>>
-            New Window >> プロジェクト フォルダー を Visual Studio Code へドラッグ＆ドロップします
-        ターミナルを使う方法: #search: VSCode CLI
-            #// 以下のいずれか
-            - code __ProjectPath__
-            - code -n __ProjectPath__  #// 新しいウィンドウで開きます
-            - code -r __ProjectPath__  #// 現在のウィンドウを再利用します（閉じて開きます）
-        メニューから選ぶ方法:
-            - VSCode >> File >> Open Folder ... >> __Project__  #または
-            - (shell) code __Project__
-        WSL2 接続: #keyword: open WSL2 Docker VSCode,  code wsl
-            code --remote wsl+Rocky9  "home/user1"
-        WSL2 内 Docker 接続: #keyword: open WSL2 Docker VSCode
-            Docker ホストである Linux を開きます:
+    開きます:
+        プロジェクトを開きます: #keyword: VSCode open folder,  VSCode open  #// Visual Studio Code でプロジェクトのフォルダーを開きます
+            マウスを使う方法: #copy: open VSCode
+                Visual Studio Code を右クリック（Windows の タスク バー または mac の Dock）>>
+                New Window >> プロジェクト フォルダー を Visual Studio Code へドラッグ＆ドロップします
+            ターミナルを使う方法: #search: VSCode CLI
+                #// 以下のいずれか
+                - code __ProjectPath__
+                - code -n __ProjectPath__  #// 新しいウィンドウで開きます
+                - code -r __ProjectPath__  #// 現在のウィンドウを再利用します（閉じて開きます）
+            メニューから選ぶ方法:
+                - VSCode >> File >> Open Folder ... >> __Project__  #または
+                - (shell) code __Project__
+            WSL2 接続: #keyword: open WSL2 Docker VSCode,  code wsl
                 code --remote wsl+Rocky9  "home/user1"
-            （初回のみ）DevContainers 拡張機能をインストールします:
-                参考 >> Remote Develop 拡張機能をインストールします:  #search: Remote Development steps
-            手動で開く場合:  #ref: https://code.visualstudio.com/docs/devcontainers/attach-container
-                コンテナ―を起動します:
-                    (@Linux)
-                        docker container run  --name rocky9con  -it rockylinux:9.3 /bin/bash  #ref: https://hub.docker.com/_/rockylinux/tags?page=1&name=9
-                    #// The container name "/rocky9con" is already in use by container エラーになったら docker stop rocky9con; docker rm rocky9con してから
-                コンテナ―の中を VSCode で開きます:
-                    Remote Explorer を使う場合:
-                        VSCode >> Remote Explorer >> Dev Containers（最も上のプルダウン）>> __ContainerID__（にマウスを合わせて Attach in new Window ボタン）
-                    F1 コマンド を使う場合: |
-                        F1 >> Dev Containers: Attach to Running Container...
-                    （参考）使えない方法: |
-                        #// WSL の Linux で
-                        code --remote containers+rocky9    #// WSL の Linux で実行しても、Windows から開こうとして、接続に失敗します
-                        code --remote wsl+Rocky9+containers+rocky9  "home/user1"   #// Rocky9+containers+rocky9 という distro 名になってしまいます
-                    #// 前回開いた場所が開きます
-                フォルダーを開きます:  #// Remote Explorer を使ってフォルダーを開いた場合は次へ
-                    #// 開いた VSCode でコマンドを入力します
-                    code __FolderPath__   #// 指定したフォルダーを新しい VSCode ウィンドウで開きます
-                dnf コマンドを実行します: |
-                    export http_proxy="http://____:8080"   #// プロキシ環境の場合のみ実行します
-                    export https_proxy="http://____:8080"  #// プロキシ環境の場合のみ実行します
-                    dnf install -y  langpacks-ja.noarch
-            Dev Containers を使う場合: #keyword: Docker Dev Containers  #ref: https://code.visualstudio.com/docs/devcontainers/tutorial
-                Dev Containers: #keyword: VSCode Dev Containers,  Dev Containers  #// WSL2 の Linux が起動しているコンテナー
-                    一覧, 起動状況:
-                        開く: WSL2 の Linux で開いている VSCode >> Remote Explorer ビュー（左）>> Dev Containers（上のプルダウン）
-                        起動状況:
-                            Remote Explorer ビュー:
-                                Dev Containers にあるコンテナ―のアイコンに、再生マークが付いていると、コンテナ―は起動しています。
-                            docker ps コマンド:
-                                コンテナ―が起動していれば、WSL2 の Linux の docker ps -a コマンドで見えます。
-                                #// docker ps コマンド（-a オプションなし）では、stop しているコンテナーは一覧されません  #search: docker ps
-                    起動, 終了:
-                        コンテナ―のアイコンを右クリックして Start Container を選ぶと、コンテナ―は起動します。
-                        Attach in New Window を選んでも起動します。
-                Windows の VSCode で WSL2 内の Docker コンテナ―を開くには:
-                    Docker Desktop（条件により有料）のインストールが必要らしい
-                実験中:
-                    ファイルを作ります:
-                        devcontainer.json:  #ref: __ProjectInDockerHost__/.devcontainer/devcontainer.json  #ref: https://containers.dev/implementors/json_reference/
-                            サンプル:
-                                公式サンプル:  #ref: https://github.com/devcontainers/images/tree/main/src/javascript-node
-                                少し動いたサンプル: |  #// 起動したコンテナ―は VSCode で開けない
-                                    {
-                                        "name": "Rocky9",  // ?. VSCode の Reomote Explorer にも表示されない
-                                        "runArgs": ["--name", "rocky9"],  // コンテナー名
-                                        "image": "rockylinux:9.3",
-                                        "postCreateCommand": "mkdir -p /workspaces/user1"
-                                    }
-                            1つのコンテナ―の場合:
-                                Dockerfile を書かない場合:
-                                    image フィールドを書きます
-                            複数のコンテナーの場合:
-                                dockerComposeFile フィールドを書き、docker-compose.yml ファイルを作ります
-                            ポート: |  #// 未確認
-                                "portsAttributes": {
-                                    "3000": {
-                                        "label": "Hello Remote World",
-                                        "onAutoForward": "notify"
-                            インストールする VSCode の拡張機能?: |  #// 未確認
-                                "customizations": {
-                                    "vscode": {
-                                        "settings": {},
-                                        "extensions": ["streetsidesoftware.code-spell-checker"]
-                        Dockerfile:          #ref: __ProjectInDockerHost__/.devcontainer/Dockerfile
-                        docker-compose.yml:  #ref: __ProjectInDockerHost__/.devcontainer/docker-compose.yml
-                    コンテナ―を起動します:
-                        devcontainer up
-                        docker ps
-                        devcontainer exec  pwd
+            WSL2 内 Docker 接続: #keyword: open WSL2 Docker VSCode
+                Docker ホストである Linux を開きます:
+                    code --remote wsl+Rocky9  "home/user1"
+                （初回のみ）DevContainers 拡張機能をインストールします:
+                    参考 >> Remote Develop 拡張機能をインストールします:  #search: Remote Development steps
+                手動で開く場合: #keyword: DevContainers manual open  #ref: https://code.visualstudio.com/docs/devcontainers/attach-container
+                    プロジェクトがある場合:
+                        git clone などをします:
+                            (@Linux)
+                                cd  "${HOME}"
+                                git clone  __ProjectURL__
+                        コンテナ―を起動します:
+                            (@Linux) 新しいターミナルで
+                                docker container run  --name rocky9con  -it --rm  -v ~/__Project__:/root/__Project__  rockylinux:9.3  /bin/bash  #ref: https://hub.docker.com/_/rockylinux/tags?page=1&name=9
+                            #// コンテナーを終了させるとプロジェクト以外の作業内容が消えるので注意
+                    プロジェクトがない場合:
+                        コンテナ―を起動します:
+                            (@Linux) 新しいターミナルで
+                                docker container run  --name rocky9con  -it rockylinux:9.3 /bin/bash  #ref: https://hub.docker.com/_/rockylinux/tags?page=1&name=9
+                        #// The container name "/rocky9con" is already in use by container エラーになったら docker stop rocky9con; docker rm rocky9con してから
                     コンテナ―の中を VSCode で開きます:
-                        エラーになります
-        SSH 接続: #keyword: open remote VSCode,  VSCode SSH,  code ssh,  VSCode Remote-SSH  #// SSH 接続した先のフォルダーを開く場合
-            （準備）Remote Development 拡張機能をインストールします:  #search: Remote Development steps
-            VSCode のウィンドウから開く場合:  #search: Remote Development steps
-            PowerShell から開く場合: #keyword: open VSCode SSH
-                コマンド:  #// 以下のいずれか
-                    - code --remote ssh-remote+192.168.100.101              #// パスを省略したときは、前回開いていたフォルダーが開きます
-                    - code --remote ssh-remote+192.168.100.101 home/user1   #// フルパスの先頭に / を付けません
-                        #template_: code --remote ssh-remote+__Server__ __FullPathWithoutRoot__
-                __Server__:  #// 以下のいずれか
-                    - IP アドレス
-                    - ~/.ssh/config の Host の値
-                新しい Visual Studio Code ウィンドウが開きます:
-                    #search: Remote Development steps after open
-                #ref: https://code.visualstudio.com/docs/remote/troubleshooting#_connect-to-a-remote-host-from-the-terminal
-            ホスト名をコピーする場合:  #// ~/.ssh/config の Host の値をコピーします
-                VSCode >> Remote Explorer >> SSH（にマウスを合わせる）>>（歯車アイコン）>> __Home__/.ssh/config >>
-                    Ctrl + K, 0（折りたたむ）>>（必要ならホスト名の一部をキーワードにして検索）>> ホスト名を選択 >> コピー
-            関連 >> 拡張機能:  #search: VSCode extension settings.json
-            接続できないとき:  #search: VSCode SSH trouble
-        SSH 経由 Docker 接続: #keyword: open remote container VSCode,  open VSCode SSH Docker
-            インストール:
-                本体: Extention >> Dev Containers 拡張機能 >> Install
-                言語: Extention >> (Python など）>> Install  #// コンテナ―にインストールが必要です
-            開きます:
-                GUI:
-                    Remote Explorer >> Dev Containers >>（コンテナー名の）Attach in New Window >>
-                    File >> Open Folder >> __Path__
-                CLI:  #// 未確認
-                    bash:
-                        code --remote ssh-remote+ci-local_centos7_52  home/vagrant/system
-                        code --remote ssh-remote+__SSHConfig__  __FolderPath__
-                    devcontainer cli: |  #// 未確認
-                        F1 >> Remote-Containers: Install devcontainer CLI
-                        VSCode 再起動
-                        devcontainer --help
-                            エラー
-        信頼チェック: #keyword: VSCode workspace trust
-            #ref: https://code.visualstudio.com/docs/editor/workspace-trust
-            信頼するフォルダーの切り替え:
-                VSCode >> 歯車（左下）>> Manage Workspace Trust
-            制限付きモード:
-                一部の機能は使えませんが、安全に作業できます。
-                制限付きモードが有効な状態では、VSCode の上部にバナーが表示されます
-    ターミナル (シェル) を開きます: #keyword: open VSCode terminal
-        開く:
-            VSCode >> Terminal メニュー >> New Terminal
-        Git bash シェルを開きます:  #keyword: VSCode Git bash
-            VSCode >> Terminal >> New Terminal >> ＋の右の↓（シェルの右上）>> Git bash
-            #// 関連: デフォルトで Git bash を開くようにします:  #search: VSCode set default bash
-        その他:  #search: VSCode terminal
+                        Remote Explorer を使う場合:
+                            VSCode >> Remote Explorer >> Dev Containers（最も上のプルダウン）>> __ContainerID__（にマウスを合わせて Attach in new Window ボタン）
+                        F1 コマンド を使う場合: |
+                            F1 >> Dev Containers: Attach to Running Container...
+                        （参考）使えない方法: |
+                            #// WSL の Linux で
+                            code --remote containers+rocky9    #// WSL の Linux で実行しても、Windows から開こうとして、接続に失敗します
+                            code --remote wsl+Rocky9+containers+rocky9  "home/user1"   #// Rocky9+containers+rocky9 という distro 名になってしまいます
+                        #// 前回開いた場所が開きます
+                    フォルダーを開きます:  #// Remote Explorer を使ってフォルダーを開いた場合は次へ
+                        #// 開いた VSCode でコマンドを入力します
+                        code __FolderPath__   #// 指定したフォルダーを新しい VSCode ウィンドウで開きます
+                    dnf コマンドを実行します: |
+                        export http_proxy="http://____:8080"   #// プロキシ環境の場合のみ実行します
+                        export https_proxy="http://____:8080"  #// プロキシ環境の場合のみ実行します
+                        dnf install -y  langpacks-ja.noarch
+                Dev Containers を使う場合: #keyword: Docker Dev Containers  #ref: https://code.visualstudio.com/docs/devcontainers/tutorial
+                    Dev Containers: #keyword: VSCode Dev Containers,  Dev Containers  #// WSL2 の Linux が起動しているコンテナー
+                        一覧, 起動状況:
+                            開く: WSL2 の Linux で開いている VSCode >> Remote Explorer ビュー（左）>> Dev Containers（上のプルダウン）
+                            起動状況:
+                                Remote Explorer ビュー:
+                                    Dev Containers にあるコンテナ―のアイコンに、再生マークが付いていると、コンテナ―は起動しています。
+                                docker ps コマンド:
+                                    コンテナ―が起動していれば、WSL2 の Linux の docker ps -a コマンドで見えます。
+                                    #// docker ps コマンド（-a オプションなし）では、stop しているコンテナーは一覧されません  #search: docker ps
+                        起動, 終了:
+                            コンテナ―のアイコンを右クリックして Start Container を選ぶと、コンテナ―は起動します。
+                            Attach in New Window を選んでも起動します。
+                    Windows の VSCode で WSL2 内の Docker コンテナ―を開くには:
+                        Docker Desktop（条件により有料）のインストールが必要らしい
+                    実験中:
+                        ファイルを作ります:
+                            devcontainer.json:  #ref: __ProjectInDockerHost__/.devcontainer/devcontainer.json  #ref: https://containers.dev/implementors/json_reference/
+                                サンプル:
+                                    公式サンプル:  #ref: https://github.com/devcontainers/images/tree/main/src/javascript-node
+                                    少し動いたサンプル: |  #// 起動したコンテナ―は VSCode で開けない
+                                        {
+                                            "name": "Rocky9",  // ?. VSCode の Reomote Explorer にも表示されない
+                                            "runArgs": ["--name", "rocky9"],  // コンテナー名
+                                            "image": "rockylinux:9.3",
+                                            "postCreateCommand": "mkdir -p /workspaces/user1"
+                                        }
+                                1つのコンテナ―の場合:
+                                    Dockerfile を書かない場合:
+                                        image フィールドを書きます
+                                複数のコンテナーの場合:
+                                    dockerComposeFile フィールドを書き、docker-compose.yml ファイルを作ります
+                                ポート: |  #// 未確認
+                                    "portsAttributes": {
+                                        "3000": {
+                                            "label": "Hello Remote World",
+                                            "onAutoForward": "notify"
+                                インストールする VSCode の拡張機能?: |  #// 未確認
+                                    "customizations": {
+                                        "vscode": {
+                                            "settings": {},
+                                            "extensions": ["streetsidesoftware.code-spell-checker"]
+                            Dockerfile:          #ref: __ProjectInDockerHost__/.devcontainer/Dockerfile
+                            docker-compose.yml:  #ref: __ProjectInDockerHost__/.devcontainer/docker-compose.yml
+                        コンテナ―を起動します:
+                            devcontainer up
+                            docker ps
+                            devcontainer exec  pwd
+                        コンテナ―の中を VSCode で開きます:
+                            エラーになります
+            SSH 接続: #keyword: open remote VSCode,  VSCode SSH,  code ssh,  VSCode Remote-SSH  #// SSH 接続した先のフォルダーを開く場合
+                （準備）Remote Development 拡張機能をインストールします:  #search: Remote Development steps
+                VSCode のウィンドウから開く場合:  #search: Remote Development steps
+                PowerShell から開く場合: #keyword: open VSCode SSH
+                    コマンド:  #// 以下のいずれか
+                        - code --remote ssh-remote+192.168.100.101              #// パスを省略したときは、前回開いていたフォルダーが開きます
+                        - code --remote ssh-remote+192.168.100.101 home/user1   #// フルパスの先頭に / を付けません
+                            #template_: code --remote ssh-remote+__Server__ __FullPathWithoutRoot__
+                    __Server__:  #// 以下のいずれか
+                        - IP アドレス
+                        - ~/.ssh/config の Host の値
+                    新しい Visual Studio Code ウィンドウが開きます:
+                        #search: Remote Development steps after open
+                    #ref: https://code.visualstudio.com/docs/remote/troubleshooting#_connect-to-a-remote-host-from-the-terminal
+                ホスト名をコピーする場合:  #// ~/.ssh/config の Host の値をコピーします
+                    VSCode >> Remote Explorer >> SSH（にマウスを合わせる）>>（歯車アイコン）>> __Home__/.ssh/config >>
+                        Ctrl + K, 0（折りたたむ）>>（必要ならホスト名の一部をキーワードにして検索）>> ホスト名を選択 >> コピー
+                関連 >> 拡張機能:  #search: VSCode extension settings.json
+                接続できないとき:  #search: VSCode SSH trouble
+            SSH 経由 Docker 接続: #keyword: open remote container VSCode,  open VSCode SSH Docker
+                インストール:
+                    本体: Extention >> Dev Containers 拡張機能 >> Install
+                    言語: Extention >> (Python など）>> Install  #// コンテナ―にインストールが必要です
+                開きます:
+                    GUI:
+                        Remote Explorer >> Dev Containers >>（コンテナー名の）Attach in New Window >>
+                        File >> Open Folder >> __Path__
+                    CLI:  #// 未確認
+                        bash:
+                            code --remote ssh-remote+ci-local_centos7_52  home/vagrant/system
+                            code --remote ssh-remote+__SSHConfig__  __FolderPath__
+                        devcontainer cli: |  #// 未確認
+                            F1 >> Remote-Containers: Install devcontainer CLI
+                            VSCode 再起動
+                            devcontainer --help
+                                エラー
+            信頼チェック: #keyword: VSCode workspace trust
+                #ref: https://code.visualstudio.com/docs/editor/workspace-trust
+                信頼するフォルダーの切り替え:
+                    VSCode >> 歯車（左下）>> Manage Workspace Trust
+                制限付きモード:
+                    一部の機能は使えませんが、安全に作業できます。
+                    制限付きモードが有効な状態では、VSCode の上部にバナーが表示されます
+        ターミナル (シェル) を開きます: #keyword: open VSCode terminal
+            開く:
+                VSCode >> Terminal メニュー >> New Terminal
+            Git bash シェルを開きます:  #keyword: VSCode Git bash
+                VSCode >> Terminal >> New Terminal >> ＋の右の↓（シェルの右上）>> Git bash
+                #// 関連: デフォルトで Git bash を開くようにします:  #search: VSCode set default bash
+            その他:  #search: VSCode terminal
+        開いたときに何か実行します:
+            CLI（対話式）を開いたとき:  #search: ~/.bashrc
+        vscode.dev: #ref: https://insiders.vscode.dev/  #keyword: VSCode クラウド  #// ブラウザーで実行する軽量版 Visual Studio Code
+            GitHub リポジトリを開きます:
+                ブラウザーに URL を入力します:
+                    codediff: #ref: https://insiders.vscode.dev/github/Takakiriy/codediff
+            0_memo を共有する場合:  #search: 0_memo 自動アップロード
     拡張機能: #keyword: VSCode extension
         （プロキシがある環境の場合）:  #keyword: VSCode proxy extension  #// プロキシがある環境で拡張機能を検索します
             VSCode にプロキシの設定をします:
@@ -677,6 +690,45 @@
                 VSCode >> 拡張機能ビュー（左）>>（拡張機能）>> Repository（拡張機能のページの右上）
                 #// 報告文は #search: バグ報告文
     推奨初期設定: #keyword: VSCode recommended initialize
+        Ctrl+S をカスタマイズします:  #keyword: VSCode Ctrl+S
+            すべてのファイルを保存するように設定します:
+                keybindings.json: |
+                    {
+                        "key": "ctrl+s",
+                        "command": "workbench.action.files.saveFiles"
+                settings.json: |  #// ターミナルでも Ctrl+S で、シェルをフリーズさせないで、すべてのファイルを保存できるようにします
+                    {
+                        "terminal.integrated.commandsToSkipShell": [
+                            "workbench.action.files.saveFiles"
+                        ]
+            シェルをフリーズさせないようにする場合:  #// シェルに Ctrl+S を渡さないようにする場合
+                Ctrl+S を無効にする:
+                    keybindings.json: |
+                        {
+                            "key": "ctrl+s",
+                            "command": "noop",
+                            "when": "terminalFocus"
+                        #search: keybindings.json when
+                    settings.json: |  #// ターミナルでも Ctrl+S で、すべてのファイルを保存します
+                        {
+                            "terminal.integrated.commandsToSkipShell": [
+                                "noop"
+                            ]
+                    参考:
+                        #ref: https://stackoverflow.com/questions/79855090/how-to-unfreeze-the-terminal-in-vscode-after-ctrls
+                #// または
+                Ctrl+Q をシェルに渡す:
+                    How to unfreeze after accidentally pressing Ctrl-S in a terminal? :
+                        #ref: https://unix.stackexchange.com/questions/12107/how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal
+                        評判:
+                            Vimで作業していて、Ctrl-Sを押して編集を保存しました。あら
+                            そもそもなぜそんなものが存在するのでしょうか?
+                        対処:
+                            stty -ixon
+                            戻すには stty ixany
+                    How to unfreeze the terminal in VScode after CTRL+S? :
+                        #ref: https://stackoverflow.com/questions/67770370/how-to-unfreeze-the-terminal-in-vscode-after-ctrls
+                    #ref: https://linuxfan.info/disable-ctrl-s
         自動インデントを大人しくさせます:
             - VSCode >> 歯車ボタン（左下）>> Settings >>
             - "Editor: Auto indent": keep
@@ -698,10 +750,24 @@
                 }
         コピー時にスタイルをコピーしないようにします: #keyword: VSCode copyWithSyntaxHighlighting,  VSCode copy without style
             VSCode >> 歯車 ボタン（左下）>> Settings >> editor.copyWithSyntaxHighlighting = オフ
-        スティッキー スクロール を無効にします:  #keyword: スティッキー スクロール, VSCode ツリー表示 折り畳み breadcrumb tree menu
-            エディター: VSCode >> View メニュー >> Appearance >> Sticky Scroll（やや下）
-            Explorer ビュー: VSCode >> 歯車アイコン（左下）>> Settings >> workbench enable sticky scroll
-            ターミナル:      VSCode >> 歯車アイコン（左下）>> Settings >> terminal.integrated.stickyScroll.enabled
+        スティッキー スクロール をカスタマイズします:  #keyword: スティッキー スクロール, VSCode ツリー表示 折り畳み breadcrumb tree menu
+            背景色を付けます:
+                エディター:
+                    settings.json: | #search: user settings.json
+                        "workbench.colorCustomizations": {
+                            "editorStickyScroll.background": "#2b3d63",
+                            "editorStickyScrollHover.background": "#364c7c",
+                            "sideBarStickyScroll.background": "#2b3d63",
+                            "sideBarStickyScrollHover.background": "#364c7c",
+                            "terminalStickyScroll.background": "#2b3d63",
+                            "terminalStickyScrollHover.background": "#364c7c",
+                        },
+                関連 >> その他の色:  #ref: https://code.visualstudio.com/api/references/theme-color  >> StickyScroll.background
+                #ref: https://github.com/microsoft/vscode/issues/290291
+            無効にします:
+                エディター: VSCode >> View メニュー >> Appearance >> Sticky Scroll（やや下）
+                Explorer ビュー: VSCode >> 歯車アイコン（左下）>> Settings >> workbench enable sticky scroll
+                ターミナル:      VSCode >> 歯車アイコン（左下）>> Settings >> terminal.integrated.stickyScroll.enabled
         Terminal のサジェストを無効にする:  #keyword: VSCode Terminal インテリセンス
             _: Ctrl + space キー でサジェストできます
             settings.json: |  #search: VSCode settings.json
@@ -719,11 +785,12 @@
             settings.json : |
                 {
                     "terminal.integrated.showLinkHover": false
-            #// または
-            VSCode >> 歯車アイコン（左下）>> Settings >> terminal show link hover = オフ
-        Terminal の情報を表示するホバー機能を無効にする:
+            または:
+                VSCode >> 歯車アイコン（左下）>> Settings >> terminal show link hover = オフ
+        Terminal の情報を表示するホバー機能を無効にする: #keyword: VSCode Terminal hover
             現在、詳細部分だけを隠すことしかできません:
                 （ホバー表示させる）>> Hide Details
+                VSCode 1.108 で改善された？ クリックすると閉じる
             改良チケット:
                 #ref: https://github.com/microsoft/vscode/issues/221531  #// closed
                 #ref: https://github.com/microsoft/vscode/issues/239404
@@ -734,12 +801,13 @@
                 {
                     "terminal.integrated.scrollback": 9999  #// or 40000
         typrm 拡張機能をインストールします:
-            #search:
+            #search: typrm 拡張機能
         フォントを等幅に設定します:
             #search: VSCode font
         ツリーの展開と折りたたみに関する ショートカット キー を設定します: #keyword: VSCode folding customize
+            #// GPD4 のみ
             メニュー:
-                VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >> Unfold or Fold
+                VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >> Unfold  #// または Fold
             設定するキー:
                 1つ開きます: Ctrl + ]  #// Unfold
                 1つ閉じます: Ctrl + [  #// Fold
@@ -755,7 +823,7 @@
                         "files.associations": {
                             "*.json": "jsonc"
                 #ref: https://code.visualstudio.com/docs/languages/overview#_adding-a-file-extension-to-a-language
-        diff 表示を改善します:
+        不要）diff 表示を改善します:  #// この設定はデフォルトになりました
             settings.json の場合: |
                 {
                     "diffEditor.diffAlgorithm": "advanced",
@@ -787,11 +855,12 @@
         Markdown のスタイルを設定します:  #keyword: VSCode markdown
             ローカル設定:  #// Visual Studio Code を開いたフォルダーに対する設定
                 #ref: ${typrm_files}/Qiita下書き/.vscode
+                動作確認します
             ユーザー設定:  #// ローカル設定が無いときの設定
                 #// 未確認  settings.json をユーザー設定の場所に書いても認識しないみたい 2023-05-21
                 #search: settings.json
         workbench.editor.showTabs:
-        editor.multiDocumentOccurrencesHighlight:  #// 分割したエディターのすべてで選択を強調表示します
+            デフォルト
         VSCode の検索バーの幅:  #keyword: VSCode search bar width
             以下は非推奨になった様子: |  #ref: https://stackoverflow.com/questions/58896453/change-the-width-of-the-search-bar-in-vscode
                 "customizeUI.stylesheet": { ".quick-input-widget": "width: 1000px !important; left: calc(50% - 200px);" } in settings.json
@@ -813,6 +882,7 @@
             VSCode >> 歯車アイコン（左下）>> Settings >> Files: Encoding（を検索）>>
             Workspace タブ >> Japanese (EUC-JP)（など）
         フォント: #keyword: VSCode font,  VSCode 等幅フォント
+            #// mac の等幅フォントは見つかっていません
             インストール:
                 メニュー: VSCode >> 歯車ボタン（左下）
                 Editor Font Family:
@@ -1507,6 +1577,7 @@
             置換前: abc(123)def   #focus: (123)  #// そのまま残す部分をカッコで囲みます
             置換後: ABC$1DEF      #focus: $1
         大文字小文字を維持して置き換えます, Preserve Case:  #keyword: VSCode replace preserve case
+            #// 置換後の項目の右にある AB ボタン
             処理設定:
                 置換前: CatalogItem
                 置換後: ProductName
@@ -1529,11 +1600,18 @@
         メニュー: VSCode >> 歯車アイコン（左下）>> Settings >> "____"（を検索）
         設定値を書くときのサンプル:
             "Suggest: Show Words": off  #search: VSCode settings
-    settings.json:  #keyword: settings.json,  VSCode settings.json  #snippet-depth: 2
+    keybindings.json: #keyword: keybindings.json
+        場所:
+            Windows:  #ref: ~/AppData/Roaming/Code/User/keybindings.json
+        サンプル:  #search: VSCode Ctrl+S
+        when: #keyword: keybindings.json when  #// 適用範囲
+            #ref: https://code.visualstudio.com/api/references/when-clause-contexts
+            #ref: https://code.visualstudio.com/api/references/when-clause-contexts#available-context-keys
+    settings.json: #keyword: settings.json,  VSCode settings.json,  setting.json ではない  #snippet-depth: 2
         場所:
             Workspace 設定:  #// フォルダー設定
                 ${workspaceFolder}/.vscode/settings.json
-            ユーザー設定:  #keyword: VSCode user settings.json file path  #// すべてのプロジェクトに適用されます
+            ユーザー設定:  #keyword: VSCode user settings.json file path,  user settings.json  #// すべてのプロジェクトに適用されます
                 _: ↓接続元  #//  Remote Development 拡張機能 を使っている場合、接続元の設定が適用されます
                 Windows: #ref: ~/AppData/Roaming/Code/User/settings.json
                 mac:     #ref: ~/Library/Application Support/Code/User/settings.json
@@ -1839,62 +1917,45 @@
                     対象のタブを右クリック >> Move Terminal into Panel
         tasks.json で複数の端末を開いて実行します:  #keyword: VSCode multi terminal tasks.json
             tasks.json:  #keyword: tasks.json
-                実行:
-                    サンプル:  #// 新しく複数の端末を開いてコマンドを実行します:
+                サンプル:  #// 新しく複数の端末を開いてコマンドを実行します:
+                    __Project__/.vscode/tasks.json : |
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "1: Run in 2 terminals",
+                                    "detail": "2つの端末を VSCode で開きます",
+                                    "dependsOrder": "parallel",
+                                    "dependsOn": [  // #search: tasks.json dependsOn
+                                        "Hello World",
+                                        "Hello World2",
+                                    ],
+                                    "problemMatcher": []     // これがないと入力を求められます
+                                },
+                                {
+                                    "label": "Hello World",
+                                    "type": "shell",
+                                    "command": "echo",
+                                    "args": ["Hello World"],
+                                    "problemMatcher": []
+                                },  
+                                {
+                                    "label": "Hello World2",
+                                    "type": "shell",
+                                    "command": "cd ${workspaceFolder}; pwd",
+                                    "problemMatcher": []
+                                }
+                            ]
+                        }
+                    メニュー: VSCode >> Terminal >> Run Task... >> Run in 2 terminals
+                手順:
+                    Run Task... メニューに表示しないようにします:
+                        メニュー: VSCode >> Terminal >> Run Task... で表示される一覧に表示しないようにします
                         __Project__/.vscode/tasks.json : |
-                            {
-                                "version": "2.0.0",
                                 "tasks": [
                                     {
-                                        "label": "1: Run in 2 terminals",
-                                        "detail": "2つの端末を VSCode で開きます",
-                                        "dependsOrder": "parallel",
-                                        "dependsOn": [  // #search: tasks.json dependsOn
-                                            "Hello World",
-                                            "Hello World2",
-                                        ],
-                                        "problemMatcher": []     // これがないと入力を求められます
-                                    },
-                                    {
-                                        "label": "Hello World",
-                                        "type": "shell",
-                                        "command": "echo",
-                                        "args": ["Hello World"],
-                                        "problemMatcher": []
-                                    },  
-                                    {
-                                        "label": "Hello World2",
-                                        "type": "shell",
-                                        "command": "cd ${workspaceFolder}; pwd",
-                                        "problemMatcher": []
-                                    }
-                                ]
-                            }
-                        メニュー: VSCode >> Terminal >> Run Task... >> Run in 2 terminals
-                    ビジー表示（Task is running 表示）をなくす:  #search: tasks.json endsPattern
-                編集:
-                    type = shell: |
-                        {
-                            "version": "2.0.0",
-                            "tasks": [
-                                {
-                                    "label": "1. Hello World",  // 名前。dependOn に指定されることがあります
-                                    "detail": "サンプルです",    // 説明文
-                                    "type": "shell",
-                                    "command": "cd ${HOME}; pwd",
-                                    "problemMatcher": []     // これがないと入力を求められます "Select for which kind of errors and warnings to scan the task output" 
-                    type = shell の詳細:
-                        args: |
-                                    "args": ["Hello World"]  // 各要素が ' ' で囲まれたコマンドラインになります
-                        pwd:        // "pwd" （カレント フォルダー）はありません
-                    type = npm: |
-                        {
-                            "version": "2.0.0",
-                            "tasks": [
-                                {
-                                    "label": "npm: start",
-                                    "type": "npm",
-                                    "script": "start",  // npm start
+                                        "hide": true
+                    ビジー表示（Task is running 表示）をなくします:  #search: tasks.json endsPattern
                     ビジー表示（Task is running 表示）をなくす: #keyword: tasks.json endsPattern  #// Show tabs した端末でビジー状態を表す回転表示をなくします
                         サンプル tasks.json: |
                             {
@@ -1964,6 +2025,29 @@
                                     {
                                         "dependsOn": [
                                             "child task",
+                ファイル:
+                    type = shell: |
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "1. Hello World",  // 名前。dependOn に指定されることがあります
+                                    "detail": "サンプルです",    // 説明文
+                                    "type": "shell",
+                                    "command": "cd ${HOME}; pwd",
+                                    "problemMatcher": []     // これがないと入力を求められます "Select for which kind of errors and warnings to scan the task output" 
+                    type = shell の詳細:
+                        args: |
+                                    "args": ["Hello World"]  // 各要素が ' ' で囲まれたコマンドラインになります
+                        pwd:        // "pwd" （カレント フォルダー）はありません
+                    type = npm: |
+                        {
+                            "version": "2.0.0",
+                            "tasks": [
+                                {
+                                    "label": "npm: start",
+                                    "type": "npm",
+                                    "script": "start",  // npm start
                     その他のオプション: |
                         {
                             "version": "2.0.0",
@@ -2078,6 +2162,9 @@
 デバッグ: #search: VSCode debug
 Testing: #keyword: VSCode Testing view  #// Visual Studio Codde の Testing ビュー
     #search: start Python testing view
+    表示されない: #keyword: VSCode testing view trouble,  testing view trouble  #// Testing ビュー ボタン が表示されない
+        JavaScript:  #search: JavaScript testing view trouble
+        Python:  #search: Python testing view trouble  #search: start Python testing view
 ライブラリ:
     Visual C++:
         Microsoft Visual C++ Redistributable Package: #keyword:
@@ -2087,9 +2174,14 @@ Testing: #keyword: VSCode Testing view  #// Visual Studio Codde の Testing ビ�
     サポート:  #keyword: VSCode support,  VSCode community
         #ref: https://github.com/microsoft/vscode/issues
         報告内容:
+            スティッキー スクロール の色を変える:
+                解決:  #search: スティッキー スクロール
+                #ref: https://claude.ai/chat/257b8af3-ddbf-45e3-adc7-66bd2012e862
+                #search: VSCode support
             vscode/issues/201031, VSCode で折りたたんだテキストをマウスで移動したときに開いてしまう問題: #keyword:
                 #ref: https://github.com/microsoft/vscode/issues/201031
             Allow more than 9 items in the title bar:  #ref: https://github.com/microsoft/vscode/issues/226423
+        クローズします:  #search: GitHub issue close
     接続:
         SSH 接続できない (Remote Development 拡張機能):  #keyword: VSCode SSH trouble
             解析スクリプト debug-vscode-ssh:  #keyword: debug-vscode-ssh  #ref: ${GitHub}/MyPrivateCode/bash/debug-vscode-ssh/debug-vscode-ssh
@@ -2212,8 +2304,9 @@ Testing: #keyword: VSCode Testing view  #// Visual Studio Codde の Testing ビ�
                             #search: VSCode portable mode
                 ~/.ssh/config の LogLevel FATAL:
                     LogLevel FATAL をコメントアウトしないと接続できない場合があった
-    デバッグ:  #keyword: VSCode debug,  VSCode debugger
+    デバッグ, テスト:  #keyword: VSCode debug,  VSCode debugger
         launch.json ファイル: #search:
+        Testing view:  #search: VSCode Testing view
         ブレーク ポイント:  #keyword: VSCode break point
             全ブレークポイント:
                 全ブレークポイントの無効化をオフにします:

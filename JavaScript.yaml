@@ -746,7 +746,9 @@
                         大文字小文字を区別しない: #keyword: JavaScript string not case sensitive
                             a.toLowerCase().includes(b.toLowerCase())
                 正規表現:  #keyword: regular expression, RegExp, JavaScript RegExp  #ref: ${programming}/検索技術、DB/正規表現.svg
-                    正規表現を試すサイト: #search: regular expression application  #ref: https://regex101.com/
+                    正規表現を試すサイト: #search: regular expression application
+                        #ref: https://regex101.com/
+                        #ref: https://hi-king.github.io/visual_regexp_web/  #// ビジュアルに正規表現を作ることができる。正規表現からビジュアルを戻すことはできない
                     メタ文字 一覧: . $ ^ { } [ ] ( ) | * + ? \
                         #// [ ] の中のメタ文字 一覧: [ ] -
                     手順:
@@ -1113,6 +1115,36 @@
                             {value: "Y", count: 1, removed: true},
                             {value: "X", count: 1, added: true},
                         ]
+                サロゲート ペア: #keyword: JavaScript surrogate pair
+                    #// JavaScript の書き方によって、単位が UTF-16 または コードポイント かが違います
+                    #search: code point
+                    UTF-16 → コードポイント:
+                        codePointsArray = Array.from(stringUTF16);
+                    一覧: |
+                        | 操作方法                               | 単位             | 例（str = "a🌟b"）              |
+                        |----------------------------------------|------------------|---------------------------------|
+                        | **ループ・イテレーション**             |                  |                                 |
+                        |     `for (const x of str)`             | コードポイント   | 3回: "a", "🌟", "b"            |
+                        |     `for (let i=0; i<str.length; i++)` | UTF-16           | 4回: "a", "�", "�", "b"       |
+                        |     `str[Symbol.iterator]()`           | コードポイント   | 3回: "a", "🌟", "b"            |
+                        | **配列変換**                           |                  |                                 |
+                        |     `Array.from(str)`                  | コードポイント   | `["a", "🌟", "b"]`             |
+                        |     `[...str]` (スプレッド構文)        | コードポイント   | `["a", "🌟", "b"]`             |
+                        |     `str.split('')`                    | UTF-16           | `["a", "�", "�", "b"]`        |
+                        | **文字アクセス**                       |                  |                                 |
+                        |     `str[i]`                           | UTF-16           | `str[1]` → "�"                |
+                        |     `str.charAt(i)`                    | UTF-16           | `str.charAt(1)` → "�"         |
+                        |     `str.charCodeAt(i)`                | UTF-16           | コードユニット値を返す          |
+                        |     `str.codePointAt(i)`               | コードポイント   | 正しいコードポイント値          |
+                        | **長さ**                               |                  |                                 |
+                        |     `str.length`                       | UTF-16           | 4 (コードユニット数)            |
+                        |     `[...str].length`                  | コードポイント   | 3 (文字数)                      |
+                        | **文字生成**                           |                  |                                 |
+                        |     `String.fromCharCode()`            | UTF-16           | コードユニットから生成          |
+                        |     `String.fromCodePoint()`           | コードポイント   | コードポイントから生成          |
+                        | **正規表現**                           |                  |                                 |
+                        |     `/./g`                             | UTF-16           | 4マッチ                         |
+                        |     `/./gu` (uフラグ)                  | コードポイント   | 3マッチ                         |
                 ダンプ:  #keyword: JavaScript string dump hex
                     (漢 字) をダンプします:
                         Array.from(new Buffer('漢 字')).map(d=>d.toString(16).toUpperCase())
@@ -3586,7 +3618,7 @@
             概要: function から書く名前の付いていない関数
             書式:
                 -   function (__Argument__) { __Statement__ }  #// 名前のない関数
-        返り値:
+        返り値: #keyword: JavaScript return
             複数の値を返す関数:
                 型を定義しない場合: |
                     // オブジェクトリテラルの形で返せば、TypeScriptがその型を推論してくれます。
@@ -4281,6 +4313,13 @@
     その他:
         文末のコロン: #keyword: JavaScript ;
             ; を書かないと、リアルタイム構文チェックが正しくならない
+ナビゲーション:
+    History API: #keyword:
+        history.state: #keyword: HTML history.state
+            #// 右記ではありません → LocalStorage, SessionStorage, Cookie, URL（クエリパラメータ）, ブラウザのディスク
+            戻る/進むでロードできます
+            リロードで消えます
+    React:  #search: React.useHistory
 ファイル: #keyword: JavaScript file,  Node.js file
     言語の設定ファイル:
         package.json: #search:  #ref: __Project__/package.json  #// プロジェクトが使うパッケージの設定
@@ -6588,13 +6627,16 @@ npm:  #keyword: npm, Node.js package manager
                         設定: #settings:
                             __JestProject__: try_jest
                         Node.js をインストールします:
-                            - https://nodejs.org/ja/download/ >> Windows Installer (.msi) >> 64-bit
-                            - ダウンロードしたファイル（例：node-v14.16.1-x64.msi）を開きます
-                            - インストール オプションはデフォルトを使用
-                            - プロキシがある LAN に Windows がある場合:
-                                - Windows スタート >> PowerShell
-                                - npm config -g set proxy       "http://___.___.___.___:____"
-                                - npm config -g set https-proxy "http://___.___.___.___:____"
+                            直接インストールする場合:
+                                - https://nodejs.org/ja/download/ >> Windows Installer (.msi) >> 64-bit
+                                - ダウンロードしたファイル（例：node-v14.16.1-x64.msi）を開きます
+                                - インストール オプションはデフォルトを使用
+                                - プロキシがある LAN に Windows がある場合:
+                                    - Windows スタート >> PowerShell
+                                    - npm config -g set proxy       "http://___.___.___.___:____"
+                                    - npm config -g set https-proxy "http://___.___.___.___:____"
+                            nvm を使う場合:
+                                #search: install NVM
                         Visual Studio Code をインストールします:
                             - https://code.visualstudio.com/
                             - ダウンロードしたファイル（例：VSCodeUserSetup-x64-1.55.2.exe）を開きます
@@ -6603,6 +6645,9 @@ npm:  #keyword: npm, Node.js package manager
                             - （推奨）Ctrl + S キーを押したときに全てのファイルを保存するように設定します: |
                                 VSCode >> File >> Preferences >> Keyboard Shortcuts >> save all （と入力） >>
                                     File: Save All （をダブルクリック） >> Ctrl + S キー >> Enter キー
+                        （必要なら）:
+                            テストの拡張機能をインストールします:
+                                Jest または Jest Runner
                         既存のプロジェクトを使う場合:
                             #serach: try_JestOfConsole
                         既存のプロジェクトを使わない場合:
@@ -8626,7 +8671,19 @@ React:
                         yarn start  または  npm start
                 関数コンポーネントと クラス コンポーネント:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#import_JSX
                     関数コンポーネント + Hooks:  #keyword: React 関数コンポーネント
-                        useState:  #keyword: useState, React onClick useState  #// 表示に影響する数値や文字列の変数
+                        全体: #keyword: React function component example
+                            基本: |
+                                interface MyComponentProps {
+                                    name: string;
+                                    age: number;
+                                }
+
+                                const MyComponent = ({ name, age }: MyComponentProps) => {
+                                    return <div>{name} is {age} years old</div>;
+                                };
+                        props（第1引数）: #keyword: React function component props
+                            #search: React property
+                        useState:  #keyword: useState,  React onClick useState  #// 表示に影響する数値や文字列の変数
                             サンプル: | #focus: useState, count, setCount  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/2_useState.tsx#useState
                                 import React from 'react';
 
@@ -8646,6 +8703,8 @@ React:
                                 }
                             参考:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_useState
                         useEffect:  #keyword: useEffect, React useEffect onLoad  #// ページを開いたらすぐに実行します（コンポーネントがマウントされたとき）
+                            #// クリーンアップするときの処理は return に渡す関数に書きます。
+                            #// Strict Mode の開発環境では 2回呼ばれます
                             基本: |
                                 useEffect(() => {
                                     // onLoad, componentDidMount
@@ -8691,14 +8750,11 @@ React:
                                             useEffect( async () => {
                                         他のエラーも対処します:
                                             #search: useEffect( async () => {
-                            依存関係, 第2引数:  #// useEffect(() => {}, []) の [] 。コンパイル時に警告されたら設定します
-                                '[]': コンポーネントがマウントされたとき
-                                '[count]': コンポーネントがマウント または count が更新されたとき
-                                '[count, name]': コンポーネントがマウント または count または name が更新されたとき
-                            クリーンアップ関数:  #// 第1引数に指定する関数の中で返す関数は、クリーンアップ（キャンセル）するときに呼ばれます
-                                サンプル: |
+                            クリーンアップ関数:  #// 第1引数に指定する関数の中で返す関数は、クリーンアップ（キャンセル、アンマウント）するときに呼ばれます
+                                サンプル: |  #// クリーンアップとオープンが行われたこと（または繰り返されること）を確認するサンプル
                                     useEffect(() => {
                                         console.log('opened');
+
                                         return function cleanUp() {
                                             console.log('clean up');
                                         };
@@ -8717,6 +8773,13 @@ React:
                                             abortController.abort();
                                         };
                                     }, []);
+                            依存関係, 第2引数:  #// useEffect(() => {}, []) の [] 。コンパイル時に警告されたら設定します
+                                '[]': コンポーネントがマウントされたとき
+                                '[count]': コンポーネントがマウント または count が更新されたとき
+                                '[count, name]': コンポーネントがマウント または count または name が更新されたとき
+                            useEffect が無限に繰り返し呼ばれる:  #search: useEffect infinite loop
+                        useCallback:  #keyword: React useCallback,  useCallback  #// useEffect の第 2引数などに渡せるようにします
+                            #search: React missing dependency
                         React.FC:  #keyword: React.FC, React.FunctionComponent
                             React.FunctionComponent: React.FC のフルネームです
                             サンプル: | #focus: FunctionComponent  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/1_FunctionComponent.tsx#React.FC
@@ -8731,7 +8794,25 @@ React:
                                 }
                                 // export default FunctionComponent;  // Besause "export default const" is invalid syntax
                         プロパティ: #keyword: React property (old),  React.FunctionComponent property
-                            サンプル: | #focus: PropertyProps  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/3_property.tsx#PropertyProps
+                            基本: |
+                                interface MyComponentProps {
+                                    name: string;
+                                    age: number;
+                                }
+
+                                const MyComponent = ({ name, age }: MyComponentProps) => {
+                                    return <div>{name} is {age} years old</div>;
+                                };
+                            プロパティにジェネリック型を使う場合: |
+                                interface Props<T, S> {
+                                    items: T[];
+                                    selectedItem: S;
+                                }
+
+                                const MyComponent = <T, S>({ items, selectedItem }: Props<T, S>) => {
+                                    // ...
+                                };
+                            古いスタイル: | #focus: PropertyProps  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/3_property.tsx#PropertyProps
                                 // これは古いスタイルです  #search: React property
 
                                 import React from 'react';
@@ -8835,7 +8916,7 @@ React:
                     React.useLocation: | #keyword:  #// URL
                         const Component: React.FunctionComponent<Props> = props => {
                             const location = useLocation();  // URL
-                    カスタム フック: #keyword: React custom hooks
+                    カスタム フック: #keyword: React custom hooks  #// 内部でフックを呼び出す普通の関数
                         命名の慣例: use から始めます
                         サンプル: |  #focus: useFormInput, name
                             import React, { useState } from 'react';
@@ -8889,6 +8970,7 @@ React:
                             コンポーネントとカスタムフックはまったく別個の概念ではない
                             #ref: https://qiita.com/uhyo/items/cb6983f52ac37e59f37e
                 props:   #keyword: React property,  React.ClassComponent property
+                    （関数コンポーネント）:  #search: React function component props
                     props:  #// 親コンポーネントに書かれた HTML 属性を子コンポーネントに渡します  #focus: props, prop1
                         親コンポーネント:  #// 子コンポーネントを参照する親コンポーネントの書き方
                             基本:
@@ -8954,6 +9036,35 @@ React:
                             }
                         #// <__Children__/> の部分は <a><b>c</b></a> のようなツリー構造も渡すことができます
                         公式: #ref: https://ja.reactjs.org/docs/composition-vs-inheritance.html#containment
+                    型, TypeScript 対応:
+                        サンプル: #search: React function component example
+                        Types of property are incompatible エラー: #keyword: React type error,  React generics property type incompatible
+                            （図解）:  #ref: ${typrm_files}/ref/JavaScript/ReactGenericsTypeError.html
+                                エラー メッセージ のサンプル: |
+                                    Type '{ field: "email"; order: "asc"; }' is not assignable to type 'SortState<TEntity, "name" | "age">'.
+                                        Types of property 'field' are incompatible.
+                                            Type '"email"' is not assignable to type '"name" | "age"'.
+                            1. エラーメッセージの読み方:  #focus: selectedItem, string, number
+                                Types of property 'selectedItem' are incompatible というエラーには、通常以下のような詳細情報が含まれています:
+                                    Type 'X' is not assignable to type 'Y'.
+                                    Types of property 'selectedItem' are incompatible.
+                                        Type 'string' is not assignable to type 'number'.
+                                この場合:
+                                    期待される型: number
+                                    実際に渡されている型: string
+                            2. 型の定義場所を調べる方法:
+                                渡す変数の型:
+                                    VSCode / IDE を使う場合:
+                                        変数にカーソルを合わせる (ホバー)
+                                    「定義へ移動」を使う:  #// 型が定義されているファイルに直接ジャンプできる
+                                        Mac: Cmd + クリック または F12
+                                        Windows: Ctrl + クリック または F12
+                                    「型定義へ移動」を使う:  #// 型定義だけを表示する
+                                        Mac: Cmd + Shift + F12
+                                        Windows: Ctrl + Shift + F12
+                                期待される型:
+                            その他:
+                                制約（extends）を満たす必要がある
                     参考:
                         Snap Note:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#JSX_prop
                 HOC, 上位コンポーネント:  #keyword: React HOC,  React 上位コンポーネント  高階コンポーネント  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_HOC
@@ -9541,7 +9652,7 @@ React:
         機能:
             - dispatch(action);
                 Store が Reducer を呼び出します
-            - immutable  #ref: ${typrm_files}/ref/JavaScript/ResuxStateManagement.html
+            - immutable  #ref: ${typrm_files}/ref/JavaScript/ReduxStateManagement.html
             - ルート Reducer が状態ツリーの各部分を適切なサブ Reducer に渡す
             - ルート Reducer が各サブ Reducer からの結果を組み合わせて新しい状態ツリーを作成
             - Store が新しい状態ツリーを保存し、すべてのリスナーに通知
@@ -9701,13 +9812,70 @@ React:
         React Testing Library (RTL):  #// ReactTestingTool
         関連 >> E2E test tools: #search:
     トラブルシューティング:
-        - #// コードを変更したら Property 'newAttr' does not exist on type
+        React Hook React.useCallback has a missing dependency: #keyword: React missing dependency
+            ログ: |
+                React Hook React.useCallback has a missing dependency: 'fetchGroup'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+            対処:
+                概要:
+                    警告に書かれた変数を、useEffect の第 2引数に渡します。
+                    ただし、関数を格納した変数は useCallback を通した値を渡します。その値は、他から呼び出すこともできます。
+                関数を格納した変数の場合:
+                    useEffect 内で代入する場合: | #focus: fetchGroup
+                        useEffect(() => {
+                            const  fetchGroup = async()=>{ ____ };
+                            await fetchGroup();
+                        }, [fetchGroup]);
+                    useCallback を通す場合: | #focus: fetchGroup  #// useCallback を通して、useEffect の第2引数にも指定します
+                        const  fetchGroup = React.useCallback(async()=>{ ____ }, []);
+                        useEffect(() => {
+                            await fetchGroup();
+                        }, [fetchGroup]);
+                    カスタムフックの中で関数を定義する場合: |  #// カスタムフックは、ただの関数です。カスタムフックで useCallback を通すこともできます
+                        // カスタムフック側
+                        function useGroupData() {
+                            const [groups, setGroups] = useState([]);
+                            
+                            const fetchGroup = useCallback(async () => {
+                                const data = await api.getGroup();
+                                setGroups(data);
+                            }, []); // メモ化
+                            
+                            return { fetchGroup, groups };
+                        }
+
+                        // 使う側
+                        const { fetchGroup } = useGroupData();
+
+                        useEffect(() => {
+                            fetchGroup();
+                        }, [fetchGroup]); // これでOK
+        useEffect が無限に繰り返し呼ばれる: #keyword: useEffect infinite loop
+            原因の特定: |  #// クリーンアップとオープンが繰り返し行われていることは、以下のコードで確認できます。
+                useEffect(() => {
+                    console.log('opened');
+
+                    return function cleanUp() {
+                        console.log('clean up');
+                    };
+                }, []);
+            2回呼ばれるとき: #keyword: React Strict Mode
+                開発環境では、React Strict Mode によって 2回呼び出しされますが、正常動作です。
+            無限に呼ばれるとき:
+                #search: React missing dependency
+        Each child in a list should have a unique “key” prop:
+            手順: ページをロードしたとき
+            ログ: |
+                (console)
+                Warning: Each child in a list should have a unique “key” prop.:
+            対処:
+                <__HTML__ key={key}>
+        コードを変更したら Property 'newAttr' does not exist on type:
             手順: コードを変更
             ログ: |
                 Property 'newAttr' does not exist on type ____
             対処: React のプロセスを再起動します
-        - #// 脆弱性情報（ほとんどありません） #ref: https://reactjs.org/blog/2018/08/01/react-v-16-4-2.html
-        - #// ブラウザーにエラー、Error: Objects are not valid as a React child (found: [object Promise]).
+        脆弱性情報（ほとんどありません）: #ref: https://reactjs.org/blog/2018/08/01/react-v-16-4-2.html
+        ブラウザーにエラー、Error Objects are not valid as a React child (found [object Promise]).:
             手順:
                 サーバー起動後に初めてページを表示しようとしたとき
             ログ: | #keyword: Promise React child object
@@ -9740,7 +9908,7 @@ React:
                     onChange={ return __Handler__ } ではエラーになります。
             補足:
                 このエラーメッセージからどの React コンポーネント に問題があるかは分かりません。
-        - #// ほとんどのコンポーネントが Anonymous と表示される
+        ほとんどのコンポーネントが Anonymous と表示される:
             手順: 
             エラー: ほとんどのコンポーネントが Anonymous と表示される
             対処:
@@ -10020,6 +10188,26 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                             name: this.name,
                             point: this.point
                         }}
+    テスト スイート 関連:
+        Testing ビュー ボタン が表示されない: #keyword: JavaScript testing view trouble
+            node_modules フォルダー が存在すること:
+                npm ci
+            Jest 拡張機能、または、Playwright Test for VSCode 拡張機能をインストールします:
+                jest.setup.js ファイルがある場合:
+                    Jest
+                package.json ファイル に jest がある場合:
+                    Jest
+                playwright.config.ts ファイルがある場合:
+                    Playwright
+            VSCode のすべてのウィンドウを一度閉じます:
+        勝手にテストが始まってしまう:
+            .vscode/settings.json: |  #focus: runMode
+                {
+                    "typescript.tsdk": "node_modules/typescript/lib",
+                    "jest.runMode": "on-demand",
+                    "jest.jestCommandLine": "npm test --",
+                    "jest.rootPath": "."
+                }
     throughCounter:
         #search: cc
     React Developer Tools:  #search: React Developer Tools

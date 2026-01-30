@@ -86,6 +86,7 @@ SQL文:  #keyword: SQL, SQL文
     コマンド, 概念:  #glossary: SQL
         データベース:  #search: MySQL database
         テーブル: #search: MySQL table  #ref: ${programming}/検索技術、DB/SQL/MySQL.svg#mysql_table
+            カラムを追加します:  #search: MySQL ALTER TABLE ADD
         キー: #keyword: SQL key
             プライマリ キー: #keyword: primary key  #ref: ${programming}/検索技術、DB/SQL/SQL.svg#primary_key
             外部キー: #keyword: foreign key,  外部キー制約  #ref: ${programming}/検索技術、DB/SQL/SQL.svg#foreign_key
@@ -6399,11 +6400,15 @@ SIEM, ログ監視: #keyword:  #// 「シーム」と呼ぶ。 syslog 収集、�
             Cyber Agent Developers ブログ:
                 Amazon S3 へ: #ref: https://developers.cyberagent.co.jp/blog/archives/28454/
     論理削除: #keyword:
-        #// レコードを削除する処理には、ケアが必要
-        - ユーザーに確認する
-        - レコード名などを入力させる
-        - 論理削除フラグを使い、復帰できるようにする（直接DBを操作する運用にすることが多い）
-        - 30日後に完全削除
+        すぐに削除しない:
+            #// レコードを削除する処理には、ケアが必要
+            - ユーザーに確認する
+            - レコード名などを入力させる
+            - 論理削除フラグを使い、復帰できるようにする？（直接DBを操作する運用にすることが多い）
+            - 30日後に完全削除
+        論理削除はやめよう:
+            どういう一覧であるかをメソッドのパラメーターにしたシンプルなインターフェースを定義して、その getter を作るのが正解じゃないかなと思う
+            #ref: https://x.com/Ts_Neko/status/2006640832326349079
 MessagePack: #keyword: MessagePack,  msgpack
     公式: https://msgpack.org/ja.html
     概要: 詰めたJSONよりも情報密度が高く、処理が高速なバイナリ形式。

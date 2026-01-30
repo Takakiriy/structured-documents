@@ -632,17 +632,32 @@ Web サーバー: #keyword: HTTP server,  Web server
             HTML ファイルの置き場所:
                 デフォルト: /usr/share/nginx/html/
             nginx 本体の場所: /sbin/nginx
-            nginx.conf:  #keyword: nginx.conf
-                設定の一覧とリロード:  #// nginx がリードするすべての .conf ファイルを結合して表示します
+            nginx.conf など:  #keyword: nginx.conf
+                場所, 設定の一覧とリロード:  #// nginx がリードするすべての .conf ファイルを結合して表示します
+                    nginx.conf ファイルの場所: | #keyword: nginx.conf path
+                        /etc/nginx/nginx.conf
+                        /etc/nginx/conf.d/____.conf
+                            ...
                     一覧コマンド: nginx -T
                     リロード: #search: reload nginx
-                コメント:
-                    nginx.conf は # でコメントになります
-                nginx.conf ファイルの場所: | #keyword: nginx.conf path
-                    cat /etc/nginx/nginx.conf
-                    ls -l /etc/nginx/conf.d/*.conf
-                    cat /etc/nginx/conf.d/default.conf
-                        ...
+                書き方, コメント:
+                    書き方: |
+                        location / {
+                            allow 192.168.0.0/16;
+                            allow 127.0.0.1;
+                            deny all;
+                        }
+                    コメント:
+                        nginx.conf は # でコメントになります
+                server:
+                    listen:  #// ポート番号
+                        server {
+                            listen 8080;
+                    allow, deny: #keyword: nginx allow deny  #// クライアントの制限
+                        server {
+                            allow 192.168.0.0/16;
+                            allow 127.0.0.1;
+                            deny all;
                 location: #keyword: nginx.conf location  #glossary: nginx.conf  #// URL のフォルダー (http____/__Folder__/___ の __Folder__) に対応する設定
                     （location の右のパス）:
                         URL の位置:
@@ -808,8 +823,16 @@ Web サーバー: #keyword: HTTP server,  Web server
                             proxy_buffers 2 1k;
                             proxy_busy_buffers_size 1k;
                     参考: #ref: https://parudou3.com/nginx/715/
-        トラブルシューティング:
-            - #// nginx: [emerg] unknown directive "ssl"  #keyword: nginx unknown directive ssl
+        トラブルシューティング: #keyword: nginx trouble
+            error.log:  #search: nginx error.log
+            nginx.conf など:  #search: nginx.conf
+            403 Forbidden:
+                ログ:
+                    error.log: |
+                        2020/01/01 11:11:11 [error] 1015#1015: *1 access forbidden by rule, client: 127.0.0.1, server: ____, request: "GET /repodata/repomd.xml HTTP/1.1", host: "localhost:8086"
+                対処:
+                    nginx.conf などの allow や deny  #search: nginx allow deny
+            nginx [emerg] unknown directive "ssl":  #keyword: nginx unknown directive ssl
                 手順: systemctl restart nginx
                 エラー: |
                     [root@server-dev ~]# systemctl status nginx  |  less
@@ -1063,6 +1086,22 @@ XML: #keyword:
             空白文字の整理（例えば、タグの間の不要な空白の削除）
     標準化: #keyword: XML standardization
         規格に従うこと
+XPath: #keyword:  #ref: ${programming}/HTML ブラウザ/XML.svg#XPath
+    サンプル >> Playwright:  #search: Playwright CSS selector
+    書式:
+        (/):  #// ルート
+        (//): #// スラッシュ２つ＝子～孫
+        (@):  #// 属性名
+        ([@name='value']):  #// 属性の値でフィルターする述語
+        (|):  #// union、複数のパス、シーケンスの結合
+        (and):
+        ([ ]):  #// n番目の要素
+        (text()):  #// テキスト
+    手順:
+        兄弟など:  #keyword: XPath Axes,  XPath Axes 軸
+            #ref: ${programming}/HTML ブラウザ/XML.svg#Axis
+            次の兄弟: __Self__/following-sibling::__TagName__  #// 次の兄弟の方向のすべてのうち、最初またはすべての __TagName__ タグ
+            次の兄弟の子の input 要素: __Self__/following-sibling::*/input
 Web Vitals: #keyword:  #// Google が決めた Web のパフォーマンス指標の1つ。読み込み速度、レイアウト崩れなど  #ref: https://web.dev/vitals/#core-web-vitals
     Cumulative Layout Shift (CLS):  #// たとえば、警告表示で部品が移動してしまうのは悪い  #ref: https://web.dev/cls/
     Core Web Vitals 2024: #ref: https://gigazine.net/news/20230517-core-web-vitals-interaction-to-next-paint/
@@ -3057,6 +3096,7 @@ HTTP 通信: #keyword: HTTP
             ---------------------------
             GET:  なし      通常なし
             POST: あり      あり
+            PATCH:
         他のメソッド:
             HEAD: GET したときのヘッダーだけリクエストします。たとえば生存確認するときに使われます
                 #ref: https://developer.mozilla.org/ja/docs/Web/HTTP/Methods/HEAD
@@ -3370,6 +3410,7 @@ URL: #keyword:
             bash: |  #// 下記は & の分離のみ。シェルに入力するときは "A=B&C=D" のように " " で囲むこと。バックグラウンド タスク になってしまうため
                 local  ampersandKeyValues="$1"  #// "__Key__=__Value__&__Key__=__Value__&__Key__&__Key__" ...
                 local  keyValues=( $( echo "${ampersandKeyValues}" | sed 's/&/ /g' ) )
+        関連 >> History state:  #search: HTML history.state
     フラグメント: #keyword: URL fragment  #// URL の # より右
     (%)表記, URLエンコード:  #keyword: URL %,  URLエンコード,  パーセント エンコーディング,  percent URL
         Unicode 文字列に変換します:
