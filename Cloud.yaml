@@ -21,10 +21,19 @@
                 ダウンロードします:
                     入手した URL を開きます
                     ファイル名をクリックします
-    規格:
-        ISO/IEC 27001: 情報セキュリティマネジメントシステム（ISMS）に関する国際規格  #keyword: ISO/IEC 27001, ISMS
+    規格:  #glossary:
+        ISO/IEC 27001: #// 情報セキュリティマネジメントシステム（ISMS）に関する国際規格  #keyword: ISO/IEC 27001, ISMS
             #ref: https://www.jqa.jp/service_list/management/service/iso27001/
-        ISO/IEC 27017: クラウドのセキュリティの国際規格  #keyword:
+            規格要求事項:
+                データの分類:
+                    クラウド サービス カスタマ データ:
+                    クラウド サービス 派生 データ:
+                    クラウド サービス プロバイダ データ:
+            管理策:
+            （管理策）実施の手引き:
+        ISO/IEC 27017: #// クラウドのセキュリティの国際規格。27001 のアドオン
+            -   ほぼ同じ ISMAP では、適合したサービスであることが公開されます
+                    #ref: https://www.ismap.go.jp/csm?id=cloud_service_list
         ISO/IEC 17788: クラウドの規格  #keyword:
     用語:
         IT インフラ: #keyword: IT インフラ, IT infrastructure, IT基盤, システムリソース, ITアセット, IT資産, データベース サーバー サービス 設定ファイル

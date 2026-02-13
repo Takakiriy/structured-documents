@@ -158,6 +158,11 @@ Ease US Back up: #keyword:  #ref: ${programming}/OS/Windows/再セットアッ�
 圧縮ファイル(.zip):  #keyword: zip
     パスワード付き Zip ファイルを作ります:
         7-Zip:    #keyword: 7-Zip, 7z,  7zip  #ref: https://7-zip.opensource.jp/
+            インストール:
+                mac:
+                    7z2501-mac.tar.xz をダウンロードしてダブルクリック
+                    #search: mac 7zz encrypt
+                    #search: mac 7zz decrypt
             圧縮するフォルダーを作ります:
             パスワードを生成します:
             Zip ファイルを作ります:
@@ -179,11 +184,24 @@ Ease US Back up: #keyword:  #ref: ${programming}/OS/Windows/再セットアッ�
                         SevenZipExe="/c/Program Files/7-Zip/7z.exe"
                         ParentPath="/c/Users/user1/BigFolders"
                         ls -d *  |  sed 's|/$||'  |  xargs -i  "${SevenZipExe}" a  "${ParentPath}/{}.7z"  "${ParentPath}/{}"
-                展開: |
-                        "C:\Program Files\7-Zip\7z.exe" x  "__7zFilePath__"  -o"__OutputFolderPath__"
-                    #// __OutputFolderPath__ に指定したフォルダーが存在しなくても、作られます
-                    #// -o の右に空白を入れることはできません
-                    #// .7z ファイルを Windows で開いたときにフォルダーが 1つだけ見えたときは、そのフォルダーが作られます
+                    圧縮して暗号化します (mac): | #keyword: mac 7zz encrypt  #// 末尾に .7z が付いたファイルができます
+                        read  "?Unzipped path (quotations are ignored): " UnzippedPath  &&  \
+                        UnzippedPath="$(echo "${UnzippedPath}" | sed "s/^'//" | sed "s/'$//" )"  &&  \
+                        read -s  "?Enter password: " PASSWORD  &&  \
+                        '/Users/user1/Downloads/7z-mac/7zz'  a  "-p${PASSWORD}"  "${UnzippedPath}.7z"  "${UnzippedPath}";  \
+                        unset  PASSWORD
+                展開:
+                    展開: |
+                            "C:\Program Files\7-Zip\7z.exe" x  "__7zFilePath__"  -o"__OutputFolderPath__"
+                        #// __OutputFolderPath__ に指定したフォルダーが存在しなくても、作られます
+                        #// -o の右に空白を入れることはできません
+                        #// .7z ファイルを Windows で開いたときにフォルダーが 1つだけ見えたときは、そのフォルダーが作られます
+                    復号化して解凍します (mac): | #keyword: mac 7zz decrypt  #// mac でダブルクリックしてパスワードを入力しても解凍できません。 末尾に .out が付いたフォルダーができます
+                        read  "?Zipped path (quotations are ignored): " ZippedPath  &&  \
+                        ZippedPath="$(echo "${ZippedPath}" | sed "s/^'//" | sed "s/'$//" )"  &&  \
+                        read -s "?Enter password: " PASSWORD  &&  \
+                        '/Users/user1/Downloads/7z-mac/7zz'  e  "-p${PASSWORD}"  "${ZippedPath}"  -o"${ZippedPath}.out";  \
+                        unset  PASSWORD
                 情報表示:
                     いろいろ: |
                         "C:\Program Files\7-Zip\7z.exe" l  "__7zFilePath__"  "__RelativePathIn7z__"

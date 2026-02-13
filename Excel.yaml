@@ -210,8 +210,8 @@
             1: 小数第1位で切り下げなど
         日時: #search:
     入力規則: #keyword: Excel 入力規則  #// 入力値の制限
-        整数: #keyword: Excel 整数 プルダウン
-            プルダウンの場合:
+        整数: #keyword: Excel 入力規則 整数 
+            プルダウンの場合: #keyword: Excel 整数 プルダウン
                 メニュー: データ >>（データツール グループ）>> データの入力規則 >> データの入力規則
                 入力値の種類: リスト
                 元の値: -5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9, ...
@@ -244,7 +244,8 @@
             最大値: 数値, 1
             色: 灰色など
 フィルター, スライサー: #keyword: Excel filter,  Excel slicer
-ドロップダウンリスト:  #keyword: ドロップダウンリスト, Excel drop down pull down
+プルダウン:  #keyword: プルダウン,  pull down,  ドロップダウンリスト,  Excel drop down pull down
+    整数 プルダウン:  #search: Excel 整数 プルダウン
     セルにドロップダウンリストを追加する(Excel 2019):
         参考: https://www.pc-koubou.jp/magazine/38812
         エクセル:

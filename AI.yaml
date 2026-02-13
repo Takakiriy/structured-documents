@@ -29,11 +29,50 @@
     4コマ漫画: #keyword: 4コマ漫画, 画像生成 4コマ漫画 4コママンガ
         Chat: ChatGPT4o「〜する4コマ漫画を生成してください。日本語で。」  #// 約1分かかります
     保存: #keyword: save AI answer,  save AI  #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
+        Mermaid 形式: #keyword: AI Mermaid  #// AI が出力する時間が早いです。多少の編集もできます
+            #// 文章の流れをフローチャートにするような図しか描けません
+            #// 必ずボックスが作られるので、表現力が限られます
+            #// 必要なら、内容が修正できたら HTML+SVG に変えるます
+            描かせます:
+                プロンプト:
+                    ～のイメージを、 mermaid で書いてください。
+                    HTML に埋め込めるように 改行は <br/> で書いてください。
+                    Syntax error in text にならないように [ ] を書かないでください。
+                    日本語で書いてください。
+                ファイルを作ります:
+                    一時的な HTML ファイルを開きます:  #ref: ${steps}/!Temp1.mmd.html
+                    コピーボタン（出力された HTML の右上）:
+                    （ここに Marmaid を書きます）の部分に貼り付けて保存します:  #ref: ${steps}/!Temp1.mmd.html
+                表示します:
+                    エクスプローラーからファイルを開きます:
+            保存します:  #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
+            TB での左右入れ替え:
+                修正前:
+                    flowchart TB
+                    
+                    subgraph A[タイトル]
+                    direction TB
+                    A0[...]
+                    A1[...]
+                    A0-->A1
+                修正後:  #// 上に透明な項目を追加します
+                    flowchart TB
+                    
+                    subgraph A[<br/>]
+                    direction TB
+                    title[タイトル]:::title
+                    A0[...]
+                    A1[...]
+                    title~~~A0-->A1
+
+                    classDef title fill:none,stroke:none,font-size:20pt;
         HTML+SVG 形式: #keyword: AI HTML SVG  #// 表示が簡単です。多少の編集もできます。Mermaid より遅いです。
             描かせます:
                 プロンプト:
-                    ____ のイメージを HTML+SVG で描いてください。ただし、デスクトップPC で普通に表示できるようレスポンシブではなくしつつ、iPhone の Safari でも viewport の問題が出ないようにしてください。CSS は class で指定してください。@media は使わないでください。
+                    ____ のイメージを HTML+SVG で描いてください。ただし、デスクトップPC で普通に表示できるようレスポンシブではなくしつつ、iPhone の Safari でも viewport の問題が出ないようにしてください。CSS は class で指定してください。@media は使わないでください。文字を大きく太くしてください。
+                追加プロンプト:
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    回答は、body部分だけでいいです。
                 ファイルを作ります:
                     一時的な HTML ファイルを開きます:  #ref: ${steps}/!Temp1.html
                     コピーボタン（出力された HTML の右上）:

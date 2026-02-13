@@ -196,7 +196,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     サンプル: |
                         import { test, expect } from '@playwright/test';
 
-                        await expect(__Locator__).toHaveText(__Text__);
+                        await expect(__Locator__).toHaveText(__Text__);  // 完全一致
                     主なメソッド:
                         toBeEmpty, toContainText, toHaveText, toHaveValue, toHaveValues, ...
                         toHaveCount(__Count__),
@@ -215,10 +215,11 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         __Options__:  #search: Playwright polling options
                     toHaveCount: #// Locators などでマッチした数
                     その他のチェック:  #search: Playwright not expect
-                表示内容のチェック:  #keyword: Playwright toBeVisible
+                表示内容のチェック:  #keyword: Playwright toBeVisible,  Playwright toHaveText
                     サンプル: |
                         import { test, expect } from '@playwright/test';
-                        await expect(__Locator__).toHaveText(__Text__);
+                        await expect(__Locator__).toHaveText(__Text__);  // 完全一致
+                        await expect(__Locator__).toContainText(__Text__);  // 部分一致
                         await expect(page.getByText('__VisibleText__', { exact: false })).toBeVisible();   // exact false は部分一致
                         await expect( page.getByTestId('status') ).toHaveText('Submitted');
                     参照:  #// GUI 部品の特定方法
@@ -323,6 +324,33 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                 WSL2 Windows: #keyword: run WSL2 Playwright  #// Windows 版 Playwright を WSL2 の Linux のフォルダー で実行します
                     できるけど、すごい遅い
             一部:  #// 一部の テスト コード をテストまたはデバッグします
+                フル テスト と通常テストを分けます: #keyword: Playwright @full test  #// 通常時、@full が付いたテストをスキップさせます
+                    #focus: @full,  ALL_TEST
+                    準備:
+                        __PlaywrightProject__/playwright.config.ts: |  #// 通常時、@full が付いたテストをスキップさせます
+                            export default defineConfig({
+                                grepInvert: process.env.ALL_TEST ? undefined : /@full/,
+                        myTest.spec.ts: |  #// フル テスト のときだけ実行するテスト名の一部に @full を付けます
+                            test('full test @full', async ({ page }) => {
+                    コマンド:
+                        #// --list オプションを付けると、対象テストをすぐに一覧できます。実行時は --list オプションを外してください
+                        通常時:
+                            npx playwright test  __Parameters__  --list
+                        フル テスト 時:  #// 環境変数 ALL_TEST に 1 を設定して実行します
+                            ALL_TEST=1  npx playwright test  __Parameters__  --list
+                初期化とテストを分けます: #keyword: Playwright @initialize
+                    #focus: @initialize
+                    準備:
+                        myTest.spec.ts: |  #// 初期化するテスト名に @initialize を付けます
+                            test('full test @initialize', async ({ page }) => {
+                    コマンド:
+                        #// --list オプションを付けると、対象テストをすぐに一覧できます。実行時は --list オプションを外してください
+                        通常時:
+                            npx playwright test  __Parameters__  --list
+                        初期化をスキップするとき:
+                            npx playwright test  __Parameters__  --grep-invert "@initialize"  --list
+                        特定の初期化だけ実行するとき:
+                            npx playwright test  __Parameters__  --grep "__TestName__ @initialize"  --list
                 CLI:  #// デバッガーなし
                     基本的な実行ができることを確認します:
                         #search: run all Playwright
@@ -330,6 +358,9 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         - npx playwright test  --grep "__TestTitle__"
                             #// または
                         - npx playwright test  -g "__TestTitle__"
+                    テストを一覧します:  #keyword: Playwright --list
+                        #// --list オプションを付けます
+                        npx playwright test  "tests/1.spec.ts"  --list
                     ファイル名を指定する場合: |
                         npx playwright test  tests/my-test.spec.ts
                         npx playwright test  "example.spec.ts:42"   #// 42 行目にあるテスト
@@ -360,7 +391,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         #// チェックを外すと Run Test（デバッガーなし）で実行するときにブラウザーが開かないようになり、速くなります
                     関連:
                         CLI の場合:  #ref: https://playwright.dev/docs/debug#browser-developer-tools
-            サービスの状態別:  #// サービスの状態に応じて、一部のいくつかのテストだけ実行します
+            サービスの状態別:  #// サービスの状態に応じて、一部のいくつかのテストだけ実行します。タグが付いたテストは通常でも実行されます
                 フィルターを使う場合:
                     テスト コード:  #// タグのサンプル： @standard
                         テスト名にタグをつける場合: |
@@ -385,6 +416,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                 スキップを使う場合: |
                     test('testDisplay', async ({ page }) => {
                         test.skip(true, 'このテストは特定モードでのみ実行されます');
+        テストを一覧します: #search: Playwright --list
         結果を見る:
             動画を撮る:  #ref: https://zenn.dev/reflex4qa/articles/b9ce85908a9374
                 playwright.config.ts : |
@@ -579,6 +611,12 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         または、文末をクリックして上下のカーソルキーを押します:
                     リテラルを指定しない場合:
                         await input.highlight(); // Playwright 1.27+  #// 未確認
+                表示文字列を使わない場合:
+                    data- 属性: #keyword: Jest data- attribute  #// 例：data-test 属性
+                        HTML:
+                            <input type="text" name="input-text" data-test="input-text"/>
+                        JavaScript:
+                            await page.locator('[data-test=input-text]').fill('ABC');
                 page.locator と mocal.locator:
                     モーダルダイアログ内の要素にアクセスする場合: mocal.locator
                 表示されているテキスト:
@@ -586,6 +624,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     #// page.locator(getTextSelector(["有効"])); ではハイライトできません #search: Playwright getTextSelector
                 複数マッチした場合: #keyword: Playwright locator 2nd match
                     page.locator('xpath=(//*[contains(text(), "有効")])[2]');  #// 1つ目にマッチしたものを取得するときは [0] ではなく [1] です。2つ目は [2] です
+                兄弟など:  #search: XPath Axes
                 指定のテストの後の最初のテキスト: |
                     page.locator('//*[contains(text(), "暗号化")]/following::*[contains(text(), "有効")][1]');
                         または
@@ -602,6 +641,8 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         page.locator('table td:last-child').nth(0).locator('xpath=..//button')
                     2列目が特定のテキストの末尾の列のボタン:
                         page.locator('//tr[td[2]="特定のテキスト"]/td[last()]//button')
+                textarea:
+                    await page.getByText('メモ').nth(0).locator('xpath=..//textarea').nth(1).fill('memo1');
                 getTextSelector: #keyword: Playwright getTextSelector  #// テキストを選択するセレクターを返す関数
                     非推奨:
 
@@ -942,7 +983,7 @@ cypress: #keyword:  #ref: ${programming}/方法論/テスト.svg#cypress
                     cy.visit('/')
                 ボタン:
                     cy.get('button').contains('次へ').click()
-                プルダウンリスト:
+                プルダウン:
                     cy.get('#select').select('アイテム１')
                 イベントをトリガーします: #keyword: cypress trigger event
                     書式サンプル: |
@@ -2191,6 +2232,17 @@ Jest: #keyword: Jest  #// JavaScript TypeScript test framework
                 });
                 describe("(error) basic >>", () => {
                 });
+        beforeEach:  #glossary:  #ref: https://qiita.com/Takakiri/items/fbb06a38a6405289301e#describe-test-beforeall-beforeeach-aftereach-afterall---テストコードの構成
+            describe, test:
+            beforeAll:
+            beforeEach: |
+                import { test, expect } from '@playwright/test';
+
+                test.beforeEach( async ({ page }) => {
+                    console.log("1 - beforeEach");
+                });
+            afterEach:
+            afterAll:
     参考:
         なぜJestのmockライブラリに混乱してしまうのか？: https://qiita.com/s_karuta/items/ee211251d944e72b2517
     トラブル シューティング (Jest): #keyword: Jest trouble

@@ -1098,10 +1098,11 @@ XPath: #keyword:  #ref: ${programming}/HTML ブラウザ/XML.svg#XPath
         ([ ]):  #// n番目の要素
         (text()):  #// テキスト
     手順:
-        兄弟など:  #keyword: XPath Axes,  XPath Axes 軸
+        兄弟など:  #keyword: XPath Axes,  XPath Axes 軸 兄弟 following-sibling
             #ref: ${programming}/HTML ブラウザ/XML.svg#Axis
             次の兄弟: __Self__/following-sibling::__TagName__  #// 次の兄弟の方向のすべてのうち、最初またはすべての __TagName__ タグ
             次の兄弟の子の input 要素: __Self__/following-sibling::*/input
+            次の次の div の中の input 要素: __Self__/following-sibling::div[2]//input
 Web Vitals: #keyword:  #// Google が決めた Web のパフォーマンス指標の1つ。読み込み速度、レイアウト崩れなど  #ref: https://web.dev/vitals/#core-web-vitals
     Cumulative Layout Shift (CLS):  #// たとえば、警告表示で部品が移動してしまうのは悪い  #ref: https://web.dev/cls/
     Core Web Vitals 2024: #ref: https://gigazine.net/news/20230517-core-web-vitals-interaction-to-next-paint/
@@ -1397,6 +1398,11 @@ HTTP 通信: #keyword: HTTP
                     #ref: https://developer.mozilla.org/ja/docs/Web/HTTP/Headers
     HTTPS: #keyword:
         自己署名証明書: #search:
+        トラブルシューティング:
+            failed to verify certificate x509: #keyword: tls: failed to verify certificate: x509: certificate signed by unknown authority
+                Nomad:  #search: NOMAD_CACERT
+                Vault:  #search: VAULT_CACERT
+                Open BAO:  #search: VAULT_CACERT
     HTTP/2, HTTP/3: #keyword:
         HTTP/3: #keyword:
             TCP と TLS を QUIC に置き換え

@@ -548,12 +548,13 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                     Visibility, project features, permissions >> Container registry（をオン、Everyone With Access に）>>
                     Save Changes（下）
                     #search: GitLab Docker permissions
-                メンバーを使う場合:  #search: GitLab members
+                （レアケース）基本認証を使う場合:  #search: GitLab members
                     必要なロール: #search: GitLab Roles  #// Docker レジストリ への登録など
                         レジストリへの create, delete: Maintainer, ...
                         レジストリへの push: Developer, Maintainer, ...
                     ログインします:
-                        基本認証を使います
+                        docker login  registry.gitlab.com
+                            基本認証を使います
                 PAT を使う場合:
                     personal access token (PAT) を作ります:
                         メニュー: https://gitlab.com/-/profile/personal_access_tokens >> Add new token（右上）
@@ -566,25 +567,30 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                         （Copy personal access token）ボタン:
                         （ローカルの安全な場所に貼り付け）:  #search: ❗secret
                         （トークン名もコピペ）:
-                        ×ボタン（PAT を閉じます）:
+                        （開発環境へ保存する場合）:
+                            ~/secret/GitLabPAT/__Name__
+                        リロード（PAT を閉じます）:
                     ログインします: #keyword: docker login registry steps
                         (docker をインストールした VM の bash):
-                            - docker login registry.gitlab.com  -u Takakiriy  #// Password: と表示されたら __PAT__ を貼り付けて Enter キーを押します
+                            - docker login  registry.gitlab.com  -u Takakiriy  #// Password: と表示されたら __PAT__ を貼り付けて Enter キーを押します
                                 #// または
-                            - docker login registry.gitlab.com  -u Takakiriy  -p __PAT__
+                            - docker login  registry.gitlab.com  -u Takakiriy  -p __PAT__
                                 #template: -u __GitLabAcount__  -p __PAT__
+                            #// ホスト名は GitLab なら Container Registory の Web ページにあります
                         エラーが発生した場合:
                             メッセージ: |
                                 dial unix /var/run/docker.sock: connect: permission denied
                             対処:
                                 newgrp docker
                 ローカルにある Docker イメージに ターゲット イメージ タグ が付いていることを確認します:
-                    docker images
-                    #search: Docker target image tag
-                    #search: docker tag
+                    確認コマンド:
+                        docker images
+                    ターゲット イメージ タグ:  #search: Docker target image tag  #search: docker tag
+                        docker tag  "__ImageName__:__TagName__"  __Host__/__User__/__Project__/__ImageName__:__TagName__
                 push します:  #// アップロードします
                     docker push  __Host__/__User__/__Project__/__ImageName__:__TagName__
                         #// docker images コマンドで表示されたタグを貼り付けます
+                        #// __Host__ は GitLab なら Container Registory の Web ページにあります
                 登録を確認します:
                     プロジェクト URL: https://gitlab.com/takakiriy1/first  #template: __GitLabUser__/__Reposiroty__
                     メニュー: プロジェクト >> Deploy >> Container Repository
@@ -596,7 +602,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                     #// cat ~/.docker/config.json | grep registry.gitlab.com はログアウトしても表示されます
                 動作確認します:
                     #search: docker run
-                PAT を削除します:
+                （不要になったら）PAT を削除します:
                     メニュー: https://gitlab.com/-/profile/personal_access_tokens >> Personal Access Tokens >> ゴミ箱 ボタン
                 #ref: https://docs.docker.com/engine/reference/commandline/login/#credential-stores
         ログイン:  #keyword: Docker login,  Docker log in,  Docker container login bash
@@ -621,6 +627,11 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
             docker-compose を使う場合:  #search: docker-compose login
             Docker リポジトリにログインする場合:  #// docker login コマンド  #search: docker login registry steps
         環境依存を無くす:  #// Docker コンテナー は Linux の種類やバージョンの影響を受けない
+            環境判定:
+                /.dockerenv: | #keyword: /.dockerenv,  IsInDockerContainer  #// Docker コンテナーの中なら /.dockerenv にファイルがあります
+                    function  IsInDockerContainer() {
+                        test  -f  "/.dockerenv"
+                    }
             注意:
                 GPU を使うプログラム: Linux では動かない可能性が高い
         ベストプラクティス: #keyword: Docker ベストプラクティス
@@ -630,26 +641,28 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                 水平スケールやコンテナの再利用を簡単にします。
                 サービスとサービスに依存関係がある場合は、 コンテナのリンク を使います。
     画面, ダッシュボード:  #// 主に Windows 用、コンテナー、ボリューム、イメージを一覧するウィンドウです  #keyword: Docker Dashboard
-        開く: （Windows 通知領域）Docker（を右クリック）>> Dashboard
-        画面構成:
-            設定（歯車ボタン, 右上）:
-                Resources:
-                    PROXIES: #🌟
-            メニュー項目（左）:  #// コンテナーなどの CRUD 操作もできます
-                Containers / Apps:
-                    コンテナー（行）:
-                        （イメージ名）:  #// Dockerfile の内容の一部？
-                        （行をクリック）:
-                            LOGS: #🌟 #// 標準出力
-                            INSPECT:  #// PATH, マウント（ボリューム）, ポート番号
-                            STATS:  #// CPU 使用率、メモリー使用量、ディスク アクセス量、ネットワーク帯域使用量
-                        OPEN IN BROWSER:  #// 右上への矢印 ボタン
-                        CLI: #🌟  #// >_ ボタン
-                        STOP:  #// ■ ボタン
-                        RESTART:  #// 右回転矢印 ボタン
-                        DELETE: #🌟  #// ゴミ箱 ボタン  #keyword: Docker Dashboard DELETE
-                Images:
-                Volumes:
+        公式:
+            開く: （Windows 通知領域）Docker（を右クリック）>> Dashboard
+            画面構成:
+                設定（歯車ボタン, 右上）:
+                    Resources:
+                        PROXIES: #🌟
+                メニュー項目（左）:  #// コンテナーなどの CRUD 操作もできます
+                    Containers / Apps:
+                        コンテナー（行）:
+                            （イメージ名）:  #// Dockerfile の内容の一部？
+                            （行をクリック）:
+                                LOGS: #🌟 #// 標準出力
+                                INSPECT:  #// PATH, マウント（ボリューム）, ポート番号
+                                STATS:  #// CPU 使用率、メモリー使用量、ディスク アクセス量、ネットワーク帯域使用量
+                            OPEN IN BROWSER:  #// 右上への矢印 ボタン
+                            CLI: #🌟  #// >_ ボタン
+                            STOP:  #// ■ ボタン
+                            RESTART:  #// 右回転矢印 ボタン
+                            DELETE: #🌟  #// ゴミ箱 ボタン  #keyword: Docker Dashboard DELETE
+                    Images:
+                    Volumes:
+        Dockhand: #keyword:  #ref: https://gigazine.net/news/20260117-dockhand/
     ファイル:
         Dockerfile: #glossary: Dockerfile  #keyword:  #// イメージを作る設定ファイル  #ref: ${programming}/OS/VMWare.svg#make_Docker_image_from_Dockerfile
             公式: #ref: http://docs.docker.jp/engine/reference/builder.html
@@ -1080,6 +1093,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                         現在のプロセスの場合:  #// unit file など TTY が無い環境の場合
                             書式: docker run -i --rm  --name __NewContainerName__  __DockerImageName__  #search: docker image name
                             実行内容: RUN 命令 に書かれたコマンドと CMD 命令 に書かれたコマンドを実行します  #search: docker run command argument
+                        #search: docker container run -d sleep
                 コンテナーを起動してコマンドを実行します: #keyword: docker run command argument
                     書式: docker run -it --rm  --name __NewContainerName__  __DockerImageName__  __Command__  #search: docker image name
                     実行内容: __Command__ があると RUN 命令 に書かれたコマンドと __Command__ を実行します。 CMD 命令 に書かれたコマンドは実行しません
@@ -1173,6 +1187,10 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                 #search: docker run -it --rm option
             起動済みのコンテナーでコマンドを実行します:  #// 新しいプロセスを作ます
                 書式: docker exec  -it  __ContainerName__  __Command__  __Parameters__
+                ユーザー指定, USER 環境変数:  #// 自動的には定義されません
+                    docker exec  -u __User__  -e USER=__User__  __ContainerID__  bash
+                ~/.bashrc:
+                    自動的に呼ばれませんが、明示的に呼び出すことはできます。
                 スクリプトを呼び出す場合: |  #// /share は docker run -v で共有してから
                     docker exec -it  --user docker  ${ContainerName}  \
                         /share/wait_for_it.sh  localhost  22  \
@@ -1190,6 +1208,20 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                 パラメーターやパイプなどをコンテナ―内で使う場合: #keyword: docker exec bash -c
                     docker exec -it  __ContainerName__ bash -c '__Command__ __Wildcard__ | __Command2__'
                     docker exec -it  Rocky9 bash -c 'ls /proc | xargs -I{} cat /proc/{}/comm 2> /dev/null | grep sleep'
+                標準入力へ転送:  #keyword: docker exec stdin  #// シークレットを渡すときは、これが最も安全。パラメーターで渡すとログに残ってしまいます
+                    ホスト側: |
+                        printf '%s\n%s\n' "${VAULT_ROLE_ID}" "${VAULT_SECRET_ID}"  \
+                        | docker exec -i app-container /usr/local/bin/vault-login-stdin.sh
+                    コンテナー側:
+                        vault-login-stdin.sh: |
+                            echo  "Reading VAULT_ROLE_ID ..."
+                            read  VAULT_ROLE_ID
+                            read  VAULT_SECRET_ID
+                            exec  0<&-  #// close stdin  または  exec < /dev/null  #// close stdin
+                            echo  "Closed stdin."
+                            echo  "${VAULT_ROLE_ID}"
+                環境変数の設定:  #keyword: docker exec -e
+                    docker exec  -u __User__  -e USER=__User__  __ContainerID__  bash
                 環境変数の展開:  #search: evaluate docker environment variable
                 WSL2 コマンド: #keyword: PowerShell WSL2 docker exec  #// Windows から WSL2 内のコンテナ―のコマンドを実行します  #search: PowerShell WSL2 Docker command
                     # (Git bash)
@@ -1271,6 +1303,9 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
             -t, --tag オプション:  #// Docker イメージの名前を指定します
             手順: #search: making docker image
         docker images:  #search: docker tag  #// ローカルにあるタグと image ID を一覧します
+            #search: Docker image
+            削除, docker image rm:  #keyword: docker image rm
+                docker image rm  "__ImageName__:__Tag__"   #// 複数指定可能
         docker tag:  #ref: https://docs.docker.com/engine/reference/commandline/tag/
             手順:
                 追加:  #// タグをローカルに追加します
@@ -1281,7 +1316,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                     #search: Docker image version
                 バージョンを調べます:  #search: docker image version
             概念:
-                ソース イメージ タグ, ローカル イメージ タグ: #keyword: Docker source image tag,  docker tag
+                ソース イメージ タグ, ローカル イメージ タグ: #keyword: Docker source image tag,  docker tag,  docker image tag
                     書式:  #focus: __TagName__
                         __SourceImage__:__TagName__
                     #search: docker image name
@@ -1316,16 +1351,24 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                 #// --no-trunc を外すと長い内容が省略され、表形式になります
             公式:
                 #ref: https://docs.docker.jp/engine/reference/commandline/history.html
+        docker commit:  #// 今動いてるコンテナーを image にします
+            docker commit  "__Container__"  "__ImageName__:__Tag__"
+            docker history  "__ImageName__:__Tag__"
+                #// docker run に指定したイメージからの差分がイメージになります
         docker pull:  #ref: https://docs.docker.jp/engine/reference/commandline/pull.html
             -   docker pull debian
             -   docker pull mysql:8.0
         docker push:  #search: upload Docker image
-        docker save: |
-            docker pull  "__ImageName__"
-                #// または docker pull  "__ImageName__:__Tag__"
-            docker save  --output "__OutputFolder__/__ImageName__-__Tag__.tar"  "__ImageName__:__Tag__"
-                #// --output の短いオプション名は -o です
-            #// scp などで転送します
+        docker save:  #// ベースイメージの内容も含めて、すべてのレイヤーを保存します
+            既存のイメージを保存する場合: |
+                docker pull  "__ImageName__"
+                    #// または docker pull  "__ImageName__:__Tag__"
+                docker save  --output "__OutputFolder__/__ImageName__-__Tag__.tar"  "__ImageName__:__Tag__"
+                    #// --output の短いオプション名は -o です
+                #// scp などで転送します
+            現在のコンテナーを保存する場合: |  #// イメージ化を含みます
+                docker commit dev-container myimage:tmp
+                docker save myimage:tmp > myimage.tar
         docker load: |
             #// scp などで転送してから
             docker load  --input "__TarFilePath__"
@@ -1381,7 +1424,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
             削除: #keyword: delete docker image,  delete docker container,  docker stop,  docker rm,  remove delete docker container
                 Dockerイメージなどを削除します:  #// 停止についてもここに書いてあります。イメージ ＝ VM全体の内容。キャッシュにもなる
                     ダッシュボードを使う場合:  #search: Docker Dashboard
-                    1つのDockerイメージを停止・削除します: #🌟
+                    1つの Docker コンテナ―停止・イメージを削除します: #🌟
                         コンテナーの名前を調べます:
                             - docker ps -a   #// コンテナーを一覧します。表示された表の最も右の列にある対象のコンテナー名を __ContainerName__ とします
                             - docker ps -a | grep __DockerImageName__
@@ -1400,7 +1443,8 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                             - 無限 sleep している場合  #search: docker container run -d sleep
                         イメージを削除します:
                             - docker images  #// 存在するイメージを一覧します
-                            - docker rmi __DockerImageName__:__Tag__  #keyword: docker rmi  #// イメージを削除します
+                            - docker image rm __DockerImageName__:__Tag__  #keyword: docker image rm  #// イメージを削除します
+                                #// docker rmi は docker image rm の古いコマンド名です。同じ機能です  #keyword: docker rmi
                                 #// Untagged という表示だけで Deleted が表示されないときでも成功を表します
                                 #// 同じイメージに関連付けられているすべてのタグが削除されると Deleted と表示されます
                     すべてのコンテナーを stop します:
@@ -1606,6 +1650,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                         匿名volume（ランダムな名前）が自動的に作られます
                     Dockerfile に VOLUME がないイメージを使う場合:
                         コンテナー内の特定のフォルダーをボリュームに接続しないと、コンテナー終了時にファイルの変更が失われます
+                ボリュームを一覧します:  #search: docker volume ls
                 コンテナ―との関連:  #search: docker inspect
                     docker inspect -f '{{ range .Mounts }}{{ .Name }} {{ end }}'  __ContainerName__
                 ホストのフォルダーを共有する場合: #keyword: Docker shared folder
@@ -1636,40 +1681,44 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                             Dashboard を開きます:  #search: Docker Dashboard
                             メニュー: Volumes（左）
                     docker volume rm: #keyword: Docker volume delete  #// ボリュームを削除します
-                        手順:
-                            1つ削除:
-                                ボリューム名を確認します:
-                                    docker-compose.yml から探す場合:
-                                        #search: docker-compose.yml volumes
-                                    一覧から探す場合:
-                                        #search: docker volume ls
-                                    docker inspect コマンドで探す場合:  #keyword: docker inspect volume
-                                        コマンド入力:
-                                            - docker ps -a   #// NAMES がコンテナー名です
-                                            - dockerc inspect __ContainerName__
-                                        出力内容から調べます: |  #focus: Mounts, volume, Name  #// __VolumeName__ は 4fa95 ... です
-                                            "Mounts": [
-                                                {
-                                                    "Type": "volume",
-                                                    "Name": "4fa95bcd6041ba7db6a3a81afdbe7ba166ebf1e93336a52265f35f5ef7e6a50e",
-                                                    "Source": "/var/lib/docker/volumes/4fa95bcd6041ba7db6a3a81afdbe7ba166ebf1e93336a52265f35f5ef7e6a50e/_data",
-                                                    "Destination": "/var/lib/postgresql/data",
-                                コンテナーを削除します:  #// 以下のいずれか
-                                    #search: docker rm
-                                    #search: docker-compose down
-                                ボリュームを削除します:
-                                    docker volume rm __VolumeName__
-                                トラブルシューティング:
-                                    - #// remove __Volume__: volume is in use
-                                        手順: docker volume rm __Volume__
-                                        エラー: |
-                                            Error response from daemon: remove __Volume__: volume is in use - [__ContainerID__]
-                                            docker-compose -f docker-compose.zabbix.yml  down --volumes
-                                        対処:
-                                            __ContainerID__ のコンテナーを終了させてください
-                            使っていないすべて削除:
-                                docker volume prune
+                        1つ削除:
+                            ボリューム名を確認します:
+                                docker-compose.yml から探す場合:
+                                    #search: docker-compose.yml volumes
+                                一覧から探す場合:
+                                    #search: docker volume ls
+                                docker inspect コマンドで探す場合:  #keyword: docker inspect volume
+                                    コマンド入力:
+                                        - docker ps -a   #// NAMES がコンテナー名です
+                                        - dockerc inspect __ContainerName__
+                                    出力内容から調べます: |  #focus: Mounts, volume, Name  #// __VolumeName__ は 4fa95 ... です
+                                        "Mounts": [
+                                            {
+                                                "Type": "volume",
+                                                "Name": "4fa95bcd6041ba7db6a3a81afdbe7ba166ebf1e93336a52265f35f5ef7e6a50e",
+                                                "Source": "/var/lib/docker/volumes/4fa95bcd6041ba7db6a3a81afdbe7ba166ebf1e93336a52265f35f5ef7e6a50e/_data",
+                                                "Destination": "/var/lib/postgresql/data",
+                            コンテナーを削除します:  #// 以下のいずれか
+                                #search: docker rm
+                                #search: docker-compose down
+                            ボリュームを削除します:
+                                docker volume rm __VolumeName__
+                            トラブルシューティング:
+                                - #// remove __Volume__: volume is in use
+                                    手順: docker volume rm __Volume__
+                                    エラー: |
+                                        Error response from daemon: remove __Volume__: volume is in use - [__ContainerID__]
+                                        docker-compose -f docker-compose.zabbix.yml  down --volumes
+                                    対処:
+                                        __ContainerID__ のコンテナーを終了させてください
+                        使っていないすべて削除:
+                            docker volume prune
                     docker volume create:  https://docs.docker.jp/engine/reference/commandline/volume_create.html
+            構成:  #// ボリューム
+                ボリューム:
+                    共有:  #search: Docker shared folder
+                    Permission:  #search: Docker volume permission
+                    保存場所:  #search: docker volume ls
             ファイル:
                 Dockerfile に書く場合: #search: Dockerfile VOLUME
                 docker-compose.yml に書く場合: #search: docker-compose.yml volumes
@@ -6472,6 +6521,7 @@ Ansible: #keyword: Ansible, an
                         chdir: /opt
                         cmd: tar -xzf kafka_{{ ScalaKafkaVersion }}.tgz
         ターゲット ホスト のヘルスチェック:  #search: 
+        上書きチェック:  #search: Ansible APPROVED  #// Ansible が上書きするファイルの内容を目視で確認させてからデプロイします
         その他の公式サンプル: #ref: https://github.com/ansible/ansible-examples
     コマンド（シェル）:  #keyword: ansible command
         バージョンの確認方法:  #keyword: Ansible version,  Ansible Python  #// 以下のいずれか
@@ -6692,6 +6742,7 @@ Ansible: #keyword: Ansible, an
                             できません  #ref: https://www.reddit.com/r/ansible/comments/nq382v/how_to_display_verbose_only_for_a_particular_task/?rdt=37635
                         関連:
                             タスクの標準出力:  #search: Ansible task stdout
+                    上書きチェック:  #search: Ansible APPROVED  #// Ansible が上書きするファイルの内容を目視で確認させてからデプロイします
                 実行します（インストールします）:  #search: first ansible-playbook command
                 一部を実行します: #keyword: next ansible-playbook command
                     １つのタスクだけ実行します:
@@ -6859,6 +6910,44 @@ Ansible: #keyword: Ansible, an
                         --key-file ____.id_rsa :  become-user ユーザーの秘密鍵を指定します
                         -K : 実行中に become-user ユーザーのログイン パスワードを入力できるようにするとき
                     Playbook ファイルに設定する場合: #search: ansible become
+                上書きチェック: #keyword: Ansible APPROVED,  Ansible preview  #// Ansible が上書きするファイルの内容を目視で確認させてからデプロイします
+                    コード: #keyword: ansible_approved
+                        #focus: ansible_approved,  preview
+                        group_vars: |  #search: Ansible group_vars YAML  #// 環境変数の値を変数に代入します
+                            ansible_approved: "{{ lookup('env', 'APPROVED') | default('0') }}"
+                        ヘルプ表示タスク: |  #// 以下のような内容を最初のタスクとして書きます
+                            tasks:
+                                -   name: __Service__ service deploy guide
+                                    assert:
+                                        that: ansible_approved == '1'
+                                        fail_msg: |
+                                            ==========================================
+                                            まず以下のコマンドで差分を確認してください:
+                                                ansible-playbook  __Parameters__  --diff --tags preview --check
+                                            確認後、以下でデプロイを実行してください:
+                                                APPROVED=1 ansible-playbook  __Parameters__
+                                            ==========================================
+                            #// APPROVED 環境変数が 1 などに設定されていなければ（ansible_approved 変数が 1 に設定されていなければ）
+                            #// 警告を表示して ansible の実行が終了します
+                        ファイルを上書きするタスク:  #// タスクの tags フィールドに preview を追加します
+                            -   name: Upload __Service__ config
+                                template:
+                                    src: app.conf.j2
+                                    dest: /etc/app.conf
+                                tags: [preview]
+                            #// --tags preview オプション を指定すると、上記のように tags の設定があるタスクだけ実行します。
+                            #// --tags オプション を指定しなかったときでも、tags の設定があるタスクを実行します。
+                            #// --check オプション を指定するとファイルを上書きしません
+                            #// --diff オプション を指定すると差分が表示されます
+                    コマンド:  #// 通常、以下の順番で実行します
+                        （必要なら）ヘルプ表示します:  #// 通常のコマンドを実行するとヘルプ表示だけになります
+                            ansible-playbook  __Parameters__  #// --diff の有無は問いません
+                        変更内容を確認します:  #// --diff --tags preview --check オプション を指定します
+                            ansible-playbook  __Parameters__  --diff --tags preview --check
+                        期待した変更内容になるまで ソース ファイル を修正します:
+                            vi __FilePath__
+                        デプロイします:  #// APPROVED 環境変数を 1 に指定して実行します
+                            APPROVED=1 ansible-playbook  __Parameters__  --diff
         ansible-pull コマンド:  #// git から設定手順のリポジトリーをチェックアウトしてプロビジョニングします
             https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_intro.html#ansible-pull  #template: __DocumentVersion__
         ansible-lint コマンド:  #// スタイル チェック
@@ -11589,7 +11678,7 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                         sudo vi /etc/nomad.d/nomad.hcl  #search: nomad.hcl with Vault
                         sudo systemctl restart nomad
                         #// nomad node status -self -verbose  #// "nomad.hcl" ファイルの acl が enabled の場合、nomad コマンドを実行するには bootstrap トークン（下記）が必要なので、まだ実行できません。
-                    Nomad の ACL システム を初期化します: |
+                    Nomad の ACL システム を初期化します: | #keyword: nomad acl bootstrap
                         export VAULT_ADDR="http://localhost:8200"
                         nomad acl bootstrap
                             表示された内容（特に以下のキー）を安全な場所 ~/.secrets/nomad_acl_bootstrap.log に保存します。
@@ -11643,8 +11732,8 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                             vault auth list -detailed
                                 jwt-nomad/    jwt       auth_jwt_8a6f7cd1  ...
                                 ...
-                        ポリシーを登録します: #keyword: vault policy write example
-                            サンプル: |  #// 下記の注意点をチェックしてから実行してください
+                        ポリシーを登録します: #keyword: vault policy write example  #search: policy HashiCorp Vault
+                            サンプル: |  #// nomad-workloads ポリシーを登録します。 下記の注意点をチェックしてから実行してください
                                 vault policy write  "nomad-workloads" - << HERE_DOCUMENT
                                 path "secret/data/{{identity.entity.aliases.auth_jwt_00000000.metadata.nomad_namespace}}/{{identity.entity.aliases.auth_jwt_00000000.metadata.nomad_job_id}}/*" {
                                     capabilities = ["read"]
@@ -11928,6 +12017,23 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
     Web UI:  #ref: https://learn.hashicorp.com/collections/nomad/web-ui
         Deployment History:  #search: Nomad debug WebUI
     コマンド:  #glossary: Nomad
+        環境変数: #keyword: nomad CLI environment  #glossary:
+            サンプル:
+                Nomad + Vault 環境:
+                    export NOMAD_ADDR="https://localhost:4646"
+                    export NOMAD_CACERT="/etc/nomad.d/tls/tls.crt"
+                    export NOMAD_TOKEN="$( cat  ~/.secrets/nomad_acl_bootstrap.log  |  grep  "Secret ID"  |  awk  '{print $NF}'  |  tail -1 )"
+                    nomad status
+                    nomad node status
+            NOMAD_ADDR:
+                未設定の場合: http://127.0.0.1:4646  #// http と https の違いに注意
+            NOMAD_CACERT: |
+                export NOMAD_CACERT="/etc/nomad.d/tls/tls.crt"
+                設定しないと以下のようなエラーになります。
+                    tls: failed to verify certificate: x509: certificate signed by unknown authority
+            NOMAD_TOKEN:
+                export NOMAD_TOKEN="$( cat  ~/.secrets/nomad_acl_bootstrap.log  |  grep  "Secret ID"  |  awk  '{print $NF}'  |  tail -1 )"
+                #search: nomad acl bootstrap
         nomad job run:  #// ジョブを実行します
             #search: nomad job run example
         nomad job inspect: |
@@ -11991,14 +12097,7 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                 以下のように実行される場合、ネームスペースは default 固定です。
                 $ nomad namespace list
                 No namespaces found
-        環境変数: #keyword: nomad CLI environment  #glossary:
-            NOMAD_ADDR:
-                未設定の場合、http://127.0.0.1:4646
-            NOMAD_CACERT: |
-                export NOMAD_CACERT="/etc/nomad.d/tls/tls.crt"
-                設定しないと以下のようなエラーになります。
-                    tls: failed to verify certificate: x509: certificate signed by unknown authority
-        （接続できないとき）:  #search: NOMAD_ADDR
+        （接続できないとき）:  #search: nomad CLI environment
     構成:
         #↓ 概要
         サービスの配置: #keyword: Nomad placement
@@ -12828,6 +12927,16 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
         artifact 関連:  #search: Nomad artifact trouble
         変数が展開されない:  #search: Nomad ${ }
         #↓ エラー メッセージ
+        Unexpected response code 403,  Unexpected response code 400:
+            手順:
+                nomad コマンド
+            ログ: |
+                $ nomad node status
+                Error querying node status: Unexpected response code: 403 (Permission denied)
+                    または
+                Error querying jobs: Unexpected response code: 400 (Client sent an HTTP request to an HTTPS server.)
+            対処:
+                #search: nomad CLI environment
         400 (Client sent an HTTP request to an HTTPS server.):  #keyword: NOMAD_ADDR
             手順: nomad コマンド
             ログ: |
@@ -12926,7 +13035,7 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
     #ref: https://www.ctc-g.co.jp/solutions/vault/
     #ref: https://zenn.dev/nameless_gyoza/articles/hashicorp-vault-hands-on
     手順:
-        Vault と OpenBao の違い:
+        Vault と OpenBao の違い:  #ref: https://www.publickey1.jp/blog/23/hashicorp_vaultopenbaolinux_foundation.html
             サービス名: valut, openbao  #// systemctl など
             コマンド名: vault, bao
             ファイル名: /etc/vault.d/vault.hcl,  /etc/vault.d/openbao.hcl
@@ -12953,7 +13062,7 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             サービスを起動します:
                 sudo systemctl start  vault
                 sudo systemctl enable  vault
-            初期化します: |  #keyword: HashiCorp Vault root token
+            初期化します: |  #keyword: create HashiCorp Vault root token,  vault operator init,  Initial Root Token HashiCorp Vault
                 export VAULT_ADDR="http://localhost:8200"
                 vault status
                 vault operator init
@@ -13054,24 +13163,51 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                 #// Ansible を使う環境では、以下ではなく、Ansible を使います
                 sudo systemctl start openbao
                 VAULT_ADDR=http://localhost:8200 vault operator init
+        CLI でログインします: #keyword: Vault log in
+            トークンを変数に代入する場合:
+                #search: vault write auth/__AuthenticationMethod__/login
+            トークンを保存する場合:
+                vault login コマンド: #keyword: vault login
+                    設定: vault login  __Token__  #// Initial Root Token など
+                ~/.vault-token:
+                    内容: トークン（生のテキスト）  #search: policy token HashiCorp Vault
+        WebUI でログインします: #keyword: Vault web UI
+            URL: https://localhost:8200
+            Method: Token
+            Token:
+                local の場合:  #search: Initial Root Token HashiCorp Vault
+                    less  ~/.secrets/vault_initial.log
     コマンド:  #glossary:
-        #// OpenBao では valut → bao
-        環境変数を設定します, vault コマンド用: #keyword: vault CLI environment  #glossary:
+        #// OpenBao では valut → bao （そのシンボリックリンクを作ってもよい）
+        環境変数: #keyword: vault CLI environment  #glossary:
+            サンプル: |
+                export VAULT_CACERT="/etc/vault.d/tls/tls.crt"
+                    または
+                export VAULT_CACERT="/etc/openbao.d/tls/tls.crt"
+                vault status
             VAULT_ADDR: |
                 export VAULT_ADDR=http://localhost:8200   #// コンテナ―内なら http://172.17.0.1:8200
                 vault ____
                 #// 関連: less  ~/.vault-token  #// コマンドが処理できる権限を持ったトークン。開発環境では root token  #search: ~/.vault-token
-            VAULT_CACERT: |
-                Vault CLI（Vault クライアント）が Vault サーバーの証明書を検証するための CA 証明書 の場所
-                設定しないと以下のようなエラーになります。
-                    Get "https://127.0.0.1:8200/v1/sys/seal-status": tls: failed to verify certificate: x509: certificate signed by unknown authority
+            VAULT_CACERT:
+                サンプル: |
+                    export VAULT_CACERT="/etc/vault.d/tls/tls.crt"
+                        または
+                    export VAULT_CACERT="/etc/openbao.d/tls/tls.crt"
+                    vault status  #// VAULT_CACERT が有効になっているか動作確認します
+                説明: |
+                    Vault CLI（Vault クライアント）が Vault サーバーの証明書を検証するための CA 証明書 の場所
+                    設定しないと以下のようなエラーになります。
+                        Get "https://127.0.0.1:8200/v1/sys/seal-status": tls: failed to verify certificate: x509: certificate signed by unknown authority
+                HTTPS 関連の設定をする前の場合:  #search: VAULT_SKIP_VERIFY
             VAULT_SKIP_VERIFY:  #// Vault サーバーの証明書を検証する内部手順をスキップします
                 export VAULT_SKIP_VERIFY=1
                 #// 通常、VAULT_CACERT を設定するように変えます
-        vault login:  #search: ~/.vault-token
+        vault login:  #search: Vault log in
         vault status:
         vault policy write:
             #search: vault policy write example
+            #search: policy HashiCorp Vault
         vault policy read:
             vault policy read  "nomad-workloads"
             #search: vault policy write example
@@ -13122,23 +13258,43 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             基本:
                 export VAULT_ADDR="http://localhost:8200"
                 vault kv get  "secret/mongo/config"
-                #template__: vault kv get  "__Path__"
+                vault kv get -field=password  "secret/mongo/config"  #// -field オプション はパスの左に書いてください
+                #template-at__(-2): vault kv get  "__Path__"
             パスの書き方, __Path__:  #search: path HashiCorp Vault
             -mount オプション:  #search: -mount HashiCorp Vault
-        vault write:  #// kv 以外の シークレット エンジン に対しても使えます
+        vault write, bao write:  #// HTTP POST に相当。 kv 以外の シークレット エンジン に対しても使えます
             vault kv put との比較:  #// 以下の 2つのコマンドは同じ処理です。主にパスが違います
                 vault kv put  "secret/mongo/config"              "root_password=secret-password"
                 vault write   "secret/data/mongo/config"  data='{"root_password":"secret-password"}'
-        vault read:  #// kv 以外の シークレット エンジン に対しても使えます
+            ログインに使います:  #search: Vault log in
+        vault read, bao read:  #// HTTP GET に相当。 #// kv 以外の シークレット エンジン に対しても使えます
             vault kv get との比較:  #// 以下の 2つのコマンドは同じ処理です。主にパスが違います
                 vault kv get  "secret/mongo/config"
                 vault read    "secret/data/mongo/config"
+        vault delete, bao delete:  #// HTTP DELETE に相当
+        vault list, bao list:  #// HTTP LIST に相当
     構成:
-        シークレット:  #// Vault が保護するパスワードなど。アプリケーションなどのパスワード
+        構成例:
+            Vault + GitLab PAT + CI + Container: #keyword:  #ref: ${typrm_files}/ref/VMWare/Vulat_PAT.mmd.html
+                PAT との比較:
+                    PAT を CI のシークレットに置くより、Vault ROLE_ID + SECRET_ID を置いたほうが、
+                    Vault 側で IP 制限、CIDR 制限、namespace / role 制限、mTLSなどをかけられます。
+                    Vault の監査ログに login（PAT取得）の痕跡が残ります。
+                Vault Token との比較:
+                    Vault ROLE_ID + SECRET_ID を使って Vault login すると、TTL が短い Vault Token が得られますが、
+                    IP 制限などができないため、権限が強い CI が Vault Token を持たないほうが良いです。
+                シークレットの渡し方:
+                    環境変数で渡すのは手軽ですが、プロセス一覧やデバッグログに残る可能性があるので、より堅くするなら STDIN 渡しに寄せる（後述）と良いです。
+                git credential approve, credential-cache メモリー:
+                    一定時間保持  credential-cache は 同一ユーザーの同一コンテナ内で一定時間使えます。
+                    PAT を approve で渡す瞬間、そのシェルのメモリには乗ります
+                    #search: GitLab PAT
+                GIT_ASKPASS か git credential か:  #keyword: GIT_ASKPASS
+                    プロセス環境に token が乗るなど別の注意点が出ます
         パス:  #keyword: path HashiCorp Vault
             シークレットとディレクトリ:  #// ファイルとフォルダーに相当
-                シークレット: secret/config/app    #// ファイルに相当
-                ディレクトリ: secret/config/app/   #// フォルダーに相当
+                シークレット: secret/config/app    #keyword: secret HashiCorp Vaule  #// ファイルに相当
+                ディレクトリ: secret/config/app/   #keyword: directory HashiCorp Vaule  #// フォルダーに相当
             マウント名の省略:  #// valut kv コマンドの場合
                 最初の / の左が、マウント名の場合:  #search: mount HashiCorp Vault
                     CLI: secret/config/app
@@ -13164,111 +13320,151 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                 #search: vault policy write example
                 #search: default namespace HashiCorp Vault
             KV Version 2:  #// secret に kv-v2 がマウントされている場合
+                #focus: config  #// config/app の部分はサンプルです
                 vault kv get コマンドの引数:             secret/config/app
                 vault token capabilities コマンドの引数: secret/data/config/app
                 __PolicyName__.hcl ファイルの中の {{ }}: secret/data/config/app
-                Web UI の URL: ____:8200/ui/vault/secrets/secret/kv/config%2Fapp
-                Web UI のパンくずリスト: Secrets / secret / config / app
+                Web UI の URL:
+                    ____:8200/ui/vault/secrets/secret/show/config/app
+                    ____:8200/ui/vault/secrets/secret/kv/config%2Fapp
+                Web UI のパンくずリスト:
+                    < secrets < secret < config < app
+                        または
+                    Secrets / secret / config / app
+                （kv と secret の違い）:
+                    kv: vault secrets enable -path=kv kv-v2 で KVv2 としてマウントした場合のマウント
+                    secret: デフォルトのマウント
             KV Version 1:
                 # CLIパス: secret/config/app
                 # APIパス: secret/config/app
                 # ポリシーパス: secret/config/app
-        ポリシー: #keyword: policy HashiCorp Vault
-            設定して、トークンを生成します: #keyword: create policy HashiCorp Vault
-                #↓ 手順
-                ポリシーの定義を書きます: #keyword: __PolicyName__.hcl
-                    ____/__PolicyName__.hcl ファイル: |
-                        path "secret/data/config/app" {
-                            capabilities = ["read"]
-                        }
-                    path について:  #search: path HashiCorp Vault
-                vault policy write: |  #// ポリシーを登録します
-                    ...     #search: vault CLI environment
-                    vault policy write  "__PolicyName__"  ____/__PolicyName__.hcl
-                        #// または
-                    cat  ____/__PolicyName__.hcl  |  vault policy write  "__PolicyName__"  -  #// 末尾の - は必要です
-                権限を確認します:
-                    vault policy read  "__PolicyName__"
-                    など
-                    #search: vault token capabilities example
-            権限を確認します: #keyword: vault token capabilities example
-                #↓ 手順
-                環境変数を設定します:  #search: vault CLI environment
-                KV のバージョンを確認します: | #keyword: HashiCorp Vault KV version
-                    vault secrets list -detailed | grep version:
-                        version:2
-                vault policy read:  #// ポリシーの内容を表示します
-                    （ポリシーを定義する場合）:  #search: create policy HashiCorp Vault
-                    コマンド: |
-                        vault policy read  "myapp-policy"
-                            path "secret/data/config/app" {
+        シークレット:  #// ターゲットのシークレット。Vault が保護するパスワードなど。アプリケーションなどのパスワード
+        ポリシー: #keyword: policy HashiCorp Vault  #// シークレットを入れる場所と同じパスに対してポリシーを割り当てます
+            手順:
+                設定して、トークンを生成します: #keyword: create policy HashiCorp Vault
+                    #↓ 手順
+                    コマンドにポリシーを書く場合:
+                        #search: vault policy write example
+                    ファイルにポリシーを書く場合:
+                        ポリシーの定義を書きます: #keyword: __PolicyName__.hcl
+                            ____/__PolicyName__.hcl ファイル: |
+                                path "secret/data/config/app" {
+                                    capabilities = ["read"]
+                                }
+                            path について:  #search: path HashiCorp Vault
+                        vault policy write: |  #// ポリシーを登録します
+                            ...     #search: vault CLI environment
+                            vault policy write  "__PolicyName__"  ____/__PolicyName__.hcl
+                                #// または
+                            cat  ____/__PolicyName__.hcl  |  vault policy write  "__PolicyName__"  -  #// 末尾の - は必要です
+                        権限を確認します:
+                            vault policy read  "__PolicyName__"
+                            など
+                            #search: vault token capabilities example
+                権限を確認します: #keyword: vault token capabilities example
+                    #↓ 手順
+                    環境変数を設定します:  #search: vault CLI environment
+                    KV のバージョンを確認します: | #keyword: HashiCorp Vault KV version
+                        vault secrets list -detailed | grep version:
+                            version:2
+                    vault policy read:  #// ポリシーの内容を表示します
+                        （ポリシーを定義する場合）:  #search: create policy HashiCorp Vault
+                        コマンド: |
+                            vault policy read  "myapp-policy"
+                                path "secret/data/config/app" {
+                                    capabilities = ["read"]
+                                }
+                        path について:  #search: path HashiCorp Vault
+                            シークレットなら: secret/data/config/app
+                            フォルダーなら:   secret/data/config/app/
+                    vault token create:  #// 指定したポリシーの権限を持つトークンを生成します
+                        vault token create -policy="myapp-policy"
+                            token  __PolicyToken__
+                        export POLICY_TOKEN=__PolicyToken__
+                    vault token capabilities:  #// トークンの権限を確認します
+                        コマンド:
+                            vault token capabilities  ${POLICY_TOKEN}  secret/data/config/app
+                                read
+                        path について:  #search: path HashiCorp Vault
+                            シークレットなら: secret/data/config/app
+                            フォルダーなら:   secret/data/config/app/a
+                        他の出力:  #// 指定したパス（secret/data/config/app/）に関する権限を表示します
+                            deny: 何も権限はありません
+                            read: read 権限があります
+                            root: root 権限があります
+                    vault kv get:  #// シークレットを取得します
+                        コマンド:
+                            VAULT_TOKEN=${POLICY_TOKEN}  vault kv get  secret/config/app
+                        path について:  #search: path HashiCorp Vault
+                            ポリシーの path: secret/data/config/app
+                            KV の path:      secret/config/app       #// KV version 2 の場合
+                        （必要なら）ダミーのトークンで拒否されることを確認します: |
+                            VAULT_TOKEN=bad_token  vault kv get  secret/config/app
+                                ...
+                                * invalid token
+                    vault token revoke:  #// トークンを削除します
+                        vault token revoke  ${POLICY_TOKEN}
+                参照:  #// ポリシーの内容を表示します
+                    CLI:  #search: vault token capabilities
+                    Web UI: http://____:8200/ui/vault/policies/acl
+            ファイル, 構成:
+                書式: |
+                    path "kv/data/__Path__" {
+                        capabilities = ["__Capability1__", "__Capability2__"]
+                    }
+                サンプル: |
+                    path "kv/data/dev-ci/gitlab-pat" {
+                        capabilities = ["read"]
+                    }
+                パス:  #search: path HashiCorp Vault
+                サンプル2:
+                    nomad-server-policy: #keyword: nomad-server-policy HashiCorp Vault
+                        内容: |  #// ____/nomad-server-policy.hcl
+                            path "auth/token/create/nomad-cluster" {
+                                capabilities = ["create", "update"]
+                            }
+
+                            path "auth/token/roles/nomad-cluster" {
                                 capabilities = ["read"]
                             }
-                    path について:  #search: path HashiCorp Vault
-                        シークレットなら: secret/data/config/app
-                        フォルダーなら:   secret/data/config/app/
-                vault token create:  #// 指定したポリシーの権限を持つトークンを生成します
-                    vault token create -policy="myapp-policy"
-                        token  __PolicyToken__
-                    export POLICY_TOKEN=__PolicyToken__
-                vault token capabilities:  #// トークンの権限を確認します
-                    コマンド:
-                        vault token capabilities  ${POLICY_TOKEN}  secret/data/config/app
-                            read
-                    path について:  #search: path HashiCorp Vault
-                        シークレットなら: secret/data/config/app
-                        フォルダーなら:   secret/data/config/app/a
-                    他の出力:  #// 指定したパス（secret/data/config/app/）に関する権限を表示します
-                        deny: 何も権限はありません
-                        read: read 権限があります
-                        root: root 権限があります
-                vault kv get:  #// シークレットを取得します
-                    コマンド:
-                        VAULT_TOKEN=${POLICY_TOKEN}  vault kv get  secret/config/app
-                    path について:  #search: path HashiCorp Vault
-                        ポリシーの path: secret/data/config/app
-                        KV の path:      secret/config/app       #// KV version 2 の場合
-                    （必要なら）ダミーのトークンで拒否されることを確認します: |
-                        VAULT_TOKEN=bad_token  vault kv get  secret/config/app
-                            ...
-                            * invalid token
-                vault token revoke:  #// トークンを削除します
-                    vault token revoke  ${POLICY_TOKEN}
-            参照:
-                CLI:  #search: vault token capabilities
-                Web UI: http://____:8200/ui/vault/policies/acl
-            nomad-server-policy: #keyword: nomad-server-policy HashiCorp Vault
-                内容: |  #// ____/nomad-server-policy.hcl
-                    path "auth/token/create/nomad-cluster" {
-                        capabilities = ["create", "update"]
-                    }
 
-                    path "auth/token/roles/nomad-cluster" {
-                        capabilities = ["read"]
-                    }
+                            path "auth/token/lookup-self" {
+                                capabilities = ["read"]
+                            }
 
-                    path "auth/token/lookup-self" {
-                        capabilities = ["read"]
-                    }
+                            path "auth/token/lookup" {
+                                capabilities = ["update"]
+                            }
 
-                    path "auth/token/lookup" {
-                        capabilities = ["update"]
-                    }
+                            path "auth/token/revoke-accessor" {
+                                capabilities = ["update"]
+                            }
 
-                    path "auth/token/revoke-accessor" {
-                        capabilities = ["update"]
-                    }
+                            path "sys/capabilities-self" {
+                                capabilities = ["update"]
+                            }
 
-                    path "sys/capabilities-self" {
-                        capabilities = ["update"]
-                    }
-
-                    path "auth/token/renew-self" {
-                        capabilities = ["update"]
-                    }
-                登録します: |
-                    ...     #search: vault CLI environment
-                    vault policy write  "nomad-server-policy"  ____/nomad-server-policy.hcl
+                            path "auth/token/renew-self" {
+                                capabilities = ["update"]
+                            }
+                        登録します: |
+                            ...     #search: vault CLI environment
+                            vault policy write  "nomad-server-policy"  ____/nomad-server-policy.hcl
+            duration 形式: #keyword: Vault duration format  #ref: https://developer.hashicorp.com/vault/docs/concepts/duration-format
+                サンプル:
+                    - 60h   #// 60時間
+                    - 1.5h  #// 1.5時間
+                    - 50d   #// 50日
+                    - 100ms #// 100ミリ秒
+                    - 50ns  #// 50ナノ秒
+                単位:
+                    ns: Nanoseconds
+                    us: Microseconds
+                    ms: Milliseconds
+                    s: Seconds
+                    m: Minutes
+                    h: Hours
+                    d: Days
         ポリシー ロール: #keyword: policy role HashiCorp Vault  #// ポリシーにトークンの TTL などが追加設定されたもの
             vault write auth/token/roles/myapp-policy-role  name="myapp-policy-role"  allowed_policies="myapp-policy" \
                 explicit_max_ttl=3600  orphan=true  period=3600  renewable=true
@@ -13278,11 +13474,51 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             export POLICY_TOKEN=__PolicyToken__
             vault token revoke  ${POLICY_TOKEN}
         トークン: #keyword: policy token HashiCorp Vault  #// ポリシーに定義した権限を持つトークン
-            生成:  #search: create policy HashiCorp Vault
-            削除:
-                vault token revoke  __Token__
-                    または
-                vault token revoke -accessor  __TokenAccessor__
+            通常のトークン:
+                生成:  #search: create policy HashiCorp Vault
+                削除:
+                    vault token revoke  __Token__
+                        または
+                    vault token revoke -accessor  __TokenAccessor__
+            Initial Root Token: #keyword:  #ref: https://developer.hashicorp.com/vault/docs/concepts/tokens#root-tokens
+                作成:  #search: create HashiCorp Vault root token
+                削除:
+                    トークンを指定する場合:
+                        トークンを削除します:
+                            vault token revoke __RootToken__
+                        削除されたことを確認します:
+                            vault token lookup __RootToken__
+                    現在のトークンを指定する場合:
+                        vault token revoke -self
+                再作成:
+                    #// 未確認
+                    vault operator generate-root
+                        unseal key が必要です
+                #↓ 運用, 初期化後
+                基本方針:
+                    - Initial Root Token は初期セットアップ後に revoke します
+                    - 以降の運用は OIDC/LDAP 等の管理者認証により実施します
+                人のアカウント:
+                    Vault 使い捨て運用: #keyword:  #// 再インストールします
+                        - 再インストールすることができるユーザーが権限を持つことになります
+                        - 再インストールすると保存しているシークレットは削除されるので、再設定が必要です（小規模なら問題なし）
+                        - 実行は手動ではなく、スクリプトを使うほうが確実です
+                        - /var/lib/vault を直接見に行ける を許す限り、Vault は暗号化ファイルと同様な暗号強度ですが、
+                            鍵管理と攻撃面の設計により、条件次第で「暗号ファイルより破りにくい状態」を作れる。
+                            ただし OS 権限侵害を許す脅威モデルでは両者は実質同等となる。
+                    userpass:  #// ユーザーとパスワード
+                    OIDC/LDAP:  #// 認証サーバーを使う場合
+                    （方針の比較）:
+                        初期は Vault 使い捨て運用でも十分であるし、最も安全です（穴が少ない）。
+                        userpass は手軽ですが、次が弱点です。
+                            パスワード管理が増える（ローテ/失効・漏えい対応）
+                            MFA が絡めにくい（別の仕組みが必要）
+                            監査はできるが、IdP 連携より運用が重い
+                        なので、方針としては
+                            まず userpass でスタート
+                            余裕ができたら **OIDC/JWT（特にGitLab CI）**へ寄せる
+                        が現実的です。
+                機械アカウント:
         アクセサー, token accessor: #keyword: token accessor HashiCorp Vault  #// トークンを識別する値。 トークンを使った処理をするための権限はありません
             概要:
                 - トークンに 1対1 に対応した識別子です
@@ -13297,6 +13533,19 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                     accessor            __TokenAccessor__
                     policies            [default __PolicyName__]
                     ...
+        JSON フィールド, -field オプション: #keyword: -field HashiCorp Vault
+            #// vault read コマンド などの出力 JSON の中の特定のフィールドを指定します
+            サンプル:
+                -field オプション が無いとき: |
+                    {
+                        "request_id": "...",
+                        "data": {
+                            "secret_id": "c4c5e3b2-....",
+                            "secret_id_accessor": "b0a3..."
+                        }
+                    }
+                -field=secret_id オプション があるとき:
+                    c4c5e3b2-....
         シークレット エンジン: #keyword: secret engine HashiCorp Vault
             #↓ 手順
             選択します:  #search: -mount HashiCorp Vault
@@ -13331,12 +13580,10 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                 LDAP - LDAP認証
                 Kubernetes - Kubernetesサービスアカウントトークン生成
                 Consul - Consulトークン生成
-    ファイル:
+    ファイル:  #glossary:
         /etc/vault.d/vault.hcl, /etc/openbao.d/openbao.hcl:
             #search: /etc/vault.d/vault.hcl
-        ~/.vault-token: #keyword: ~/.vault-token,  vault login
-            内容: トークン（生のテキスト）  #search: policy token HashiCorp Vault
-            設定: vault login  __Token__  #// Initial Root Token など
+        ~/.vault-token:  #search: Vault log in
     トラブルシューティング: #keyword: HashiCorp Vault trouble
         権限があるか確認します:  #search: vault token capabilities example
         エラー, x509 certificate signed by unknown authority:
@@ -13347,6 +13594,9 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             エラー: |
                 Get "https://127.0.0.1:8200/v1/sys/seal-status": tls: failed to verify certificate: x509: certificate signed by unknown authority
             対処A:
+                export VAULT_CACERT="/etc/openbao.d/tls/tls.crt"
+                #search: VAULT_CACERT
+            対処B:
                 開発環境なら
                 sudo BAO_SKIP_VERIFY=1  vault operator init
         エラー, no handler for route "auth/jwt-nomad/config". route entry not found.:

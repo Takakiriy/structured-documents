@@ -1480,9 +1480,14 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         シークレット を扱う WebUI:  #search: cloud secret
                     SSH キー:
                         ~/.ssh  #search: SSH キー
-                    secrets フォルダー, ~/.secrets: #keyword:  #// アクセス制限されたリポジトリから一時的にダウンロードしたもの
+                    secrets フォルダー, ~/.secrets, ~/secret: #keyword:  #// アクセス制限されたリポジトリから一時的にダウンロードしたもの
                         場所: 特定の一時フォルダーとリポジトリ
                         内容: パスワード, PAT, API キー など
+                        chmod:
+                            chmod 700 __FolderPath__
+                            chmod 600 __FilePath__
+                        ~/.secrets: ローカルにしばらく保存する場合
+                        ~/secret: 一時的なシークレット
                     保存手順:  #search: make password file
                     #search: Secret Zero Problem
                 メモリー: #keyword: password variable  #// メモリーにのみパスワードを保存する。ワンタイム パスワード や一定時間入力不要にする場合
@@ -3164,9 +3169,10 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
     被害発生後の対処:
         サーバーの再構築。
         不審ファイルの削除だけでは不十分。
-    ISO/IEC 27017:  #// クラウドセキュリティ認証
+    ISO/IEC 27017: #search:  #// クラウドセキュリティ認証
     ISMAP: #keyword:  #// 政府情報システムのためのセキュリティ評価制度
         #ref: https://www.ismap.go.jp/csm
+        ISO/IEC 27017 とほぼ同じだが、認証取得側の裁量がほとんど無い
 ネットワークの負荷: #keyword: network load
     調べる, モニタリング:
         NIC の負荷:
@@ -3255,6 +3261,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             ssh:  #search: port 22 Connection refused
             telnet:  #search: telnet Connection refused
             sshd_config:  #search: /etc/ssh/sshd_config
+        ポートが開くまで待つ場合:
+            wait-for-it.sh: #search:
         （エラーになるタイミングは未確認）:
             Java: #search: Java Connection refused
             nginx: #search: nginx Connection refused
@@ -3469,7 +3477,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         - グループの上位の 0 は省略可能
                         - 連続するゼロのグループは「::」に置き換え可能。ただし1回のみ
                     サンプル: 2001:db8:85a3::8a2e:370:7334   #// ← 2001:0db8:85a3:0000:0000:8a2e:0370:7334
-                正規化, 推奨テキスト表記:  #// RFC5952 による IPv6 の正規化
+                正規化, 推奨テキスト表記: #keyword: IPv6 normalize  #// RFC5952 による IPv6 の正規化
                     ルール:  #ref: https://www.nic.ad.jp/ja/newsletter/No46/0800.html
                         #↓短縮形であること
                         - グループの上位の 0 は省略
@@ -3479,8 +3487,11 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         - 最も多く連続する 0000 を「::」に置き換え。連続数が同じときは左側を「::」に置き換え
                         - a-f は小文字
                     #// プログラミング言語におけるライブラリ関数の大半のバージョンでは、上記の推奨表記で出力する実装が行われています
+                    getIPv6FullAddress: #search:
+                    getIPv6FullAddressAndZoneID: #search:
                 CIDR:  #// IPv6 アドレス / プレフィックス長
-                    2001:db8::/128
+                    2001:db8::/128  ... 1つのホストしかないアドレス範囲
+                    2001:db8::/64
                 最大文字数:
                     IPv6 アドレス: 最大 39文字
                     CIDR: 最大 43文字
@@ -3489,6 +3500,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 IPv6アドレスの型, ループバック, マルチキャスト, グローバルユニキャスト:  #ref: ${typrm_files}/ref/Network/IPv6_address_2.html
             パース, 書式チェック: #keyword: check IP address format
                 #// プログラミング言語におけるライブラリ関数の大半のバージョンでは、上記の推奨表記で出力する実装が行われています  #ref: https://www.nic.ad.jp/ja/newsletter/No46/0800.html
+                #↓ 言語
+                JavaScript:  #search: JavaScript IP address
                 Go 言語 net.ParseIP: #keyword:
                     IPv6 または IPv4 の判定:
                         func isValidIPv6OrIPv4(ip string) bool {
@@ -3499,6 +3512,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                             return parsedIP != nil && parsedIP.To4() == nil
                 C言語, PHP: inet_ntop  #// IPv4/IPv6 アドレスをバイナリ形式からテキスト形式に変換する
                 WIN32API: WSAAddressToString
+                #↓ 手順
+                正規化, 比較:  #search: IPv6 normalize
                 正規表現:  #// いろいろな説がある。下記は一例
                     1: |  #// ChatGPT の回答
                         ^(([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:))|(([0-9a-fA-F]{1,4}:){1,7}:)|(([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4})|(([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2})|(([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3})|(([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4})|(([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5})|([0-9a-fA-F]{1,4}:)((:[0-9a-fA-F]{1,4}){1,6})|(::([0-9a-fA-F]{1,4}:){1,7}|::)|(([0-9a-fA-F]{1,4}:){1,7}:)$

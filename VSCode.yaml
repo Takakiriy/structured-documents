@@ -257,9 +257,14 @@
                                 cd  "${HOME}"
                                 git clone  __ProjectURL__
                         コンテナ―を起動します:
-                            (@Linux) 新しいターミナルで
-                                docker container run  --name rocky9con  -it --rm  -v ~/__Project__:/root/__Project__  rockylinux:9.3  /bin/bash  #ref: https://hub.docker.com/_/rockylinux/tags?page=1&name=9
-                            #// コンテナーを終了させるとプロジェクト以外の作業内容が消えるので注意
+                            初期状態から起動する場合: |
+                                    (@Linux) 新しいターミナルで
+                                        docker container run  --name rocky9con  -it --rm  -v ~/__Project__:/root/__Project__  rockylinux:9.3  /bin/bash
+                                #// コンテナーを終了させるとプロジェクト以外の作業内容が消えるので注意
+                                #// rockylinux:9.3  #ref: https://hub.docker.com/_/rockylinux/tags?page=1&name=9
+                            ユーザーを指定して __ImageName__:VM0 から起動する場合: |
+                                (@Linux) 新しいターミナルで
+                                    docker container run  --name rocky9con  -it --rm  -v /__Project__:/root/__Project__  -u user1  -e USER=user1  "__ImageName__:VM0"  /bin/bash
                     プロジェクトがない場合:
                         コンテナ―を起動します:
                             (@Linux) 新しいターミナルで
@@ -267,13 +272,39 @@
                         #// The container name "/rocky9con" is already in use by container エラーになったら docker stop rocky9con; docker rm rocky9con してから
                     コンテナ―の中を VSCode で開きます:
                         Remote Explorer を使う場合:
-                            VSCode >> Remote Explorer >> Dev Containers（最も上のプルダウン）>> __ContainerID__（にマウスを合わせて Attach in new Window ボタン）
+                            メニュー: #keyword: DevContainers view
+                                WSL2 の Linux で開いている VSCode >>
+                                Remote Explorer ビュー（左）>>
+                                Dev Containers（最も上のプルダウン）>>
+                                __ContainerID__（にマウスを合わせて Attach in new Window ボタン）
+                            Dev Containers にフォルダーが一覧されない場合:
+                                一覧に表示させます: #keyword: VSCode DevContainers view folder
+                                    コンテナ―を VSCode で開きます:
+                                        #// どのユーザーで開いても構いません。root ユーザーでも構いませんが、存在するユーザーである必要があります
+                                    code コマンドでフォルダーを開きます:  #// コンテナーの中で実行する必要があります
+                                        (@Container)
+                                        code  __FolderFullPath__
+                                    #// VSCode でフォルダーを開いたら、一覧に表示され、次回から直接開けます。別のユーザーで起動したコンテナ―も開けます
+                                Docker イメージのタグ名が違うとき:  #search: docker image tag
+                                    タグ名が違っていても選べば開けます
+                            ユーザーを変える場合:
+                                #// 現在のコンテナ―をイメージにして、ユーザーを変えてコンテナ―を起動し直します
+                                （必要なら）現在のコンテナ―をイメージにします:
+                                    docker commit を実行します
+                                既存のコンテナーを終了します:
+                                    上記で /bin/bash を開いていたら、そのシェルを終了します
+                                ユーザーを指定してイメージからコンテナーを起動します:
+                                    docker container run コマンドに以下のオプションを追加してください
+                                        -u user1  -e USER=user1
+                                Remote Explorer から開きます:
+                                    #// 起動中のコンテナーのユーザーで VSCode が開きます
                         F1 コマンド を使う場合: |
                             F1 >> Dev Containers: Attach to Running Container...
                         （参考）使えない方法: |
                             #// WSL の Linux で
                             code --remote containers+rocky9    #// WSL の Linux で実行しても、Windows から開こうとして、接続に失敗します
                             code --remote wsl+Rocky9+containers+rocky9  "home/user1"   #// Rocky9+containers+rocky9 という distro 名になってしまいます
+                        （参考）他の操作:  #search:
                         #// 前回開いた場所が開きます
                     フォルダーを開きます:  #// Remote Explorer を使ってフォルダーを開いた場合は次へ
                         #// 開いた VSCode でコマンドを入力します
@@ -282,19 +313,18 @@
                         export http_proxy="http://____:8080"   #// プロキシ環境の場合のみ実行します
                         export https_proxy="http://____:8080"  #// プロキシ環境の場合のみ実行します
                         dnf install -y  langpacks-ja.noarch
-                Dev Containers を使う場合: #keyword: Docker Dev Containers  #ref: https://code.visualstudio.com/docs/devcontainers/tutorial
-                    Dev Containers: #keyword: VSCode Dev Containers,  Dev Containers  #// WSL2 の Linux が起動しているコンテナー
-                        一覧, 起動状況:
-                            開く: WSL2 の Linux で開いている VSCode >> Remote Explorer ビュー（左）>> Dev Containers（上のプルダウン）
-                            起動状況:
-                                Remote Explorer ビュー:
-                                    Dev Containers にあるコンテナ―のアイコンに、再生マークが付いていると、コンテナ―は起動しています。
-                                docker ps コマンド:
-                                    コンテナ―が起動していれば、WSL2 の Linux の docker ps -a コマンドで見えます。
-                                    #// docker ps コマンド（-a オプションなし）では、stop しているコンテナーは一覧されません  #search: docker ps
-                        起動, 終了:
-                            コンテナ―のアイコンを右クリックして Start Container を選ぶと、コンテナ―は起動します。
-                            Attach in New Window を選んでも起動します。
+                #↓ 参考
+                Dev Containers 拡張機能: #keyword: Docker Dev Containers,  VSCode Dev Containers,  Dev Containers  #ref: https://code.visualstudio.com/docs/devcontainers/tutorial
+                    開く:  #search: DevContainers manual open  #search: DevContainers view
+                    一覧, 起動状況:
+                        Remote Explorer ビュー:  #search: DevContainers view
+                            Dev Containers にあるコンテナ―のアイコンに、再生マークが付いていると、コンテナ―は起動しています。
+                        docker ps コマンド:
+                            コンテナ―が起動していれば、WSL2 の Linux の docker ps -a コマンドで見えます。
+                            #// docker ps コマンド（-a オプションなし）では、stop しているコンテナーは一覧されません  #search: docker ps
+                    起動, 終了:
+                        コンテナ―のアイコンを右クリックして Start Container を選ぶと、コンテナ―は起動します。
+                        Attach in New Window を選んでも起動します。
                     Windows の VSCode で WSL2 内の Docker コンテナ―を開くには:
                         Docker Desktop（条件により有料）のインストールが必要らしい
                     実験中:

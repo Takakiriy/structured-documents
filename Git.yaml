@@ -3475,6 +3475,7 @@ Git: #keyword: git
                     作るフォルダー名: #keyword: git clone output  #// 作るフォルダー名も指定する場合
                         git clone __URL__  __NewLocalFolderPath__
                         #// __NewLocalFolderPath__ を省略したときと __NewLocalFolderPath__ にリポジトリ名を指定したときが、同じ動作になります
+                        #// __NewLocalFolderPath__ の直下にリポジトリの内容が入ります
                         #// __NewLocalFolderPath__ に "."（ピリオド）を指定した場合、git clone した後の cd コマンドが不要になります
                     ${GitClone} にダウンロードする場合: #keyword: ${GitClone} download,  gitcache
                         ${GitClone} フォルダーを開きます:
@@ -3490,7 +3491,25 @@ Git: #keyword: git
                             git clone  git@github.com:__Account__/__Repository__   #//❗ https ではないことに注意
                             #// SSH 接続をするリポジトリになります。HTTP 接続に切り替える場合  #search: gitssh
                     トークンや基本認証パスワードを使う場合:
+                        username と password に指定するもの: #keyword: git authentication username password  #// 各種方式で異なります
+                            PAT の場合:
+                                username: oauth2
+                                password: PAT
                         ~/.netrc を使う場合:  #search: ~/.netrc Git
+                        ~/.git-credentials を使う場合: #keyword: ~/.git-credentials  #// 非推奨
+                            #// 平文で保存するため非推奨
+                            基本認証:
+                                ~/.git-credentials ファイル:
+                                    https://__User__:__Password__@__RepositoryServer__
+                            #// git clone コマンドに指定する URL を書きます
+                            #// 複数書くことができるようです（未確認）
+                            場所:
+                                - ~/.my-credentials
+                                    #// credential.helper = store であること  #search: git clone authentication automatic input
+                                #// または
+                                - credential.helper の設定  #search: git credential.helper store
+                                #// git clone に .my-credentials の場所を指定するオプションはありません。一時変更してください  #search: temporary git credential.helper store
+                                #// 平文を指定する方法はあります  #search: git clone authentication
                         コマンドに指定する場合: #// 非推奨
                             ❗リスク: git remote get-url origin コマンドで表示されてしまいます  #keyword: git clone token in URL risk
                             トークン, PAT: #keyword: git clone https://oauth2:
@@ -3505,13 +3524,17 @@ Git: #keyword: git
                             Cloning into 'reposiroty'...
                             Username for 'https://__GitRepositoryURL__': 
                             Password for 'https://__GitLabUser__@__GitRepositoryURL__': 
-                        credential.helper を使う場合: #keyword: git clone authentication automatic input  #// Git リポジトリのパスワードを毎回入力することを不要にします
+                        credential.helper: #keyword: Git credential.helper,  git clone authentication automatic input  #// Git リポジトリのパスワードを毎回入力することを不要にします
+                            #// Git クライアント内の認証情報の保存場所。保存場所はヘルパーによっていろいろあります
                             #ref: https://git-scm.com/book/ja/v2/Git-のさまざまなツール-認証情報の保存
                             参照: #// 現在の設定を表示します。クライアント側
                                 - git config credential.helper
                                 - cat ~/.git-credentials  #// store 設定の場合
-                            設定: #// クライアント側
+                            設定: #// 設定します。クライアント側。 Git リポジトリにアクセスしようとすると自動的にユーザー名とパスワード（やトークン）を入力します
                                 # ↓保存場所
+                                cache, メモリー:  #// 一定時間だけ入力不要にします。デフォルト 15分
+                                    - git config --global credential.helper cache
+                                    - git config --global credential.helper 'cache --timeout=60'
                                 ファイル, store: #keyword: git config credential.helper  #// ❗平文
                                     設定を表示します:  #// 有効無効と、ファイルのパス
                                         入力コマンド:
@@ -3560,27 +3583,18 @@ Git: #keyword: git
                                         参考 >> 他の保存場所:  #search: save password
                                 なし:  #// （デフォルト）保存されません。接続のたびにパスワードを入力します
                                     - git config --global --unset credential.helper
-                                cache, メモリー:  #// 一定時間だけ入力不要にします。デフォルト 15分
-                                    - git config --global credential.helper cache
-                                    - Git リポジトリにアクセス >> ユーザー名とパスワードを入力します
                                 OS のパスワード管理:
                                     - git config --global credential.helper manager
                                     - Git リポジトリにアクセス >> ユーザー名とパスワードを入力します
-                            クラウド側:
-                                GitHub:  #search: GitHub account
-                                GitLab:  #search: GitLab access token
-                            ~/.git-credentials ファイル: #keyword: ~/.git-credentials
-                                基本認証:
-                                    https://__User__:__Password__@__RepositoryServer__
-                                #// git clone コマンドに指定する URL を書きます
-                                #// 複数書くことができるようです（未確認）
-                                場所:
-                                    - ~/.my-credentials
-                                        #// credential.helper = store であること  #search: git clone authentication automatic input
-                                    #// または
-                                    - credential.helper の設定  #search: git credential.helper store
-                                    #// git clone に .my-credentials の場所を指定するオプションはありません。一時変更してください  #search: temporary git credential.helper store
-                                    #// 平文を指定する方法はあります  #search: git clone authentication
+                            保存, git credential approve: #keyword: git credential approve  #// credential.helper に「この認証情報を保存してください」と指示します
+                                サンプル: |  #// シークレットを変数に保存しません  #search: git authentication username password
+                                    printf "protocol=https\nhost=%s\nusername=%s\npassword=%s\n\n" \
+                                        "${GitLabHost}"  "$( cat  "${GitLabAccountPath}" )"  "$( cat  "${GitLabPATPath}" )" \
+                                    | docker exec -i ${containerName} sh -lc 'git credential approve'  ||  Error
+                                Vault と連携する場合:  #search: Vault + GitLab PAT + CI + Container
+                        #↓ リポジトリ側、クラウド側
+                        GitHub:  #search: GitHub account
+                        GitLab:  #search: GitLab access token
                         いろいろなトークン >> GitLab:  #search: GitLab members
                 性能のオプション:
                     --depth オプション: #keyword: git clone --depth  #// シャロークローン (shallow clone)
@@ -3744,7 +3758,7 @@ Git: #keyword: git
                             Cloning into '__Repository__'...
                             Username for 'https://gitlab.com':
                         対処:
-                            トークンを設定します  #search: ~/.netrc
+                            トークンを設定します  #search: ~/.netrc  #search: GitLab PAT
                     - #// Encountered ____ files that should have been pointers, but weren't
                         手順: git clone
                         エラー: |
@@ -9121,6 +9135,9 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                     Pin code: Authenticator に表示されたコード
                     Register with two-factor app ボタン:
             2要素認証が設定されている場合、個人用アクセストークンを使う場合: #keyword: GitLab PAT,  GitLab personal access token  #ref: ~/.secret/gitlab-pat
+                PAT とは:
+                    ユーザー名の欄に 自分のアカウント名、
+                    パスワード欄に 取得した PAT を書くと、GitLab にアクセスできます
                 必要になるケースの 1つの エラー メッセージ: |
                     [vagrant@localhost ~]$ git clone https://gitlab.com/takakiriy1/first
                     Cloning into 'first'...
@@ -9156,11 +9173,13 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                             ブラウザーをリロード 
                     #// バックアップは不要です。紛失したら再発行します
                 個人用アクセストークンをコマンドラインで使います:  #keyword: git clone PAT  #focus: oauth2:$(cat ~/.secret/gitlab-pat)@
+                    注意: git remote get-url で PAT が見えてしまいます
                     実行したいコマンド:
                         git clone  https://gitlab.com/takakiriy1/first    #template_: https://gitlab.com/__GitLabUser__/__ProjectName__
                     入力するコマンド:
                         #search: git clone token in URL risk
                         git clone  https://oauth2:$( cat ~/.secret/gitlab-pat )@gitlab.com/takakiriy1/first    #template_: https://gitlab.com/__GitLabUser__/__ProjectName__
+                git credential approve: #search:
                 参考:
                     GitLab >> 個人用アクセストークン:  #ref: https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
                     アクセストークンを使用した認証:  #ref: https://knasmueller.net/gitlab-authenticate-using-access-token

@@ -4212,6 +4212,8 @@
             Optional (None): #keyword: Python Optional
                 特定の型 または None を代入できます: |
                     __Variable__: Optional[__Type__] = __NoneOrValue__
+                        または
+                    __Variable__: __Type__ | None = __NoneOrValue__
             Union: #keyword: Python Union
                 サンプル: |
                     from typing import Union
@@ -4339,9 +4341,9 @@
                         any(p.category == "電化製品" for p in products)
                     next:  #search: Python next
                     リレーション結合: #search: Python object relation
-            next: #keyword: Python next,  Python find in list  #// 最初。next でも最初。要素数 0なら None。見つからないなら例外または指定した値
+            next: #keyword: Python next,  Python find in list  #// 最初。next という名前でも最初。 要素数 0 見つからないなら、例外または指定した値
                 書式:
-                    - next(__Iterator__)
+                    - next(__Iterator__)  #// 非推奨。要素数が 0 のときに例外が発生します。通常、要素数がゼロの場合、無効を表す値を表示するなり判定するなりします
                     - next(__Iterator__, __Default__)
                     - next((__Iterator__), __Default__)
                     - next(____ for ____ in ____ if ____)
@@ -6358,10 +6360,10 @@
                 参考:
                     id: id(object)  #keyword: Python id  #// オブジェクトのID
                     #ref: https://www.javadrive.jp/python/if/index5.html
-            not: #keyword: Python not
+            not: #keyword: Python not,  Python truthy falsy
                 not が True になる例:
                     数値 0,  文字列 "",  None,  配列 []
-            and, or: #keyword: Python and,  Python or
+            and, or: #keyword: Python and,  Python or,  Python && ||
                 条件: and 条件、or 条件
                 短絡評価: あり
                 短絡評価とは:  #keyword: 短絡評価,  short-circuit evaluation,  短絡評価 && || and or

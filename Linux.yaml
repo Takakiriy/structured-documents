@@ -1878,12 +1878,19 @@ for Windows:
                         CONtents
                         CONtents2
             サンプル <<-:  #keyword: Linux <<-  #// 下記 __HERE_DOCUMENT__ は #search: Linux here document 区切り識別子
-                    cat <<- __HERE_DOCUMENT__
+                    cat <<- __HERE_DOCUMENT__  ||  Error
                         Line1
                         Line2 ${Variable}
                         Line3
                         __HERE_DOCUMENT__
                 #// 行頭のタブはカットされますが、行頭の空白はカットされません。
+            サンプル <<:  #keyword: Linux <<  #// 下記 __HERE_DOCUMENT__ は #search: Linux here document 区切り識別子
+                    cat << __HERE_DOCUMENT__  ||  Error
+                    Line1
+                    Line2 ${Variable}
+                    Line3
+                    __HERE_DOCUMENT__
+                #// 行頭のタブもカットされません。そのため、インデントができません
             サンプル:  #// 変数に複数行のテキストを代入します
                 #search: bash str multi line here document 
             サンプル, パイプ: #keyword: here document and pipe
@@ -3800,6 +3807,8 @@ for Windows:
                 コマンドにデータを指定する場合:
                     デコード:
                         echo "__Base64Data__" | base64 -d  &&  echo ""
+            使う文字:
+                A-Za-z0-9+/=
         xxd:  #// Hex 形式  #keyword: Linux hex xxd  #ref: https://linux.die.net/man/1/xxd
             Hex 形式からバイナリに変換します:
                 $ echo '0006303030304e43' | xxd -r -p
@@ -14384,6 +14393,8 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             ISO 8601 風形式
         基本形式: 上記のハイフンやコロンが無いもの
         拡張形式: 上記のハイフンやコロンがあるもの
+        コマンド:
+            Linux date:  #search: date
     書式表現:
         Unicode LDML: #keyword:  #// ICU、Intl.DateTimeFormat。Java (SimpleDateFormat), JavaScript (Intl), C# などで採用
             書式: |
@@ -14414,7 +14425,10 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             %p - AM/PM
             %Z - タイムゾーン（EDT, PST等）
     date: #keyword: date,  Linux date  #// 現在の日時
-        表示: date --iso-8601=seconds
+        表示:
+            -   date --iso-8601=seconds  #// 2023-10-26T12:34:56+09:00
+            -   date --iso-8601=date     #// 2023-10-26
+            -   date +"%Y-%m-%dT%H"
         設定: sudo date -s "2023-10-26T12:34:56"
         計算: #search: bash 日時 計算
         比較: #search: bash compare date time
@@ -15488,6 +15502,7 @@ bash: #keyword: bash  #// Bourne Again Shell
             getopts 版:  #keyword: bash getopts
                 注意: 長いオプション名が使えません。例 --help は使えません
                 参考: #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#opt
+            MakeOptionString: #search:
             参考:
                 Stack overflow: #ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
                 bash によるオプション解析: #ref: https://qiita.com/b4b4r07/items/dcd6be0bb9c9185475bb
@@ -16182,7 +16197,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                     #// trap A INT; trap B SIGINT; を実行すると、別々に発動できる？
                 #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#trap
         set -e: #keyword: bash set -e
-            基本:  #A// 終了コードが 0 以外のときは exit $? と同じ動作も行われます（中断します）
+            基本:  #// 終了コードが 0 以外のときは exit $? と同じ動作も行われます（中断します）
                 学習用サンプル: |  #focus: set -e,  false
                     #!/bin/bash
                     set -e
@@ -16207,6 +16222,8 @@ bash: #keyword: bash  #// Bourne Again Shell
                         ls  not_found  ||  Error  "ERROR: __Message__"
                     エラーを無視する場合:
                         ls  not_found  ||  true
+                    一時退避:  #// 一時的に set -e をオフにします
+                        #search: push bash set -o
             デフォルト:  #// 環境によっては set -e を実行しなくても set -e が実行されたときの動作になります
                 bash:           無効
                 GitHub Actions: 有効
@@ -16229,7 +16246,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                 set -v: -o verbose   #// （未確認）読み込んだ行を表示
                 set -n: -o noexec    #// （未確認）構文チェックのみを行い、コマンドは実行しません
                 set -o pipefail:  #// （未確認）パイプラインのどこかが失敗したら全体を失敗とみなす
-            一時退避, bashlib:  #glossary: bashlib set -o
+            一時退避, bashlib: #keyword: push bash set -o  #glossary: bashlib set -o
                 GetCurrentShellOptions:
                 SetShellOptions:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#SetShellOptions()
                 GetOptionForCommandSubstitusion:
@@ -16453,9 +16470,12 @@ bash: #keyword: bash  #// Bourne Again Shell
         設定:
             恒久設定:
                 WSL2 + Ubuntu 20.04 のプロンプトを見やすくします:  #keyword: Ubuntu prompt customize
-                    nano ~/.bashrc : |  #// 末尾に追加
-                        export PS1="$( echo "$PS1" | sed 's/;34m/;36m/g' )"  #// Change a prompt from blue to cyan
-                        export PS1="$( echo "$PS1" | sed 's/\\\$/ \\$/' )"   #// Insert a space before $ in a prompt
+                    nano ~/.bashrc :  #// 末尾に追加
+                        一般的なプロンプト: |
+                            export PS1="\[\][\u@\h \W]\$ \[\]"
+                        既存のプロンプトから少し変える場合: |
+                            export PS1="$( echo "$PS1" | sed 's/;34m/;36m/g' )"  #// Change a prompt from blue to cyan
+                            export PS1="$( echo "$PS1" | sed 's/\\\$/ \\$/' )"   #// Insert a space before $ in a prompt
                     現在のプロンプトに反映させます:
                         source ~/.bashrc
             即時設定, 一時設定:  #// 即時反映されますがターミナルを再起動すると元に戻ります
@@ -16638,6 +16658,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
                         csv="${csv}__Value1__,"
                         csv="${csv}__Value2__,"
                         csv="${csv%,*}"   #// left of last ","
+                        #// "__Value1__,__Value2__"
                     有無判定:  #keyword: strict CSV item match  
                         if [[ ",${strictCSV}," == *",__Item__,"* ]]; then  #// strict CSV item match
                         #// [ ] では動作しません
@@ -16882,7 +16903,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         LoadEnvironmentVariables: #ref: ${typrm_files}/Qiita下書き/15_BashDebug/15_BashDebug.md#function  LoadEnvironmentVariables
         LookUpEnvironmentVariable: #search: bashlib LookUpEnvironmentVariable source
         MakeGitWorkingInBackUpIfNew:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  MakeGitWorkingInBackUpIfNew
-        MakeOptionString:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  MakeOptionString
+        MakeOptionString: #keyword: bash get option string  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  MakeOptionString
         ModifyFullPath:  #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  ModifyFullPath
             #// Git bash 用に フル パス を /c/ から c;/ に変更します
         ModifyVariables:  #search: initialize Linux global variable
@@ -17103,6 +17124,8 @@ gcc: #keyword:
     $env.COMPANY_PROXY: __CompanyProxy__
 用語:
     パスフレーズ: パスワードと同じ。長くしてほしい意図があるだけ
+    払い出し: #keyword: 払い出し, 払い出す
+        （アカウントなどを）新規発行する
     ホスト: #keyword:  #ref: https://wa3.i-3-i.info/word1336.html
         サーバー:
         ベース: 例）ホストOS

@@ -83,20 +83,20 @@
     制御構文: #glossary: js
         if:
             値のみの条件式 if(___): #keyword: JavaScript if value only  #// 例: if (var), if (undefined)
-                偽と判定される値:
-                    if (false)
-                    if (0)
-                    if ('')
-                    if (undefined)
-                    if (null)
-                    if (NaN)
-                真と判定される値:
+                真と判定される値: #keyword: JavaScript truthy  #// truely ではありません
                     if (true)
                     if (1)
                     if ('a')
                     if (' ')
                     if ({a:1})
                     if ({})
+                偽と判定される値: #keyword: JavaScript falsy,  JavaScript not
+                    if (false)
+                    if (0)
+                    if ('')
+                    if (undefined)
+                    if (null)
+                    if (NaN)
             (&&), (||):  #keyword: JavaScript && ||
                 注意: 偽は nullなども含みます
                 __A__ && __B__:
@@ -527,7 +527,7 @@
             参考:
                 #ref: ${typrm_files}/Qiita下書き/29_GlobalThisJS/29_GlobalThisJS.md
         プリミティブ型, 基本型:  #// number 数値, string 文字列, 日時 など
-            数値:  #keyword: JavaScript number
+            数値: #keyword: JavaScript number
                 number:
                     文字列と数値の変換:  #search: JavaScript string number
                     浮動小数から整数へ:
@@ -653,7 +653,7 @@
                                     period が 5 の場合, 入力値 [0],[1],[2],[3],[4],[5],[6],[7],[8],[9]（大きいほど新しく、9が現在）をプロットしたチャートに対して、
                                     出力の値 [0],[1],[2],[3],[4],[5],[6] を計算した場合、出力[6]は入力[9]の時刻の位置に描画されます。
                                     代わりに中央に配置する「センタード移動平均」というオプションもありますが一般的ではありません。
-            文字列:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#string  #keyword: JavaScript string
+            文字列: #keyword: JavaScript string  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#string  #keyword: JavaScript string
                 #↓基本型と変換
                 文字列と数値の変換:  #keyword: JavaScript string number
                     parseInt: #keyword:
@@ -684,6 +684,10 @@
                         const formatted = formatter.format(num); // "123.40"
                     数字かそれ以外かの判定: #search: JavaScript isNumber
                 数字かそれ以外かの判定: #search: JavaScript isNumber
+                比較, <, >, <=, >=:
+                    辞書順（Unicode コードポイント順）で比較されます
+                    console.log("apple" < "banana");  // true
+                    console.log(str1.localeCompare(str2));  // -1 (str1 < str2)
                 #↓言語機能
                 変数を埋め込むリテラル, Templare Literal: |  #search: JavaScript テンプレート リテラル
                     `string text ${expression} string text`
@@ -1817,7 +1821,9 @@
                             Array [Object { id: 2, value: "B" }, Object { id: 3, value: "C" }]
                     先頭からいくつか:
                         #search: JavaScript array slice
-                    関連 >> reduce:  #search: JavaScript reduce
+                    #↓ 関連
+                    reduce:  #search: JavaScript reduce
+                    重複削除:  #search: JavaScript 重複削除
                 比較:
                     最小: Math.min(... array)
                     順序も同じ: #search: lib.ts isSameArray
@@ -1830,8 +1836,13 @@
                             [11, 22, 33].includes(44)  // false
                             [11, 22, 33].includes(22, 1)  // true
                             [11, 22, 33].includes(22, 2)  // false
-                    共通要素:
-                        for 版（推奨）: |
+                    共通要素:  #// 2つの配列に共通する要素
+                        filter 版（推奨）:
+                            const  arrA = [ 1, 3, 5, 7 ];
+                            const  arrB = [ 2, 3, 4, 5 ];
+                            const  common = arrA.filter(item => arrB.includes(item));
+                            console.log(common);  // [ 3, 5 ]
+                        for 版: |
                             function  getCommonItemsUsingFor<T>(arrayA: T[], arrayB: T[]): T[] {
                                 const  commonItems = [] as T[];
                                 for (const item of arrayA) {
@@ -1855,6 +1866,14 @@
                             const  arrB = [ 2, 3, 4, 5 ];
                             console.log(getCommonItemsUsingFor(arrA, arrB));    // [ 3, 5 ]
                             console.log(getCommonItemsUsingReduce(arrA, arrB)); // [ 3, 5 ]
+                    重複要素:  #// 1つの配列に重複する要素
+                        reduce 版: |
+                            export function  getDuplicates<T>(array: T[]): T[] {
+                                // getDuplicates([1, 2, 3, 2, 4, 3, 5, 3]);  // [2, 3]
+                                return  [...new Set(
+                                    array.filter((item, index) => array.indexOf(item) !== index)
+                                )];
+                            }
                     重複削除:  #keyword: JavaScript 重複削除
                         Map を使う場合:  #// 処理効率が良いですが、同じ要素のうちどの要素が残るかは不定です  #focus: id: 4
                             コード: |
@@ -2099,6 +2118,7 @@
                 Set: #keyword: JavaScript Set  #// 重複しない配列  #ref: https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Keyed_collections#sets
                     関連 >> 重複削除: #search: JavaScript 重複削除
                     重複の判定方法: === で比較します
+                    要素数: set1.size
                     サンプル 1: |
                         const  set1 = new Set<string>();
                         set1.add('A');  // ['A']
@@ -2677,7 +2697,7 @@
                 参照: | #// 属性の値を参照します
                     object.attribute  または  object['attribute']
                 プロパティの追加:  #search: TypeScript Partial appended property
-                有無:  #keyword: hasOwnProperty
+                有無:  #keyword: hasOwnProperty,  JavaScript has own property
                     obj.hasOwnProperty("name")
                     "name" in obj
                 プロパティのインターフェース:  #search: TypeScript interface readonly
@@ -5021,6 +5041,79 @@
         request: #keyword: Node.js request  #// deprecated  #ref: https://www.npmjs.com/package/request
     Ajax: #keyword:
         GET: #search: cypress GET test_target_1.html
+    IPアドレス: #keyword: JavaScript IP address
+        #search: IPv4  #search: IPv6
+        IP アドレス:
+            #↓ 一般ライブラリ
+            ip-address:
+                const { Address6, Address4 } = require('ip-address');
+
+                const address = new Address6('2001:0db8::1');
+                address.canonicalForm(); // '2001:0db8:0000:0000:0000:0000:0000:0001'
+                address.correctForm(); // '2001:db8::1'
+                address.isValid(); // true
+            ipaddr.js:
+            #↓ 独自関数
+            正規化:  #search: IPv6 normalize
+                getIPv6FullAddress: | #keyword:
+                    import { Address6 } from "ip-address";
+
+                    function  getIPv6FullAddress(address: string): string {
+                        // getFullIPv6Address("2001:db8::1");  // "2001:0db8:0000:0000:0000:0000:0000:0001"
+                        const addr = new Address6(address);
+                        if ( ! addr.isValid()) {
+                            return "invalid";
+                        }
+
+                        const bytes = addr.toUnsignedByteArray();
+                        if (!Array.isArray(bytes) || bytes.length !== 16) {
+                            return "invalid";
+                        }
+                        const parts = [];
+                        for (let i = 0; i < 16; i += 2) {
+                            const value = (bytes[i] << 8) | bytes[i + 1];
+                            parts.push(value.toString(16).padStart(4, "0"));
+                        }
+
+                        return parts.join(":");
+                    }
+                getIPv6FullAddressAndZoneID: | #keyword:
+                    import { Address6 } from "ip-address";
+
+                    function  getIPv6FullAddressAndZoneID(address: string): string {
+                        // getIPv6FullAddress("2001:db8::1");  // "2001:0db8:0000:0000:0000:0000:0000:0001"
+                        // getIPv6FullAddress("fe80::1%ETH0"); // "fe80:0000:0000:0000:0000:0000:0000:0001%eth0"
+                        // getIPv6FullAddress("[fe80::1]");    // "invalid". [] is invalid.
+                        const input = address.trim();
+                        const p = input.indexOf("%");
+                        const addressPart = (p >= 0) ? input.slice(0, p) : input;
+                        const zoneId = (p >= 0) ? input.slice(p).toLowerCase() : "";
+                        const addr = new Address6(addressPart);
+                        if (!addr.isValid()) {
+                            return "invalid";
+                        }
+
+                        const bytes = addr.toUnsignedByteArray();
+                        if (!Array.isArray(bytes) || bytes.length !== 16) {
+                            return "invalid";
+                        }
+                        const parts = [];
+                        for (let i = 0; i < 16; i += 2) {
+                            const value = (bytes[i] << 8) | bytes[i + 1];
+                            parts.push(value.toString(16).padStart(4, "0"));
+                        }
+
+                        return parts.join(":") + zoneId;
+                    }
+        CIDR:
+            const IPCIDR = require('ip-cidr');
+
+            const cidr = new IPCIDR('192.168.1.0/24');
+            cidr.contains('192.168.1.50'); // true
+            cidr.contains('192.168.2.1');  // false
+            const allIPs = cidr.toArray();
+            cidr.start(); // '192.168.1.0'
+            cidr.end();   // '192.168.1.255'
 ストリーム: #keyword: JavaScript stream
     Web API >> Streams API: #keyword: Web API Streams API
         ReadableStream: #keyword:
@@ -8631,7 +8724,7 @@ React:
                                 this.state.__State__
                             設定: |  #// 変更するステートのみ指定します
                                 this.setState({__State__: __Value__});
-                        useState:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_useState
+                        useState:  #search: useState
                     プロパティ, 引数:
                     関連:  #search: React 関数コンポーネント
                         内容の変更:  #// useState, props
@@ -8683,7 +8776,8 @@ React:
                                 };
                         props（第1引数）: #keyword: React function component props
                             #search: React property
-                        useState:  #keyword: useState,  React onClick useState  #// 表示に影響する数値や文字列の変数
+                        useState:  #keyword: useState,  React onClick useState  #// 表示に影響する数値や文字列の変数  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_useState
+                            #search: React component
                             サンプル: | #focus: useState, count, setCount  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/2_useState.tsx#useState
                                 import React from 'react';
 
@@ -8780,6 +8874,8 @@ React:
                             useEffect が無限に繰り返し呼ばれる:  #search: useEffect infinite loop
                         useCallback:  #keyword: React useCallback,  useCallback  #// useEffect の第 2引数などに渡せるようにします
                             #search: React missing dependency
+                            #// useMemoの第1引数に渡す関数の中で呼び出した関数を第2引数に渡し、かつ、関数定義でReact.useCallBackで囲まなければESLintがうるさい。
+                        useMemo:  #keyword: React useMemo,  useMemo  #// メモ化。計算プロパティの最適化の仕組み
                         React.FC:  #keyword: React.FC, React.FunctionComponent
                             React.FunctionComponent: React.FC のフルネームです
                             サンプル: | #focus: FunctionComponent  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/1_FunctionComponent.tsx#React.FC
@@ -9039,7 +9135,7 @@ React:
                     型, TypeScript 対応:
                         サンプル: #search: React function component example
                         Types of property are incompatible エラー: #keyword: React type error,  React generics property type incompatible
-                            （図解）:  #ref: ${typrm_files}/ref/JavaScript/ReactGenericsTypeError.html
+                            図解🌟:  #ref: ${typrm_files}/ref/JavaScript/ReactGenericsTypeError.html
                                 エラー メッセージ のサンプル: |
                                     Type '{ field: "email"; order: "asc"; }' is not assignable to type 'SortState<TEntity, "name" | "age">'.
                                         Types of property 'field' are incompatible.
@@ -9179,16 +9275,17 @@ React:
                                     return <TextBlock text={this.state.blogPost} />;
                                 }
                                 }
-                Ref, 子コンポーネントの参照:  #// コードで操作できるようにします
+                Ref, 子コンポーネントの参照: #keyword: React 子コンポーネントの参照  #// 親がコードで子を操作できるようにします
                     フック, React.useRef:
                         サンプル プロジェクト:  #// useRef, ref, forwardRef, useImperativeHandle
                             #ref:
-                        React.useRef: #keyword:
+                        #search: React 子コンポーネントの参照
+                        React.useRef: #keyword:  #// 親（総合）が呼び出します
                             サンプル:  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_useRef/src/2_UseRef.tsx#useRef
                             参考:
                                 公式:  #ref: https://ja.reactjs.org/docs/hooks-reference.html#useref
                                 Snap Note:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_useRef
-                        React.forwardRef: #keyword:
+                        React.forwardRef: #keyword:  #// 子（共通部分）が呼び出します
                             サンプル:  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_useRef/src/5_ForwardRef.tsx#forwardRef
                             参考:
                                 公式: #// 不明
