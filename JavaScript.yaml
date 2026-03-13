@@ -97,6 +97,7 @@
                     if (undefined)
                     if (null)
                     if (NaN)
+                #search: YAML default
             (&&), (||):  #keyword: JavaScript && ||
                 注意: 偽は nullなども含みます
                 __A__ && __B__:
@@ -1250,7 +1251,7 @@
                     const  diffMiliseconds = dateB.getTime() - dateA.getTime();
                     const  diffSeconds = (dateB.getTime() - dateA.getTime()) / 1000;
                 計算:  #keyword: JavaScript Date 計算  #// 年月日のそれぞれに、現在の値と加減算します
-                    サンプル: |
+                    サンプル: |  #// Date オブジェクトの属性を変えます
                         console.log('dateB');
                         const  dateAA = dateA  // 参照。日付オブジェクトは複製されない
                         const  dateB = new Date( dateA );  // 複製
@@ -6194,11 +6195,49 @@ YAML:  #// https://yaml.org  #search: steps.yaml  #keyword:
             #// >+ などもあります
         anchors: #keyword: YAML anchors
             #ref: https://x.com/__syumai/status/1968976993648578742
-    Node.js 用パーサー >> js-yaml:
-        インストール: npm install js-yaml --save
-        サンプル コード:
-            const  text = fs.readFileSync(filename);
-            return yaml.load(text);
+    パーサー:  #// YAML パーサー
+        Node.js 用パーサー >> js-yaml:
+            インストール: npm install js-yaml --save
+            サンプル コード:
+                const  text = fs.readFileSync(filename);
+                return yaml.load(text);
+        無いことの扱い: #keyword: YAML default
+            undefined や例外を無くします:  #// パーサーのデフォルトの動きから改良します
+                #↓ 両方に対応する必要があります
+                チェックするとき:  #// エラーを発生させたら修正できるとき
+                    不正であることを表示します:
+                        ユーザー向け:
+                            内部情報が漏れない程度のエラーを表示します
+                        内部向け表示, ログ: |
+                            修正する時のヒントとなる情報を表示します
+                            行番号
+                            キー名のパス (例: users[2].email)
+                            期待値と実際の値
+                            型の違い
+                            修正例の提示 (できれば)
+                            フェイルファスト:  #// 最初のエラーで停止
+                                設定ファイルの読み込みなど、全体が無効になる場合
+                            フェイルスロー:  #// エラーを集めてまとめて報告
+                                フォームバリデーションなど、複数箇所を一度に直せる場合
+                    正規化:
+                        編集を要求します
+                動作させるとき:  #// エラーを発生させても修正できないとき
+                    基本型の部分:
+                        無いときは、デフォルト値を返します。
+                        型の違いは、型変換します
+                        デフォルト値は、YAMLスキーマ定義と同じ場所に書きます（書ければ）
+                        正規化した値を返します。YAMLは `yes` / `true` / `1` が混在しやすい
+                    構造体の部分:
+                        ID や 必須フィールドがない場合、構造体を無くします。
+                        もしくは、代わりとなる構造体を割り当てます
+                    問題があれば:
+                        ログに記録:
+                            チェックするときと同等の表示をします
+                        運営に通知を発信:
+                            通知間隔は一定期間でまとめます
+            #↓ パーサーの動き
+            Python:  #search: Python YAML default
+        Python:  #search: Python YAML
     JSON から YAML に変換します:  #keyword: JSON to YAML
         DevToys:  #search: DevToys
         json2yaml:  #keyword: json2yaml
@@ -7112,6 +7151,9 @@ npm:  #keyword: npm, Node.js package manager
                         f:  #// Press f to quit "only failed tests" mode.
 npx:  #keyword:  #// コマンドをダウンロードして実行します  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#npx
     手順 >> 実行する:  #search: package.json scripts  >> npx を使う場合
+        コマンド: npx __CommandLine__
+        実行ファイルの場所:
+            Node のモジュール解決ルール（上方向に探索）に従ってバイナリを探します。
     設定: #settings:
         __Proxy__: http://__Host__:__Port__
     プロキシ:  #keyword: npx proxy
@@ -7135,7 +7177,7 @@ nvm:  #keyword:  #// Node.js 本体のバージョン管理をします  #glossa
             Windows:  #search: install NVM for Windows
             Linux:  #search: install NVM for Linux
             mac:  #search: install NVM for mac
-        Node.js のバージョン: #keyword: Node.js version  #// nvm のバージョンではありません
+        Node.js のバージョン: #keyword: Node.js version,  node --version  #// nvm のバージョンではありません
             最新バージョン >> 公式: #keyword: Node.js latest version
                 https://nodejs.org/en/download/package-manager  または  https://nodejs.org/en >> Download タブ
             インストール, ダウンロード:
@@ -7196,6 +7238,12 @@ nvm:  #keyword:  #// Node.js 本体のバージョン管理をします  #glossa
                 一覧:  #// nvm が管理している Node.js のバージョンを一覧します
                     nvm ls  #search: nvm ls
             プロジェクトが使うバージョン:  #search: project Node.js version
+            バージョンチェック:  #search: CheckNodeJsVersion
+        スクリプト内で実行します:
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh" --no-use
+
+            nvm use 16.20.1  ||  exit 2
     構成 >> 環境別:
         NVM for Windows:  #ref: https://github.com/coreybutler/nvm-windows
             インストール: #keyword: install NVM for Windows
@@ -8679,6 +8727,9 @@ React:
 
                         const handleReload = () => {
                             navigate(0); // 現在のページをリロード
+            URL:
+                #search: React Router
+                #search: props.match
             コンポーネント, React Hooks:  #// .tsx, .jsx ファイル
                 基本形:  #keyword: React component
                     個人的推奨形式: |
@@ -9067,11 +9118,11 @@ React:
                             #ref: https://qiita.com/uhyo/items/cb6983f52ac37e59f37e
                 props:   #keyword: React property,  React.ClassComponent property
                     （関数コンポーネント）:  #search: React function component props
-                    props:  #// 親コンポーネントに書かれた HTML 属性を子コンポーネントに渡します  #focus: props, prop1
-                        親コンポーネント:  #// 子コンポーネントを参照する親コンポーネントの書き方
+                    props:  #// 親コンポーネントに書かれた HTML 属性や処理内容を子コンポーネントに渡します  #focus: props, prop1
+                        親コンポーネント:  #// 子コンポーネントを参照する親コンポーネントの書き方。子コンポーネントのプロパティへの渡し方
                             基本:
                                 <__ChildComponent__ prop1="aaa"/>
-                            変数や関数を渡す場合: |  #focus: isOpen, useState, handleClose  #search: useState
+                            State や関数を渡す場合: |  #focus: isOpen, useState, handleClose  #search: useState
                                 import { useState }  from 'react';
                                 import __ChildComponent__ from '@components/__ChildComponent__'
                                 export default  __ParentComponent__;
@@ -9092,7 +9143,9 @@ React:
                                         </__ChildComponent__>
                                     )
                                 }
-                        子コンポーネント:  #keyword: React property
+                                #// __ChildComponent__ に handleClose 関数を渡し、
+                                #// handleClose 関数呼び出しは __ChildComponent__ の中で行っています
+                        子コンポーネント:  #keyword: React child component property
                             TypeScript: |  #focus: __ChildComponent__
                                 import React, { useState, useEffect, useRef } from 'react';
                                 export default  __ChildComponent__;
@@ -9132,6 +9185,28 @@ React:
                             }
                         #// <__Children__/> の部分は <a><b>c</b></a> のようなツリー構造も渡すことができます
                         公式: #ref: https://ja.reactjs.org/docs/composition-vs-inheritance.html#containment
+                    props.match, RouteComponentProps: #keyword: React props.match  #// React Router v5 まで。ルーティングに関するマッチ情報
+                        props.match: |  #search: React child component property
+                            | プロパティ    | 説明                    | 例           |
+                            | ------------- | ----------------------- | ------------ |
+                            | match.params  | URL パラメータ          | { id: "42" } |  #search: RouteComponentProps
+                            | match.isExact | URLが完全一致しているか | true / false |
+                            | match.path    | マッチしたパターン（テンプレート） | "/users/:id" |
+                            | match.url     | 実際にマッチしたURL部分 | "/users/42" |
+                        RouteComponentProps: #keyword: RouteComponentProps  #// React Router v5 まで
+                            #focus: tab, code
+                            サンプル:
+                                URL: http://example.com/example/user/aaa
+                                自動的に変数に入る値:  #search: React props.match
+                                    props.match.params.tab: user
+                                    props.match.params.code: aaa
+                            routes.tsx: |
+                                <Route path="/example/:tab/:code" component={Component} />
+                            Component1.tsx: |
+                                RouteComponentProps<{ tab: string, code: string }>
+                                const Component1: React.FunctionComponent<ComponentProps> = props => {
+                                }
+                                export const Component1 = withRouter(Component);
                     型, TypeScript 対応:
                         サンプル: #search: React function component example
                         Types of property are incompatible エラー: #keyword: React type error,  React generics property type incompatible
@@ -9504,7 +9579,8 @@ React:
                 参考:
                     #search: React Router children
                     #search: React Router :
-            routes.tsx, 変数への代入:  #// React コンポーネントと同じ扱いです
+                props.match: #search: props.match
+            routes.tsx, 変数への代入: #keyword: routes.tsx  #// React コンポーネントと同じ扱いです
                 サンプル:  #focus: root
                     routes.tsx: |
                         export const  root = (
@@ -9739,6 +9815,7 @@ React:
                                                 <Container>                            ← 内部定義
                                                     <__Component__>
             その他:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#ReactRouter
+        ファイル:  #search: routes.tsx
         Snap Note:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#ReactRouter
         公開部分:  #ref: ${GitHub}/Trials/try_Jest_TypeScript_React_VisualStudioCode/steps.yaml#React Router
     Redux:  #keyword:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#Redux

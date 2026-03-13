@@ -323,12 +323,16 @@ PDF: #keyword:
                 参考:
                     https://www.google.com/search?q=powerpoint+open+specified+page
                     https://stackoverflow.com/questions/65519493/how-to-hyperlink-a-specific-page-of-docx-or-pdf-file-in-powerpoint-slides
-        追加:
+        書く, 追加: #keyword: PDF 書く
+            暗号化を解きます:
+                mac >>（PDF をダブルクリック）>> ファイル >> プリント（最も下）>> PDF（下）>> 保存
             テキストと画像を追加します:
-                stampPDF: #keyword:
+                stampPDF: #keyword:  #ref: ${GitHub}/MyPrivateCode/PDF/stampPDF
                     stampPDF.js:  #ref: ${GitHub}/MyPrivateCode/PDF/stampPDF/stampPDF.js
                     README.md:    #ref: ${GitHub}/MyPrivateCode/PDF/stampPDF/README.md
+                    #// stampPDF アプリケーションは pdf-lib を使っています
             pdf-lib: #keyword: pdf-lib add text
+                サンプル:  #ref: ${GitHub}/MyPrivateCode/PDF/stampPDF/stampPDF.js
                 サブセットできない:
                     エラーメッセージ: |  #ref: ${GitHub}/MyPrivateCode/PDF/stampPDF/stampPDF.js#embedFont
                         pdfDoc.embedFont(fontBytes, { subset: true });
@@ -351,6 +355,9 @@ PDF: #keyword:
                 （必要なら shift または command を押しながら、削除するページを1つ以上選択）>>
                 編集 メニュー >> 削除  #// 自動的に保存されます
         画像抽出:  #ref: ${GitHub}/MyPrivateCode/PDF/toImage/toImage.js#toImage
+    暗号化, 保護:
+        状態:
+            mac: PDF ファイル をダブルクリック >> i（右上）>> 🔐（上）
     コード, ライブラリ:
         Node.js:
             pdf-lib:

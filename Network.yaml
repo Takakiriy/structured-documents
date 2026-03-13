@@ -1528,6 +1528,9 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             パスワードの条件, 初期パスワード発行:  #// ユーザーが設定できるパスワードの条件
                 #ref: https://www.ipa.go.jp/files/000017316.pdf#page=57
             ワンタイム パスワード: #keyword:  #// 一度認証したら無効になります
+            ワンタイム URL:
+                テキストやファイルを一同だけ見せる
+                #ref: https://gigazine.net/news/20260307-scrt-link/
             デバッグ用パスワード:  #keyword: debug password
                 概要:
                     デバッグ設定のときは、ハード コーディング されたパスワードを使うと便利です。
@@ -2851,7 +2854,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         #ref: https://www.shadan-kun.com/blog/measure/2873/ >>  削除のプログラム例
                 mail:  #// メールを送信するコマンドの場合
                     外部にメール送信できない環境の場合: 漏洩の心配はない
-        ディレクトリ トラバーサル: #keyword: directory traversal  #ref: https://gigazine.net/news/20220922-python-old-bug-unpatched-15-years/
+        ディレクトリ トラバーサル, パス トラバーサル: #keyword: directory traversal  #ref: https://gigazine.net/news/20220922-python-old-bug-unpatched-15-years/
+            #// traversal の直訳は、横断
             保護対象: URL
             攻撃内容:
                 概要: 「URL の一部」に、システム内部のファイルを指す値を設定する
@@ -3724,17 +3728,61 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
     リクエスト: #keyword:  #// 要求
     リバース プロキシー, reverse proxy:  #// サーバーの代わり。外部インターネットからサーバーへアクセスされる通信を中継する仕組み。DNAT を含む
         #keyword: リバースプロキシ
-        リバース プロキシー: サーバーの代わり
+        リバース プロキシー:  #// サーバーの代わり
             社外クライアントからのリクエストに社内 Web サーバーが応答するときの間に入るマシーン。
             （社内 ← ）プロキシ ← 社外
             1 → 多  へ 分散
             公開 → 保護
-        プロキシ（リバースではない）: クライアントの代わり
-            社内からインターネットへリクエストするときの間に入るマシーン。SNAT を含む
-            社内 → プロキシ（ → 社外）
-            多 → 1  へ まとめ
-            保護 → 公開
-        Squid: #// Proxyサーバーの 1つ
+        プロキシ（リバースではない）:  #// クライアントの代わり
+            概要:
+                社内からインターネットへリクエストするときの間に入るマシーン。SNAT を含む
+                社内 → プロキシ（ → 社外）
+                多 → 1  へ まとめ
+                保護 → 公開
+            効果:
+                キャッシュによる帯域節約・高速化:
+                    キャッシュの恩恵がほぼない場合とは:
+                        認証付きAPI・動的レスポンス
+                    クラウド環境を使っている場合:
+                        NAT Gateway でIP統一が可能
+                        API Gatewayやサービスメッシュ（Envoy等）の方が適している場合が多い
+                アクセス制御（フィルタリング）:
+                セキュリティ向上:
+                    内部クライアントのIPアドレスを外部に隠蔽:
+                アクセス元 IP の統一:
+                    #// NAT Gateway の方がシンプルです
+                    外部サービスのIP制限（ホワイトリスト）に対応:
+                    セキュリティ監査・ログの追跡がしやすい:
+                    レートリミットの管理がしやすい:
+                        IPごとにレートリミット（呼び出し回数制限）をかけていることが多いため
+                    外部サービスへの接続元の信頼性向上:
+                        金融・決済系などセキュリティが厳しいサービスでは、固定IPからのアクセスであることが契約要件になっていることもあります。
+                ログ・監査:
+            通信の横取り方法:
+                明示的プロキシ:  #keyword: Explicit Proxy  #// クライアント側に「Squidをプロキシとして使う」と設定する方式
+                透過型プロキシ:  #keyword: Transparent Proxy  #// ネットワーク側で強制的にSquidに通信を流す方式
+                    #ref: ${typrm_files}/ref/Network/explicit_transparent_proxy.html
+                    iptables:
+                        iptables でポートリダイレクトするのが一般的です。
+                    squid.conf:
+                        squid.conf 側でも透過モードを有効にします。
+                            http_port 3129 intercept
+                    SSL Bump:
+                        HTTPSは暗号化されているため、そのままでは中身を見られません。**SSL Bump** という機能で対応します。
+                            クライアント ←→ Squid（証明書を偽装） ←→ 外部サービス
+                                        ↑ここで復号・検査・再暗号化
+        Squid: #keyword:  #// Proxyサーバーの 1つ
+            Squid との違い:  #search: Envoy vs Squid
+            URL Rewrite: #keyword:  #// 通信先の URL を書き換えて、書き換えた URL でアクセスしに行きます
+                url_rewrite_program:
+                    図解:  #ref: ${typrm_files}/ref/Network/Squid_url_rewrite_program.html
+                関連:
+                    Apache: mod_rewrite
+                    Nginx: rewrite
+            Header Inject: #keyword:
+                request_header_add, response_header_add:  #// HTTP リクエスト ヘッダー または HTTP レスポンス ヘッダー の一部を追加します
+                request_header_replace, response_header_replace:  #// 同、上書きします
+                request_header_access, response_header_access:  #// 削除・隠蔽します
         関連: #search: BFF
     レスポンス: #keyword:  #// 応答
     レピュテーション システム: #// ダウンロードしたり閲覧したりする前に評価して、危険なら遮断する技術

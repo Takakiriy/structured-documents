@@ -87,11 +87,13 @@
                 数式から描いたグラフが正しいことを確認します:  #keyword: 数式 グラフ プロット
                     GeoGebra: #keyword:  #// ジオジェブラ  #ref: https://www.geogebra.org/graphing
             保存します:  #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
+        Markdown の表:  #keyword: AI save table  #search: save AI markdown
         ChatGPT の会話の概要の保存:  #// Markdown
             （関連）>> 図解の保存:  #search: AI HTML SVG
             プロンプト: #keyword: save AI markdown
                 ____ の回答を markdown で書いてください。ただし、最も上位の見出しはレベル2 にしてください。
                 ____ の表を markdowm で書いてください。ただし、縦線 | は縦に揃うようにしてください。
+                #search: AI save table
             編集します:
                 1つのスレッドを 1つの .md ファイルに分けます:
                 1つの Q&A ごとに、見出し1 を作ります:
@@ -214,9 +216,12 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
                         表示:  #// 非表示にします (?)
                             GitHub >> プロフィール（右上）>> Your Copilot >> Visibility >> Show Copilot = Disabled
                     VSCode:
-                        すべて:
+                        #↓ 無効にする対象
+                        ほぼすべて:
                             - Copilot 拡張機能と Copilot Chat 拡張機能を無効化します
                             - Copilot アイコンの ▼（VSCode の タイトル バー の右）>> Hide Copilot
+                                または
+                                    Learn How to Hide All Features >> Disable All Features
                         Completions:
                             #// Show Copilot = Enabled に設定してから
                             VSCode >> Copilot アイコン の ▼ More（上）>> Configure Copilot Completions >> Enable Completions または Disable Completions
@@ -679,10 +684,18 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
         概要: 教師なし学習の一種。Generator と Discriminator が競い合うことで学習
         #ref: https://signal.diamond.jp/articles/-/1410
     StyleGAN: #keyword: nVidia 製
-性能:
+性能, 指標:  #keyword: AI 性能 指標
     ロバスト性: #keyword:
         高いと、「バナナの写真」と「バナナのスケッチ」のようなドメインシフトが起こっていても、両方ともしっかり「バナナ」として認識してくれる
-    AIと弁護士で法的契約書のレビュー対決をした結果とは？:  #ref: https://gigazine.net/news/20240210-lawyers-llm/
+    流暢性: #keyword:
+        「人間はAIをうまく使いこなせているのか？」を検証する指標「AI Fluency Index」をAnthropicが公表 - GIGAZINE
+        #ref: https://gigazine.net/news/20260224-ai-fluency-index/
+    法的契約書:
+        AIと弁護士で法的契約書のレビュー対決をした結果とは？
+        #ref: https://gigazine.net/news/20240210-lawyers-llm/
+    AI 生成画像 への評価の影響:
+        人間は「AI生成画像だ」と言われると人間による芸術作品であっても共感できなくなる - GIGAZINE
+        https://gigazine.net/news/20260226-ai-art-fails-trigger-empathy/
 プラグイン, MCP:
     MCP: #keyword:  #// Model Context Protocol。 AI がアクセスする対象との間の USB のようなインターフェース  #search: Anthropic
         手順:

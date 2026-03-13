@@ -1103,10 +1103,11 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                 終了します, Ctrl + C:  #keyword: docker ctrl+C
                     Ctrl + C で終了するプロセスの場合:
                         Ctrl + C を押します:
-                        反応しない場合:
+                        反応しない場合:  #// Docker の場合
                             docker run コマンドに -it --rm オプションを付けます
                             #search: docker run -it --rm option
                         #// ターミナルを閉じても終了しません
+                        #search: bash Ctrl+C
                     それ以外の場合:
                         新しくシェルを開き、コンテナーを終了・削除させます:
                             #search: delete docker image
@@ -1144,7 +1145,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                             docker run -it --rm  busybox  bash  または  /bin/bash
                         リダイレクトやパイプを使う場合:
                             echo test | docker run -i busybox cat
-                    -t オプション: #keyword: docker t option  #// ターミナル。tty を使います。これがないとシェルから起動しないので Ctrl + C を受け取れない
+                    -t オプション: #keyword: docker t option  #// ターミナル。tty を使います。これがないとシェルからコンテナーが標準入力や Ctrl + C を受け取れない
                         #// 逆にターミナルがない環境で指定するとエラーになります
                     --rm オプション: 実行が完了したときにコンテナーを削除します
                 公式: #ref: http://docs.docker.jp/engine/reference/run.html#foreground
@@ -1208,7 +1209,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                 パラメーターやパイプなどをコンテナ―内で使う場合: #keyword: docker exec bash -c
                     docker exec -it  __ContainerName__ bash -c '__Command__ __Wildcard__ | __Command2__'
                     docker exec -it  Rocky9 bash -c 'ls /proc | xargs -I{} cat /proc/{}/comm 2> /dev/null | grep sleep'
-                標準入力へ転送:  #keyword: docker exec stdin  #// シークレットを渡すときは、これが最も安全。パラメーターで渡すとログに残ってしまいます
+                標準入力へ転送:  #keyword: docker exec stdin,  bash read stdin  #// シークレットを渡すときは、これが最も安全。パラメーターで渡すとログに残ってしまいます
                     ホスト側: |
                         printf '%s\n%s\n' "${VAULT_ROLE_ID}" "${VAULT_SECRET_ID}"  \
                         | docker exec -i app-container /usr/local/bin/vault-login-stdin.sh
@@ -1217,9 +1218,16 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                             echo  "Reading VAULT_ROLE_ID ..."
                             read  VAULT_ROLE_ID
                             read  VAULT_SECRET_ID
+                            cat > /dev/null < /dev/stdin  #// flush stdin
+                            echo  "Flushed stdin."
+                            echo  "${VAULT_ROLE_ID}"
+                    関連手順:
+                        stdin が EOF の場合:
+                            read では止まりません。
+                            空の値が代入されます。undef 状態ではありません。
+                        stdin を閉じる場合: |
                             exec  0<&-  #// close stdin  または  exec < /dev/null  #// close stdin
                             echo  "Closed stdin."
-                            echo  "${VAULT_ROLE_ID}"
                 環境変数の設定:  #keyword: docker exec -e
                     docker exec  -u __User__  -e USER=__User__  __ContainerID__  bash
                 環境変数の展開:  #search: evaluate docker environment variable
@@ -1988,7 +1996,24 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                     Docker ホストの IP アドレス:
                         Docker ホスト で localhost:3306 で接続先にアクセスできる場合、
                         コンテナ―の中から __HostIpAddress__:3306 でアクセスできます。
-                仮想 ネットワーク アダプター の種類: #keyword: Docker network adapter
+                名前:
+                    一覧:
+                        docker network ls
+                    コンテナーの所属:
+                        ContainerID="b9e6cd16c6e5"
+                        docker inspect ${ContainerID} --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}'
+                    違う名前の場合の通信:
+                        コンテナー同士:
+                            コンテナA (bridge) → ホストIP:ポート → コンテナB (bridge)
+                            docker run -p 8080:80 のようにポートを公開していれば、ホストのIPアドレス経由でお互いに到達できます。ネットワークが別でも関係ありません。
+                        外部サービス:
+                            コンテナ (bridge) → NAT → インターネット → GitLab
+                種類: #keyword: Docker network adapter  #// 仮想 ネットワーク アダプター の種類
+                    参照:
+                        $ docker ps
+                        $ ContainerID="b9e6cd16c6e5"
+                        $ docker inspect ${ContainerID} --format '{{.HostConfig.NetworkMode}}'
+                        bridge
                     種類:  #// bridge, host, none
                         bridge: #keyword: Docker bridge mode network  #// 🌟 VM とホストのそれぞれに ネットワーク アダプター があります。
                             （注意）iptables を編集し、インターネットからアクセスできるようになります  #search: Docker iptables
@@ -2533,7 +2558,7 @@ Docker compose: #keyword: Docker-compose,  docker compose  #ref: ${programming}/
         待ち: #keyword: Docker-compose wait-for-it  #// サービスが起動するまで待ちます
             起動待ち:
                 ファイル バージョン 3 以上:
-                    wait-for-it.sh:  #keyword:
+                    wait-for-it.sh:  #keyword:  #search: wait for Linux port
                         概要: ポートにアクセスできるかどうかをテストし、使用可能な場合はコマンドを実行します
                         ダウンロード:
                             vishnubob 版: #ref: https://github.com/vishnubob/wait-for-it
@@ -6480,7 +6505,7 @@ Ansible: #keyword: Ansible, an
                 - 変数の値は動作確認するまで動作確認できた値のままにしておきます
             よりよくする:
                 - 変数の値をリファクタリングして動作確認します
-        既存の Ansible を解析する:
+        既存の Ansible を解析します:
             Ansible のバージョンを確認します:
                 $ ansible --version
                 ansible 2.7.10
@@ -6511,19 +6536,23 @@ Ansible: #keyword: Ansible, an
                 HOST_KEY_CHECKING(____/ansible.cfg) = False
                 INVENTORY_ENABLED(____/ansible.cfg) = [u'host_list', u'script', u'yaml', u'ini', u'constructed']
                 RETRY_FILES_ENABLED(____/ansible.cfg) = False
-        tar.gz を展開してインストールするサンプル:  #keyword: Ansible tar example
-            推奨 >> unarchive:  #search: ansible unarchive
-            #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/multi_vm_ansible/branch_kafka/playbook.yml
-            サンプル:
-                -   name:  install Kafka
-                    become: yes
-                    shell:
-                        chdir: /opt
-                        cmd: tar -xzf kafka_{{ ScalaKafkaVersion }}.tgz
+        デプロイします: #🌟
+            プレイ:  #search: Ansible play
+            タスク:  #search: Ansible tasks
+            構成の設計:  #search: Ansible 設計
+            tar.gz を展開してインストールするサンプル:  #keyword: Ansible tar example
+                推奨 >> unarchive:  #search: ansible unarchive
+                #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/multi_vm_ansible/branch_kafka/playbook.yml
+                サンプル:
+                    -   name:  install Kafka
+                        become: yes
+                        shell:
+                            chdir: /opt
+                            cmd: tar -xzf kafka_{{ ScalaKafkaVersion }}.tgz
         ターゲット ホスト のヘルスチェック:  #search: 
         上書きチェック:  #search: Ansible APPROVED  #// Ansible が上書きするファイルの内容を目視で確認させてからデプロイします
         その他の公式サンプル: #ref: https://github.com/ansible/ansible-examples
-    コマンド（シェル）:  #keyword: ansible command
+    コマンド（シェル）:  #keyword: ansible command  #glossary:
         バージョンの確認方法:  #keyword: Ansible version,  Ansible Python  #// 以下のいずれか
             Ansible-core と Python と Jinja2:
                 コマンド:
@@ -6591,7 +6620,8 @@ Ansible: #keyword: Ansible, an
                         #search: Playbook ファイル
                 -i:  #// インベントリ ファイル の場所を指定します  #search: Ansible inventory file
                 --flush-cache: #keyword: flush Ansible cache  #// リモートのファイルの構成などをスキャンします  #search: Gathering Facts
-                    --flush-cache オプションは、sudo yum clean all コマンドに相当する処理をするらしい。
+                    skip task: skip されないようにします。ただし、--check オプションが付いているとフラッシュされません
+                    yum: --flush-cache オプションは、sudo yum clean all コマンドに相当する処理をするらしい。
                 --limit:  #search: Ansible --limit  #// 指定したホストまたはホストグループだけ実行します
                 --list-hosts:  #search: Ansible --list-hosts
                 --list-tags:  #search: Ansible --list-tags
@@ -6607,7 +6637,7 @@ Ansible: #keyword: Ansible, an
                     関連:
                         変数の値の表示:  #search: Ansible vars print
                         標準出力を変数に:  #search: Ansible register
-                    Ansible の標準出力:  #// デフォルトではタスクの標準出力は非表示なようです
+                    Ansible の標準出力:  #// ansible-playbook 実行時の表示内容。デフォルトではタスクの標準出力は非表示です
                         サンプル: |
                             TASK [system-yum-repo : clean metadata] *****
                             changed: [server1]] => {"changed": true, "dest": 
@@ -6615,16 +6645,24 @@ Ansible: #keyword: Ansible, an
                         --verbose オプション, -v オプション:
                             - ansible-playbook  playbook.yml --verbose --check
                                 #// プロビジョニングする内容の表示を詳しくします
-                    エラーを発生させる:  #// Ansible が呼び出すコマンドの標準出力
-                        Ansible 側でエラーを発生させれば stdout や stderr の内容が表示されます
-                    タスクの標準出力:  #keyword: Ansible task stdout
-                        -v オプションを追加します:  #// エラー時の JSON の中に、改行文字が \n で表示されます
-                            ansible-playbook  playbook.yml  -v
-                            #// エラーが発生したときの "stdout": や "stderr": の右にあります。改行文字が \n で表示されます
-                            #// -v だけで十分ですが -vv などどの比較は  #search: Ansible -vvv オプション
-                        また、エラーを発生させます: |
-                            failed_when: true
-                            ignore_errors: true
+                    タスクの標準出力: #🌟 #keyword: Ansible task stdout  #// Ansible が呼び出すコマンドの標準出力と標準エラー出力
+                        表示場所: |  #search: Ansible task stdout
+                            shell モジュール でエラーが発生したときの "stdout": や "stderr": の右にあります。改行文字が \n で表示されます
+                        shell モジュール を使ってエラーを発生させます:  #keyword: Ansible stderr
+                            shell モジュールのタスク場合:
+                                shell モジュールの Ansible のタスクでエラーを発生させれば stdout や stderr の内容が表示されます
+                                #// -v オプションは不要です
+                            環境変数を比較する場合:
+                                Ansible のタスク:
+                                    shell モジュール から printenv コマンドを実行すれば環境変数を表示できますが、failed_when を true にしてください
+                                ターゲット ノード の CLI:
+                                    printenv で表示できますが、デバッグ中の Ansible のタスクの become が yes の場合、sudo printenv を実行します
+                            その他のモジュールのタスクの場合:
+                                dnf モジュールなどでは stdout や stderr の内容は表示されません。同じ処理をする shell モジュールに一時的に変えてください
+                            エラーにならない場合:
+                                failed_when: true
+                            （参考）エラーにしたくない場合:
+                                ignore_errors: true
                         止まる場合: #keyword: Ansible フリーズ
                             timeout を使う場合:  #// 内部で入力待ちしている可能性があります
                                 timeout コマンドを shell フィールド の中に指定します。
@@ -6665,6 +6703,7 @@ Ansible: #keyword: Ansible, an
                             roles/__RoleName__/tasks/*.yml : |  #// roles フォルダーは #search: ansible roles
                                 name: __TaskName__
                 チェック、デバッグ:  #glossary: Ansible
+                    タスクの標準出力:  #search: Ansible task stdout
                     --syntax-check オプション:  #// 文法チェックだけ早く行います
                     --list-tasks:
                         サンプル:
@@ -6732,11 +6771,11 @@ Ansible: #keyword: Ansible, an
                         #// dry run のときもプロジェクションするときも使えます
                         #// -vvv オプションのほうが詳細です
                         出力の有無: |
-                            >              -v なし   -v   -vv    -vvv
-                            --------------------------------------------------
+                            >              -v なし   -v   -vv    -vvv     -vvvv
+                            -----------------------------------------------------
                             config           なし   簡易   中     詳細
                             比較要素JSON              v     v
-                            比較要素JSON 整形済み                   v
+                            比較要素JSON 整形済み                  v
                             SSH コマンド                           v
                         特定のタスクだけ詳細表示:
                             できません  #ref: https://www.reddit.com/r/ansible/comments/nq382v/how_to_display_verbose_only_for_a_particular_task/?rdt=37635
@@ -6956,7 +6995,7 @@ Ansible: #keyword: Ansible, an
             コールバックの一覧: ansible-doc -t callback -l
             ansible.builtin.default コールバックのドキュメント: ansible-doc -t callback ansible.builtin.default
     構成:
-        ホスト:  #keyword: ansible inventory file  #// インベントリー ファイル,  inventry ではない
+        ホスト, ノード:  #keyword: ansible inventory file  #// インベントリー ファイル,  inventry ではない
             概要: プロビジョニングの対象となるマシーン（ホスト）を control ノード の インベントリー ファイル に書きます。
                 ここで定義したホスト名は Playbook ファイル の hosts に指定できます  #search: ansible hosts
             参考: #ref: https://docs.ansible.com/ansible/2.9_ja/user_guide/intro_inventory.html  #template: __DocumentVersion__
@@ -7243,8 +7282,9 @@ Ansible: #keyword: Ansible, an
                                 #// インベントリー名とグループ名は異なる可能性があります  #search: Ansible group name
                         変数定義を検索します:
                             変数名とコロンで全文検索して、見つかったファイルの場所や内容から、所属するグループ（複数）にマッチするものを探します
-            control ノード: #keyword: ansible control node  #// Ansible を実行するマシーン。SSH クライアント
+            control ノード: #keyword: Ansible control node,  Ansible control host ではない  #// Ansible を実行するマシーン。SSH クライアント
                 control ノードで実行する場合:  #search: ansible delegate_to
+            target ノード: #keyword: Ansible target node,  Ansible target host ではない
             --connection=local オプション:  #keyword: ansible-playbook --connection=local
                 SSH 接続を行いません。
                 インベントリー ファイル や playbook.yaml の hosts の設定にかかわらず、ローカルを対象ホストとして実行します。
@@ -7478,8 +7518,11 @@ Ansible: #keyword: Ansible, an
                     ロールに設定が必要な変数の仕様:
                         roles/__RoleName__/defaults/main.yml
                 自動的に定義される変数: #keyword: ansible automatic defined variables
-                    主な定義済み変数:
+                    主な定義済み変数: #keyword: Ansible automatic defined examples
                         - vars  #// すべて
+                        - playbook_dir, inventory_dir
+                            #// project_root: "{{ (inventory_dir + '/..') | realpath }}"    #search: Ansible include path
+                            #// プロジェクトのパスが入った変数はありません。プロジェクトルートという概念自体がないため。
                         - ansible_facts,  ansible_____  #search: ansible facts
                         - hostvars,  groups,  group_names,  inventory_hostname  #search: ansible magic vars
                         - item  #search: ansible loop,  ansible with_items
@@ -7553,6 +7596,7 @@ Ansible: #keyword: Ansible, an
                             {% if 'webserver' in group_names %}
                                 # some part of a configuration file that only applies to webservers
                             {% endif %}
+                        #search: Ansible automatic defined examples
                     接続変数:
                         参考: #ref: https://docs.ansible.com/ansible/2.9_ja/reference_appendices/special_variables.html#connection-variables  #template: __DocumentVersion__
                         ansible_host: ホスト名。IPアドレスなし
@@ -9743,7 +9787,7 @@ Ansible: #keyword: Ansible, an
             - __Project__/roles/template  #// ファイル
             - __Project__/roles/vars      #// 変数
             - __Project__/ansible.cfg         #search: ansible.cfg
-        Playbook ファイル(*.yml):  #keyword: ansible playbook, Playbook ファイル, Playbook.yml, Playbook.yaml, __Playbook__.yml
+        Playbook ファイル(*.yml):  #keyword: ansible playbook, Playbook ファイル, Playbook.yml, Playbook.yaml, __Playbook__.yml  #glossary: Ansible
             参考:
                 - https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks.html  #template: __DocumentVersion__
                 - https://www.vagrantup.com/docs/provisioning/ansible_intro
@@ -10155,8 +10199,8 @@ Ansible: #keyword: Ansible, an
                     動作基本:
                         - ターゲット ノード に変化があったときに handlers（のタスク）を実行します
                         #search: Ansible role handlers
-                    動作詳細:  #keyword: Ansible notify behavior
-                        - 変更（インストール等）が行われたときだけ handlers を実行します。
+                    動作詳細:  #keyword: Ansible notify behavior,  Ansible flush
+                        - 変更（インストール等）が行われたときだけ handlers を実行します（フラッシュします）。
                             たとえば yum モジュールに指定したモジュールがすでにインストールされていたら handlers は実行されません。
                             #search(ChatGPT3.5): Ansible の role を使わないで playbook に書かれた notify による通知を受ける handlers はどこに書けばよいでしょうか
                         - プレイ内のすべてのタスクが実行された後でハンドラーのタスクが実行されます
@@ -10432,6 +10476,8 @@ Ansible: #keyword: Ansible, an
                         always:  #// block の中で成功・失敗に関わらず実行するタスク。オプション  #keyword: ansible always
                 include*: #// 動的に他のファイルをインポートします。評価される動的タスクのみインポートします。(?) #keyword: ansible include
                     参考: #ref: https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_reuse.html  #template: __DocumentVersion__
+                    パスの指定:
+                        include* のパスに変数参照は書けません。import* のパスに変数参照は書けます。
                     #// ループ内に書けます。注意点は、 https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_reuse.html#id3  #template: __DocumentVersion__
                     include_tasks: #keyword: Ansible include_tasks  #// 関連: import_tasks  #// dynamic include
                         パラメーターを渡します:
@@ -10597,6 +10643,7 @@ Ansible: #keyword: Ansible, an
                         __Playbook__.yml のサンプルの説明:
                             #// delegate_to: 127.0.0.1 によって、Ansible を実行しているマシーンでタスクを実行します
                             #// 対象のホストの名前は inventory_hostname 変数の値です
+                pre_tasks, post_tasks:  #search: Ansible pre_tasks
             handlers:  #// イベント ハンドラー
                 name トピック:  #search: Ansible notify to handlers.name
                 listen トピック:  #search: Ansible notify to handlers.listen
@@ -10764,15 +10811,21 @@ Ansible: #keyword: Ansible, an
                 実行順序: #keyword: Ansible 実行順序
                     実行順序:
                         #// 参考: https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_reuse_roles.html#id4  #template: __DocumentVersion__
-                        - pre_tasks
+                        - pre_tasks    #search: Ansible pre_tasks
+                        - pre_tasks の handlers
                         - roles
                             #// 依存先（子ロールの tasks/*.yml）を先に実行します  #search: Ansible dependencies
                             #// 複数の roles フィールドに同じ依存先が指定されるときは 1度だけ実行します
                             #// tasks/main.yml を実行後、通知を受けたハンドラー handlers/main.yml が動作します  #search: Ansible role handlers
                         - tasks
+                        - roles / tasks の handlers  #search: Ansible handlers
                         - post_tasks
+                        - post_tasks の handlers
                     実行順序を確認します:
                         #search: Ansible --list-tasks
+                    タスクが失敗したとき:
+                        - post_tasks は実行されません
+                        - block/always を使えば、必ず実行できますが、import_tasks を挟むか role フィールドを include_role に変えるため大変です
                     #search: Ansible 設計
                 依存関係: #keyword: Ansible dependencies
                     playbook => roles:  #search: ansible roles in Playbook.yaml
@@ -10833,12 +10886,30 @@ Ansible: #keyword: Ansible, an
 
                         tasks:
             pre_tasks:
-                _: ロールを含む他のすべてのタスクの前にそれらのタスクが実行されます
+                _: ロールを含む他のすべてのタスクの前にそれらのタスクを実行します  #search: Ansible 実行順序
+                サンプル:
+                    ルート playbook: |
+                        -   ...
+                            roles:
+                                - my_role
+                            pre_tasks:
+                                - include_tasks: ../pre_post/pre_tasks.yml
+                            post_tasks:
+                                - include_tasks: ../pre_post/post_tasks.yml
+                    pre_tasks.yml: |
+                        -   name: debug print
+                            debug: msg="post task"
+
+                        -   name: 別の role を実行
+                            include_role:
+                                name: another_pre_role
+                    include_tasks のパス:
+                        include_* には、パスの中に変数を書けません。inport_* には、パスの中に変数を書けます。
                 参考:
                     Set the order of task execution in Ansible with these two keywords: #ref: https://www.redhat.com/sysadmin/ansible-pretasks-posttasks
             post_tasks:
-                参考:
-                    Set the order of task execution in Ansible with these two keywords: #ref: https://www.redhat.com/sysadmin/ansible-pretasks-posttasks
+                _: ロールを含む他のすべてのタスクの後にそれらのタスクを実行します  #search: Ansible 実行順序
+                #search: Ansible pre_tasks
         roles/:  #search: Ansible roles folders  #search: ansible roles
         group_vars/:  #search: Ansible group_vars/all.yml
         インベントリー ファイル:  #search: ansible inventory file
@@ -11652,9 +11723,18 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                         sudo journalctl -u nomad  --no-pager  |  less
                     表示し続ける場合:
                         sudo journalctl -u nomad  --follow
-                docker: |  #// コンテナーにログインします
-                    ContainerName="$( docker ps --format "{{.Names}}"  |  grep "^django-" )"  &&  echo "${ContainerName}"
-                    docker exec -it  ${ContainerName}  bash
+                docker:  #// コンテナーにログインします
+                    エラー終了する前に無限待ちさせます:
+                        複数コマンドを実行している場合:
+                            command = "sh"
+                            args = [
+                                "-c",
+                                join(" && ", [
+                                    "echo  sleep infinity  &&  sleep infinity"
+                    コンテナーにログインします:
+                        #focus: django-
+                        ContainerName="$( docker ps --format "{{.Names}}"  |  grep "^django-" )"  &&  echo "${ContainerName}"
+                        docker exec -it  ${ContainerName}  bash
                 nomad: |  #focus: django-app
                     nomad status  django-app
                         Allocations
@@ -11702,7 +11782,7 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                                 "default_role": "nomad-workloads"
                             }
                             HERE_DOCUMENT
-                        auth/jwt-nomad/role/nomad-workloads: |
+                        auth/jwt-nomad/role/nomad-workloads: | #keyword: nomad-workloads role  #// 編集  #search: edit Vault Policy
                             vault write "auth/jwt-nomad/role/nomad-workloads" - << HERE_DOCUMENT
                             {
                                 "role_type": "jwt",
@@ -11890,7 +11970,13 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
             再初期化します:  #// 未確認。 Ansible でのみ確認済みだが内容は未知
                 #search: install Nomad
         手順のテスト: #keyword: NomadTutorial, NomadVaultTutorial  #ref: ${GitHub}/MyPrivateCode/Nomad/Nomad_Django_REST_API/nomad_test.sh
-        スケール アウト:  #// グループ単位
+        再起動: #keyword: Nomad restart services  #// Nomad が管理しているサービスを再起動します
+            強制再起動:
+                nomad job restart __JobFilePath__
+            Git のコミットハッシュが変わったら再起動:
+                meta.deploy_sha など spec の値を1つ変えて nomad job run __JobFilePath__
+                （nomad job run コマンドの明示的な実行が必要です）
+        スケール アウト:  #// グループ単位  #search: Nomad group
             nomad job scale example optional 1
                 #template__: nomad job scale __Job__ __Group__ __Count__
         公式 CLI クイック スタート:
@@ -12092,6 +12178,7 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                 タスク内（コンテナー内）で docker コマンドが使えます:
                     docker ps など
                     Docker デーモンは、Nomad クライアント にあります
+            Docker + Django サンプル:  #search: Docker Django Nomad example
         nomad namespace list:
             基本, default: #keyword: default namespace HashiCorp Vault
                 以下のように実行される場合、ネームスペースは default 固定です。
@@ -12100,6 +12187,7 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
         （接続できないとき）:  #search: nomad CLI environment
     構成:
         #↓ 概要
+        Docker と同じ構成:  #ref: ${typrm_files}/ref/VMWare/Nomad_Docker_network.html
         サービスの配置: #keyword: Nomad placement
             サービスは、1つのサーバーではなく、複数のサーバーに分散配置
             Nomad が Consul にサービスを自動登録し、Consul がサービス発見・ヘルスチェックを提供
@@ -12234,6 +12322,9 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
     ファイル:
         .nomad ファイル, Job ファイル: #keyword: .nomad job file  #ref: __Project__/__Application__.nomad  #glossary: Nomad
             #ref: https://developer.hashicorp.com/nomad/docs/job-specification
+            ファイルのアクセス権:
+                .nomad Job ファイルは通常 root のみ書き込みができ、nomad ユーザーが読み取りだけできるようにします
+                #search: Nomad Vault Integration
             #↓ サンプル
             Docker + Django サンプル:  #search: Docker Django Nomad example
             Dockerfile を使うサンプル:  #// 未確認。 インストールなどをするコマンドは、Dockerfile に書き、Job ファイル には書きません。
@@ -12304,9 +12395,20 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                 ジョブ名: #keyword: Nomad job name
                     job "django-app" {
                     と書かれていたら、ジョブ名は django-app です  #search: Docker Django Nomad example
-            group:
+            group:  #// スケーリングの単位。グループ内のタスクはすべて同じノードに配置されます
             network:
-            task:
+                書く場所:
+                    group の直下が推奨されます。task の直下に書くこともできます。
+                    group の直下に書くと、bridge モードでは group 内の全 task が同じネットワークネームスペース（同一の仮想NIC）を共有します。
+                    これにより task 間で localhost 通信ができます。
+            port: |
+                job "my-server" {
+                    group "web" {
+                        network {
+                            port "http" {
+                                static = 8080  # host. This IP address is defined at "network_interface" in "nomad.hcl"  #search: Nomad network_interface
+                                to     = 8080  # container
+            task:  #// 実行処理単位  #search: Nomad group
                 タスク名, コンテナ―名:
                     __GroueName__-__AllocationID__-__Hash__
                     特定の名前は指定できません。 task フィールドに name フィールドはありません。
@@ -12321,7 +12423,7 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                 args:
                 volumes:  #search: Nomad Docker volume
             env: #keyword: .nomad env  #// task >> env  #ref: https://developer.hashicorp.com/nomad/docs/job-specification/env
-                サンプル: |  #focus: env, region
+                タスクごとの設定: |  #focus: env, region
                     job "django-app" {
                         group "web" {
                             task "django" {
@@ -12330,6 +12432,16 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                                     opas_password = "${local.region}"
                     locals {
                         region = "tokyo"
+                共通の設定: |
+                    job "example" {
+                        group "example" {
+                            task "api" {
+                                env = merge(local.common_env, { API_PORT = "8080" })
+                    locals {
+                        common_env = {
+                            APP_ENV  = "production"
+                            DB_HOST  = "db.example.com"
+                            DB_PORT  = "5432"
             artifact:  #// task >> artifact  #ref: https://developer.hashicorp.com/nomad/docs/job-specification/artifact
                 （サンプル）: |
                     task "____" {
@@ -12737,6 +12849,10 @@ Nomad: #keyword: HashiCorp Nomad,  Nomad  #// オーケストレーション ツ
                 参照できない場所:
                     task >> artifact
             host_volume:  #// nomad.hcl >> client >> host_volume  #search: Nomad volume
+            network_interface: #keyword: Nomad network_interface
+                lo:
+                    #// コンテナ―にあるサービスのホスト側の IP アドレスが localhost になります
+                    network_interface = "lo"
             #↓   プラグイン設定
             plugin: |
                 plugin "docker" {
@@ -13200,6 +13316,21 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                     設定しないと以下のようなエラーになります。
                         Get "https://127.0.0.1:8200/v1/sys/seal-status": tls: failed to verify certificate: x509: certificate signed by unknown authority
                 HTTPS 関連の設定をする前の場合:  #search: VAULT_SKIP_VERIFY
+            VAULT_TOKEN:
+                情報を表示します:  #search: vault token lookup
+                vault login する場合:
+                    export VAULT_TOKEN で設定すれば、vault login "${VAULT_TOKEN}" は不要です
+                Nomad Vault 統合する場合:
+                    _: VAULT_TOKEN 環境変数が自動的に設定されます
+                    安全性:
+                        stdin はストリームなので、一度読んだら消え、環境変数より安全です。
+                        しかし、これはオーケストレーターにとって扱いが難しいらしい。
+                        有効期間は token_period  #search: nomad-workloads role
+                    (AIより):
+                        stdin の方が安全という指摘自体は正しいですが、オーケストレーターとの統合、
+                        エコシステムの互換性、運用の現実性を考慮した結果、環境変数が選ばれています。
+                        そのリスクはトークンの短命性とコンテナー分離で実用上十分に緩和されている、
+                        というのが現在の業界のコンセンサスです。
             VAULT_SKIP_VERIFY:  #// Vault サーバーの証明書を検証する内部手順をスキップします
                 export VAULT_SKIP_VERIFY=1
                 #// 通常、VAULT_CACERT を設定するように変えます
@@ -13223,6 +13354,12 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             #// 生成したら token と token_accessor を安全な場所にメモします
             #search: lookup token accessor HashiCorp Vault
         vault token capabilities: #keyword:  #// 権限があるか確認します  #search: vault token capabilities example
+        vault token lookup:
+            現在のトークン:  #// vault コマンドが使うトークンについて
+                vault token lookup
+            指定したトークン:
+                vault token lookup  __Token__
+            #search: lookup token accessor HashiCorp Vault
         vault kv put:
             基本:
                 export VAULT_ADDR="http://localhost:8200"
@@ -13295,6 +13432,25 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             シークレットとディレクトリ:  #// ファイルとフォルダーに相当
                 シークレット: secret/config/app    #keyword: secret HashiCorp Vaule  #// ファイルに相当
                 ディレクトリ: secret/config/app/   #keyword: directory HashiCorp Vaule  #// フォルダーに相当
+            KV Version 2:  #// secret に kv-v2 がマウントされている場合
+                #focus: config  #// config/app の部分はサンプルです
+                vault kv get コマンドの引数:             secret/config/app
+                vault token capabilities コマンドの引数: secret/data/config/app
+                __PolicyName__.hcl ファイルの中の {{ }}: secret/data/config/app
+                Web UI の URL:
+                    ____:8200/ui/vault/secrets/secret/show/config/app
+                    ____:8200/ui/vault/secrets/secret/kv/config%2Fapp
+                Web UI のパンくずリスト:
+                    < secret < config < app
+                        または
+                    Secrets / secret / config / app
+                （kv と secret の違い）:  #// kv/config/app と secret/config/app の違い
+                    kv: vault secrets enable -path=kv kv-v2 で KVv2 としてマウントした場合のマウント
+                    secret: デフォルトのマウント
+            KV Version 1:
+                # CLIパス: secret/config/app
+                # APIパス: secret/config/app
+                # ポリシーパス: secret/config/app
             マウント名の省略:  #// valut kv コマンドの場合
                 最初の / の左が、マウント名の場合:  #search: mount HashiCorp Vault
                     CLI: secret/config/app
@@ -13319,26 +13475,59 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                 なので、シークレットのパスに default を含める必要があります。
                 #search: vault policy write example
                 #search: default namespace HashiCorp Vault
-            KV Version 2:  #// secret に kv-v2 がマウントされている場合
-                #focus: config  #// config/app の部分はサンプルです
-                vault kv get コマンドの引数:             secret/config/app
-                vault token capabilities コマンドの引数: secret/data/config/app
-                __PolicyName__.hcl ファイルの中の {{ }}: secret/data/config/app
-                Web UI の URL:
-                    ____:8200/ui/vault/secrets/secret/show/config/app
-                    ____:8200/ui/vault/secrets/secret/kv/config%2Fapp
-                Web UI のパンくずリスト:
-                    < secrets < secret < config < app
-                        または
-                    Secrets / secret / config / app
-                （kv と secret の違い）:
-                    kv: vault secrets enable -path=kv kv-v2 で KVv2 としてマウントした場合のマウント
-                    secret: デフォルトのマウント
-            KV Version 1:
-                # CLIパス: secret/config/app
-                # APIパス: secret/config/app
-                # ポリシーパス: secret/config/app
         シークレット:  #// ターゲットのシークレット。Vault が保護するパスワードなど。アプリケーションなどのパスワード
+        Nomad Vault 統合: #keyword: Nomad Vault Integration
+            AppRole との比較:
+                AppRole:  #// AppRole (認証) + Vault ポリシー (認可)  #// Vault 統合 のほうが安全
+                    認証単位: ロールごと
+                    誰であるか: Role ID + Secret ID。Vault が直接コンテナーを認証
+                    何ができるか: ロールに紐付いたポリシー
+                    漏洩リスク: Secret ID が漏れると危険
+                Vault 統合:  #// Nomad タスク (認証) + Vault ポリシー (認可)
+                    認証単位: タスクごと。  #// .nomad Job ファイルはプロジェクトの中に入れ、プロジェクトを編集する権限と同じにします
+                    誰であるか: どのジョブのどのタスクか。Nomad サーバーを信頼し、Nomad がタスクを認証
+                    何ができるか: vault ブロックで指定したポリシー
+                    漏洩リスク: トークンは短命 + Nomad が管理
+        AppRole: #keyword: Vault AppRole
+            #search: Nomad Vault Integration
+            ロール, トークン:
+                登録: #keyword: auth/__AuthenticationMethod__/role/__RoleName__  #// トークンの TTL も設定します
+                    コマンド: #keyword: token_policies
+                        vault write  "auth/approle/role/dev-ci" \
+                            token_policies="dev-ci-read" \
+                            token_ttl="5m" \
+                            token_max_ttl="10m" \
+                            secret_id_ttl="30d" \
+                            secret_id_num_uses="9999"
+                    説明:
+                        dev-ci: ロール名
+                        token_ttl: トークン生成後に使える期間
+                        token_max_ttl: renew で延長できる最大の期間。CI パイプラインでは renew しないのが一般的です
+                        secret_id_num_uses: #keyword:
+                            ログインできる回数。
+                            secret_id_num_uses（回数）と secret_id_ttl（期限）と両方が（And 条件で）範囲内なら成功します。
+                        secret_id_ttl:
+                            ログインできる期間
+                        期間の単位:  #search: Vault duration format
+                ロール ID の値を表示します: #keyword: auth/__AuthenticationMethod__/role/__RoleName__/role-id
+                    vault read -field=role_id  "auth/approle/role/dev-ci/role-id"
+                シークレット ID を新規発行して表示します: #keyword: auth/__AuthenticationMethod__/role/__RoleName__/secret-id
+                    コマンド: |  #// シークレット ID を新規発行して、発行した シークレット ID を表示します。
+                        vault write -f -field=secret_id  "auth/approle/role/dev-ci/secret-id"  #search: -field HashiCorp Vault
+                    注意:
+                        実行するたびに新たに シークレット ID を発行します
+                    有効期間:
+                        ロールを登録したときに設定した期間になります  #search: auth/__AuthenticationMethod__/role/__RoleName__
+            ポリシー:  #search: policy HashiCorp Vault
+        ポリシー ロール: #keyword: policy role HashiCorp Vault  #// ポリシーにトークンの TTL などが追加設定されたもの
+            作成サンプル: |
+                vault write auth/token/roles/myapp-policy-role  name="myapp-policy-role"  allowed_policies="myapp-policy" \
+                    explicit_max_ttl=3600  orphan=true  period=3600  renewable=true
+                vault read auth/token/roles/myapp-policy-role
+                vault token create -role="myapp-policy-role"
+                    token  __PolicyToken__
+                export POLICY_TOKEN=__PolicyToken__
+                vault token revoke  ${POLICY_TOKEN}
         ポリシー: #keyword: policy HashiCorp Vault  #// シークレットを入れる場所と同じパスに対してポリシーを割り当てます
             手順:
                 設定して、トークンを生成します: #keyword: create policy HashiCorp Vault
@@ -13407,6 +13596,14 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                 参照:  #// ポリシーの内容を表示します
                     CLI:  #search: vault token capabilities
                     Web UI: http://____:8200/ui/vault/policies/acl
+                編集: #keyword: edit Vault Policy
+                    現在の設定をファイルに保存します:
+                        vault read -format=json auth/jwt-nomad/role/nomad-workloads | jq '.data' > ~/_role.json
+                    編集します:
+                        code ~/_role.json
+                    書き戻します:
+                        vault write auth/jwt-nomad/role/nomad-workloads @${HOME}/_role.json
+                        rm  ~/_role.json
             ファイル, 構成:
                 書式: |
                     path "kv/data/__Path__" {
@@ -13465,14 +13662,6 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                     m: Minutes
                     h: Hours
                     d: Days
-        ポリシー ロール: #keyword: policy role HashiCorp Vault  #// ポリシーにトークンの TTL などが追加設定されたもの
-            vault write auth/token/roles/myapp-policy-role  name="myapp-policy-role"  allowed_policies="myapp-policy" \
-                explicit_max_ttl=3600  orphan=true  period=3600  renewable=true
-            vault read auth/token/roles/myapp-policy-role
-            vault token create -role="myapp-policy-role"
-                token  __PolicyToken__
-            export POLICY_TOKEN=__PolicyToken__
-            vault token revoke  ${POLICY_TOKEN}
         トークン: #keyword: policy token HashiCorp Vault  #// ポリシーに定義した権限を持つトークン
             通常のトークン:
                 生成:  #search: create policy HashiCorp Vault
@@ -13519,6 +13708,7 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                             余裕ができたら **OIDC/JWT（特にGitLab CI）**へ寄せる
                         が現実的です。
                 機械アカウント:
+            AppRole トークン:  #search: Vault AppRole
         アクセサー, token accessor: #keyword: token accessor HashiCorp Vault  #// トークンを識別する値。 トークンを使った処理をするための権限はありません
             概要:
                 - トークンに 1対1 に対応した識別子です
@@ -13643,8 +13833,13 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
 Envoy: #keyword:
     機能:
         通信制御: 通信を制御し、サービス間の通信の暗号化、認証、認可、トラフィックのルーティング、負荷分散、レート制限など
+            ServiceA → [Envoy] → [Envoy] → ServiceB
+                        ↑サイドカー  ↑サイドカー
         監視: メトリクス、ログ、トレースを生成し、システムの動作状況を可視化
         移植性: Kubernetes、Nomad、Consul など、様々なプラットフォームと統合できます
+        Squid との違い: #keyword: Envoy vs Squid
+            Squid は、外部へのゲートウェイ
+            Envoy は、内側のサービス間通信の制御
 Consul: #keyword:  #// サーバ上でサービスが正常に動作していことを管理します
     読み:
         コンスルと聞こえます（公式動画より）
@@ -15820,6 +16015,7 @@ Zabbix: #keyword:
                 "jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params.","data":"Session terminated, re-login, please."},"id":____}
             対処:
                 Zabbix API コールに指定した auth を正しくしてください
+Prometheus, Node Exporter: #keyword:  #// モニタリングやアラート
 監視システムの比較:
     - Consul は内部的に Serf を利用しています  https://recruit.gmo.jp/engineer/jisedai/blog/consul-orchestration/
     - Nagios , Zabbix などは、中央集権型の監視システム  https://recruit.gmo.jp/engineer/jisedai/blog/consul-orchestration/

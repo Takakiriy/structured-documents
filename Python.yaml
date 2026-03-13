@@ -11,11 +11,13 @@
             variable: int = 0
             variable = "aaaa"   #// 実行時エラーにならない。VSCode で警告もされない
 特殊記号一覧 （python）: #glossary: Python  #ref: ${programming}/スクリプト/Python.svg#sign
-    (): タプル
-    []: リスト
-    {}: 辞書
+    (): タプル    #// ()
+    ([]): リスト  #// []
+    ({}): 辞書    #// {}
     (@): デコレーター  #search: Python @
-    (*), (**): 引数リスト  #search: Python argument list
+    (*), (**):
+        - 引数リスト  #search: Python argument list
+        - キーワード専用引数  #search: Python keyword-only arguments
     _L: 国際化  #search: Python 国際化
     __attribute: #search: name mangling
     ("""～"""):  #search: Python multi-line
@@ -727,6 +729,7 @@
                     起動します:
                         python  ____.py
                 デバッグします: #// VSCode  #keyword: VSCode Python Debugger
+                    （拡張機能, 対応 Python バージョン）:  #search: VSCode Python extension
                     デバッグする *.py ファイルを開きます:
                     launch.json ファイルを作ります:  #// __Project__/.vscode/launch.json
                         - Run アイコン（虫） >> create a launch.json file >> Python file
@@ -1225,7 +1228,7 @@
                     エラーメッセージ: |
                         ImportError: cannot import name '__Class__' from partially initialized module '__Application__.__Folder__' (most likely due to a circular import) 
                     対処A:
-                        from a.b import C を from a.b.c import C に修正する
+                        from a.b import C を from a.b.c import C に修正する（範囲を狭くします）
                         from a.b import c as D
                     対処B:
                         メソッド(def)内で import する
@@ -1999,6 +2002,14 @@
                     watch = str(exception)
                     print(watch)
                     raise exception
+        get_current_location: #keyword:
+            定義: |
+                def get_current_location() -> str:
+                    caller = inspect.stack()[1]
+                    return f"{caller.filename}:{caller.lineno}:{caller.function}"
+            呼び出し:
+                #// テスト プログラム にだけに使用してください。
+                #search: Python MagicMock
         通過回数:  #search: Python debug counter
     テスト:  #keyword: Python test
         定数を置き換えます:
@@ -2149,7 +2160,7 @@
                                 #ref: https://tox.wiki/en/latest/config.html#conf-envlist
                                 #ref: https://tox.wiki/en/latest/config.html#conf-basepython
                                 #ref: https://tox.wiki/en/latest/config.html#tox-environments
-                        skipsdist: #keyword: tox.ini skipsdist  #ref: https://tox.wiki/en/latest/config.html#conf-skipsdist
+                        skipsdist: #keyword: tox.ini skipsdist  #// tox 4 だと別名 no_package  #ref: https://tox.wiki/en/latest/config.html#conf-skipsdist
                             実行ファイルのプロジェクトの場合: true
                             ライブラリのプロジェクトの場合: false （デフォルト）
                     testenv: #// [testenv]  #// 共通設定。それぞれの testenv:__Name__ に継承されます  #ref: https://tox.wiki/en/latest/config.html#tox-environments
@@ -2208,10 +2219,13 @@
                                 インストールしない場合は allowlist_externals にコマンドを指定します。
                             サンプル: |
                                 deps = pytest
-                            サンプル (2): |
-                                deps =
-                                    -r{toxinidir}/tools/requirements.txt
-                                    -c{toxinidir}/tools/constraints.txt
+                            サンプル (2):
+                                tox.ini: |
+                                    deps =
+                                        -r{toxinidir}/tools/requirements.txt
+                                        -c{toxinidir}/tools/constraints.txt
+                                この設定で tox が実行するコマンド:
+                                    pip install -r tools/requirements.txt -c tools/constraints.txt
                             サンプル (3): |
                                 deps = pytest -r{toxinidir}/requirements.txt
                         setenv: #keyword: tox.ini setenv  #// 環境変数  #ref: https://tox.wiki/en/latest/config.html#conf-setenv
@@ -2244,6 +2258,21 @@
                 constraints.txt: #keyword: tox constraints.txt  #// 子孫も含んだバージョン。package-lock.json 相当
                     deps の -c オプションにパスを書きます（不要かも） #search: tox.ini deps
             トラブルシューティング:
+                - #// INTERNALERROR>
+                    手順: tox
+                    エラー: |
+                        INTERNALERROR> Traceback (most recent call last):
+                        INTERNALERROR>     File "/home/user1/____/.tox/py37/lib/python3.7/site-packages/_pytest/main.py", line 253, in wrap_session
+                        INTERNALERROR> ModuleNotFoundError: No module named '__FolderInProject__'
+                        ERROR: InvocationError for command /home/user1/.local/bin/poetry run pytest core services mkrep (exited with code 3)
+                    対処:
+                        tox.ini: |
+                            setenv =
+                                PYTHONPATH = {toxinidir}
+                    補足:
+                        - INTERNALERROR> の行全体は、（tox （の設定）が呼び出す）pytest が出力しています
+                        - pytest を実行する環境に問題がある可能性が高いです
+                        - InvocationError for command は tox が出力しています
                 - #// ERROR:   py37: commands failed
                     手順: tox
                     エラー: |  #focus: msgfmt
@@ -2622,9 +2651,28 @@
                                 mock_A.attr = 2
                         メソッドの返り値:
                             必要に応じてメソッドの返り値のデフォルトを設定します: #search: Python unittest  return_value
-                mock.Mock: |  #keyword: Python Mock  #// モックの型。 生成すると、対象のない（任意のインスタンスの）モックを生成します
+                mock.Mock: | #keyword: Python Mock  #// モックの型。 生成すると、対象のない（任意のインスタンスの）モックを生成します
                     from unittest.mock import Mock
                     my_mock = Mock()
+                mock.MagicMock: #keyword: Python MagicMock
+                    基本: |
+                        from unittest.mock import MagicMock
+
+                        customer = MagicMock()  #// 実用的ではありません（下記「実用」を参照）
+                        customer.attr = 2
+                    実用: |  #// モックの生成場所が分かるようにします
+                        from unittest.mock import MagicMock
+
+                        def get_current_location() -> str:
+                            caller = inspect.stack()[1]
+                            return f"{caller.filename}:{caller.lineno}:{caller.function}"
+
+                        customer = MagicMock(name=get_current_location())
+                        customer.attr = 2
+
+                        assert  customer.attr == 2
+                        #// customer == MogicMock(name=__FileName__:__LineNum__:__FunctionName__)
+                        #// customer.others == MogicMock(name=__FileName__:__LineNum__:__FunctionName__)
                 autospec:
                     通常、autospec は有効にします:
                     参考: https://docs.python.org/ja/3/library/unittest.mock.html#autospeccing
@@ -4727,9 +4775,11 @@
                     - スライス  #search: Python slice
                 辞書の配列:  #search: Python delete dict array item
                 filter:  #search: Python filter
+                    list = [1, 2, 3, 2]
+                    list = [x for x in list if x != 2]  # → [1, 3]
             複数行と配列の変換:  #search: Python str join 
             デフォルト値, default value: #search: Python class default value
-        辞書:  #keyword: Python dict
+        辞書: #keyword: Python dict
             関連 >> クラス: #search: Python class
             Python3.9 以降:
                 import しない小文字から始まる型を使います: |
@@ -4742,16 +4792,20 @@
                 from typing import Dict
                 d: Dict[str,int] = {'a':20, 'b':35}
                 print(d['b'])  #// 35
-            デフォルト:
+            デフォルト: #keyword: Python dict default,  Python dict YAML None
                 キーが必須の場合:  #// キーが無いと例外を発生します
                     d['key']
-                キーが無い場合: #keyword: Python dict get
+                キーが無い または キーの値が None の場合の値:  #// 例外は発生しません
+                    - d.get('key') or ''     #// キー または 値が無い または 値が falsy のときは '' を返します
+                    - d.get('key') or 'def'  #// キー または 値が無い または 値が falsy のときは 'def' を返します
+                キーが無い場合: #keyword: Python dict get  #// 例外は発生しませんが、None になる可能性があります
                     - d.get('key', None)
                     - d.get('key')  #// キーが無いと None を返します
-                    - d.get('key', '')
+                    - d.get('key', '')  #// 非推奨。キーが無いときは ''。 キーがあり、値が None のときは None が返ります。YAML の値が書いてないときは、値が None になります
+                    - d.get('key', 'def') #// 非推奨。d.get('key') or 'def' を推奨します
                     #// d.get('key', default='') は書けません
                 キーが必須で値が None の場合:
-                    d['key'] or ''
+                    d['key'] or ''  #// これはキーがないときに例外になります
             関数の引数のデフォルト値:  #search: Python default parameter values
             キーを型にします: |  #// Python3.8 まで
                 from typing import Dict
@@ -6360,9 +6414,10 @@
                 参考:
                     id: id(object)  #keyword: Python id  #// オブジェクトのID
                     #ref: https://www.javadrive.jp/python/if/index5.html
-            not: #keyword: Python not,  Python truthy falsy
+            not: #keyword: Python not,  Python truthy falsy nullable
                 not が True になる例:
                     数値 0,  文字列 "",  None,  配列 []
+                #search: YAML default
             and, or: #keyword: Python and,  Python or,  Python && ||
                 条件: and 条件、or 条件
                 短絡評価: あり
@@ -6432,6 +6487,19 @@
                 呼び出し例:
                     my_function( argument2='b',  argument1='a' )
                 #ref: https://docs.python.org/3/glossary.html  >>  keyword argument
+            キーワード専用引数: #keyword: Python keyword-only arguments
+                概要: 関数を呼び出すときに引数のキーワードを必ず指定することを呼び出し側に要求します。
+                    途中だけ省略（デフォルト値）もできます
+                    Python 3.0 以降
+                定義例: |
+                    def  my_function(*, argument1,  argument2='b',  argument3 ):
+                呼び出し例:
+                    my_function( argument3='c',  argument1='a' )
+                エラー:
+                    コード:
+                        my_function('c', 'a')
+                    エラー メッセージ: |
+                        TypeError: my_function() takes 1 positional argument but 2 were given
             引数リスト:  #// 可変長引数  #keyword: Python argument list
                 (*): |  #// キーワードなし引数のリスト
                     def  function(*arguments):
@@ -6821,7 +6889,7 @@
                 Django LOGGING 変数:  #search: Django LOGGING
                 関連 >> コールスタックを表示します:  #search: Python call stack
             公式: #ref: https://docs.python.org/ja/3/library/exceptions.html
-        assert:  #keyword: Python assert  #ref: https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement
+        assert:  #keyword: Python assert,  Python expect  #ref: https://docs.python.org/3/reference/simple_stmts.html#the-assert-statement
             assert と同じ処理のコード:
                 assert  __Expression__: |
                     if __debug__:
@@ -7385,6 +7453,7 @@
                         HTTP クライアントの環境変数や設定ファイルに http://localhost:8080/api/v1 を設定します。
                 static フォルダー: #keyword: Django static, Django static folder
                     #ref: ${programming}/スクリプト/Python.svg#Django_static_server
+                アップロードしたファイル:  #search: Django file upload
             設定変数: #keyword: Django 設定変数  #glossary: Django settings
                 公式:
                     概要 >> Django 4.1:  #ref: https://docs.djangoproject.com/en/4.1/topics/settings/
@@ -7517,6 +7586,24 @@
                             }'
                         def  example_view( request ):
                             value = request.data['Field']  #// "aaa"
+                    ファイル: #keyword: Django file upload  #// アップロードしたファイル  #search: HTTP file upload  #ref: ${programming}/スクリプト/Python.svg#Django_file_upload
+                        取得: |
+                            def upload_crl(self, request, wan_code) -> Models.CrlUpload:
+                                uploaded_file = request.FILES.get("file")
+                                if uploaded_file and uploaded_file.size > MAX_SIZE:
+                                    return HttpResponseBadRequest("File size is too large")
+                                uploaded_data = uploaded_file.read()
+                        サイズ制限:
+                            一時ファイルに書き出す最小サイズ:
+                                #// アップロードされたファイルはメモリーに配置されますが、一時ファイルに書き出されるしきい値（サイズ拒否ではなく挙動の切り替え）
+                                settings.py:
+                                    FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+                                デフォルト: None = 無制限
+                                #// DATA_UPLOAD_MAX_MEMORY_SIZE は、ファイルを「含まない」POSTデータ（テキストフィールド等）のサイズ上限
+                            Web サーバー:
+                                Nginx: client_max_body_size
+                        関連:
+                            ブラウザーの開発者ツールで見たファイルのアップロード:  #search: HTTP file upload
                     Cookie: #keyword: Django Cookie,  Python Cookie
                         取得: | #focus: COOKIES
                             def  example_view( request ):
@@ -8518,9 +8605,7 @@
             IPython シェルを開きます: #search: open IPython shell
     Ctrl + C:  #search: Python signal
 ファイル: #keyword: Python files  #ref: https://docs.python.org/ja/3.12/library/os.html
-    アップロード: #keyword: Django file upload  #ref: ${programming}/スクリプト/Python.svg#Django_file_upload
-        関連:
-            ブラウザーの開発者ツールで見たファイルのアップロード:  #search: HTTP file upload
+    アップロード: #search: Django file upload
     ファイル パス:  #ref: ${programming}/スクリプト/Python.svg#path
         search_parent: #keyword: Python  search_parent
             #ref: ${GitHub}/MyPrivateCode/Python/try_Python/examples/path/search_parent.py
@@ -8655,6 +8740,9 @@
                 '''
                 yaml_data = yaml.safe_load(yaml_string)
                 print(yaml_data['z'])
+        無いことの扱い: #keyword: Python YAML default
+            YAML のフィールドがある場合: 値がなくてもキーが作られます
+            フィールドの値が無い場合:  #search: Python dict default
         辞書をオブジェクトに変換します:  #search: Python dict to object
         値の "" を削除する#cut:"":  #keyword: (#cut:"")
             サンプル:
@@ -9719,7 +9807,7 @@
     Python パッケージ:  #// 複数の .py ファイルをまとめたもの
         ツール: #keyword: Python venv tools
             PyPI: #keyword: PyPI,  Python catalog  #// Python Package Index というリポジトリ  #ref: https://pypi.org/
-                .whl をダウンロードします:  #keyword: PyPi download  #// wheel ファイル (.whl) または、ソース .tar.gz ファイルをダウンロードします
+                .whl をダウンロードします:  #keyword: PyPI download  #// wheel ファイル (.whl) または、ソース .tar.gz ファイルをダウンロードします
                     #// 通常、ダウンロードしなくても pip install コマンドなどで自動的にダウンロードします
                     パッケージ名とバージョンを指定する場合:
                         シェルを開きます:
@@ -10074,6 +10162,9 @@
                                 python3 -m venv ".venv"
                                 source ".venv/bin/activate"
                                 pip install django  #// Django を使う場合
+                        Linux 汎用:
+                            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+                            python get-pip.py "pip==23.3.1"
                         CentOS7 + Python3:
                             sudo yum install python3 -y
                             python3 --version
@@ -10172,10 +10263,20 @@
                                         または
                                     index-url = https://__DeployUserName__:__DeployToken__@gitlab.com/api/v4/projects/__ProjectID__/packages/pypi/simple
                         ファイル:  #search: pip files
-                        関連:
                             requirements.txt: #search:
-                            pipenv:  #search: pipenv Windows install
-                            Poetry:  #search: poetry add
+                        #↓ コマンド
+                        pip install ".": #keyword: pip install .  #// プロジェクトを正式な Python パッケージとして仮想環境に入れます
+                            PEP 517以後:
+                                build backend が wheel をビルドします:
+                                    Poetry:  #// poetry-core.masonry.api を使ってビルド（wheel を作ります）
+                                        pyproject.toml: |
+                                            ...
+                                            [build-system]
+                                            requires = ["poetry-core>=1.0.0"]
+                                            build-backend = "poetry.core.masonry.api"
+                                pip が、生成された wheel を仮想環境にインストールします:
+                            PEP 517以前:
+                                setup.py:  #// wheel をビルドして仮想環境にインストールします
                         #↓ オプション
                         --index-url オプション: #keyword: pip install --index-url  #// 参照する PyPI をデフォルトから置き換えます。Simple Repository API 準拠であること
                             _: --index-url http://localhost:8080/simple/
@@ -10214,6 +10315,9 @@
                         --no-index オプション: #keyword: pip install --no-index
                             指定すると、リポジトリ内に .whl ファイルが単純に並べられたものとします
                         -U, --upgrade オプション: #ref: https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-U
+                        関連:
+                            pipenv:  #search: pipenv Windows install
+                            Poetry:  #search: poetry add
                     pip uninstall:
                         サンプル:
                             - which pip
@@ -10238,11 +10342,11 @@
                         #search: Python Wheel
                         .whl ファイルをビルドする場合 >> requirements.txt を使う場合:  #keyword: pip wheel requirements.txt 
                             pip wheel --wheel-dir=__WheelsFolderPath__  -r requirements.txt
-                        ダウンロードする場合:  #search: PyPi download
+                        ダウンロードする場合:  #search: PyPI download
                         関連:
                             requirements.txt に書かれた Wheel ファイルをダウンロードします:  #search: pip download requirements.txt
                     pip download: #keyword: pip download,  wheel download  #// 指定した .tar.gz などをダウンロードします
-                        .whl をダウンロードする場合:  #search: PyPi download
+                        .whl をダウンロードする場合:  #search: PyPI download
                         requirements.txt を使う場合:  #keyword: pip download requirements.txt
                             .whl の場合: |  #// requirements.txt に書かれたすべての .whl を カレント フォルダー にダウンロードします。
                                     ___/.venv/bin/pip  download  --only-binary=:all:  -r ___/requirements.txt
@@ -10286,7 +10390,7 @@
                             ERROR: Could not find a version that satisfies the requirement __Package__ (from versions: none)
                             ERROR: No matching distribution found for __Package__
                         対処:
-                            HTTPSを使用していない場合は --trusted-host オプション を指定してください  #search: PyPi download
+                            HTTPSを使用していない場合は --trusted-host オプション を指定してください  #search: PyPI download
                     - #// Could not find a version that satisfies the requirement
                         手順: sudo python "_get-pip.py" --no-index --find-links=./
                         エラー: |
@@ -10977,7 +11081,7 @@
                 .whl ファイルの命名規則:  #search: Python Wheel name
                 互換性の確認:  #search: Python Wheel platform
                 ダウンロード:  #search: pip wheel
-                ホームページ:  #search: PyPi download
+                ホームページ:  #search: PyPI download
                 依存バージョン: #keyword: wheel dependency,  .whl 依存関係  #// Python .whl ファイルが直接依存するパッケージのバージョンを一覧します
                     ダウンロードと同時に依存関係を確認する場合:
                         pip 22.2 以上の場合:  #ref: https://stackoverflow.com/questions/29531094/how-to-make-pip-dry-run
@@ -11166,6 +11270,7 @@
                     判断基準: import する対象のフォルダーに __init__.py ファイルがあるとき
                     __path__: リスト
                 循環参照対策:  #search: Python 相互 import
+                import 文のソート:  #search: isort
                 エラー:  #keyword: Python import error trouble
                     #search: Import "__DotPath__" could not be resolved
                     #search: No module named
@@ -11198,13 +11303,13 @@ Lint, ソース成形ツール:
                 "--disable", "line-too-long",
                 "--disable", "wrong-import-order",
                 "--disable", "invalid-name"]
-    isort: #keyword:  #ref: https://pypi.org/project/isort/  #// Shift + Alt + O
+    isort: #keyword:  #ref: https://pypi.org/project/isort/  #// 文法エラーを解消してから Shift + Alt + O
         インストール:
             VSCode 拡張機能:  #search: VSCode isort extension
             CLI: pip install isort
         ソート:
             VSCode で開いているファイル:  #search: VSCode isort extension
-                Shift + Alt + O
+                文法エラーを解消してから Shift + Alt + O
             1つのファイル:  #// Python の import をソートするようにソースファイルを編集します
                 isort __FolderOrFilePath__
             複数のファイル:  #// ブランチが編集したすべての .py ファイルの import をソートします
@@ -11848,9 +11953,9 @@ Microsoft Store からダウンロードする:
             and no versions of django-cors-headers match >3.10.1,<4.0.0, django-cors-headers (>=3.10.1,<4.0.0) requires Django (>=2.2).
             So, because __Application__ depends on both Django (2.1.15) and django-cors-headers (^3.10.1), version solving failed.
         対処:
-            対応している Django のバージョンが PyPi の django-cors-headers に書いてあるので、
+            対応している Django のバージョンが PyPI の django-cors-headers に書いてあるので、
             適切なバージョンの django-cors-headers をインストールします。
-            #search: PyPi  #// Python Package Index
+            #search: PyPI  #// Python Package Index
             #search: poetry add
         参考:
             構成のバージョンアップ:  #search: version upgrade debug

@@ -901,8 +901,8 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                         /usr/mysql/5.5.62/lib/libmysqlclient.so.18.0.0
                         /usr/mysql/5.1.73/lib/mysql/libmysqlclient.so.16.0.0
                         /usr/mysql/5.0.96/lib/mysql/libmysqlclient.so.15.0.0
-        日時:  #ref: ${programming}/検索技術、DB/SQL/MySQL.svg#mysql_command_date
-        Blob, binary, varbinary, MessagePack: #keyword: MySQL Blob binary
+        カラム >> 日時:  #ref: ${programming}/検索技術、DB/SQL/MySQL.svg#mysql_command_date
+        カラム >> Blob, binary, varbinary, MessagePack: #keyword: MySQL Blob binary
             表示, select: #keyword: MySQL select binary  #// 以下のいずれか
                 - select __Field__ from __Table__ where __Field__='__Value__';  #// 一部文字化けしますが表示されます
                 - select to_base64(__Field__) from __Table__;  #keyword: MySQL to_base64  #ref: https://dev.mysql.com/doc/refman/5.6/ja/string-functions.html#function_to-base64
@@ -5490,6 +5490,7 @@ Elasticsearch: #keyword:  #// 検索は #search: ElasticSearch query
                         print(es.count(index="students"))
                     存在の有無: |
                         es.exists(index="students", id=1)
+                    ElasticSearch DSL: #search: ElasticSearch DSL
                 （言語共通）:  #search: ElasticSearch steps
             ElasticSearch DSL: #keyword: ElasticSearch DSL,  elasticsearch-dsl  #ref: https://elasticsearch-dsl.readthedocs.io/en/latest/#search-example
                 概要: 文字列をメソッドなどに置き換えます
@@ -5548,7 +5549,7 @@ Elasticsearch: #keyword:  #// 検索は #search: ElasticSearch query
                     for tag in response.aggregations.per_tag.buckets:
                         print(tag.key, tag.max_lines.value)
                 集約:  #keyword: aggs elasticsearch_dsl  #search: ElasticSearch aggs
-                    サンプル:  #// 検索結果を a.b.c の構成で表示します
+                    サンプル:  #// 検索結果を a.b.c の構成で表示します。出力の構成を変えるだけで、フィルタリングはしません
                         search = Search()
                         search.aggs.bucket("a", Elastic.Aggs("terms", field="a", **size_settings))
                         search.aggs["a"].bucket("b", Elastic.Aggs("terms", field="b", **size_settings))

@@ -185,6 +185,7 @@
     occur, occurred, occurs:  #// occured, occurd, occures ではない
     omit:
         過去分詞: omitted  #// t が２つ  #keyword: omitted
+    one of: one of 複数形
     opposite: 反対
     pass, path:
         pass: 合格, （ボールを）渡す
@@ -200,6 +201,7 @@
     polling: ポーリング
     portion: 部分、量や割合を重視する「部分」  #keyword: English part
     practice: 練習。 best practice 最も優れている手法
+    predictable: 予測可能な
     prior, prioritized, priority: 優先, 前の。反対後は after, posterior
         A is prioritized. The prioritized person. He has priority.
         in order of priority.
@@ -242,6 +244,7 @@
         It's already time: もう時間になっている
         It's been time: しばらく前に時間になっている
         It's past time: 時間を過ぎている
+    traversal: 横断
     use:
         ～を使って: #keyword: using English
             using

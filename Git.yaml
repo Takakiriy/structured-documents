@@ -2495,7 +2495,7 @@ Git: #keyword: git
         インストール, ログイン:  #keyword: install Git, install Git bash
             本体:
                 Windows >> Git for Windows をインストールする場合:
-                    - https://git-scm.com/ >> Downloads >> Windows
+                    - https://git-scm.com/ >> Install for Windows（赤）>> Standalone Installer
                     - ダウンロードしたファイル（例：Git-2.33.0.2-64-bit.exe）を開く
                     - Next を9回押す
                     - Configuring the line ending conversions: Checkout as-is, commit as-is
@@ -3737,7 +3737,7 @@ Git: #keyword: git
                             接続先のサーバーまたはサービスに公開鍵を設定します:  #search: Git SSH key
                         対処B:
                             SSH キー を指定します:  #// git 2.3 以降。 Git bash でも使えます
-                                GIT_SSH_COMMAND="ssh -i ~/.ssh/special_id_rsa"  git clone git@__Server__
+                                GIT_SSH_COMMAND="ssh -i ~/.ssh/__SecretKey__"  git clone git@__Domain__:__Account__/__Repository__.git
                             GIT_SSH_COMMAND: #keyword:
                                 GIT_SSH_COMMAND に指定した秘密鍵は、git コマンドを実行するホストに存在する必要があります。
                                     #label: git clone SSH password
@@ -6947,7 +6947,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
         画面, タブ:  #// Issue, プルリクエスト などのタブ
             Code タブ:
                 コード参照: #keyword: GitHub code  #// コードを読みます。または、コードを見せます
-                    URL を取得する場合: #keyword: GitHub URL,  Git URL  #// コミットの URL なので内容が変化しません
+                    URL を取得する場合: #keyword: GitHub URL,  Git URL,  GitHub link  #// コミットの URL なので内容が変化しません
                         GitHub の Code タブを選びます:
                             https://github.com/__Account__/__Repository__
                             #// __Account__ は個人または組織のアカウント名です
@@ -9186,6 +9186,8 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                 関連:
                     プロジェクト アクセス トークン:  #search: GitLab project access token
                     その他の認証:  #search: git clone authentication
+            GitLab 認証: #keyword:
+                GitLab 以外のログイン画面に「GitLab でログイン」があれば、GitLab へジャンプして、許可するか聞かれます。そのまま許可すればログインできます。
             その他トークンなど:  #search: GitLab members
             プロキシ設定:
             ダウンロード:
@@ -9312,7 +9314,22 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         メニューに表示させる: GitLab のプロジェクトの Web ページ >> Settings（左）>> General >> Visibility >> Packages >> Save changes ボタン
                     #↓ 言語別
                     （private 対応状況）:  #search: GitLab private project
-                    Python, PyPI: #keyword: GitLab PyPI
+                    Python, PyPI: #keyword: GitLab PyPI,  GitLab PyPI Registry
+                        疎通確認します: #keyword: GitLab Package Registry 疎通確認
+                            #↓ Scope
+                            read_package_registry: | #// pip install など
+                                read -s -p "Enter PAT: "  PAT
+                                curl https://gitlab%2Bdeploy-token-__Number__:${PAT}@gitlab.com/api/v4/projects/__ProjectID__/packages/pypi/simple/__PackageName__/
+                                    <!DOCTYPE html>
+                                    <html>
+                                        <head>
+                                            <title>Links for __PackageName__</title>
+                                        </head>
+                                        <body>
+                                            <h1>Links for __PackageName__</h1>
+                                            <a href="https://gitlab.com/api/v4/projects/__ProjectID__/packages/pypi/files/____
+                            その他:
+                                未確認
                         .whl をアップロードまたは削除します: #keyword: upload .whl to GitLab Package Registry
                             準備: |
                                 cd  ~/__Project__  #// .whl ファイルがある場所
@@ -9326,7 +9343,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                 twine の場合: | #keyword: twine
                                     python -m twine upload  --repository-url "https://gitlab.com/api/v4/projects/${projectID}/packages/pypi"  -u __token__  -p "${PAT}" \
                                         zipp-3.4.0-py3-none-any.whl
-                                curl の場合: |  #// pip install で 404 Not Found になるかもしれません  #search: pip install trouble .whl 404
+                                curl の場合: |  #// 非推奨。pip install で 404 Not Found になる可能性が高いです  #search: pip install trouble .whl 404
                                     curl  --request POST  --header "PRIVATE-TOKEN: ${PAT}" \
                                             --form "content=@${whlFileName}"  --form "name=${packageName}"  --form "version=${packageVersion}" \
                                             https://gitlab.com/api/v4/projects/${projectID}/packages/pypi
@@ -12708,6 +12725,13 @@ Jenkins:  #keyword:
         を繰り返して最終的にはコンパイルを実行するインスタンスと同じクラスのインスタンスができる
     yacc: #keyword:  #// パーサージェネレーター
 トラブルシューティング:
+    - #// fatal: detected dubious ownership in repository at '__ProjectPath__
+        手順:
+            git pull など
+        ログ: |  #keyword: fatal: detected dubious ownership in repository at
+            fatal: detected dubious ownership in repository at '__ProjectPath__'
+        対処:
+            実行中のユーザーを正しくしてください
     - #// error: RPC failed; HTTP 400 curl 22 The requested URL returned error: 400
         手順: git push
         ログ: |

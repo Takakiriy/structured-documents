@@ -36,6 +36,7 @@
     (<( )):  #search: プロセス置換  
     (3>&-): #keyword: 3>&-  #// exec コマンドで ファイル ディスクリプター を削除します
     ({ }): #keyword: { }   #// 複数のフォルダー名やファイル名の指定  #search: Linux paths in bracket
+    (&): #// バックグラウンド ジョブとしてプロセスを起動します  #search: linux ampersand
     (&&): #keyword: bash &&  #search: bash Error  #search: bash test
     (||): #keyword: bash ||  #search: bash Error  #search: bash test
     (&>): #keyword: &>  #search: 2>&1
@@ -689,11 +690,11 @@ for Windows:
                         }
                 オプションの継承, SubScriptOptions:  #keyword: SubScriptOptions,  sub child options shell script 継承
                     #// 他の シェルスクリプト ファイル を呼び出すときに常に設定するオプションを集めた変数を定義すると便利です
-                    local  groupOption="$( MakeOptionString  "  --group"  "${Options_Group}" )"
-                    InstallBaseScriptOptions="--test  --target Target1${groupOption}"
+                    InstallBaseScriptOptions=()
+                    AddOptionToArray  InstallBaseScriptOptions  "--group"  "${Options_Group}"
+                    AddOptionToArray  InstallBaseScriptOptions  "--test"  "${Options_Test}"  --flag
 
-
-                    "${installBaseScript}"  ${InstallBaseScriptOptions}
+                    "${installBaseScript}"  "${InstallBaseScriptOptions[@]}"
             早期設定値チェック, CheckStatus: #keyword: CheckStatus
                 - 処理時間が長いとき、チェック関数を処理の最初で行います
                 - チェックを無視して続行できること  #// チェックがきつすぎる不具合がある可能性を排除するため
@@ -935,12 +936,13 @@ for Windows:
                 1行で書く場合:
                     lines="Line1"$'\n'"Line2"$'\n'"Line3"
                 (")や(')文字を含む場合: | #keyword: bash str multi line here document  #// (")や(')文字を含む場合  #focus: Lines
-                        Lines="..."  #// This value will be overwritten
+                        Answer="..."  #// This value will be overwritten
                             read -r -d '' Lines <<- __HERE_DOCUMENT__
-                                zone "vmlocal.com" IN {
-                                }
+                                Line"1"
+                                Line'2'
                         __HERE_DOCUMENT__
-                            Lines="$( echo "${Lines}"  |  sed -E 's/^ {8}//' )"  #// Cut space indent
+                            Lines="$( echo "${Lines}"  |  sed -E "s|/home/user1|${HOME}|g" )"
+                            Answer="$( echo "${Lines}"  |  sed -E 's/^ {8}//' )"  #// Cut space indent
                     #search: Linux here document
                 複数行の文字列を１行ずつ繰り返します:  #search: bash read lines  #search: bashlib CheckLinesInLog
                 ログをチェックします:  #search: bashlib CheckLinesInLog
@@ -1070,6 +1072,16 @@ for Windows:
                     main_func
                 #ref: https://stackoverflow.com/questions/18981748/passing-an-array-with-spaces-to-a-bash-function-to-act-as-its-list-of-arguments
                 文字列→配列:  #search: bash readarray
+                二次元配列:  #keyword: bash 2D array,  bash space separated array
+                    値に空白を含まない場合: |
+                        matrix=(
+                            "1 2 3"
+                            "4 5 6"
+                            "7 8 9"
+                        )
+                        row=( ${matrix[0]} )  # 1行目を配列に展開。"" で囲まないこと
+                        echo  "${row[1]}"     # → 2
+                    （関連）: #search: bash strict CSV
                 配列に列挙したファイルをコピーするスクリプト:  #search: Linux cp files
                 busybox (shell): #keyword: busybox array  #// 配列が使えません
                     コマンド: |
@@ -1113,7 +1125,7 @@ for Windows:
                 - a=( "${a[@]:1}" )  #// a[@]:0:-1 のような -1 はできません
                 - echo "${a[@]}"  #// b c d e
                 #ref: https://unix.stackexchange.com/questions/413976/how-to-shift-array-value-in-bash
-            関数に配列を渡します:  #focus: array[@]
+            関数に配列を渡します, 返します:  #focus: array[@]
                 渡す:  #// 関数に配列を渡します
                     呼び出す側:
                         #// すべての配列要素を関数のそれぞれ引数に渡すことならできます。
@@ -1125,17 +1137,7 @@ for Windows:
                             shift  2
                             local  options=( "$@" )
                             __Command__ "${options[@]}"
-                    参照渡し: |  #// 未確認
-                        #!/bin/bash
-
-                        function my_function {
-                            local -n arr=$1
-                            arr=("apple" "banana" "cherry")
-                        }
-
-                        declare -a my_array
-                        my_function my_array
-                        echo "${my_array[@]}"
+                    参照渡し:  #search: RemoveEmptyElement  #search: local --nameref
                 返す:  #// 関数から配列を返します
                     echo 表示するときだけ配列から文字列に変換します。
                     配列→文字列→配列  #search: bash array text
@@ -1160,9 +1162,14 @@ for Windows:
                 文字列→配列:  #keyword: bash text_to_array  #search: bash readarray  #// 文字列の 1行ずつを要素にした配列を変数に代入します
                     改行区切り:
                         read:
-                            local  line=""
-                            local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$( echo "$line" | sed -E 's/\r$//' )" ) ;done <<< "__Text__"
-                            #// このコードはかなり遅いです
+                            改行文字が CR+LF の可能性がある場合:
+                                local  line=""
+                                local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$( echo "$line" | sed -E 's/\r$//' )" ) ;done <<< "__Text__"
+                                #// このコードはかなり遅いです
+                                #// __Text__ に __Array__ と同じ変数を指定すると set -e のとき unbound variable エラーになります
+                            改行文字が必ず LF の場合:
+                                local  line=""
+                                local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$line" ) ;done <<< "__Text__"
                         readarray:
                             ❗注意: mac では使えません
                                 local  __Variable__=( )  &&  readarray -t  __Variable__ <<<  "__Text__"
@@ -1198,21 +1205,27 @@ for Windows:
                             test  "${out}" == "a,b"  ||  Error
                 配列→ファイル:
                     printf '%s\n' "${output[@]}"  >  "${outputFile}"
-            検索:  #search: Linux bash array loop
+            検索:  #search: Linux bash array loop  #search: strict CSV item match
             演算, 共通, 差分:  #search: Linux comm
             関連 >> 引数をループします:  #search: bash arguments loop
         連想配列 (bash): #keyword: Linux bash associative array,  bash dic hash
-            初期化: #keyword: create bash associative array
-                初期値付き:
-                    declare -A  object_A=( [attr1]="Value1" [attr2]="Value2" )
-                グローバル初期化:
+            初期化: #keyword: create bash associative array,  bash declare -A
+                初期値付き: |
+                    declare -A  ObjectA=( ["attr1"]="Value1" ["attr2"]="Value2" )
+                    echo  "${ObjectA["attr1"]}"  #// Value1
+                    index="attr2"
+                    echo  "${ObjectA["${index}"]}"  #// Value2
+                    echo  "${ObjectA["unknown"]}"  #// 空文字列
+                グローバル初期化: #keyword: bash declare -Ag
                     declare -Ag  AssociativeArray  #// associative array
                         #// -A は associative = 連想
                         #// -g はグローバル。関数内で宣言したときにグローバルにします
-                関数内ローカル初期化:
+                関数内ローカル初期化: #keyword: bash local -A
                     local -A  associativeArray  #// associative array
-                引数渡し: #keyword: local --nameref,  bash 名前参照,  local -n （短いオプション名）  #// Bash 4.3 以降。関数の引数に連想配列を渡します
-                    local --nameref  array="ExampleArray"
+                引数渡し: #keyword: bash local -n,  bash 名前参照  #// Bash 4.3 以降。関数の引数に配列または連想配列を渡します
+                    local -n  array="ExampleArray"
+                    #// local --nameref  array="ExampleArray" と書けません  #keyword: local --nameref
+                    #search: RemoveEmptyElement
             サンプル: #// mac では使えません
                 Linux: |
                     declare -A  ObjectA  #// associative array
@@ -1328,7 +1341,7 @@ for Windows:
                             echo "--> ${line}"
                         done
         計算: #keyword: bash 計算
-            数値:
+            数値:  #ref: https://qiita.com/Takakiri/items/8411987604683a07972d#数値の比較演算子
                 -   echo  $(( ${var} + 1 ))
                 -   errorCount=$(( ${errorCount} + 1 ))
                 -   (( errorCount += 1 ))  ||  true  #// true を書かないと演算結果が 0 のときに終了コードが 0 以外になり、set -e が有効なら終了します
@@ -1623,6 +1636,7 @@ for Windows:
         エラー処理:  #search: ErrorIfLastIs
         公式:
             #ref: http://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Command-Substitution
+        関連:  #search: process substitution
     リダイレクト: #keyword: Linux redirect,  redirect  #// 標準出力などをファイルに保存する等に変更します
         stdout, 標準出力: #keyword:
             安全にファイルに更新します:
@@ -1923,6 +1937,7 @@ for Windows:
     パイプ: #keyword: Linux pipe,  pipe,  bash pipe  ./_exit_1  #// 標準出力を別のコマンドの標準出力に転送します
         n段目の終了コード:  #ref: ${typrm_files}/ref/Linux-AI.yaml#label: pipe 1st status
             _: #snip: ${PIPESTATUS[0]} など  #search: pipe exit code
+            パイプと同等の処理:  #search: Process Substitution
             （試行錯誤）:
                 サンプル:
                     command-1; echo $? > ./_exit_1  |  command-2
@@ -2008,6 +2023,32 @@ for Windows:
                     パイプ:   echo "____"  |  script
                     パラメーター:   script  "____"
             関数がパイプやリダイレクトを受け取ります:  #search: bash function pipe
+    Process Substitution: #keyword:
+        ">( __Command__ __Parameters__ )":  #// 出力先として使う（書き込み側）
+            __Command__ の標準入力につながる一時ファイル
+        "<( __Command__ __Parameters__ )":  #// 入力元として使う（読み取り側）
+            サンプル:  #search: Linux comm
+        パイプと同等の処理で $! を変えます: #keyword: pipe like process substitution
+            _:
+                ./my-service  2>&1  |  tee "service.log"  &
+                の処理は、下記の処理と同じ処理をしますが、プロセスの構成が異なります。
+                ./my-service  >  >( tee service.log )  2>&1  &  #// $! は my-service の PID になります
+            $! の値:
+                pipe: tee の PID
+                process substitution: my-service の PID
+            プロセスの構成:
+                pipe:
+                    bash
+                    └─ (pipeline job)
+                        ├─ my-service
+                        └─ tee
+                process substitution:
+                    bash
+                    ├─ my-service        ← & で起動した“単独ジョブ”
+                    └─ tee               ← Bashが裏で起動した補助プロセス
+            PGID:  #// Process Group ID
+                pipe でも process substitution でも
+                my-service と tee は同じ プロセス グループ に所属します
     bash と zsh: #keyword: bash zsh,  zsh
         シェルの種類: #search: change shell
         コメント: #search: shell comment
@@ -2160,7 +2201,7 @@ for Windows:
                 サンプル:  #// 分かりにくいので非推奨（エスケープ シーケンス 直書きは非推奨）
                     - echo -e "AB\e[31mCDE\e[0mFG"  #// ABCDEFG のうち CDE が赤くなります。 -e オプションは必須です
                     - echo -e "AB\e[33mCDE\e[0mFG"  #// WSL2 Ubuntu 20.04 では黄色を指定しても白になります
-                色の変数: |  #// 推奨。変数名を使うことを推奨します
+                色の変数: |  #keyword: bash Red Yellow Green  #// 推奨。変数名を使うことを推奨します
                     DefaultColor="\e[0m"
                     Red="\e[91m"
                     Green="\e[92m"
@@ -2171,7 +2212,20 @@ for Windows:
                     Bold="\e[1m"
                     UnderLine="\e[4m"  #search: echo style
 
-                    echo -e "これは${Green}緑のテキスト${DefaultColor}です"  #// -e オプションは必須です
+                    echo -e  "これは${Green}緑のテキスト${DefaultColor}です"  #// -e オプションは必須です
+                複数行の一部に色を付けます:
+                    コード: |
+                        DefaultColor="\e[0m"
+                        Yellow="\e[93m"
+
+                        lines="Line1"$'\n'"Line2"$'\n'"Line3"
+                        echo  "${lines}"  |  \
+                            sed -E "s|^|$( echo -e  "${Yellow}" )|"  |  sed -E "s|$|$( echo -e  "${DefaultColor}" )|"  |  \
+                            sed -E 's|^|WARNING: |'  |  sed -E 's|$| is not found.|'
+                    表示: |  #// Line1 ～ Line3 の部分が黄色くなります
+                        WARNING: Line1 is not found.
+                        WARNING: Line2 is not found.
+                        WARNING: Line3 is not found.
                 mac zsh の場合:
                     #// echo -e が正しく動きません。代わりに printf を使います
                     ~/bin/step: |  #keyword: colored step,  ec echo color  #// シェルスクリプト
@@ -2399,12 +2453,9 @@ for Windows:
                 - grep -rn  "__keyword__"  "."
                 - grep -rn  "__keyword__"  __FolderPath__
                 - grep -Hn  "__keyword__"  __FilePath__
-            -n オプション: みつかった場所の行番号も表示します。
-                __LineNum__:__LineText__
-                #// VSCode でジャンプできるようにコロンの後に必ず空白を入れる場合: #search: grep path space
+            キーワードの指定方法:  #search: grep keyword
+            検索結果の表示方法:  #search: grep output
             -r オプション: サブフォルダーも検索します
-            -l オプション: ファイル名だけ表示します
-            -H オプション: みつかった場所のファイル名を表示します
             -I オプション, --binary-files=without-match オプション: バイナリ― ファイル を検索しません
             --exclude オプション:  #// ファイルを検索対象から除外します
                 基本:
@@ -2463,17 +2514,45 @@ for Windows:
                         ce
                 関連: #search: Linux comm
             オプション: #search: grep options
-                -F オプション: パターンを正規表現ではなく、文字列として解釈します
-                -f オプション: パターンをファイルから読み取ります
-                -v オプション: どのパターンにも含まない行を出力します  #search: bashlib CutCommonPartLines
-                    #// 注意: -v は -f より左に書いてください (macOS13)
+                キーワードの指定方法:  #search: grep keyword
+                検索結果の表示方法:  #search: grep output
                 （色を付けるだけ）: #keyword: color grep  #// 入力した内容をそのまま表示しつつ、マッチした部分だけ色を付けます
                     cat  __FilePath__  |  grep -E --color=always  "__Pattern__|$"
-        キーワードの指定方法:
+        キーワードの指定方法: #keyword: grep keyword
+            -F オプション: パターンを正規表現ではなく、文字列として解釈します
+            -f オプション: パターンをファイルから読み取ります
+            -v オプション: どのパターンにも含まない行を出力します  #search: bashlib CutCommonPartLines
+                #// 注意: -v は -f より左に書いてください (macOS13)
             絵文字: |  #// -P オプション と文字コードを指定します
                 code  ~/_tmp.txt   #// コマンドに絵文字を指定できないので、ファイルに絵文字を書きます
                     abc🔥def
                 grep -P 'bc\x{1F525}de'  ~/_tmp.txt  #// 1F525 は🔥の文字コードです  #search: grep -P
+        検索結果の表示方法: #keyword: grep output
+            -n オプション: みつかった場所の行番号も表示します。
+                __LineNum__:__LineText__
+                #// VSCode でジャンプできるようにコロンの後に必ず空白を入れる場合: #search: grep path space
+            -l オプション: ファイル名だけ表示します
+            -H オプション: みつかった場所のファイル名を表示します
+            -c オプション: 見つかった数を表示します。数字だけ表示されます
+            前後の行を表示します: #keyword: grep before after lines
+                上下の行: -3  #// 前後 3行ずつ
+                上の行: -B 3  #// 前 3行
+                下の行: -A 3  #// 後 3行。grep __Keyword__ -A 3
+                表示をスキップした行: -- で表示されます
+                その他の前後の行:  #search: Linux head
+                色を付けるだけ:  #search: color grep
+            マッチしないときの出力: #keyword: grep not match output
+                Linux bash で
+                echo ""   |  sed -E 's/^$/empty/'
+                を実行すると empty と表示されますが、
+                $ echo "a"  |  grep "b"  |  sed -E 's/^$/empty/'
+                を実行すると empty と表示されません。なぜでしょうか。
+                grep が空の文字列ではなく、何も出力しないから。
+                期待通りに動くコードは
+                $ echo "a"  |  grep "b"  || echo "empty"
+            最大ヒット数:  #// 指定した数だけヒットしたら検索をやめます
+                -m __Num__
+                --max-count __Num__
         変数やコマンドラインのテキストを検索します: #keyword: grep stdin
             パイプを使う場合: #keyword: echo pipe grep
                 サンプル: |
@@ -2580,15 +2659,6 @@ for Windows:
                 含まない: 1
         最後のマッチ: #keyword: grep tail
             cat "____"  |  grep  '__Keyword__'  |  tail -1
-        マッチしないときの出力: #keyword: grep not match output
-            Linux bash で
-            echo ""   |  sed -E 's/^$/empty/'
-            を実行すると empty と表示されますが、
-            $ echo "a"  |  grep "b"  |  sed -E 's/^$/empty/'
-            を実行すると empty と表示されません。なぜでしょうか。
-            grep が空の文字列ではなく、何も出力しないから。
-            期待通りに動くコードは
-            $ echo "a"  |  grep "b"  || echo "empty"
         group capturing ( ): #keyword: grep group capturing  #// ( ) の部分だけ取り出します
             #// bash の grep コマンドは対応していません
             代用のサンプル:
@@ -2600,16 +2670,6 @@ for Windows:
                 #ref: https://stackoverflow.com/questions/1891797/capturing-groups-from-a-grep-regex
                 #ref: https://unix.stackexchange.com/questions/13466/can-grep-output-only-specified-groupings-that-match
                 #ref: https://unix.stackexchange.com/questions/271651/how-to-extract-under-linux-some-capturing-groups-using-command-line-in-a-php-pre
-        最大ヒット数:
-            -m __Num__
-            --max-count __Num__
-        前後の行を表示します: #keyword: grep before after lines
-            上下の行: -3  #// 前後 3行ずつ
-            上の行: -B 3  #// 前 3行
-            下の行: -A 3  #// 後 3行。grep __Keyword__ -A 3
-            表示をスキップした行: -- で表示されます
-            その他の前後の行:  #search: Linux head
-            色を付けるだけ:  #search: color grep
         指定した行以下を検索します: #keyword: grep after line num
             echo  "${text}"  |  sed -n '__LineNum__,$p'  |  grep __Options__
         複数行検索:  #// 開始の正規表現と終了の正規表現でマッチする範囲
@@ -2737,6 +2797,8 @@ for Windows:
                     30日以上前: find .  -type f  -mtime +30
                     30日以上前のファイルを ls -l 形式で表示します:
                         find  "__CheckingFolder__"  -type f  -mtime +30  |  xargs -r ls -l --time-style=full-iso
+                    60分前:  #keyword: find -mmin
+                        find .  -type f  -mmin -60
                 ファイルサイズ: #keyword: find -size,  find file size  #// ファイルサイズで絞り込みます
                     基本: find _out -type f -size 70c  #// c（数字の右）は必須です。70バイトのファイルを探します。シンボリックリンクは検索対象外
                     サイズの単位:
@@ -2893,7 +2955,13 @@ for Windows:
             タイム スタンプ 比較:
                 #search: bash compare date time
             テスト用に比較します: #keyword: diff test
-                diff  "__PathA__"  "__PathB__"  ||  Error  "ERROR:_different"
+                ファイルの場合:
+                    diff  "__PathA__"  "__PathB__"  ||  Error  "ERROR:_different"
+                変数の場合: |
+                        local  output="$( __Command__ __Parameters__  2>&1  |  tee /dev/tty )"
+                        diff  <( echo "${output}" )  <( echo "${ExpectedOutput}" )  ||  Error  "ERROR:_different"
+                    #search: tee /dev/tty
+                    #search: bash str multi line here document
                 #search: bashlib Error
         patchにも使える出力形式にします:  #keyword: Linux diff patch,   diff patch
             注意: google diff-match-patch 用ではありません
@@ -3980,6 +4048,9 @@ for Windows:
             echo "hello!" | tee ./_temporary.txt
         追記, -a オプション:  #// 標準出力を表示しながらファイルに追記します
             echo "hello!" | tee -a ./_temporary.txt
+        変数に格納しながら表示します: | #keyword: tee /dev/tty
+                local  output="$( __Command__ __Parameters__  2>&1  |  tee /dev/tty )"
+            #search: diff test
         root ユーザー: #keyword: sudo tee  #// 管理者権限が編集に必要なファイルに追加します
             置き換え: echo  '__AppendingContents__'  |  sudo tee  __FilePath__
             末尾に追記: echo  '__AppendingContents__'  |  sudo tee -a  __FilePath__
@@ -4853,12 +4924,17 @@ for Windows:
                     Line2
                 "   >  file_2.txt
 
-                comm -12  <(cat file_1.txt | sort)  <(cat file_2.txt | sort)
-            出力:
+                comm -12  <( cat file_1.txt | sort)  <( cat file_2.txt | sort)
+            出力:  #// 共通の行が無いときは、"$( comm -12 ____ ____ )" == "" になります
                 Line2
                 Line4
             順番: ソートした後の順番。ソートさせたくないときは  #search: CommonLines
-        ソートしないとエラーになります:
+            引数の注意:
+                <( ) は、その中のコマンドによる echo 出力を内容にしたファイルを指定したときと同じ動きをします。
+                comm -12  file_1.txt  file_2.txt を実行してもエラーにはなりませんが、
+                ソートされていないので正しく処理されません。
+                #search: Process Substitution
+        ソートしないとエラーになります:  #// comm を使う場合はソートが必要です。bashlib CutCommonPartLines はソート不要です
             コマンド: |
                 comm -12  <(cat file_1.txt)  <(cat file_2.txt)
             出力: |
@@ -6838,7 +6914,7 @@ for Windows:
                 サーバーの秘密鍵 >> 生成:  #see-below:
                 証明書署名要求 >> 生成:  #see-below:
                 自己署名証明書 >> 生成:  #see-below:
-            構成:
+            構成:  #ref: ${typrm_files}/ref/Linux/ca.html
                 認証局, CA: #keyword:  #// ウェブサイト、企業、個人に対して電子証明書を発行する、信頼されている組織
                     _: 認証局しか発行できない電子証明書をブラウザーがチェックすることで、正規サイトの偽装を防ぎます
                     Let's Encrypt:  #ref: https://letsencrypt.org/ja/  #// 無料なのが特徴
@@ -6856,11 +6932,11 @@ for Windows:
                 サーバーの秘密鍵: #// server_private.key
                     生成: openssl genrsa 2048 > server_private.key  #// サーバーの秘密鍵など必要なものをすべて生成する手順 → #search: oreore.ssl.crt
                     表示: openssl rsa -text < server.key
-                証明書署名要求 (.csr): #// 申請書  #// server.csr
+                証明書署名要求, (.csr): #// 申請書  #// server.csr
                     生成: openssl req -new -key server_private.key > server.csr  #// サーバーの秘密鍵など必要なものをすべて生成する手順 → #search: oreore.ssl.crt
                         #// 入力はすべて Enter のみ
                     表示: openssl req -text < server.csr
-                SSL証明書: #keyword: SSL証明書,  server.crt,  サーバー証明書,  SSL 証明書  certificate
+                SSL証明書, (.crt): #keyword: SSL証明書,  server.crt,  サーバー証明書,  SSL 証明書  certificate
                     公開: 公開してかまいません。証明書はクライアントに配って検証させるものです
                     自己署名証明書:  #keyword: 自己署名証明書, オレオレ証明書, オレオレ サーバー 証明書, cert file, self signed certificate
                         自己署名証明書を作ります: #🌟 #// サーバーの秘密鍵など必要なものをすべて生成する手順 → #search: oreore.ssl.crt
@@ -6891,7 +6967,25 @@ for Windows:
                     複数サーバー: #keyword: SSL証明書 複数サーバー  #// 同一ドメイン内にある異なる名称の複数サーバーにて証明書が必要な場合
                         #ref: https://www.hotnet.co.jp/support/faq/401/
                     関連 >> 秘密鍵ヘッダー:  #search: SSH 秘密鍵 ヘッダー
-                証明書失効リスト, CRL: #keyword:  #// Certificate Revocation List。有効期限よりも前に失効させたデジタル証明書の一覧
+                クライアント証明書, (.crt): #keyword:  #// ユーザが正規の利用者であることを認証します
+                    概要:
+                        クライアント証明書を用いた認証を有効にすると、TLS コネクションの Server hello で Client の Certidicate を要求するようになります。
+                        使うクライアント証明書を選ぶダイアログがブラウザーに表示されます。
+                    認可:
+                        証明書の CN や OU を DB と照合します。
+                        失効に関しては、アプリ層まで到達しないため安全です。
+                    有効期限内の失効:
+                        証明書失効リストを使って、有効期限内のクライアント証明書が失効されたことを判定します。
+                        大規模環境では OCSP がよく使われます。
+                証明書失効リスト, CRL (.crl): #keyword:  #// Certificate Revocation List。有効期限よりも前に失効させたデジタル証明書の一覧。ブラックリスト方式
+                    概要:
+                        失効要因の例:
+                            秘密鍵が漏洩した
+                            従業員が退職した
+                            不正利用が判明した
+                        ブラックリスト方式:
+                            登録されている証明書を拒否します
+                            新しい証明書は拒否しません（ホワイトリスト方式ではないため）
                     手順:
                         失効までの全体の手順:
                             証明書発行者(CA)に失効を申請
@@ -6974,6 +7068,7 @@ for Windows:
                                 6. アプリケーションがCRLを正しく確認するかテスト
                             形式チェック:  #search: check CRL type
             ファイル: #keyword: SSL files
+                （関係図）: 
                 server_private.key:  #search: サーバーの秘密鍵
                 .crt:  #search: SSL証明書
                 .csr:  #search: 証明書署名要求
@@ -7288,13 +7383,7 @@ for Windows:
             サーバーが起動していないか、サーバーがネットワークにつながっていないとき: |
                     $ nc -z 172.24.0.4 ;  echo "exit code: $?"
                 #// 3秒たってタイムアウトしたら、疎通できていません
-        開くまで待つ: #keyword: wait for Linux service  #search: wait-for-it.sh
-            1行で書く場合:
-                while ! nc -z __HostName__ __PortNum__; do  sleep 1  ;done
-            複数行で書く場合:
-                while ! nc -z __HostName__ __PortNum__; do
-                    sleep 1
-                done
+        開くまで待つ: #search: wait for Linux service
         サービスへリクエスト: #keyword: client nc  #// TCP または UDP でリクエストを送信します
             Zookeeper: #search: ZooKeeper nc stat
                 #snip: echo stat | nc localhost 2181  #// localhost の Zookeeper の状態を表示します
@@ -7862,6 +7951,7 @@ for Windows:
                             kill -9 __PID__
                 接続できない場合:  #search: 疎通確認 trouble
         疎通確認: #keyword:
+            （開くまで待ちます）:  #search: wait for Linux service
             #↓ 疎通確認方法
             ping による疎通確認:  #search: ping
             cURL (curl) による HTTP 疎通確認:  #search: ACL 疎通確認 (cURL)
@@ -7907,6 +7997,18 @@ for Windows:
         ポートを開きます:
             firewall-cmd:  #search: firewall-cmd
             サービスの client 設定: 0.0.0.0 = インターネットのどこから来たリクエストでも応答します
+        開くまで待ちます: #keyword: wait for Linux port,  wait for Linux service,  health check
+            bashlib を使う場合:  #search: WaitForOpenPortOrProcessExit
+            curl を使う場合: #keyword: curl wait for Linux port
+                while ! curl -s localhost:8080 > /dev/null 2>&1; do  sleep 1s  ;done
+            nc を使う場合: #keyword: nc wait for Linux port
+                1行で書く場合:
+                    while ! nc -z __HostName__ __PortNum__; do  sleep 1s  ;done
+                複数行で書く場合:
+                    while ! nc -z __HostName__ __PortNum__; do
+                        sleep 1s
+                    done
+            wait-for-it.sh:  #search:
         Portspoof:
             #ref: https://x.com/matsuu/status/1873717513059782979
             TCPポート1〜65535を全部開けた上で、それぞれで何らかのサービスを装っておくことで本当に使用できるポートを特定しにくくするするアプローチ。
@@ -7933,6 +8035,22 @@ for Windows:
             ソケット通信:  #search: Unix sockets
             ポートフォワーディング:  #search: port forwarding
             Windows:  #search: Windows port
+    OID, オブジェクト識別子: #keyword:  #// 1つのホスト内の情報の種類の識別番号
+        構造:
+            OIDを保持するエンティティ
+            　└── OID
+            　　　└── OIDが指すエンティティ（値・情報・オブジェクト）
+            IPアドレス一般的なネットワーク機器IPv6アドレスIPv6環境ホスト名・FQDNDNS解決できる環境UNIXドメインソケット同一ホスト内でのローカル通信
+        MIB:
+            OIDが指すもの → MIB内の オブジェクト（MIBオブジェクト）
+        OIDを保持するエンティティ:  #// 用語は存在しないらしい
+            SNMP: エージェント
+            LDAP: スキーマ
+            証明書: プロファイル 
+        OID が使われている分野:
+            SNMP, SSL/TLS証明書, LDAP, HL7/DICOM 医療機器・診断情報の識別, 政府・行政 電子署名・マイナンバー関連
+        OID のサンプル:
+            .1.3.6.1.4.1.2021.8.____: net-snmp の exec テーブル
 インストール:  #keyword: Linux install command
     apt .deb: #keyword:  #// Ubuntu, Debian パッケージ
         手順:
@@ -9669,7 +9787,7 @@ for Windows:
                 ログ: |
                     __RepositoryShortName__ repo                                                                            89 kB/s |  27 kB     00:00    
                     Error: Failed to download metadata for repo '__RepositoryName__': repomd.xml parser error: Parse error at line: 84 (Opening and ending tag mismatch: link line 0 and head
-                対処:
+                対処A:
                     リポジトリを Public にします
             - #// 古い RPM（同じファイル名）がインストールされてしまう  #search: old RPM installed
             - #// yum history が右端で途切れる: #search: yum history width
@@ -13375,36 +13493,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     プロジェクトのちょっとした自動手順を tasks.sh に書いておけば、tasks.sh を検索することで手順が見つかります。 
                     たとえば、migrate で検索すると、プロジェクト固有のマイグレーションの手順がすぐに見つかり、すぐに実行できます。
             コマンド: #keyword: tasks.sh command
-                一覧: #search: tasks.sh methods
-                tasks.sh コマンド >> 基本書式:
-                    標準サブコマンドの場合: #keyword: tasks.sh standard method  #// root/tasks.sh がサポートしているサブコマンド  #search: tasks.sh services
-                        #// 以下のコマンドは、すべて同じく --start サブコマンドの処理をします。依存するサブコマンドも実行します。
-                        - ./tasks.sh  --start  __ServiceName__  __Options__
-                        - ./tasks.sh  --service __ServiceName__ --  --start  __Options__
-                        - __ServiceFolder__/tasks.sh  --start  __Options__
-                        #search: tasks.sh sub commands
-                    固有サブコマンドの場合: #keyword: tasks.sh specific method  #// root/tasks.sh がサポートしていない __ServiceFolder__/tasks.sh で使えるオプション
-                        #// 以下のコマンドは、すべて同じく --my-start サブコマンドの処理をします。依存するサブコマンドも実行します。
-                        - ./tasks.sh  --service __ServiceName__ --  --my-start  __Options__
-                        - __ServiceFolder__/tasks.sh  --my-start  __Options__
-                    --only オプション, -o: #keyword: tasks.sh --only option  #// 依存するサービスやサブコマンドは処理しないオプション
-                        --only オプション を付けないと依存するサービスも処理対象になります。付けると指定したサービスだけ処理対象になります。
-                            ./tasks.sh  --start --only  __ServiceName__  __Options__
-                        --follow や --status などのサブコマンドは、付けなくても指定したサービスの 1つのサブコマンドだけ処理対象になります。
-                        #search: tasks.sh ShowDependOn
-                セットアップ用コマンド: #keyword: tasks.sh set up,  __Application__-setup-tasks.sh
-                    #// このコマンドはプロジェクトに含められません。プロジェクトの tasks.sh ファイルとは別に スクリプト ファイル を用意する必要があります。
-                    インストールと開始:  #// --install オプション
-                        ./__Application__-setup-tasks.sh  --install  __allOrProjectsCSV__  [--start  __ServicesCSV__]  [__OtherOptions__]
-                    終了とアンインストール:  #// --uninstall オプション。 --stop オプションを付けると tasks.sh --stop all も実行します
-                        ./__Application__-setup-tasks.sh  [--stop]  --uninstall __allOrProjectsCSV__
-            概念:  #// サービス,サブコマンド, 状態
-                サービス: #keyword: tasks.sh services,  tasks.sh applications
-                    説明: サービスとは、HTTP サーバーや API サーバーなどのプロセスです。アプリケーションも同様に扱えます。
-                        基本的に 1つのサービスに 1つの tasks.sh ファイルを対応させます
-                    docker-compose を使う場合:
-                        tasks.sh はサービスごとのフォルダーの中 __DockerComposeFolder__/__Service__/tasks.sh のように分けます
-                サブコマンド: #keyword: tasks.sh sub commands  #glossary: tasks.sh sub commands,  tasks.sh methods
+                サブコマンド: #keyword: tasks.sh sub commands  #glossary: tasks.sh sub commands,  tasks.sh methods  #// --start, --stop, --initialize など
                     #// 以下のサブコマンドは複数同時に指定できるためオプション形式（ハイフンから始まる指定）になっています。短いオプションは連続して指定できます（例：-is）
                     --state, -?:  #// サービスの状態を表示します
                         状態: ["Inactive", "Active", "Starting", "Stopping", "Done", "Undefined", "NoService"]  #search: tasks.sh state
@@ -13503,12 +13592,26 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                                     # echo  "sub2:${subCommandAndParameter}| from ${operation}"  #// Delegate
                                         ShowDependOn 関数を完全にします:
                                             デフォルト設定するコードなどを書きます
+                                    TheDelegatedSubCommandIsIgnored: #keyword:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/service_example/service2/tasks.sh#TheDelegatedSubCommandIsIgnored
+                                        出力形式:
+                                            __Service__:__SubCommand__?TheDelegatedSubCommandIsIgnored| from __Service__:__SubCommand__"
+                                        効果:
+                                            実行するサブコマンドから取り除きます
+                                            #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#RemoveIgnoredOperations
                                     TheDelegatedConfigIsIgnored: #keyword:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/service_example/service2/tasks.sh#TheDelegatedConfigIsIgnored
                                         出力形式:
                                             __Service__:config?TheDelegatedConfigIsIgnored| from __Service__:config?__Key__=__Value__
                                         効果:
-                                            実行するサブコマンドから取り除きます
+                                            実行する config サブコマンドから取り除きます
                                             #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#RemoveIgnoredOperations
+                                デバッグ:
+                                    サブコマンドの依存関係:
+                                        tasks.sh ...  --verbose  --step-after
+                                        tasks.sh ...  --verbose
+                                        tasks.sh ...  --verbose  --dry-run
+                                    --config の依存関係:
+                                        tasks.sh ...  --verbose-config __ServiceName__:config?__Key__
+                                    #search: tasks.sh call tree
                     --stop, -q:  #// サービスを終了します。冪等性を持たせること。--start と同時に指定した場合、stop して start します
                         前状態: Initialized, Inactive, Active, Done
                         後状態: Inactive
@@ -13518,7 +13621,54 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                             - 既に Inactive 状態なら何もしません。ただし、そのように tasks.sh が対応できていない可能性があります
                             - ストレージのデータは維持されます
                             - コンテナーは削除されます
-                    --test, -t: テストを実行します。--only オプションを指定しないと全てのテストを実行します。操作コマンドの tasks.sh ならインストール兼簡易テストを行います
+                    --test, -t:  #// テストを実行します。--only オプションを指定しない場合、プロジェクトの全てのテストを現在の環境で実行できるテストのみ実行します。
+                        基本:
+                            機能:
+                                - 現在のサービス（または テスト）に所属するテストのうち、現在の環境で実行できるテストをすべて実行します。 #// --only オプションを付けなければ
+                                - 特定の環境を設定したときの、一般的な test suite（テスト ツリー）の全実行に相当します
+                                - --only オプションを同時につけた場合、1つのサービスの tasks.sh の中の TestOnly 関数だけ呼び出します
+                            コマンド:
+                                -   ./tasks.sh  --test  __Service__
+                                -   ./tasks.sh  --test  --only  __Service__
+                                #// テスト対象のサービスの --initialize や --start は明示的に指定する必要があります。
+                            コード:
+                                TestOnly 関数:
+                                    テストを実行する関数です。この関数の内容を編集してください
+                                ShowDependOn 関数:  #keyword: tasks.sh ShowDependOn --test
+                                    -   --start などを依存させないでください
+                                    -   --config All=Default の config 構成 を TASKS_SH_ENV 環境変数 の値に応じて変えます
+                                    -   テストが対応している環境でなければ、TestOnly 関数が呼ばれないように、依存させないようにします
+                        --test all の場合: #keyword: tasks.sh --test all
+                            機能:
+                                - root の tasks,sh の中の TestAll 配列に登録してあるすべてのテストを実行します。
+                                - 網羅チェック、スキップしたを含む結果の統合には対応していません
+                            コマンド:
+                                入力するコマンド:
+                                    ./tasks.sh  --test  all  #// --verbose  --dry-run
+                                内部で実行するコマンド:
+                                    ./tasks.sh  --stop  all
+                                    TASKS_SH_ENV=__EnvName1__  ./tasks.sh  --initialize  --config All=Default  --start  --test  __ServiceName1__
+                                    TASKS_SH_ENV=__EnvName1__  ./tasks.sh  --stop
+                                    TASKS_SH_ENV=__EnvName2__  ./tasks.sh  --initialize  --config All=Default  --start  --test  __ServiceName2__
+                                    TASKS_SH_ENV=__EnvName2__  ./tasks.sh  --stop
+                                    ...
+                                    ./tasks.sh  --stop  all
+                                    ./tasks.sh  --config All=Default  all
+                            コード:
+                                TestAll 配列:  #ref: __Projects__/tasks.sh
+                                    書式:
+                                        TestAll=(
+                                            "__ServiceName1__ __EnvName1__"
+                                            "__ServiceName2__ __EnvName2__"
+                                            "__ServiceName3__ __EnvName3__"
+                                        )
+                                    __ServiceName1__: ServiceName 変数で定義されるサービス名。テスト プロジェクト 名
+                                    __EnvName1__: 環境名。TASKS_SH_ENV 環境変数に設定されます  #keyword: TASKS_SH_ENV
+                                実行内容:
+                                    - tasks.sh --stop all
+                                    - TASKS_SH_ENV 環境変数を設定して、--initialize --config All=Default --start --test --stop
+                                    - 次の サービス テスト に対して、上記を実行します
+                                    - tasks.sh --stop all
                     --restart: 再起動。パラメーターはサービス名。複数の場合は空白区切り。無効なサービス名は無視されます
                     --follow, -f: 出力を表示し続けます。--only オプションがなくても１つのサービスが対象です
                     --log, -l: サービスのログを表示します。--only オプションがなくても１つのサービスが対象です
@@ -13556,6 +13706,37 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     --value:  #// コンフィグ参照時に最初の値だけ表示します
                         #search: bashlib ValueFilter
                     固有サブコマンド:  #search: tasks.sh specific sub command
+                tasks.sh コマンド >> 基本書式:
+                    標準サブコマンドの場合: #keyword: tasks.sh standard method  #// root/tasks.sh がサポートしているサブコマンド  #search: tasks.sh services
+                        #// 以下のコマンドは、すべて同じく --start サブコマンドの処理をします。依存するサブコマンドも実行します。
+                        - ./tasks.sh  --start  __ServiceName__  __Options__
+                        - ./tasks.sh  --service __ServiceName__ --  --start  __Options__
+                        - __ServiceFolder__/tasks.sh  --start  __Options__
+                        #search: tasks.sh sub commands
+                    固有サブコマンドの場合: #keyword: tasks.sh specific method  #// root/tasks.sh がサポートしていない __ServiceFolder__/tasks.sh で使えるオプション
+                        #// 以下のコマンドは、すべて同じく --my-start サブコマンドの処理をします。依存するサブコマンドも実行します。
+                        - ./tasks.sh  --service __ServiceName__ --  --my-start  __Options__
+                        - __ServiceFolder__/tasks.sh  --my-start  __Options__
+                    --only オプション, -o: #keyword: tasks.sh --only option  #// 依存するサービスやサブコマンドは処理しないオプション
+                        --only オプション を付けないと依存するサービスも処理対象になります。付けると指定したサービスだけ処理対象になります。
+                            ./tasks.sh  --start --only  __ServiceName__  __Options__
+                        --follow や --status などのサブコマンドは、付けなくても指定したサービスの 1つのサブコマンドだけ処理対象になります。
+                        #search: tasks.sh ShowDependOn
+                オプション:  #glossary: tasks.sh
+                    --dry-run:
+                セットアップ用コマンド: #keyword: tasks.sh set up,  __Application__-setup-tasks.sh
+                    #// このコマンドはプロジェクトに含められません。プロジェクトの tasks.sh ファイルとは別に スクリプト ファイル を用意する必要があります。
+                    インストールと開始:  #// --install オプション
+                        ./__Application__-setup-tasks.sh  --install  __allOrProjectsCSV__  [--start  __ServicesCSV__]  [__OtherOptions__]
+                    終了とアンインストール:  #// --uninstall オプション。 --stop オプションを付けると tasks.sh --stop all も実行します
+                        ./__Application__-setup-tasks.sh  [--stop]  --uninstall __allOrProjectsCSV__
+            概念:  #// サービス,サブコマンド, 状態
+                サービス: #keyword: tasks.sh services,  tasks.sh applications
+                    説明: サービスとは、HTTP サーバーや API サーバーなどのプロセスです。アプリケーションも同様に扱えます。
+                        基本的に 1つのサービスに 1つの tasks.sh ファイルを対応させます
+                    docker-compose を使う場合:
+                        tasks.sh はサービスごとのフォルダーの中 __DockerComposeFolder__/__Service__/tasks.sh のように分けます
+                サブコマンド: #search: tasks.sh methods  #// --start, --stop, --initialize など
                 状態: #keyword: tasks.sh state  #glossary: tasks.sh state  #// 状態は構成するそれぞれのサービスが持っています
                     Uninitialized:  #// --state で表示される状態ではありません
                         - 新しい開発環境で、tasks.sh を含むプロジェクトを git clone した後
@@ -13569,8 +13750,8 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                         - --state の出力は Inactive
                         - ストレージのデータは稼働中のもの、または Initialized 状態と同じ
                         - --start で Active 状態にできる
-                        - プロセスは起動していない
-                        - コンテナーは削除済み
+                        - systemd なら、プロセスは起動していない
+                        - Docker なら、コンテナーは削除済み
                         - 関連するリソースはロックされていない
                     Active:
                         - --state の出力は Active
@@ -14102,6 +14283,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
         サンプル:
             - ps
             - ps -auxww
+            - ps -eo pid,pgid,ppid,cmd  #// PID, PGID, PPID, コマンド ライン を一覧します
             - 詳細: #search: linux process example
         f: プロセス ツリー を表示します  #search: linux process example
         -a: 全プロセスを表示します
@@ -14161,7 +14343,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             18
             73
         参考: #// https://atmarkit.itmedia.co.jp/ait/articles/1707/28/news010.html
-    kill: #// プロセスを終了するか再起動します  #keyword: kill
+    kill: #// プロセスを終了するか再起動します。プロセスの有無を調べます  #keyword: kill
         プロセスを強制終了します:
             SIGKILL シグナルを送ります:
                 書式 >> プロセスID: kill -9 __ProcessID__
@@ -14185,6 +14367,8 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                 15  SIGTERM 終了
                 17  SIGSTOP 停止
                 18  SIGCONT 再開
+        プロセスの有無:
+            if kill -0 "$PID" 2>/dev/null; then
         その他の kill 系コマンド:  #glossary: Linux
             pkill:  #// 条件付き。プロセス名、ユーザID、グループID、セッションID、制御端末など
                 -f オプション: コマンドに入力した内容を検索対象にします
@@ -14200,6 +14384,118 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             kill:  #// プロセスID 指定
         参考: #// https://xtech.nikkei.com/it/article/COLUMN/20060227/230806/
     wait:  #// プロセスの終了を待ちます  https://qiita.com/inosy22/items/341cfc589494b8211844#シェルスクリプト内でのバックグランド実行と同期待ち
+        コマンド:
+            wait "${parallelProcessID}"
+            exitCode=$!
+        終了コード:
+            指定した子プロセスの終了コード
+            すでに終了していても取得できます
+    setsid:  #// 別セッションに隔離します。親プロセスと異なる PGID にします。プロセスをターミナルから切り離します（ファイルへリダイレクトで出力はできます）
+        サンプル: |  #focus: setsid,  my-service
+            PYTHONUNBUFFERED=1  setsid  ./my-service  >  >( tee "./service.log" )  2>&1  &  #search: pipe like process substitution
+            local  servicePID=$!  #// $! は setsid の PID です。 通常、setsid 内部で exec を実行しているため、my-service の PID でもあります
+            DeferKillProcessGroup  "${servicePID}"  #search: DeferKillProcessGroup
+        PGID: #search:
+    timeout:  #// タイムアウトを設定してコマンドを実行します。ただし、シェルスクリプトでは Ctrl+C が効かなくなるようです。
+        ターミナルに入力する場合: |
+            timeout 5s  read -s -p "Enter password: "  PASSWORD
+        シェルスクリプトの場合: |  #focus: --foreground  #// --foreground はタイムアウトの時間の左に書いてください
+            #!/bin/bash
+            timeout --foreground 5s  read -s -p "Enter password: "  PASSWORD
+            echo "done"
+            exit
+        -k, --kill-after オプション: |  #// 5秒後にSIGTERM、更に 2秒後に SIGKILL
+            timeout -k 2s 5s  read -s -p "Enter password: "  PASSWORD
+        --foreground オプション:
+            _: シェルスクリプトの場合は、付けないとシグナルが届きません
+            Ctrl+C が届く範囲, PGID:  #keyword: timeout Ctrl+C,  timeout PGID
+                #// PGID が変わるため Ctrl+C が届きません
+                ターミナルに --foreground なしで入力する場合:
+                    bash(PGID=A)
+                    └─ timeout(PGID=B) ← 並行して届く
+                        └─ playwright(PGID=B) ← 並行して届く。--foreground なしでも PGID は変わらない
+                ターミナルに --foreground ありで入力する場合:
+                    bash(PGID=A)
+                    └─ timeout(PGID=B) ← 並行して届く
+                        └─ playwright(PGID=B) ← 並行して届く
+                シェルスクリプトで --foreground なしの場合:
+                    bash(PGID=A)
+                    └─ script:bash(PGID=B) ← 並行して届く（既定の動き）
+                        └─ timeout(PGID=C) ← 届かない（PGID が変わるため）
+                                └─ playwright(PGID=C) ← 届かない
+                シェルスクリプトで --foreground ありの場合:
+                    bash(PGID=A)
+                    └─ script:bash(PGID=B) ← 並行して届く
+                        └─ timeout(PGID=B) ← 並行して届く
+                                └─ playwright(PGID=B) ← 並行して届く
+                確認コマンド:
+                    timeout  5s  ps -eo pid,pgid,ppid,cmd
+        #search: bash Ctrl+C
+    flock:  #// 二重起動防止。先に使っている人がいたら待つ。または諦める。自分自身（同じスクリプトの次の時間など異なるインスタンス）でも待ちます
+        基本:
+            flock -n  __LockFilePath__ __Command__ __Parameters__
+            flock -n  __FileDescriptorNumber__ __Command__ __Parameters__
+        サンプル:
+            コマンド:
+                flock -n  "${PWD}/example.lock"  timeout -k 2s 10s  sh -c "echo start; sleep 5s; echo end"  ||  echo "$? (locked, time out or error)"
+            flock や timeout の終了コード:
+                ロック: 1
+                タイムアウト: 124
+            二重起動させます:
+                ターミナルを 2つ開きます:  #// 左右に並ぶように開きます
+                ターミナル1 でコマンドを実行します:
+                    $ flock ... sleep 5s ...
+                    start
+                ターミナル2 でコマンドを実行します:  #// ターミナル1 の flock が終わる前に実行させて、すぐエラーになることを確認します
+                    $ flock ... sleep 5s ...
+                    1 (locked, time out or error)
+                ターミナル1 の終了を待ちます:  #// 5秒後
+                    end
+            タイムアウトさせます:  #// snmpd exec の場合、snmpd 側のタイムアウトより短くしてください
+                処理が長くなるようにコマンドを変更します:
+                    sleep 5s を sleep 25s に変えます
+                ターミナル1 でコマンドを実行します:
+                    $ flock ... sleep 25s ...
+                    start
+                ターミナル2 でコマンドを実行します:  #// ターミナル1 の flock が終わる前に
+                    $ flock ... sleep 25s ...
+                    1 (locked, time out or error)
+                ターミナル1 のタイムアウトを待ちます:  #// 10秒後
+                    124 (locked, time out or error)
+                ターミナル2 でコマンドをすぐ実行できます:
+                    $ flock ... sleep 25s ...
+                    start
+        #↓ 待機
+        -n オプション:  #// 即時失敗（推奨）
+            待機させても良いことはほぼありません。
+            -n も -w も指定しないときは、無限に待ちます。
+        -w __Seconds__ オプション:  #// 最大待ち時間
+            指定しないときは無限に待ちます
+        タイムアウトの主体:
+            SNMPクライアント:  #// 監視ツール側
+                クライアント側のほうがタイムアウトが短いと、エージェント側は処理を継続する問題が発生するので、
+                エージェント側に二重起動防止が必要です。
+                クライアント側がリトライしたタイミングでも、二重起動防止が必要です。
+            snmpd:  #// エージェント側
+                エージェント側のほうがタイムアウトが短いと、クライアント側は失敗を返し、継続する問題は発生しません。
+        #↓ 共有
+        -s オプション:  #// 共有ロック、リード用
+        -x オプション:  #// 排他ロック（デフォルト）、ライト用
+        #↓ 共有
+        -u オプション:  #// ロック解除
+        関連:
+            fcntl lock: #search:
+    fcntl lock:
+        概要:
+            ファイルの一部だけロックできる
+            同じプロセス内で同じファイルを reopen しても ロックは共有される
+            flock と fcntl は互いに独立
+        #↓ 参考
+        ロックの種類:
+            advisory lock:  #// 通常
+                flock を使うプログラム同士だけ排他が成立する
+            mandatory lock:
+                ロックされていると、ロックしたもの以外のシステム全体で read / write 自体が失敗
     nohup:  #// ログアウトしてもプロセスを停止させません。バックグラウンド実行します
         #ref: https://qiita.com/inosy22/items/341cfc589494b8211844#nohupでログアウトしてもバックグラウンド実行
     strace:  #// プロセスをトレースします
@@ -14366,6 +14662,17 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             bashlib RunUntil: #search:
             thread ID: #keyword:
             trace ID: #search:
+    PGID: #keyword:  #// process group ID
+        取得:
+            servicePGID=$( ps -o pgid= "${servicePID}" | tr -d ' ' )
+        確認:  #search: ps
+            ps -eo pid,pgid,ppid,cmd
+                PID    PGID    PPID   CMD
+                1       1       0     /sbin/init
+                2       0       1     /init
+                25      25      1     /usr/lib/systemd/systemd-journald
+                34      34      1     /usr/lib/systemd/systemd-udevd
+        変更:  #search: setsid  #// プロセスグループを新規に分けます
 プロセス間通信:
     ソケット通信: #keyword: Unix sockets,  socket  #// ローカルで軽量にプロセス間で通信します
         コマンド例:
@@ -14557,6 +14864,7 @@ bash: #keyword: bash  #// Bourne Again Shell
         公式:  #ref: ${typrm_files}/2025/bash.txt
             #ref: https://www.gnu.org/software/bash/manual/
         BashFAQ: #ref: http://mywiki.wooledge.org/BashFAQ
+        Qiita: #ref: https://qiita.com/Takakiri/items/e60dd1c163e5e6b0678c
         Snap Note: #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg
     開きます: #keyword: open bash  #// ターミナルから bash を開きます
         Windows: #keyword: start bash
@@ -14564,7 +14872,7 @@ bash: #keyword: bash  #// Bourne Again Shell
             ターミナルを開きます:
                 Windows11 22H2:
                     Windows スタート >> terminal（と入力）>> ターミナル >> cd __WorkingFolder__ >> bash
-        Web playground (jdoodle):  #ref: https://www.jdoodle.com/test-bash-shell-script-online  #keyword: JDoodle bash 「ジェー ドゥードゥル」
+        Web playground (JDoodle):  #ref: https://www.jdoodle.com/test-bash-shell-script-online  #keyword: JDoodle bash 「ジェー ドゥードゥル」
             機能:
                 入力ファイルのアップロード:
                     下のタブを右にスクロールして Upload files
@@ -15000,6 +15308,8 @@ bash: #keyword: bash  #// Bourne Again Shell
                             if [ "${count}" == "" ]; then
                                 echo  "[0]: \"$4\""  >&2
                                 echo  "[1]: ERROR: pp parameter is too few"  >&2
+                            elif [ "${count}" == "0" ]; then
+                                echo  "[]"  >&2
                             else
                                 local  i=""
                                 for (( i = 0; i < ${count}; i += 1 ));do
@@ -15627,7 +15937,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                     #// if echo "${__Variable__}" | grep -o -F "__Keyword__"; then より高速です
                 部分マッチしないときに真にする場合:
                     if [[ "${__Variable__}" != *"__Keyword__"* ]]; then  #// string not includes
-            大小比較, 数値の比較: #keyword: bash compare,  bash 数値比較  #// == は文字列比較、-eq または (( "010" == "10" )) は数値比較です。(( "010" == "10" )) は真です
+            大小比較, 数値の比較: #keyword: bash compare,  bash if number 数値比較  #// == は文字列比較、-eq または (( "010" == "10" )) は数値比較です。(( "010" == "10" )) は真です
                 整数:
                     書式A: if (( ${var} >= 0 )); then   #// ==, != >, <, >=, <=
                     書式B: if [ "${var}" -gt 0 ]; then  #// -eq, -ne, -gt, -lt, -ge, -le  #ref: https://ez-net.jp/article/C6/ujTO-ZZP/gpA8CS0xkbhq/
@@ -15768,6 +16078,8 @@ bash: #keyword: bash  #// Bourne Again Shell
 
                         test  "${filePaths}" == "${answerFileList}"  ||  Error
                     }
+                テスト スクリプト のログを取ります:  #search: bash test log
+                ログの内容をチェックするテスト:  #search: journalctl log test
                 #↓ テスト スイート
                 テスト コマンド 版, RunTest:  #// １つの テスト ケース を実行するコマンドを呼び出し、エラーの数を集計する場合
                     function  RunTest() {
@@ -15779,6 +16091,9 @@ bash: #keyword: bash  #// Bourne Again Shell
                         -   ./test-cli --test "__TestName__"  #// 1つのテストを実行します。短いオプションは -t
                         -   ./test-cli --list  #// テスト名を一覧します。短いオプションは -l
                     コード:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh
+                テスト結果の収集:
+                    #search: EchoTestResultBreadcrumb
+                    #search: EchoEndOfTest
                 （その他テスト一般）:  #search: bash shell script test
             And, Or 判定: #keyword: bash and or  #//  && || が推奨。-a, -o は公式に非推奨になりました
                 推奨:
@@ -16177,7 +16492,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 trap AtDebug DEBUG
                                 set -o functrace  #// same as "set -T"
                             fi
-                    INT, SIGINT:
+                    INT, SIGINT: #keyword: bash Ctrl+C,  Ctrl+C  #// Ctrl+C による終了
                         書式:
                             trap __CommandOrFunctionName__ SIGINT
                         サンプル: | #keyword: CtrlC
@@ -16188,7 +16503,20 @@ bash: #keyword: bash  #// Bourne Again Shell
                             }
                             trap CtrlC SIGINT
                             Main "$@"
-                    TERM, SIGTERM:
+                        Docker の場合:  #search: docker ctrl+C
+                        子プロセスがある場合:
+                            timeout: timeout コマンドを使うときは、--foreground オプションを付けないと、INT は届きません  #search: timeout Ctrl+C
+                            setsid: setsid で分離されたプロセス（PGID が異なるプロセス）には自動的に INT は届きません。  #search: setsid
+                        #search: bash trp TERM
+                    TERM, SIGTERM:  #// 汎用的な終了要求
+                        Django の場合:  #// バックグランド実行では、SIGINT は無視され、SIGTERM は終了に応じるようです
+                            TTY の有無の違い？:
+                                TTYあり（ターミナルで実行）：SIGINT を受け取って終了する
+                                TTYなし（シェルスクリプトやバックグラウンド実行）：SIGINT を無視する
+                            autoreloader が原因？:
+                                runserver の自動リロード（autoreloader）で親子プロセス構造になっていることが原因です。
+                                Django の開発サーバは、コード変更監視のために 親（監視）＋子（実働） みたいな構造になりがちです。
+                                このとき 親だけに SIGINT を送ると、子が残る/止まりにくい、が起こります（昔から課題として話題になっています）。
                     KILL, SIGKILL:
                     HUP, SIGHUP:
                     QUIT, SIGQUIT:
@@ -16301,6 +16629,16 @@ bash: #keyword: bash  #// Bourne Again Shell
                         echo  '$7: "'"$7"'"'
                         echo  '$8: "'"$8"'"'
                         echo  '$9: "'"$9"'"'
+                    code  ~/bin/echo-q : |
+                        function  echo_q() {
+                            local  output="'$0'"
+                            local  parameter=""
+
+                            for parameter in "$@"; do
+                                output="${output}  '${parameter}'"
+                            done
+                            echo  "${output}"
+                        }
                     bash:
                         chmod +x ~/bin/echo-parameters.sh
                         echo  "${HOME}/bin/echo-parameters.sh"   #// フルパスの表示
@@ -16326,6 +16664,21 @@ bash: #keyword: bash  #// Bourne Again Shell
             -   local  lastArgument="${!#}"   #// 最後の引数
             -   for argument in "$@"; do
                 done
+        変数の値によっては値を渡しません: #keyword: remove bash array empty element
+            #// 空白を含む値にも対応できます
+            概要:
+                状況:
+                    たとえば、var="2" のとき、 Func 1 $var 3 と呼び出すと 1, 2, 3 が渡されます。
+                    undef var のとき、 Func 1 $var 3 と呼び出すと 1, 3 が渡されます。これが「値を渡さない」です。
+                    var="2 5" のとき、 Func 1 "$var" 3 と呼び出すと 1, 2 5, 3 が渡されます。これが「空白を含む値を渡す」です。
+                    「値を渡さない」と「空白を含む値を渡す」の両方に対応するには、
+                    Func 1 $var 3 と Func 1 "$var" 3 の違いに対応しなければなりません。
+                対処:
+                    配列で渡します。
+                    var=("2") のとき、 Func 1 "${var[@]}"" 3 と呼び出すと 1, 2, 3 が渡されます。
+                    #search: AddOptionToArray
+            空文字列を渡さない場合:
+                #search: RemoveEmptyElement
         デフォルト引数:  #search: bash default argument
         section コメント:  #keyword: bash section,  bash class namespace,  section:  #// クラスの粒度で分けます
             書式: |
@@ -16466,6 +16819,10 @@ bash: #keyword: bash  #// Bourne Again Shell
             1ミリ秒待ちます: usleep 1000
             usleep が使えない場合: sleep 0.5s  #search: Linux bash sleep
         Docker コンテナーの場合:  #search: Docker HEALTHCHECK
+        #↓ bashlib
+        WaitForFileExists:
+        WaitForRemoteFileExists:
+        WaitForUpMySQL:
     プロンプト: #keyword: Linux bash prompt,  Linux PS1
         設定:
             恒久設定:
@@ -16653,15 +17010,24 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
                 簡易 strict CSV 版: #keyword: bash strict CSV
                     #search: strict CSV
                     #// 以下はコンマを値に含めることができない簡易版です
+                    サンプル: "Value1,Value2,Value3"
+                    書式:
+                        - コンマの前後、文字列全体の先頭、末尾に空白を含めることができません
+                        - 値を " " などで囲むことができません
+                        - 文字列全体の先頭、末尾は、コンマではありません。有無判定を行うときに一時的に付けます
+                    （関連）: #search: bash 2D array
                     追加:
                         local  csv=""
                         csv="${csv}__Value1__,"
                         csv="${csv}__Value2__,"
                         csv="${csv%,*}"   #// left of last ","
                         #// "__Value1__,__Value2__"
-                    有無判定:  #keyword: strict CSV item match  
+                    有無判定:  #keyword: strict CSV item match
                         if [[ ",${strictCSV}," == *",__Item__,"* ]]; then  #// strict CSV item match
                         #// [ ] では動作しません
+                    最初の要素, 最後の要素: |  #search: Linux bash string left of right
+                        echo "${csv%%,*}"  #// left of ","
+                        echo "${csv##*,}"  #// right of last ","
                     GetStrictCSV: | #keyword:  #// , の前または後に空白がある CSV を strict CSV に変換します
                         function  GetStrictCSV() {
                             #// This version does not support comma-containing values
@@ -16694,7 +17060,8 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         辞書: SetToTabDic, GetFromTabDic, TestOfTabDic  #keyword: TabDic
         ユーザー インターフェース: EchoWithIndent, Input, CompleteName, RunWithEcho, RunAfterPause
         ネットワーク: GetIpAddress, AddKnownHost, CheckKnownHost, RemoveOldKnownHost
-        プロセス: IsProcessExists, WaitForProcessFinished, RunUntil, MakeOptionString, WaitForUpMySQL
+        プロセス: IsProcessExists, WaitForProcessFinished, RunUntil, MakeOptionString, WaitForUpMySQL,
+            KillProcessGroup, DeferKillProcessGroup, AtExitForDeferKillProcessGroup, CancelDeferKillProcessGroup
         ユーザー アカウント: AllowNoPasswordSudo
         Git: GetCommitID, GetCurrentGitBranch, ChangeGitBranch, AllFilesAreGitAdd, CheckIfGitResetState, EchoGitLogTree,
             GitCheckOut, GitStatusShort, CopyGitModifiedFiles, SetGitCommitDate
@@ -16706,6 +17073,10 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         その他: NoOperation
     関数 >> その他 ABC 順: #keyword: bash library bashlib  #glossary: bashlib
         AddKnownHost:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  AddKnownHost
+        AddOptionToArray:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddOptionToArray
+            #search: remove bash array empty element
+            #search: SubScriptOptions
+            #ref: https://claude.ai/chat/8a5504c3-b1e2-4b16-9d44-98476fe0b288
         AddPATHEnvironment:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddPATHEnvironment
         AddToBashrc:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddToBashrc
         AllFilesAreGitAdd;:  #ref: ${GitHub}/locommit/bin/locommit#function  AllFilesAreGitAdd
@@ -16727,6 +17098,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         CheckDebugDistroOfWSL:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckDebugDistroOfWSL
         CheckIfGitResetState:  #ref: ${GitHub}/locommit/bin/locommit#function  CheckIfGitResetState
         CheckKnownHost:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  CheckKnownHost
+        CheckNodeJsVersion:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckNodeJsVersion
         CheckPatternExists:  #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  CheckPatternExists
             #search: check file contents Git hooks
         CheckPipeStatus:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckPipeStatus
@@ -16754,6 +17126,11 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             関連: #search: bash library SetLastOf
         CutSingleQuotation:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CutSingleQuotation
         CutTimeStampInDiffOutput: #ref: ${GitHub}/MyPrivateCode/bash/sh-order/sh-order.sh#CutTimeStampInDiffOutput()
+        DeferKillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  DeferKillProcessGroup
+            #search: AtExitForDeferKillProcessGroup
+            #search: CancelDeferKillProcessGroup
+            #search: KillProcessGroup
+            #search: setsid
         DefineVariable: #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  DefineVariable()
         DeleteFolder: #ref: ${GitHub}/locommit/test/test-locommit#function  DeleteFolder
         DeleteMatchedLines: #keyword:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  DeleteMatchedLines
@@ -16791,6 +17168,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ErrorCount:  #keyword: bash 計算,  Linux インクリメント 加算
             基本:
                 command  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
+            bashlib:  #search: TestError
             標準: |
                 ErrorCount=0
                 command  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
@@ -16892,6 +17270,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         IsProcessExists:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  IsProcessExists
         IsWindowsFile:  #ref: ${GitHub}/locommit/bin/locommit#function  IsWindowsFile
         IsWindowsFolder:  #ref: ${GitHub}/locommit/bin/locommit#function  IsWindowsFolder
+        KillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  KillProcessGroup
         LastIs: #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  LastIs
             #// $(  ) の中で発生したエラーを処理します
             #search: bashlib EndsWith
@@ -16903,7 +17282,8 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         LoadEnvironmentVariables: #ref: ${typrm_files}/Qiita下書き/15_BashDebug/15_BashDebug.md#function  LoadEnvironmentVariables
         LookUpEnvironmentVariable: #search: bashlib LookUpEnvironmentVariable source
         MakeGitWorkingInBackUpIfNew:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  MakeGitWorkingInBackUpIfNew
-        MakeOptionString: #keyword: bash get option string  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  MakeOptionString
+        MakeOptionString: #// 非推奨  #keyword: bash get option string  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  MakeOptionString
+            #search: AddOptionToArray
         ModifyFullPath:  #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  ModifyFullPath
             #// Git bash 用に フル パス を /c/ から c;/ に変更します
         ModifyVariables:  #search: initialize Linux global variable
@@ -16928,6 +17308,12 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         PrintCallStack:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  PrintCallStack
         PushBreadcrumb:  #ref: ${GitHub}/breadcrumb/breadcrumb.sh#function  PushBreadcrumb
             #search: shell script breadcrumb
+        RemoveEmptyElement:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RemoveEmptyElement
+            テスト:
+                arr1=( a "" c )
+                pp "$arr1" arr1  ${#arr1[@]}  "${arr1[@]}"
+                RemoveEmptyElement  arr1
+                pp "$arr1" arr1  ${#arr1[@]}  "${arr1[@]}"
         RemoveOldKnownHost:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  RemoveOldKnownHost
         ResolveDependency:  #ref: ${GitHub}/MyPrivateCode/bash/tasks_sh/tasks.sh#function  ResolveDependency
         RestoreFolder: #keyword: restore-folders-1  #ref: ${GitHub}/Snippets/for-bash/restore-folders/restore-folders-1#function  RestoreFolder
@@ -16984,6 +17370,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         TestCaseName:
             廃止されました。代わりは PushBreadCrumb, PopBreadCrumb
         TestError: #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  TestError()
+            #search: EndOfTest
             #search: bashlib Error
             #search: CheckByGrep
         TestErrorIfMatched:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  TestErrorIfMatched()
@@ -16997,6 +17384,10 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ValueFilter:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ValueFilter
         WaitForFileExists:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#WaitForFileExists
             #search: WaitForRemoteFileExists sequence
+        WaitForLineInFileOrProcessExit:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  WaitForLineInFileOrProcessExit
+            #search: WaitForOpenPortOrProcessExit
+        WaitForOpenPortOrProcessExit: #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  WaitForOpenPortOrProcessExit
+            #search: curl wait for Linux port
         WaitForRemoteFileExists:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#WaitForRemoteFileExists
             シーケンス:  #keyword: WaitForRemoteFileExists sequence
                 図: |  #focus: _notify_transfered,  _notify_received
@@ -17139,6 +17530,8 @@ gcc: #keyword:
         - CPU 使用率とは異なります。使用率が100% でも待っているプロセスが無ければ 0 です（OSによっては+1）
         - 現在の値を表示するときは #search: Linux uptime
     シェル, ターミナル, コンソール, TTY: #keyword:  #ref: https://unix.stackexchange.com/questions/4126/what-is-the-exact-difference-between-a-terminal-a-shell-a-tty-and-a-con
+        TTY の標準入力の有無:  #search: test -t 0
+        Docker 擬似TTY:  #search: docker run -it
 トラブルシューティング:
     - #// VM を起動できない。VM を起動しても ログイン プロンプト が表示されず、systemd[1]:failed to load SELinux policy エラーになる
         手順: CentOS7 の VM を起動。いままでは起動できていた

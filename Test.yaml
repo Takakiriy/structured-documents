@@ -18,9 +18,13 @@
             判定条件のテスト:
                 判定関数の単体テストを作ります:
         参考 >> 権限:  #search: 権限
-    ガイド メッセージ: |  #keyword: test guide message,  test check message print echo
-        "The program will check for errors in the output file."（プログラムが自動的にチェック）
-        "Please check the output file for any errors."（人間にチェックを依頼）
+    ガイド メッセージ:  #keyword: test guide message,  test check message print echo
+        プログラムが自動的にチェックしています:
+            "The program will check for errors in the output file."
+        人間にチェックを依頼する場合:
+            "Please check the output file for any errors."
+        オプションを付けて:  #// このオプションを付けて再実行するといいことがあるかも
+            "Re-running with this option may help."
 CI/CD:
     ベストプラクティス:  #keyword:
         一般:
@@ -189,6 +193,8 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     - await page.getByTestId('select').click();
                     - await page.locator(getTextSelector(["適用"])).click();  #search: Playwright getTextSelector
                 キーボード入力:  #search: Playwright input keyboard
+                GUI 部品:  #search: Playwright GUI parts
+                locator, $:  #search: Playwright CSS selector
             get, Locators, GUI 部品の選択:  #search: Playwright get  #// GUI 部品の選択  #ref: https://playwright.dev/docs/locators
                 await page.getByTestId('directions').click();
             チェック, アサーション: #keyword: Playwright assertion,  Playwright expect  #ref: https://playwright.dev/docs/test-assertions
@@ -351,6 +357,24 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                             npx playwright test  __Parameters__  --grep-invert "@initialize"  --list
                         特定の初期化だけ実行するとき:
                             npx playwright test  __Parameters__  --grep "__TestName__ @initialize"  --list
+                Visual Studio Code でデバッグします: #keyword: Playwright debug
+                    基本的な実行ができることを確認します:
+                        #search: run Windows Playwright
+                    設定 Reuse Browser にチェックを入れます: |
+                            VSCode >> 歯車 ボタン（左下）>> Settings >> Playwright: Reuse Browser（と入力）
+                        #// ちなみに Playwright: だけ入力すると Playwright に関する設定を一覧できます
+                    テストを実行します:
+                        VSCode >> Testing（フラスコ ボタン：左）>>（テストにマウスを合わせて）Run Test（デバッガーなし）または Debug Test（デバッガーあり）
+                        #// Debug Test で起動するデバッガーはテストに対してのみデバッグできます
+                    Web アプリケーション にブレークポイントを張ります:
+                        ブラウザーが開いたら、ブラウザーの開発者ツールを開いてブレークポイントを張ります
+                    テストを再実行します:
+                        #// ブラウザーがブレークします
+                    デバッグが終わったら:
+                        設定 Reuse Browser のチェックを外します
+                        #// チェックを外すと Run Test（デバッガーなし）で実行するときにブラウザーが開かないようになり、速くなります
+                    関連:
+                        CLI の場合:  #ref: https://playwright.dev/docs/debug#browser-developer-tools
                 CLI:  #// デバッガーなし
                     基本的な実行ができることを確認します:
                         #search: run all Playwright
@@ -373,24 +397,38 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                             }, { tags: ['fast'] });
                         コマンド:
                             npx playwright test --grep-tag "fast"
-                Visual Studio Code でデバッグします: #keyword: Playwright debug
-                    基本的な実行ができることを確認します:
-                        #search: run Windows Playwright
-                    設定 Reuse Browser にチェックを入れます: |
-                            VSCode >> 歯車 ボタン（左下）>> Settings >> Playwright: Reuse Browser（と入力）
-                        #// ちなみに Playwright: だけ入力すると Playwright に関する設定を一覧できます
-                    テストを実行します:
-                        VSCode >> Testing（フラスコ ボタン：左）>>（テストにマウスを合わせて）Run Test（デバッガーなし）または Debug Test（デバッガーあり）
-                        #// Debug Test で起動するデバッガーはテストに対してのみデバッグできます
-                    Web アプリケーション にブレークポイントを張ります:
-                        ブラウザーが開いたら、ブラウザーの開発者ツールを開いてブレークポイントを張ります
-                    テストを再実行します:
-                        #// ブラウザーがブレークします
-                    デバッグが終わったら:
-                        設定 Reuse Browser のチェックを外します
-                        #// チェックを外すと Run Test（デバッガーなし）で実行するときにブラウザーが開かないようになり、速くなります
-                    関連:
-                        CLI の場合:  #ref: https://playwright.dev/docs/debug#browser-developer-tools
+            テストの中から画面操作します: #keyword: Playwright CLI test parts  #// CLI で起動する テスト スクリプト から npx playwright test コマンドを実行します
+                コマンド: |  #// テスト スクリプト などからコマンドを実行します
+                    timeout 30s --foreground  npx playwright test  "./MyOperation.spec.ts"  --config=/dev/null
+                        または
+                    timeout 30s --foreground  ./node_modules/.bin/playwright test  "tests/MyOperation.spec.ts"  --config="../playwright.config.ts"  --grep "Test1Operation"
+                MyOperation.spec.ts: |
+                    import { test } from '@playwright/test';
+                    test('Test1Operation', async ({ page }) => {
+                        await page.goto('https://example.com');
+                        // ...
+                    });
+                    test('Test2Operation', async ({ page }) => {
+                        await page.goto('https://example.com');
+                        // ...
+                    });
+                テスト対象のプロセスを起動します:
+                    #search: setsid
+                    #search: KillProcessGroup
+                    #search: DeferKillProcessGroup
+                デバッグします:
+                    playwright.config.ts ファイルがある場合:
+                        そのファイルがあるフォルダーを VSCode で開きます
+                    playwright.config.ts ファイルがない場合:
+                        最小限の playwright.config.ts を作ります  #search: playwright.config.ts
+                設計:
+                    Q1:
+                        画面の操作に Playwright を使い、画面の操作の前後それぞれでチェックスクリプトを実行する場合、
+                        Playwright からチェックスクリプトを呼び出すか
+                        Playwright以外のテストランナーからチェックスクリプトと Playwright を呼び出すか
+                        どちらがいいでしょうか。
+                    A1: #// Claude Sonnet 4.6
+                        テストランナーから両方を呼び出す方が多くの場合優れています
             サービスの状態別:  #// サービスの状態に応じて、一部のいくつかのテストだけ実行します。タグが付いたテストは通常でも実行されます
                 フィルターを使う場合:
                     テスト コード:  #// タグのサンプル： @standard
@@ -432,8 +470,13 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         },
                     };
                     export default config;
-    コマンド:
-        npx playwright test  #search: Playwright CLI
+    コマンド: #glossary:
+        playwright test:  #keyword: npx playwright test
+            サンプル:  #search: Playwright CLI
+            npx: #search:
+            --reporter:  #// 失敗時の動作。デフォルトは、結果を表示する Web サーバー を起動します
+                --reporter=line: #keyword:  #// 失敗時に Web サーバー を起動しません
+                --reporter=html: #keyword:  #// 失敗時に Web サーバー を起動します
     概念:
         ブラウザー:  #// 画面  #search: Playwright viewport
             storageState: #keyword: Playwright storageState  #// ブラウザーが現在開いている状態、および、それを保存したファイル
@@ -507,6 +550,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                 locator:  page.locator('#result-table  td:has-text("__Part__")')
                 入力: #keyword: Playwright input keyboard
                     .fill(): #keyword: Playwright fill form  #// フォームフィールドにテキストを入力する最も一般的な方法
+                        await page.locator('input[name="username"]').fill('ユーザー名');
                         await page.fill('input[name="username"]', 'ユーザー名');
                         await page.fill('#password', 'パスワード');
                     .pressSequentially: #keyword: Playwright pressSequentially keyboard #// （旧）実際のキーボード入力をシミュレートする。1文字ずつ入力
@@ -559,6 +603,9 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         },
                     },
                 });
+            最小限: |
+                import { defineConfig } from '@playwright/test';
+                export default defineConfig({});
             動的変更, expect.configure: | #keyword: expect.configure  #// 設定を変更してアサーションする expect
                 const slowExpect = expect.configure({ timeout: 10000 });
                 await slowExpect(locator).toHaveText('Submit');
@@ -594,7 +641,13 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         - // から始めます  #// "//" から始まるときは xpath= を書かなくても XPath として解釈されます 
                     CSSセレクター:
                         - xpath= や // 以外
-                ブラウザーで場所を確認する: #keyword: Playwright locator highlighting
+                マウスを合わせて、書くべきコードを表示する:  #// ブラウザー内の GUI 部品にマウスを合わて page.getByText('OK') のようなコードを表示します
+                    一度テストを実行します:  #// Playwright と接続したブラウザーを開きます
+                    Lacator モードにします: #keyword: VSCode PLAYWRIGHT タブ
+                        VSCode >> PLAYWRIGHT タブ（右下のビュー）>> Locator（の左）
+                    書くべきコードを表示します:
+                        （Playwright が開いたブラウザーの中の GUI 部品にマウスを合わせます）
+                ブラウザーで場所を確認する: #keyword: Playwright locator highlighting  #// コードにカーソルを合わせるとブラウザーの中の対象場所が強調表示されます
                     基本手順:
                         一度テストを実行します:  #// Playwright と接続したブラウザーを開きます
                         テスト関数の中に page.locater を書きます:  #// 引数はリテラルである必要があります
@@ -617,8 +670,8 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                             <input type="text" name="input-text" data-test="input-text"/>
                         JavaScript:
                             await page.locator('[data-test=input-text]').fill('ABC');
-                page.locator と mocal.locator:
-                    モーダルダイアログ内の要素にアクセスする場合: mocal.locator
+                page.locator と modal.locator:
+                    モーダルダイアログ内の要素にアクセスする場合: modal.locator
                 表示されているテキスト:
                     page.locator('xpath=(//*[contains(text(), "有効")])');
                     #// page.locator(getTextSelector(["有効"])); ではハイライトできません #search: Playwright getTextSelector
@@ -629,8 +682,10 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     page.locator('//*[contains(text(), "暗号化")]/following::*[contains(text(), "有効")][1]');
                         または
                     page.locator(getTextSelector(["暗号化", "有効"]));  #search: Playwright getTextSelector
+                #↓ GUI 部品
                 ボタン:
                     page.getByRole('button',{name:'削除'})
+                    page.getByText('削除')
                     page.locator('button:has-text("更新")')
                 表:
                     1列目:  #// nth(0) が 1行目を指します。nth(1) にすると 2行目を指します。
@@ -643,6 +698,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         page.locator('//tr[td[2]="特定のテキスト"]/td[last()]//button')
                 textarea:
                     await page.getByText('メモ').nth(0).locator('xpath=..//textarea').nth(1).fill('memo1');
+                #↓ ...
                 getTextSelector: #keyword: Playwright getTextSelector  #// テキストを選択するセレクターを返す関数
                     非推奨:
 

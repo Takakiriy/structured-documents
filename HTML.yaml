@@ -1130,7 +1130,7 @@ TCP/IP, UDP 通信: #keyword:
             RPC:
         HTTPS:
         SSH: #search: ssh
-        SNMP: #keyword:  #// エスエヌエムピー
+        SNMP: #keyword:  #// エスエヌエムピー  SNMP ポーリング:  #// 定期的にサーバー等に問い合わせてデータを取得すること
             ポート番号:  #keyword: SNMP port
                 SNMP エージェント: 161 (UDP)
                 SNMP マネージャー: 162 (UDP)
@@ -1152,18 +1152,46 @@ TCP/IP, UDP 通信: #keyword:
                             #search: SNMP trap
                             #ref: https://qiita.com/mishikawan/items/4cd9192e38501b6dfc1c
                             #ref: http://cyberfortress.jp/2020/04/17/blog-zabbix-setup-snmptrap/
+                機能:
+                    SNMP リクエストがタイムアウトするとき: #keyword: snmpd time out,  SNMP time out result
+                        比較表: |
+                            | 項目           | タイムアウト警告を返す       | 前回の結果を返す                   |
+                            |----------------|------------------------------|------------------------------------|
+                            | メリット       | 問題をすぐ検知できる         | 監視グラフが途切れない             |
+                            | デメリット     | アラートが誤発報しやすい     | 古いデータを正常と誤認するリスク   |
+                            | 向いている用途 | 障害検知・アラート系         | メトリクス収集・グラフ描画系       |
+                        警告レベル:
+                            完全無視, OK:  #// 前回の結果を返す、デフォルト値を返す
+                            通知なしエラー, WARNING:
+                                タイムアウトしたことが分かること（タイムアウト、それ以外のOIDに専用のエラー値）、
+                                一時的なスパイクによる誤検知を減らせる
+                            エラー通知, CRITICAL:
+                        部分計測:
+                            一部の時間帯だけデータなし:
+                                SNMP semantics では未更新が良い
+                            部分的な結果を返す:
+                            簡易情報だけ返す:
+                            優先的な情報だけ返す:
+                        問題:
+                            ハング問題: 外部コマンドが終わらないと SNMP 応答が返らない問題
+                            fork 問題: SNMPポーリングによって 大量のプロセスが生成される問題
                 ファイル:
-                    snmpd.conf:
+                    snmpd.conf:  #ref: /etc/snmp/snmpd.conf
                         コメント: |
                             # を行頭に書きます
-                        exec:
-                            SNMPデーモンがSNMPリクエストを受け取ったときにのみ実行されるよう設計されています。具体的には：
-                                SNMPクライアントがSNMPデーモンに対してOIDにアクセスするリクエストを送信します
-                                そのOIDがexecディレクティブに関連付けられている場合、SNMPデーモンは指定されたコマンドを実行します
-                                コマンドの出力結果がSNMPレスポンスとして返されます
-                                コマンドの実行が完了すると、そのプロセスは終了します
-                            つまり、execで指定されたプロセスはリクエスト時にのみ実行され、処理が完了すると終了します。常駐プロセスとして動作するわけではありません。
-                            もし常駐するプロセスと連携したい場合は、passディレクティブやextendディレクティブなど
+                        exec: #keyword: snmpd exec
+                            注意: exec の代わりに entend を推奨します  #keyword: snmpd extend
+                            書式:
+                                exec __Name__ __Command__
+                            実行タイミング:  #focus: リクエスト時
+                                SNMPデーモンがSNMPリクエストを受け取ったときにのみ実行されるよう設計されています。具体的には：
+                                    SNMPクライアントがSNMPデーモンに対してOIDにアクセスするリクエストを送信します
+                                    そのOIDがexecディレクティブに関連付けられている場合、SNMPデーモンは指定されたコマンドを実行します
+                                    コマンドの出力結果がSNMPレスポンスとして返されます
+                                    コマンドの実行が完了すると、そのプロセスは終了します
+                                つまり、execで指定されたプロセスはリクエスト時にのみ実行され、処理が完了すると終了します。常駐プロセスとして動作するわけではありません。
+                                もし常駐するプロセスと連携したい場合は、passディレクティブやextendディレクティブなど
+                            タイムアウトするとき: #search: snmpd time out
                     main.conf:  #ref: /etc/snmp/config.d/main.conf
                         ディレクティブ: #glossary: snmpd  #// /etc/snmp/config.d/main.conf の内容
                             com2sec:  #// IPv4 用。SNMPコミュニティ文字列を セキュリティ名にマッピングします
@@ -1179,6 +1207,84 @@ TCP/IP, UDP 通信: #keyword:
                             proc:  #// プロセスを監視します。プロセスが停止していたら、SNMPマネージャへ通知（SNMPトラップ）します
                                 書式: proc __ProcessName__ __MininumProcessCount__ __MaximumProcessCount__
                                 __ProcessName__: ps -e で表示されるプロセス名
+                コード:
+                    エージェントの実装:
+                        比較: |
+                            | 項目                 | cron 方式     | On-Demand Cache 方式            |
+                            | -------------------- | ------------- | ------------------------------- |
+                            | timeout発生          | ほぼ無し      | 初回ポーリングで発生する可能性  |
+                            | SNMP semantics       | ズレる        | 自然                            |
+                            | 実装                 | やや複雑      | 比較的シンプル                  |
+                        計測スクリプト: |  #// chmod 755 /usr/local/bin/check_sample.sh  #// スクリプトを書かずに直接実行でもよい
+                            #!/bin/sh
+                            set -eu
+                            echo "OK"
+                        cron 方式:
+                            概要:
+                                - cron が定期的にチェック実行
+                                - flock で多重実行防止
+                                - 結果をキャッシュファイルに保存
+                                - SNMP はキャッシュを読むだけ
+                                - 値には stale の可能性がある
+                            cron 設定: |  #// /etc/cron.d/sample-snmp-check
+                                * * * * * root /usr/local/bin/update_sample_cache.sh
+                            更新スクリプト: |  #// chmod 755 /usr/local/bin/update_sample_cache.sh
+                                #!/bin/sh
+                                set -eu
+                                lock_file="/var/run/sample_check.lock"
+                                cache_dir="/var/cache/snmp"
+                                cache_file="${cache_dir}/sample_check.txt"
+                                tmp_file="${cache_file}.tmp"
+                                mkdir -p "${cache_dir}"
+
+                                flock -n "${lock_file}" sh -c '
+                                    set -eu
+                                    /usr/local/bin/check_sample.sh  > "${tmp_file}"
+                                    mv "${tmp_file}" "${cache_file}"
+                                '
+                            #// 処理が重いときに、前回の値ではなく、無効値を返すケーズの実装は複雑になります
+                            snmpd.conf: |  #search: snmpd.conf  #// キャッシュ ファイル を返します。ファイルのパスは更新スクリプトに合わせること
+                                extend sample_cache /bin/sh -c 'cat /var/cache/snmp/sample_check.txt 2>/dev/null || echo UNKNOWN'
+                        on demand cache 方式:  #// On-Demand Single-Flight Cache 方式
+                            概要:
+                                - SNMP ポーリング時に処理をトリガーする（on-demand）
+                                - flock で多重実行防止
+                                - ロック中は、無効値、または、前回キャッシュを返す
+                                - 更新はバックグラウンドではなく 1回目の要求が代表して実行
+                                    #// ただし、timeout コマンドに指定したタイムアウトが snmpd のタイムアウトより長い場合、
+                                    #// SNMP クライアントのリトライを 1回消費します。
+                                    #// リトライは、パケットロス対策にも使われる可能性があります（リトライ回数の余裕が1回少ない）
+                            更新スクリプト:
+                                無効値を返す場合: |  #// chmod 755 /usr/local/bin/sample_check_on_demand.sh
+                                    #// 以下は snmpd.conf に直接書けます
+                                    flock -n  /var/run/__GetMetrics__.lock  timeout  -k 60s 65s  /usr/local/bin/__GetMetrics__.sh  ||  echo "__InvalidData__"
+                                前回の値を返す場合: |  #// chmod 755 /usr/local/bin/sample_check_on_demand.sh
+                                    #!/bin/sh
+                                    set -eu
+                                    lock_file="/var/run/sample_check.lock"
+                                    cache_dir="/var/cache/snmp"
+                                    cache_file="${cache_dir}/sample_check.txt"
+                                    tmp_file="${cache_file}.tmp"
+                                    mkdir -p "${cache_dir}"
+
+                                    flock -n "${lock_file}" sh -c '
+                                        set -eu
+
+                                        timeout -k 1s 3s  /usr/local/bin/check_sample.sh  > "${tmp_file}"
+                                        mv "${tmp_file}" "${cache_file}"
+                                    ' || true
+
+                                    cat "${cache_file}" 2>/dev/null || echo "UNKNOWN"
+                            補足:
+                                timeout -k 1s 3s:
+                                    3秒 → SIGTERM
+                                    さらに1秒 → SIGKILL
+                            snmpd.conf: |  #search: snmpd.conf
+                                extend __Name__ /usr/local/bin/sample_check_on_demand.sh
+                        中断方式:
+                            timeout は毎回最初から行われるため、更新できなくなる
+                                タイムアウトより長く処理ができる（SNMPクライアントのタイムアウトや snmpd のタイムアウトより）
+                        タイムアウト時の動き: #search: SNMP time out result
             snmptrapd:  #// 監視する側のデーモン ポート162
             MIB: #keyword:  #// ミブ  #ref: https://www.zabbix.com/documentation/5.4/en/manual/config/items/itemtypes/snmp/mibs
                 概要: Management Information Base
@@ -3341,6 +3447,19 @@ HTTP 通信: #keyword: HTTP
     サーバー プッシュ: #keyword: server push
         HTTP/2サーバプッシュサポート廃止検討と、103 Early Hintsについて:  #ref: https://asnokaze.hatenablog.com/entry/2020/11/13/001110
             Prelaod と103 Early Hints
+    ロング ポーリング: #keyword: long polling
+        メリット:
+            実装がシンプルで、ネットワークに負荷をかけずに即時応答ができる
+        デメリット:
+            API 応答内部では向かない:
+                スレッドモデル（Rails, Django等）はスレッド枯渇しやすい
+                非同期モデル（Node.js, FastAPI等）は比較的耐えやすい
+            すぐに終了できない:
+                ショートポーリングはループの切れ目で止められるが、ロングポーリングは待機中に止まれない。
+        必要な対処:
+            ロングポーリング専用のスレッド/Executorを分離する
+            接続断やエラー時に、即再試行させる無限ループを起きないようにする。
+            接続タイムアウトと待機タイムアウトを分ける
     その他:  #search: RabbitMQ  #search: MQTT  #search: Kafka  #search: D-bus
     トラブルシューティング(HTTP):
         - #// 通信をキャプチャーします

@@ -171,8 +171,9 @@
                     #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
             リプレイ機能:
                 ログを元に再現（リプレイ）できる可能性があります
-            メトリクス監視:
-                ログや分散トレーシングでは見えない「システム全体の健全性」を継続的に把握できる
+            メトリクス監視: #keyword:
+                _: ログや分散トレーシングでは見えない「システム全体の健全性」を継続的に把握できる
+                
     複数 OS サポート: #keyword: multi OS support  #// 複数の メジャー バージョン をサポートするときも同様
         _:
             - ファイル名にバージョン名を含める。シンボリック リンク を使う  #// 全比較しやすいように
@@ -288,6 +289,27 @@
         Adapter パターン: #keyword:
             Target Interface - Adapter - Adaptee
             #ref: https://qiita.com/shoheiyokoyama/items/bd1c692db480b640c976
+        Command パターン: #keyword:
+            メリット:
+                処理内容を抽象化して順序を制御する:
+                    ただし、処理の組み替えが頻繁に起きる場合でなければメリットはほぼ無い
+                キューイングや遅延実行:
+                    ただし、リストに関数を入れるだけで実現できる。
+                ロールバック, リトライ:
+                    ただし、例外処理やロールバック関数の呼び出しやループで代替可能
+                ログ・監査証跡:
+                    ただし、関数内でログの出力をよびだせば十分
+            デメリット:
+                不要な抽象化: 処理内容を抽象化する必要がない場合、処理内容が分からなくなる
+                    file.save()
+                    printer.print()
+                    ここでは
+                        execute()
+                    という抽象化を入れてもメリットがありません。
+                    呼び出し側は
+                        save を呼ぶ
+                        print を呼ぶ
+                    を普通に書けばよいからです。
         Chain of Responsibility パターン: #keyword:
             解説:  #ref: https://refactoring.guru/ja/design-patterns/chain-of-responsibility
             不要なケース:  #// 関数コールで十分なケース
