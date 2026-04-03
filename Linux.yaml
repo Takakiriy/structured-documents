@@ -6604,6 +6604,9 @@ for Windows:
                 対処B:
                     ~/.ssh/known_hosts から古い接続を削除します
                 対処C:
+                    サーバーのサービスが起動していることを確認します:
+                        systemctl status ____
+                対処D:
                     ポートをリッスンしていることを確認します:
                         サーバーで実行するコマンド:
                             - sudo ss -tulnp | grep 22   #// root ユーザーでなければ PID は表示されません
@@ -6613,7 +6616,9 @@ for Windows:
                             ss -tulnp:
                                 - tcp    LISTEN   0   128    *:22   *:*  #// SSH サーバーの全ての NIC に対してポート22 をリッスンします
                                 - tcp    LISTEN   0   128    __IPAddress__:22   *:*   #// __IPAddress__ を持つ NIC に対してポート22 をリッスンします
-                対処D:
+                対処E:
+                    iptables によって拒否されている可能性を調べます:  #search: iptables trouble
+                対処F:
                     サーバー側の IP アドレスまたは VIP（sshd_config 内）の設定を確認します:  #// クライアント側の IP アドレスではありません
                         #// SSH サーバーの sshd_config ファイルの ListenAddress に、SSH サーバーを登録します
                         #// sshd（SSH サービス）がリッスンする NIC（サーバー側の IP アドレス, VIP に注意）を制限します
@@ -6622,7 +6627,7 @@ for Windows:
                         #search: sshd ListenAddress
                         注意:
                             #// VIP でのみ Connection refused される場合は、VIP でリッスンしていることを確認します
-                対処E:
+                対処G:
                     Windows の ネットワーク アダプター の IPv6 を無効にして、
                     ネットワーク アダプター を 無効 にして 有効 にします。
                     #search: Windows IPv6
@@ -7790,7 +7795,10 @@ for Windows:
                 passwd:         compat winbind
                 group:          compat winbind
                 sudo systemctl restart winbind
-    mail:  #keyword: Linux mail command,  メール,  eメール 電子メール  #// mail コマンド。受信メール
+    電子メール: #keyword: eメール 電子メール
+        ダブル バウンス: #keyword:
+            配送エラー通知がさらにエラーになる現象  #ref: ${typrm_files}/ref/Linux/double_bounce.html
+    mail:  #keyword: Linux mail command,  メール  #// mail コマンド。受信メール
         関連 >> メールの書き方:  #search: mail
         手順:
             インストール:  #// mail コマンドを使えるようにします
@@ -7802,13 +7810,12 @@ for Windows:
                 （メールの内容。スペース キーを押すとスクロールします）
                 & h
                 （メール一覧。既読は行頭の N が無くなります）
-                & quit  #// 状態を保存して終了します
+                & quit  #// 状態を保存して終了します。quit または q
                 & exit  #// 状態を保存しないで終了します
             メールの内容を表示します:
                 スクリプトの場合:
                     最新メール: |
                         echo "p $" | mail -N
-
             メールの数:
                 mail -H  2>/dev/null  |  wc -l   #// 成功しても終了コードが 0 以外になることがあります
             メールを削除します:
@@ -12737,6 +12744,17 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                         journalctl  -u "__ServiceName__"  --since "${start}"  |  grep "__ExpectedContents__"
                     テストへの応用:  #search: journalctl log test
             --follow: ログを表示し続けます。出力があったらすぐに表示します
+            複数のログ:
+                リアルタイムで追いかける: |
+                    journalctl -u nginx.service -u php-fpm.service -f
+                最新50行だけ表示: |
+                    journalctl -u nginx.service -u php-fpm.service -n 50
+                今日のログだけ: |
+                    journalctl -u nginx.service -u php-fpm.service --since today
+                時間範囲を指定: |
+                    journalctl -u nginx.service -u php-fpm.service  --since "2026-04-01 00:00:00" --until "2026-04-01 23:59:59"
+                タイムスタンプをローカル時刻で表示（日本語環境など）: |
+                    journalctl -u nginx.service -u php-fpm.service -o short-iso
             クリア: #keyword: clear journalctl  #// ログをクリアします
                 古いログを自動的に削除するように設定します:  #// 未確認
                     journalctl --vacuum-time=2d  #// 2日以上過去を自動的に削除します  #ref: https://unix.stackexchange.com/questions/139513/how-to-clear-journalctl
@@ -13760,6 +13778,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     Locked:
                         - デバッガーなど tasks.sh --start 以外でサービスが起動している
                         - Locked の場合、サブコマンド initialize, start, stop, restart を呼び出しません
+                        - --lock-indicator オプションを使って判定できます
                     Done:  #// 成功終了
                         - --state の出力は Done
                         - ストレージのサービスなら、ストレージのデータをサービス稼働時の内容にした後
@@ -13785,7 +13804,8 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                             _: |
                                 "${RootScript}" --delegate-to-root --systemd --state  "${ServiceName}"
                             --lock-indicator: |  #// ps aux の出力に指定のパターンにマッチするものがあったら、Locked 状態だと判定します
-                                "${RootScript}" --delegate-to-root --systemd --state  "${ServiceName}"  --lock-indicator "service\/api.*debugpy"
+                                function  StateOnly() {
+                                    "${RootScript}" --delegate-to-root --systemd --state  "${ServiceName}"  --lock-indicator "${ServiceName}\/api.*debugpy"
                     --docker:
                         --name:  #// tasks.sh でのサービス名
                         --start:  #// --delegate-to-root では使えません
@@ -17460,6 +17480,27 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         AI プロンプト:  #search: my bash AI coding rule
         チュートリアル内:  #search: shell script tutorial
     旧 bashlib (bashlib1):
+perl:
+    SNMP: |
+        use SNMP;
+
+        my $session = new SNMP::Session(
+            DestHost  => 'localhost',
+            Community => 'public',
+            Version   => '2c',
+            Timeout   => 500000,  # 0.5秒
+            Retries   => 3,       # 3回リトライ  最大待ち時間 = Timeout × (Retries + 1)
+        );
+
+        # 非同期リクエスト（第3引数にコールバックを指定）
+        $session->get(['sysDescr.0'], sub {
+            my ($val) = @_;
+            print "sysDescr: $val\n";
+            SNMP::finish();  # ループを終了させる
+        });
+
+        # イベントループ開始（コールバックが呼ばれるまでここでブロック）
+        SNMP::MainLoop();
 expect: #keyword: Linux expect
     サンプル:
         expect を直接起動する場合: |  #ref: https://qiita.com/Mskmemory/items/013dff1a76e58fcdc364

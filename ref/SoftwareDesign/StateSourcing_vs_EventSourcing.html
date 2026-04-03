@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>状態管理アプローチの比較</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9fafb;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 2rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: #374151;
+        }
+        
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .icon {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
+        .section {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .code-block {
+            background: #f3f4f6;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .flow-item {
+            background: #dbeafe;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            text-align: center;
+            font-size: 0.8rem;
+            margin: 0.5rem 0;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            color: #2563eb;
+            margin: 0.25rem 0;
+        }
+        
+        .border-blue {
+            border: 4px solid #60a5fa;
+            background: #eff6ff;
+        }
+        
+        .border-purple {
+            border: 4px solid #a78bfa;
+            background: #f5f3ff;
+        }
+        
+        .border-orange {
+            border: 4px solid #fb923c;
+            background: #fff7ed;
+        }
+        
+        .text-blue { color: #1e40af; }
+        .text-purple { color: #6d28d9; }
+        .text-orange { color: #c2410c; }
+        .text-green { color: #15803d; }
+        .text-red { color: #b91c1c; }
+        .text-gray { color: #6b7280; }
+        
+        .bg-blue-100 { background: #dbeafe; }
+        .bg-purple-100 { background: #e9d5ff; }
+        .bg-orange-100 { background: #ffedd5; }
+        .bg-blue-200 { background: #bfdbfe; }
+        .bg-purple-200 { background: #ddd6fe; }
+        .bg-orange-200 { background: #fed7aa; }
+        
+        ul {
+            margin-left: 1.5rem;
+            font-size: 0.85rem;
+        }
+        
+        li {
+            margin: 0.5rem 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            font-weight: bold;
+            border-bottom: 2px solid #9ca3af;
+        }
+        
+        .highlight {
+            font-weight: bold;
+            color: #2563eb;
+        }
+        
+        .insight-box {
+            background: linear-gradient(to right, #dbeafe, #e9d5ff, #ffedd5);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .insight-title {
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .space-y-2 > * + * {
+            margin-top: 0.5rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .comparison-table th {
+            background: #f3f4f6;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .comparison-table td {
+            padding: 0.75rem;
+            vertical-align: top;
+        }
+        
+        @media (max-width: 1200px) {
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>状態管理アプローチの比較</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('comparison')">基本比較</button>
+            <button class="tab" onclick="showTab('example')">具体例</button>
+            <button class="tab" onclick="showTab('proscons')">メリット・デメリット</button>
+            <button class="tab" onclick="showTab('usecases')">使い分け</button>
+        </div>
+        
+        <!-- Comparison Tab -->
+        <div id="comparison" class="tab-content active">
+            <div class="grid-3">
+                <!-- State Sourcing -->
+                <div class="card border-blue">
+                    <div class="card-header">
+                        <svg class="icon text-blue" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+                        </svg>
+                        <h2 class="card-title text-blue">State Sourcing</h2>
+                    </div>
+                    <div style="font-weight: 600; margin-bottom: 1rem; font-size: 0.9rem;">状態ベース</div>
+                    
+                    <div>
+                        <div class="section">
+                            <div class="section-title text-blue">保存するもの</div>
+                            <div style="font-size: 0.85rem;">現在の状態のみ</div>
+                            <div class="code-block bg-blue-100">
+{
+  "userId": 123,
+  "balance": 1000,
+  "name": "太郎"
+}
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-blue">更新方法</div>
+                            <div style="font-size: 0.85rem;">上書き（UPDATE）</div>
+                            <div class="code-block bg-blue-100">
+UPDATE accounts
+SET balance = 1500
+WHERE userId = 123
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-blue">データの流れ</div>
+                            <div class="flow-item bg-blue-200">現在の状態</div>
+                            <div class="flow-arrow">↓ 上書き</div>
+                            <div class="flow-item bg-blue-200" style="font-weight: bold;">新しい状態</div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-blue">履歴</div>
+                            <div class="text-red" style="font-size: 0.85rem;">❌ なし</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Temporal State Sourcing -->
+                <div class="card border-purple">
+                    <div class="card-header">
+                        <svg class="icon text-purple" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                            <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                        </svg>
+                        <h2 class="card-title text-purple">Temporal State</h2>
+                    </div>
+                    <div style="font-weight: 600; margin-bottom: 1rem; font-size: 0.9rem;">タイムスタンプ付き状態</div>
+                    
+                    <div>
+                        <div class="section">
+                            <div class="section-title text-purple">保存するもの</div>
+                            <div style="font-size: 0.85rem;">状態 + 遷移日時</div>
+                            <div class="code-block bg-purple-100">
+{
+  "userId": 123,
+  "balance": 1000,
+  "name": "太郎",
+  "created_at": "2024-01-01",
+  "updated_at": "2024-06-15",
+  "deleted_at": null
+}
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-purple">更新方法</div>
+                            <div style="font-size: 0.85rem;">上書き + 日時更新</div>
+                            <div class="code-block bg-purple-100">
+UPDATE accounts
+SET balance = 1500,
+    updated_at = NOW()
+WHERE userId = 123
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-purple">データの流れ</div>
+                            <div class="flow-item bg-purple-200">現在の状態<br><small>+ created_at</small></div>
+                            <div class="flow-arrow">↓ 上書き</div>
+                            <div class="flow-item bg-purple-200" style="font-weight: bold;">新しい状態<br><small>+ updated_at</small></div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-purple">履歴</div>
+                            <div class="text-orange" style="font-size: 0.85rem;">△ 部分的（日時のみ）</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Event Sourcing -->
+                <div class="card border-orange">
+                    <div class="card-header">
+                        <svg class="icon text-orange" fill="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <h2 class="card-title text-orange">Event Sourcing</h2>
+                    </div>
+                    <div style="font-weight: 600; margin-bottom: 1rem; font-size: 0.9rem;">イベントベース</div>
+                    
+                    <div>
+                        <div class="section">
+                            <div class="section-title text-orange">保存するもの</div>
+                            <div style="font-size: 0.85rem;">全イベント履歴</div>
+                            <div class="code-block bg-orange-100">
+[
+  { type: "CREATED", balance: 0,
+    timestamp: "2024-01-01" },
+  { type: "DEPOSITED", amount: 1000,
+    timestamp: "2024-01-05" },
+  { type: "WITHDRAWN", amount: 200,
+    timestamp: "2024-03-10" }
+]
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-orange">更新方法</div>
+                            <div style="font-size: 0.85rem;">イベント追加（APPEND）</div>
+                            <div class="code-block bg-orange-100">
+INSERT INTO events
+(userId, type, amount, timestamp)
+VALUES (123, 'DEPOSITED',
+        500, NOW())
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-orange">データの流れ</div>
+                            <div class="flow-item bg-orange-200">イベント1</div>
+                            <div class="flow-item bg-orange-200">イベント2</div>
+                            <div class="flow-item bg-orange-200">イベント3</div>
+                            <div class="flow-arrow">↓ 再生</div>
+                            <div class="flow-item bg-orange-200" style="font-weight: bold;">現在の状態</div>
+                        </div>
+                        
+                        <div class="section">
+                            <div class="section-title text-orange">履歴</div>
+                            <div class="text-green" style="font-size: 0.85rem;">✅ 完全</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Example Tab -->
+        <div id="example" class="tab-content">
+            <div class="card">
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">銀行口座の例で比較</h3>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th style="background: #dbeafe;">State Sourcing</th>
+                            <th style="background: #e9d5ff;">Temporal State</th>
+                            <th style="background: #ffedd5;">Event Sourcing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 0.375rem; font-family: 'Courier New', monospace; font-size: 0.7rem;">
+                                    <strong>accounts テーブル</strong><br><br>
+                                    userId: 123<br>
+                                    balance: 1500<br>
+                                    name: "太郎"
+                                </div>
+                                <div class="text-red" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                                    ❌ 現在の残高のみ<br>
+                                    ❌ いつ、どう変化したか不明
+                                </div>
+                            </td>
+                            <td>
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 0.375rem; font-family: 'Courier New', monospace; font-size: 0.7rem;">
+                                    <strong>accounts テーブル</strong><br><br>
+                                    userId: 123<br>
+                                    balance: 1500<br>
+                                    name: "太郎"<br>
+                                    created_at: 2024-01-01<br>
+                                    updated_at: 2024-06-15<br>
+                                    deleted_at: null
+                                </div>
+                                <div class="text-orange" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                                    △ いつ作成・更新されたかは分かる<br>
+                                    ❌ 何が変化したかは不明
+                                </div>
+                            </td>
+                            <td>
+                                <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 0.375rem; font-family: 'Courier New', monospace; font-size: 0.7rem;">
+                                    <strong>events テーブル</strong><br><br>
+                                    1. CREATED (0) 2024-01-01<br>
+                                    2. DEPOSITED (+1000) 2024-01-05<br>
+                                    3. WITHDRAWN (-200) 2024-03-10<br>
+                                    4. DEPOSITED (+500) 2024-04-20<br>
+                                    5. WITHDRAWN (-100) 2024-05-15<br>
+                                    6. DEPOSITED (+300) 2024-06-15<br>
+                                    <br>
+                                    <strong>現在: 1500円</strong>
+                                </div>
+                                <div class="text-green" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                                    ✅ いつ、何が、どう変化したか完全記録<br>
+                                    ✅ 任意の時点に復元可能
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">ソフトデリート（論理削除）の例</h3>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th style="background: #dbeafe;">State Sourcing</th>
+                            <th style="background: #e9d5ff;">Temporal State</th>
+                            <th style="background: #ffedd5;">Event Sourcing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="font-size: 0.85rem; margin-bottom: 0.5rem;">物理削除が一般的</div>
+                                <div class="code-block">
+DELETE FROM accounts
+WHERE userId = 123
+                                </div>
+                                <div class="text-red" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                                    データが完全に失われる
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-size: 0.85rem; margin-bottom: 0.5rem;">論理削除が容易</div>
+                                <div class="code-block">
+UPDATE accounts
+SET deleted_at = NOW()
+WHERE userId = 123
+                                </div>
+                                <div class="text-green" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                                    ✅ いつ削除されたか記録<br>
+                                    ✅ 復元可能
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-size: 0.85rem; margin-bottom: 0.5rem;">削除もイベント</div>
+                                <div class="code-block">
+INSERT INTO events
+VALUES (123, 'DELETED',
+        NOW())
+                                </div>
+                                <div class="text-green" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                                    ✅ 削除も履歴の一部<br>
+                                    ✅ 削除前の状態も保持
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Pros/Cons Tab -->
+        <div id="proscons" class="tab-content">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%; background: #dbeafe;">State Sourcing</th>
+                        <th style="width: 25%; background: #e9d5ff;">Temporal State</th>
+                        <th style="width: 25%; background: #ffedd5;">Event Sourcing</th>
+                        <th style="width: 25%; background: #f3f4f6;">項目</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>✅ 最高</td>
+                        <td>✅ 高速</td>
+                        <td>⚠️ 要再生</td>
+                        <td><strong>読み取り速度</strong></td>
+                    </tr>
+                    <tr>
+                        <td>✅ 最高</td>
+                        <td>✅ 高速</td>
+                        <td>✅ 高速（追記のみ）</td>
+                        <td><strong>書き込み速度</strong></td>
+                    </tr>
+                    <tr>
+                        <td>✅ 最小</td>
+                        <td>✅ 小</td>
+                        <td>❌ 大</td>
+                        <td><strong>ストレージ容量</strong></td>
+                    </tr>
+                    <tr>
+                        <td>✅ 最高</td>
+                        <td>✅ 簡単</td>
+                        <td>❌ 複雑</td>
+                        <td><strong>実装の簡単さ</strong></td>
+                    </tr>
+                    <tr>
+                        <td>❌ なし</td>
+                        <td>△ 部分的</td>
+                        <td>✅ 完全</td>
+                        <td><strong>監査証跡</strong></td>
+                    </tr>
+                    <tr>
+                        <td>❌ 不可</td>
+                        <td>△ 日時のみ</td>
+                        <td>✅ 完全可能</td>
+                        <td><strong>履歴追跡</strong></td>
+                    </tr>
+                    <tr>
+                        <td>❌ 困難</td>
+                        <td>△ やや可能</td>
+                        <td>✅ 容易</td>
+                        <td><strong>デバッグ</strong></td>
+                    </tr>
+                    <tr>
+                        <td>❌ 不可</td>
+                        <td>△ 削除日時のみ</td>
+                        <td>✅ 完全可能</td>
+                        <td><strong>論理削除・復元</strong></td>
+                    </tr>
+                    <tr>
+                        <td>❌ なし</td>
+                        <td>△ 限定的</td>
+                        <td>✅ 豊富</td>
+                        <td><strong>ビジネス分析</strong></td>
+                    </tr>
+                    <tr>
+                        <td>⚠️ 競合あり</td>
+                        <td>⚠️ 競合あり</td>
+                        <td>✅ 競合少ない</td>
+                        <td><strong>並行更新</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: 0.5rem;">
+                <h3 style="font-weight: bold; margin-bottom: 1rem;">詳細な比較</h3>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #1e40af; font-weight: bold; margin-bottom: 0.5rem;">State Sourcing</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                        <div>
+                            <strong class="text-green">メリット:</strong>
+                            <ul style="margin-top: 0.25rem;">
+                                <li>実装が最もシンプル</li>
+                                <li>読み書き共に最速</li>
+                                <li>ストレージ最小</li>
+                                <li>標準的なCRUD</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-red">デメリット:</strong>
+                            <ul style="margin-top: 0.25rem;">
+                                <li>履歴が一切残らない</li>
+                                <li>監査証跡なし</li>
+                                <li>デバッグ困難</li>
+                                <li>復元不可</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #6d28d9; font-weight: bold; margin-bottom: 0.5rem;">Temporal State（中間アプローチ）</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                        <div>
+                            <strong class="text-green">メリット:</strong>
+                            <ul style="margin-top: 0.25rem;">
+                                <li>実装が比較的簡単</li>
+                                <li>読み書き高速</li>
+                                <li>いつ変化したかが分かる</li>
+                                <li>ソフトデリートが容易</li>
+                                <li>コンプライアンスに有効</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-red">デメリット:</strong>
+                            <ul style="margin-top: 0.25rem;">
+                                <li>何が変化したかは不明</li>
+                                <li>完全な履歴は残らない</li>
+                                <li>細かい追跡は困難</li>
+                                <li>別途履歴テーブル必要な場合も</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="color: #c2410c; font-weight: bold; margin-bottom: 0.5rem;">Event Sourcing</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                        <div>
+                            <strong class="text-green">メリット:</strong>
+                            <ul style="margin-top: 0.25rem;">
+                                <li>完全な履歴・監査証跡</li>
+                                <li>任意の時点に復元可能</li>
+                                <li>タイムトラベルデバッグ</li>
+                                <li>豊富なビジネスインサイト</li>
+                                <li>イベント駆動と相性◎</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-red">デメリット:</strong>
+                            <ul style="margin-top: 0.25rem;">
+                                <li>実装が複雑</li>
+                                <li>学習コスト高</li>
+                                <li>読み取りに再生が必要</li>
+                                <li>ストレージ容量大</li>
+                                <li>スキーマバージョニング必要</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Use Cases Tab -->
+        <div id="usecases" class="tab-content">
+            <div class="card">
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">使い分けガイド</h3>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>ユースケース</th>
+                            <th style="background: #dbeafe;">State Sourcing</th>
+                            <th style="background: #e9d5ff;">Temporal State</th>
+                            <th style="background: #ffedd5;">Event Sourcing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>シンプルなCRUDアプリ</strong></td>
+                            <td style="background: #dcfce7;">✅ 最適</td>
+                            <td>△ 過剰</td>
+                            <td>❌ 過剰</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ECサイト（商品管理）</strong></td>
+                            <td>△ 可</td>
+                            <td style="background: #dcfce7;">✅ 推奨</td>
+                            <td>△ 可</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ユーザー管理システム</strong></td>
+                            <td>△ 可</td>
+                            <td style="background: #dcfce7;">✅ 推奨</td>
+                            <td>△ 可</td>
+                        </tr>
+                        <tr>
+                            <td><strong>コンテンツ管理（CMS）</strong></td>
+                            <td>❌ 不足</td>
+                            <td style="background: #dcfce7;">✅ 推奨</td>
+                            <td>△ 可</td>
+                        </tr>
+                        <tr>
+                            <td><strong>金融・会計システム</strong></td>
+                            <td>❌ 不適切</td>
+                            <td>△ 最低限</td>
+                            <td style="background: #dcfce7;">✅ 必須</td>
+                        </tr>
+                        <tr>
+                            <td><strong>医療記録システム</strong></td>
+                            <td>❌ 不適切</td>
+                            <td>△ ケースによる</td>
+                            <td style="background: #dcfce7;">✅ 推奨</td>
+                        </tr>
+                        <tr>
+                            <td><strong>協調編集ツール</strong></td>
+                            <td>❌ 不可</td>
+                            <td>❌ 不足</td>
+                            <td style="background: #dcfce7;">✅ 必須</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IoTデータ収集</strong></td>
+                            <td>❌ 不適切</td>
+                            <td>△ 可</td>
+                            <td style="background: #dcfce7;">✅ 推奨</td>
+                        </tr>
+                        <tr>
+                            <td><strong>在庫管理システム</strong></td>
+                            <td>△ 小規模のみ</td>
+                            <td style="background: #dcfce7;">✅ 中規模</td>
+                            <td>✅ 大規模</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SNS投稿管理</strong></td>
+                            <td>△ 可</td>
+                            <td style="background: #dcfce7;">✅ 推奨</td>
+                            <td>△ 可</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">選択基準</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div style="border: 2px solid #60a5fa; border-radius: 0.5rem; padding: 1rem; background: #eff6ff;">
+                        <h4 style="color: #1e40af; font-weight: bold; margin-bottom: 0.75rem;">State Sourcingを選ぶ場合</h4>
+                        <ul style="font-size: 0.85rem;">
+                            <li>履歴が不要</li>
+                            <li>現在の状態だけが重要</li>
+                            <li>シンプルさ最優先</li>
+                            <li>パフォーマンス最優先</li>
+                            <li>小規模プロジェクト</li>
+                            <li>プロトタイプ開発</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="border: 2px solid #a78bfa; border-radius: 0.5rem; padding: 1rem; background: #f5f3ff;">
+                        <h4 style="color: #6d28d9; font-weight: bold; margin-bottom: 0.75rem;">Temporal Stateを選ぶ場合</h4>
+                        <ul style="font-size: 0.85rem;">
+                            <li>いつ変化したかが重要</li>
+                            <li>ソフトデリート必要</li>
+                            <li>基本的な監査要件</li>
+                            <li>実装の簡単さも重視</li>
+                            <li>中規模プロジェクト</li>
+                            <li>一般的なWebアプリ</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="border: 2px solid #fb923c; border-radius: 0.5rem; padding: 1rem; background: #fff7ed;">
+                        <h4 style="color: #c2410c; font-weight: bold; margin-bottom: 0.75rem;">Event Sourcingを選ぶ場合</h4>
+                        <ul style="font-size: 0.85rem;">
+                            <li>完全な履歴が必須</li>
+                            <li>監査証跡が重要</li>
+                            <li>コンプライアンス要件</li>
+                            <li>複雑なビジネスロジック</li>
+                            <li>データ分析が重要</li>
+                            <li>イベント駆動設計</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">ハイブリッドアプローチ</h3>
+                <p style="margin-bottom: 1rem; font-size: 0.9rem;">
+                    実際のシステムでは、複数のアプローチを組み合わせることも一般的です：
+                </p>
+                
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                    <h4 style="font-weight: bold; margin-bottom: 0.5rem;">パターン1: Event Sourcing + スナップショット</h4>
+                    <p style="font-size: 0.85rem;">
+                        イベントは全て記録しつつ、パフォーマンスのために定期的にスナップショット（State）を保存。
+                        読み取り時は最新スナップショット + 以降のイベントで再生。
+                    </p>
+                </div>
+                
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                    <h4 style="font-weight: bold; margin-bottom: 0.5rem;">パターン2: Temporal State + 監査ログ</h4>
+                    <p style="font-size: 0.85rem;">
+                        メインテーブルは Temporal State で管理し、重要な操作だけ別途監査ログテーブルに記録。
+                        バランスの取れたアプローチ。
+                    </p>
+                </div>
+                
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem;">
+                    <h4 style="font-weight: bold; margin-bottom: 0.5rem;">パターン3: 機能別に使い分け</h4>
+                    <p style="font-size: 0.85rem;">
+                        重要な取引データは Event Sourcing、ユーザープロフィールは Temporal State、
+                        設定値は State Sourcing というように、データの性質に応じて使い分ける。
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insight-box">
+            <div class="insight-title">💡 重要なポイント</div>
+            <div class="space-y-2" style="font-size: 0.875rem;">
+                <p>
+                    <strong>State Sourcing</strong>: 「写真」- その瞬間だけを記録
+                </p>
+                <p>
+                    <strong>Temporal State</strong>: 「写真集」- いつ撮影されたかも記録（中間アプローチ）
+                </p>
+                <p>
+                    <strong>Event Sourcing</strong>: 「動画」- 全ての変化を記録
+                </p>
+                <p style="padding-top: 0.5rem; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 1rem;">
+                    <strong>Temporal State</strong> は実務で最もよく使われるバランスの良いアプローチです。
+                    created_at、updated_at、deleted_at などのタイムスタンプを持つことで、
+                    実装の複雑さを抑えつつ、基本的な監査要件を満たすことができます。
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const buttons = document.querySelectorAll('.tab');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

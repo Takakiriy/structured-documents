@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>状態管理・イミュータビリティの概念マップ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9fafb;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+        
+        .philosophy-box {
+            background: #dbeafe;
+            border: 4px solid #2563eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .philosophy-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+        
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .philosophy-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .philosophy-card-title {
+            font-weight: bold;
+            color: #1d4ed8;
+            margin-bottom: 0.25rem;
+        }
+        
+        .philosophy-card-desc {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-header:hover {
+            color: #2563eb;
+        }
+        
+        .chevron {
+            transition: transform 0.2s;
+        }
+        
+        .chevron.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .section-content {
+            margin-left: 1.5rem;
+            margin-top: 0.75rem;
+        }
+        
+        .section-content.hidden {
+            display: none;
+        }
+        
+        .subsection {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom: 0.75rem;
+        }
+        
+        .subsection-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .code-block {
+            background: #f3f4f6;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .flow-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+            text-align: center;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        
+        /* Color schemes */
+        .purple-section {
+            border: 2px solid #c084fc;
+            background: #faf5ff;
+        }
+        
+        .purple-title { color: #7e22ce; }
+        .purple-bg { background: #e9d5ff; }
+        .purple-light { background: #f3e8ff; }
+        
+        .green-section {
+            border: 2px solid #86efac;
+            background: #f0fdf4;
+        }
+        
+        .green-title { color: #15803d; }
+        .green-bg { background: #bbf7d0; }
+        .green-light { background: #dcfce7; }
+        
+        .orange-section {
+            border: 2px solid #fdba74;
+            background: #fff7ed;
+        }
+        
+        .orange-title { color: #c2410c; }
+        .orange-bg { background: #fed7aa; }
+        .orange-light { background: #ffedd5; }
+        
+        .red-section {
+            border: 2px solid #fca5a5;
+            background: #fef2f2;
+        }
+        
+        .red-title { color: #b91c1c; }
+        .red-bg { background: #fecaca; }
+        .red-light { background: #fee2e2; }
+        
+        .gray-bg { background: #f3f4f6; }
+        
+        ul {
+            margin-left: 1.5rem;
+            margin-top: 0.25rem;
+        }
+        
+        li {
+            margin: 0.25rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .connections-box {
+            background: #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .connections-title {
+            font-weight: bold;
+            font-size: 1.125rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+        
+        .connection-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .connection-tag {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+        }
+        
+        @media (max-width: 768px) {
+            .philosophy-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>状態管理・イミュータビリティの概念マップ</h1>
+        
+        <!-- Core Philosophy -->
+        <div class="philosophy-box">
+            <div class="philosophy-title">共通思想: イミュータビリティ（不変性）</div>
+            <div class="philosophy-grid">
+                <div class="philosophy-card">
+                    <div class="philosophy-card-title">予測可能性</div>
+                    <div class="philosophy-card-desc">同じ入力→同じ出力</div>
+                </div>
+                <div class="philosophy-card">
+                    <div class="philosophy-card-title">追跡可能性</div>
+                    <div class="philosophy-card-desc">変更履歴を保持</div>
+                </div>
+                <div class="philosophy-card">
+                    <div class="philosophy-card-title">Read-Only</div>
+                    <div class="philosophy-card-desc">追記のみ、変更不可</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Redux Section -->
+        <div class="section purple-section">
+            <div class="section-header" onclick="toggleSection('redux')">
+                <span class="chevron expanded">▶</span>
+                <span>Redux - アプリケーション状態管理</span>
+            </div>
+            <div id="redux" class="section-content">
+                <div class="subsection">
+                    <div class="subsection-title purple-title">3つの原則</div>
+                    <ul>
+                        <li>• Single Source of Truth（単一Store）</li>
+                        <li>• State is Read-only（Actionで変更）</li>
+                        <li>• Pure Functions（Reducerで更新）</li>
+                    </ul>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title purple-title">データフロー</div>
+                    <div class="flow">
+                        <span class="flow-item purple-bg">Action</span>
+                        <span>→</span>
+                        <span class="flow-item purple-bg">Reducer</span>
+                        <span>→</span>
+                        <span class="flow-item purple-bg">New State</span>
+                        <span>→</span>
+                        <span class="flow-item purple-bg">View</span>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title purple-title">類似ライブラリ</div>
+                    <div class="grid-2">
+                        <div class="tag gray-bg">Zustand（軽量）</div>
+                        <div class="tag gray-bg">Jotai（Atomic）</div>
+                        <div class="tag gray-bg">Recoil（Meta製）</div>
+                        <div class="tag gray-bg">MobX（Observable）</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Immutable Libraries Section -->
+        <div class="section green-section">
+            <div class="section-header" onclick="toggleSection('immutable')">
+                <span class="chevron expanded">▶</span>
+                <span>イミュータブル更新ライブラリ</span>
+            </div>
+            <div id="immutable" class="section-content">
+                <div class="subsection">
+                    <div class="subsection-title green-title">Immer ⭐</div>
+                    <div style="font-size: 0.875rem; margin-top: 0.25rem;">変更風の書き方→新しいオブジェクト生成</div>
+                    <div class="code-block">
+produce(state, draft => {
+  draft.user.name = 'John';
+})
+                    </div>
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">※ Redux Toolkitに標準搭載</div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title green-title">その他</div>
+                    <div class="grid-2">
+                        <div class="tag gray-bg">Immutable.js（永続的データ構造）</div>
+                        <div class="tag gray-bg">seamless-immutable（軽量）</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Event Sourcing Section -->
+        <div class="section orange-section">
+            <div class="section-header" onclick="toggleSection('event')">
+                <span class="chevron expanded">▶</span>
+                <span>Event Sourcing - イベント駆動設計</span>
+            </div>
+            <div id="event" class="section-content">
+                <div class="subsection">
+                    <div class="subsection-title orange-title">基本概念</div>
+                    <div style="font-size: 0.875rem;">状態ではなく「変更イベント」を時系列で保存</div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title orange-title">イベントログの例</div>
+                    <div class="code-block" style="background: #ffedd5;">
+1. { type: 'ACCOUNT_CREATED', amount: 0 }
+2. { type: 'DEPOSITED', amount: 100 }
+3. { type: 'WITHDRAWN', amount: 50 }
+4. { type: 'DEPOSITED', amount: 50 }
+<span style="color: #15803d; margin-top: 0.5rem; display: block;">→ 現在の残高: 100円（イベントを再生して計算）</span>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title orange-title">メリット</div>
+                    <ul>
+                        <li>• 完全な履歴を保持（監査証跡）</li>
+                        <li>• 任意の時点に状態を復元可能</li>
+                        <li>• タイムトラベルデバッグ</li>
+                    </ul>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title orange-title">関連技術</div>
+                    <div style="font-size: 0.875rem;">CQRS（Command Query Responsibility Segregation）</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Append-only Log Section -->
+        <div class="section red-section">
+            <div class="section-header" onclick="toggleSection('appendonly')">
+                <span class="chevron expanded">▶</span>
+                <span>Append-only Log - 分散システム基盤</span>
+            </div>
+            <div id="appendonly" class="section-content">
+                <div class="subsection">
+                    <div class="subsection-title red-title">Append-only の原則</div>
+                    <div style="font-size: 0.875rem;">追記のみ、過去のエントリは変更・削除不可</div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title red-title">主な実装</div>
+                    <div style="margin-top: 0.5rem;">
+                        <div class="tag gray-bg" style="margin-bottom: 0.5rem; text-align: left;">
+                            <div style="font-weight: 600;">Apache Kafka</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">分散イベントストリーミング、Commit log</div>
+                        </div>
+                        <div class="tag gray-bg" style="text-align: left;">
+                            <div style="font-weight: 600;">Write-Ahead Log (WAL)</div>
+                            <div style="font-size: 0.75rem; color: #6b7280;">PostgreSQL、Redisなど</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="subsection-title red-title">分散トレーシング</div>
+                    <div style="font-size: 0.875rem; margin-top: 0.25rem;">マイクロサービス間のリクエスト追跡</div>
+                    <div class="grid-3">
+                        <div class="tag gray-bg">Jaeger</div>
+                        <div class="tag gray-bg">Zipkin</div>
+                        <div class="tag gray-bg">OpenTelemetry</div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                        Spanを時系列に記録し、処理フローを可視化
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Connections -->
+        <div class="connections-box">
+            <div class="connections-title">概念間の関係</div>
+            <div class="connection-item">
+                <span class="connection-tag purple-light">Redux</span>
+                <span>+</span>
+                <span class="connection-tag green-light">Immer</span>
+                <span>=</span>
+                <span style="color: #374151;">Redux Toolkit（公式推奨）</span>
+            </div>
+            <div class="connection-item">
+                <span class="connection-tag orange-light">Event Sourcing</span>
+                <span>→</span>
+                <span class="connection-tag purple-light">Redux</span>
+                <span style="color: #374151;">のAction履歴に影響</span>
+            </div>
+            <div class="connection-item">
+                <span class="connection-tag red-light">Append-only Log</span>
+                <span>→</span>
+                <span class="connection-tag orange-light">Event Sourcing</span>
+                <span style="color: #374151;">の基盤技術</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const header = content.previousElementSibling;
+            const chevron = header.querySelector('.chevron');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.classList.add('expanded');
+            } else {
+                content.classList.add('hidden');
+                chevron.classList.remove('expanded');
+            }
+        }
+    </script>
+</body>
+</html>

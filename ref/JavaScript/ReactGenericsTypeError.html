@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript ジェネリック型推論エラーの解決</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+            min-width: 800px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #24292e;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .keyword {
+            color: #d73a49;
+        }
+
+        .type {
+            color: #005cc5;
+        }
+
+        .string {
+            color: #032f62;
+        }
+
+        .comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .error-case {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .success-case {
+            background: #f0fff4;
+            border: 2px solid #68d391;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .case-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .error-icon {
+            color: #e53e3e;
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .success-icon {
+            color: #38a169;
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .explanation {
+            background: #edf2f7;
+            border-left: 4px solid #4299e1;
+            padding: 16px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .explanation-text {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        .summary-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .summary-text {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        svg text {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">TypeScript ジェネリック型推論エラーの解決</h1>
+
+        <div class="section">
+            <h2 class="section-title">エラーメッセージの例と読み方</h2>
+            <div class="code-block">
+<span class="comment">Type '{ field: "email"; order: "asc"; }' is not assignable to type 'SortState&lt;TEntity, "name" | "age"&gt;'.</span>
+  <span class="comment">Types of property 'field' are incompatible.</span>
+    <span class="comment">Type '"email"' is not assignable to type '"name" | "age"'.</span>
+            </div>
+            
+            <div class="explanation">
+                <div class="explanation-title">エラーメッセージの読み方(1):</div>
+                <div class="explanation-text">
+                    TypeScriptのエラーメッセージは<strong>階層構造</strong>になっており、上から順に原因を掘り下げていきます。<br><br>
+                    
+                    <strong>1行目:</strong> sort オブジェクト全体が SortState 型に合わない<br>
+                    → 期待される型: <code>SortState&lt;TEntity, "name" | "age"&gt;</code>（columnsから推論）<br><br>
+                    
+                    <strong>2行目:</strong> どのプロパティが問題か → <code>field</code> プロパティ<br><br>
+
+                    <strong>3行目:</strong> 下記<br><br>
+
+                                    </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="code-block">
+    <span class="comment">Type '"email"' is not assignable to type '"name" | "age"'</span>
+            </div>
+            
+            <div class="explanation">
+                <div class="explanation-title">エラーメッセージの読み方(2):</div>
+                <div class="explanation-text">
+                    <strong>Type '"email"'</strong> ← 実際に渡されている値の型（sort.fieldの値）<br><br>
+                    <strong>is not assignable to</strong> ← 「〜に代入できない」という意味<br><br>
+                    <strong>type '"name" | "age"'</strong> ← 期待されている型（columnsから推論されたTField型）<br><br>
+                    <strong>つまり、<code>"email"</code> という値は <code>"name" | "age"</code> というユニオン型には含まれていないため、型エラーになります。</strong><br><br>
+                    どのプロパティから先に推論するかは実装の詳細であり、保証されていません。
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">問題のコードの型</h2>
+
+            <div class="explanation">
+                <div class="explanation-text">
+                    以下の 3つの型定義すべてに <code>TField</code> という同じ型パラメーター（ジェネリクス関連）が使われています。<br>
+                    <strong>これにより、<code>ContentTableColumn</code> の <code>field</code> と <code>SortState</code> の <code>field</code> は同じ型でなければなりません。</strong><br>
+                    <code>#focus: TField, field</code><br>
+                </div>
+            </div>
+
+            <div class="code-block">
+<span class="comment">// Props の型定義</span>
+<span class="keyword">interface</span> <span class="type">Props</span>&lt;<span class="type">TEntity</span>, <span class="type">TField</span> <span class="keyword">extends</span> <span class="type">string</span>&gt; {
+  columns: <span class="type">ContentTableColumn</span>&lt;<span class="type">TEntity</span>, <span class="type">TField</span>&gt;[];
+  sort?: <span class="type">hooks.SortState</span>&lt;<span class="type">TEntity</span>, <span class="type">TField</span>&gt;;
+}
+
+<span class="comment">// ContentTableColumn の型定義</span>
+<span class="keyword">interface</span> <span class="type">ContentTableColumn</span>&lt;<span class="type">TEntity</span>, <span class="type">TField</span> <span class="keyword">extends</span> <span class="type">string</span>&gt; {
+  field: <span class="type">TField</span>;
+  label: <span class="type">string</span>;
+  <span class="comment">// ...その他のプロパティ</span>
+}
+
+<span class="comment">// SortState の型定義</span>
+<span class="keyword">namespace</span> hooks {
+  <span class="keyword">interface</span> <span class="type">SortState</span>&lt;<span class="type">TEntity</span>, <span class="type">TField</span> <span class="keyword">extends</span> <span class="type">string</span>&gt; {
+    field: <span class="type">TField</span>;
+    order: <span class="string">"asc"</span> | <span class="string">"desc"</span>;
+  }
+}
+            </div>
+        </div>
+
+
+        <div class="section">
+            <h2 class="section-title">エラーケース ❌</h2>
+            <div class="error-case">
+                <div class="case-title">
+                    <span class="error-icon">✗</span>
+                    sort.field (SortState.field) が columns (ContentTableColumn[]) に含まれていない
+                </div>
+                <div class="code-block">
+<span class="keyword">const</span> data = {
+  columns: [
+    { field: <span class="string">"name"</span> <span class="keyword">as const</span>, label: <span class="string">"Name"</span> },
+    { field: <span class="string">"age"</span> <span class="keyword">as const</span>, label: <span class="string">"Age"</span> }
+  ],
+  sort: { field: <span class="string">"email"</span> <span class="keyword">as const</span>, order: <span class="string">"asc"</span> }  <span class="comment">// ← エラー!</span>
+} <span class="keyword">as const</span>;
+
+&lt;<span class="type">Component</span> {...data} /&gt;
+
+<span class="comment">// エラー: Type '"email"' is not assignable to type '"name" | "age"'</span>
+                </div>
+
+                <div class="diagram-container">
+                    <svg width="700" height="300" viewBox="0 0 700 300">
+                        <!-- Background -->
+                        <rect x="0" y="0" width="700" height="300" fill="#fff5f5"/>
+                        
+                        <!-- Columns box -->
+                        <rect x="50" y="40" width="250" height="220" fill="#fff" stroke="#fc8181" stroke-width="2" rx="8"/>
+                        <text x="175" y="70" text-anchor="middle" font-weight="600" font-size="16" fill="#e53e3e">columns から推論</text>
+                        
+                        <rect x="80" y="90" width="190" height="40" fill="#fed7d7" rx="4"/>
+                        <text x="175" y="115" text-anchor="middle" font-size="14" fill="#742a2a">field: "name"</text>
+                        
+                        <rect x="80" y="145" width="190" height="40" fill="#fed7d7" rx="4"/>
+                        <text x="175" y="170" text-anchor="middle" font-size="14" fill="#742a2a">field: "age"</text>
+                        
+                        <text x="175" y="215" text-anchor="middle" font-weight="600" font-size="18" fill="#e53e3e">TField = "name" | "age"</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 300 150 L 380 150" stroke="#e53e3e" stroke-width="3" fill="none" marker-end="url(#arrowRed)"/>
+                        <defs>
+                            <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#e53e3e"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Sort box -->
+                        <rect x="400" y="100" width="250" height="100" fill="#fff" stroke="#fc8181" stroke-width="2" rx="8"/>
+                        <text x="525" y="130" text-anchor="middle" font-weight="600" font-size="16" fill="#e53e3e">sort.field</text>
+                        
+                        <rect x="430" y="145" width="190" height="40" fill="#fed7d7" rx="4"/>
+                        <text x="525" y="170" text-anchor="middle" font-size="18" font-weight="600" fill="#c53030">"email"</text>
+                        
+                        <!-- Error message -->
+                        <rect x="150" y="255" width="400" height="30" fill="#fc8181" rx="4"/>
+                        <text x="350" y="276" text-anchor="middle" font-weight="600" font-size="14" fill="#fff">✗ "email" は "name" | "age" に含まれない</text>
+                    </svg>
+                </div>
+
+                <div class="explanation">
+                    <div class="explanation-title">何が起きているか:</div>
+                    <div class="explanation-text">
+                        TypeScript は <code>columns</code> から <code>TField = "name" | "age"</code> と推論します。<br>
+                        しかし <code>sort.field</code> は <code>"email"</code> であり、<code>TField</code> 型に含まれないためエラーになります。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">解決法: sort.field を columns に含まれる値にする ✅</h2>
+            <div class="success-case">
+                <div class="case-title">
+                    <span class="success-icon">✓</span>
+                    sort.field が columns に含まれている
+                </div>
+                <div class="code-block">
+<span class="keyword">const</span> data = {
+  columns: [
+    { field: <span class="string">"name"</span> <span class="keyword">as const</span>, label: <span class="string">"Name"</span> },
+    { field: <span class="string">"age"</span> <span class="keyword">as const</span>, label: <span class="string">"Age"</span> }
+  ],
+  sort: { field: <span class="string">"name"</span> <span class="keyword">as const</span>, order: <span class="string">"asc"</span> }  <span class="comment">// ✓ columns にある値</span>
+} <span class="keyword">as const</span>;
+
+&lt;<span class="type">Component</span> {...data} /&gt;  <span class="comment">// ✓ エラーなし!</span>
+                </div>
+
+                <div class="diagram-container">
+                    <svg width="700" height="300" viewBox="0 0 700 300">
+                        <!-- Background -->
+                        <rect x="0" y="0" width="700" height="300" fill="#f0fff4"/>
+                        
+                        <!-- Columns box -->
+                        <rect x="50" y="40" width="250" height="220" fill="#fff" stroke="#68d391" stroke-width="2" rx="8"/>
+                        <text x="175" y="70" text-anchor="middle" font-weight="600" font-size="16" fill="#38a169">columns から推論</text>
+                        
+                        <rect x="80" y="90" width="190" height="40" fill="#c6f6d5" rx="4"/>
+                        <text x="175" y="115" text-anchor="middle" font-size="14" font-weight="600" fill="#22543d">field: "name"</text>
+                        
+                        <rect x="80" y="145" width="190" height="40" fill="#c6f6d5" rx="4"/>
+                        <text x="175" y="170" text-anchor="middle" font-size="14" fill="#22543d">field: "age"</text>
+                        
+                        <text x="175" y="215" text-anchor="middle" font-weight="600" font-size="18" fill="#38a169">TField = "name" | "age"</text>
+                        
+                        <!-- Arrow -->
+                        <path d="M 300 150 L 380 150" stroke="#38a169" stroke-width="3" fill="none" marker-end="url(#arrowGreen)"/>
+                        <defs>
+                            <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#38a169"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Sort box -->
+                        <rect x="400" y="100" width="250" height="100" fill="#fff" stroke="#68d391" stroke-width="2" rx="8"/>
+                        <text x="525" y="130" text-anchor="middle" font-weight="600" font-size="16" fill="#38a169">sort.field</text>
+                        
+                        <rect x="430" y="145" width="190" height="40" fill="#c6f6d5" rx="4"/>
+                        <text x="525" y="170" text-anchor="middle" font-size="18" font-weight="600" fill="#22543d">"name"</text>
+                        
+                        <!-- Success message -->
+                        <rect x="150" y="255" width="400" height="30" fill="#68d391" rx="4"/>
+                        <text x="350" y="276" text-anchor="middle" font-weight="600" font-size="14" fill="#fff">✓ "name" は "name" | "age" に含まれる</text>
+                    </svg>
+                </div>
+
+                <div class="explanation">
+                    <div class="explanation-title">正しい動作:</div>
+                    <div class="explanation-text">
+                        <code>sort.field</code> の値 <code>"name"</code> は <code>columns</code> に含まれているため、<br>
+                        TypeScript は <code>TField = "name" | "age"</code> として問題なく型推論できます。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-title">まとめ</div>
+            <div class="summary-text">
+                <strong>根本原因:</strong> <code>columns</code> と <code>sort</code> から推論される <code>TField</code> の型が矛盾している<br><br>
+                <strong>解決方法:</strong> <code>sort.field</code> の値を <code>columns</code> に含まれるフィールド名にする<br><br>
+                <strong>ポイント:</strong> TypeScript は両方のプロパティから同じ型パラメータを推論しようとするため、<br>
+                どちらか一方だけに存在する値を使うとエラーになります。
+            </div>
+        </div>
+    </div>
+</body>
+</html>

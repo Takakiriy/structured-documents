@@ -392,9 +392,9 @@
                             export {} を書いてください。
                             #search: JavaScript common global const
                         初期値の依存関係を解消する: #search: declare global dependency  #// 別のグローバル変数の値を初期値にする場合
-                    参照:
+                    参照:  #// import
                         基本:  #// 定義したファイルの中でも外でも同様です
-                            #// import は不要です
+                            #// import は基本的に不要です
                             __Variable__  #// const なので代入できません
                             #// デバッガーのウォッチに __Variable__ を入力するだけで値を表示できます。import { __Variable__ } ではデバッガーで表示できません
                         グローバル変数だけ参照する場合の import/require: |  #// import が必要です。 __InitialGlobalVariable__ が定義されている ソース ファイル のうち、グローバル変数だけ参照する場合のみ
@@ -686,9 +686,25 @@
                     数字かそれ以外かの判定: #search: JavaScript isNumber
                 数字かそれ以外かの判定: #search: JavaScript isNumber
                 比較, <, >, <=, >=:
-                    辞書順（Unicode コードポイント順）で比較されます
-                    console.log("apple" < "banana");  // true
-                    console.log(str1.localeCompare(str2));  // -1 (str1 < str2)
+                    演算子:
+                        辞書順（Unicode コードポイント順）で比較されます
+                        console.log("apple" < "banana");  // true
+                    localeCompare:  #// 文字列の比較
+                        サンプル: |
+                            console.log(str1.localeCompare(str2));  // -1 (str1 < str2)
+                            str.localeCompare(b, __Locale__, { numeric: true }))
+                        __Locale__:
+                            undefined: 環境依存
+                        numeric:
+                            false, (default): ["1", "10", "2"]  #// "1" < "10" < "2" の辞書順
+                            true: ["1", "2", "10"]  #// 1 < 2 < 10 の数値順
+                        sensitivity: |
+                            | 値          | 大文字/小文字 | アクセント記号 | 用途             |
+                            |-------------|---------------|----------------|------------------|
+                            | 'base'      | 無視          | 無視           | 検索・フィルター |
+                            | 'accent'    | 無視          | 区別           | —                |
+                            | 'case'      | 区別          | 無視           | —                |
+                            | 'variant'   | 区別          | 区別           | 厳密なソート     |
                 #↓言語機能
                 変数を埋め込むリテラル, Templare Literal: |  #search: JavaScript テンプレート リテラル
                     `string text ${expression} string text`
@@ -1096,6 +1112,7 @@
                             #comment
                             API_KEY=a
                             PASSWORD=a  #comment
+                        Docker compose:  #search: Docker-compose >> 環境変数
                     dotenv-cli: #keyword:
                         概要: .env ファイルをクラウドに保存します
                             #ref: https://ui.dotenv.org/ui1/login
@@ -1180,7 +1197,7 @@
                         }
                     UTCでの今日 0:00: |
                         const  now = new Date().toISOString();
-                        const  today = new Date(now.substr(0, now.indexOf('T')));
+                        const  today = new Date(now.substring(0, now.indexOf('T')));
                 指定の時刻:
                     タイムゾーン指定なしの場合: | #keyword: JavaScript without ISO time zone
                         - new Date('2000-04-10').toISOString() == UTC での 0時
@@ -1404,6 +1421,78 @@
                     export const API_BASE_URL = 'https://api.example.com';
             enum:  #search: TypeScript enum
         enum, Union: #keyword: TypeScript enum
+            #// 一般に リテラル型のユニオン が推奨です
+            リテラル型:  #keyword: リテラル型, Literal Types  #// リテラル型, テンプレート リテラル 型
+                公式: #ref: https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types
+                概要: 特定の値のみ代入できる型です
+                サンプル: #keyword: リテラル型のユニオン
+                    - const  name = "Mario";             // name は string 型ではなく "Mario" のリテラル型です
+                    - const  names = "Mario" | "Luigi";  // "Mario" のリテラル型と "Luigi" のリテラル型のユニオン（Union 型）です
+                    - const  numbers = 0 | 1 | 2;
+                    - const  n = number | "default";     // number 型と "default" のリテラル型のユニオン（Union 型）です
+            as const: #keyword: JavaScript as const  #// シンボルと表示用ラベル
+                定義: |
+                    const STATUS = {
+                        active:   'アクティブ',
+                        inactive: '非アクティブ',
+                        pending:  '保留中',
+                    } as const;
+
+                    type Status = keyof typeof STATUS; // 'active' | 'inactive' | 'pending'
+                表示用ラベルの取得: |
+                    STATUS['active']   // → 'アクティブ'
+                    STATUS['inactive'] // → '非アクティブ'
+                    STATUS['pending']  // → '保留中'
+                型の恩恵:
+                    Status 型として静的型チェック: |
+                        const s: Status = 'active'; // ✅
+                        const s: Status = 'deleted'; // ❌ コンパイルエラー
+                    値の型の推論: |
+                        type StatusLabel = typeof STATUS[Status]; // 'アクティブ' | '非アクティブ' | '保留中'
+                一覧が必要な場合:
+                    キー一覧（Status[]）: |
+                        const statusKeys = Object.keys(STATUS) as Status[];
+                            // → ['active', 'inactive', 'pending']
+                    セレクトボックス用などに value/label ペアで取得: |
+                        const statusOptions = statusKeys.map((key) => ({
+                            value: key,
+                            label: STATUS[key],
+                        }));
+                            // → [{ value: 'active', label: 'アクティブ' }, ...]
+            Union 型: #keyword: TypeScript Union, 合併型(?)  #// 複数の型のうちどれか1つの型の値をとりうる型
+                #ref: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html#unions
+                複数の型:
+                    サンプル: |
+                        type  MyType = number | string;
+                        var  variable: MyType;
+                        variable = 1;     // OK
+                        variable = 'a';   // OK
+                        variable = true;  // エラー
+                    参考: https://typescript-jp.gitbook.io/deep-dive/type-system/discriminated-unions
+                複数の値:
+                    サンプル: |
+                        type  SelectType = "a" | "b";
+                        var  select: SelectType;
+                        select = "a";  // OK
+                        select = "b";  // OK
+                        select = "c";  // エラー
+                enum の代わりとしての Union 型:
+                    基本:
+                        定義: |
+                            const Color = {
+                                Red: 0,
+                                Green: 1,
+                                Blue: 2
+                            } as const;
+                            type Color = typeof Color[keyof typeof Color]; // 0 | 1 | 2
+                        参照と代入: |
+                            const color = Color.Red;
+                        注意: | #// var で宣言した変数の値を変更できるようにするには、変数名の右に型を書く必要があります
+                            var color:Color = Color.Red;  // color = Color.Red にすると、下記のエラーになります
+                            color = Color.Green;  // Error: Type '1' is not assignable to type '0'.ts(2322)
+                            console.log(color);
+                    参考:
+                        enum と Union 型の比較: #search: TypeScript enum Union
             enum:
                 enum 型:
                     基本:
@@ -1571,49 +1660,6 @@
                         type Type12 = `${Type1 | Type2}_id`;
                             // type Type12 = "T1A_id" | "T1B_id" | "T2A_id" | "T2B_id"; と同じ処理です
                             // 和集合はクロス乗算されます
-            Union 型: #keyword: TypeScript Union, 合併型(?)  #// 複数の型のうちどれか1つの型の値をとりうる型
-                #ref: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html#unions
-                複数の型:
-                    サンプル: |
-                        type  MyType = number | string;
-                        var  variable: MyType;
-                        variable = 1;     // OK
-                        variable = 'a';   // OK
-                        variable = true;  // エラー
-                    参考: https://typescript-jp.gitbook.io/deep-dive/type-system/discriminated-unions
-                複数の値:
-                    サンプル: |
-                        type  SelectType = "a" | "b";
-                        var  select: SelectType;
-                        select = "a";  // OK
-                        select = "b";  // OK
-                        select = "c";  // エラー
-                enum の代わりとしての Union 型:
-                    基本:
-                        定義: |
-                            const Color = {
-                                Red: 0,
-                                Green: 1,
-                                Blue: 2
-                            } as const;
-                            type Color = typeof Color[keyof typeof Color]; // 0 | 1 | 2
-                        参照と代入: |
-                            const color = Color.Red;
-                        注意: | #// var で宣言した変数の値を変更できるようにするには、変数名の右に型を書く必要があります
-                            var color:Color = Color.Red;  // color = Color.Red にすると、下記のエラーになります
-                            color = Color.Green;  // Error: Type '1' is not assignable to type '0'.ts(2322)
-                            console.log(color);
-                    参考:
-                        enum と Union 型の比較: #search: TypeScript enum Union
-            リテラル型: #// リテラル型, テンプレート リテラル 型
-                リテラル型:  #keyword: リテラル型, Literal Types
-                    公式: #ref: https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types
-                    概要: 特定の値のみ代入できる型です
-                    サンプル: #keyword: リテラル型のユニオン
-                        - const  name = "Mario";             // name は string 型ではなく "Mario" のリテラル型です
-                        - const  names = "Mario" | "Luigi";  // "Mario" のリテラル型と "Luigi" のリテラル型のユニオン（Union 型）です
-                        - const  numbers = 0 | 1 | 2;
-                        - const  n = number | "default";     // number 型と "default" のリテラル型のユニオン（Union 型）です
         コレクション:  #// 配列, マップ, 辞書
             配列:  #keyword: JavaScript array  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#Array
                 公式: #ref: https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Indexed_collections
@@ -1755,7 +1801,13 @@
                             const result = __Array__.length - 1 - [... __Array__].reverse().find((item) => item.ID === __TargetID__);
                             #// [... ] は、逆順になる配列のコピーを作るためです
                     find:  #search: JavaScript find
-                ソート:  #keyword: JavaScript sort
+                ソート:  #keyword: JavaScript sort,  JavaScript toSorted,  JavaScript sort comparator compare function
+                    : JavaScriptの sort() は破壊的メソッドで、元の配列を直接並び替えます。 元の配列を変えない場合、以下
+                        // ES2023
+                        const sorted = users.toSorted(getSortComparator(users, 'age'));
+
+                        // スプレッド構文
+                        const sorted = [...users].sort(getSortComparator(users, 'age'));
                     文字列配列のソート, オブジェクトのソート:
                         文字コード順: |
                             ["b","aa","c"].sort()  // ["aa","b","c"]
@@ -1776,7 +1828,99 @@
                         #// sort に引数を渡さないと、Unicode 文字列に変換してから比較するため、
                         #// [7,21].sort() は [21,7] になってしまいます。
                     逆順:
-                        const reversed = array1.reverse();
+                        reverse を使う場合:
+                            const reversed = array1.reverse();
+                        sort を使う場合: |
+                            a.sort((a,b)=>((a-b)*(asc ? +1:-1));
+                    比較関数（コンパレーター）自動選択:  #keyword: getSortComparator, numberComparator, stringComparator, dateComparator, booleanComparator, withNilHandling
+                        コード: |
+                            // Generated by Claude
+                            export type SortDirection = 1 | -1;
+                            export type NilPosition = 'first' | 'last';
+
+                            export function getSortComparator<T extends object>(
+                                array: T[],
+                                key: keyof T,
+                                direction: SortDirection = 1,
+                                nilPosition: NilPosition = 'last'
+                            ): (a: T, b: T) => number {
+
+                                // Example:
+                                //     sorted = users.toSorted(getSortComparator(users, 'name'));
+                                //     sorted = [...users].sort(getSortComparator(users, 'age', -1, 'first'));
+
+                                if (array.length === 0) return () => 0;
+
+                                const sample = array.find((item) => item[key] != null)?.[key];
+
+                                if (sample === undefined) return () => 0;  // If all elements are null / undefined
+
+                                let comparator: (a: T, b: T) => number;
+
+                                if (sample instanceof Date) comparator = dateComparator<T>(key);
+                                else if (typeof sample === 'number') comparator = numberComparator<T>(key);
+                                else if (typeof sample === 'string') comparator = stringComparator<T>(key);
+                                else if (typeof sample === 'boolean') comparator = booleanComparator<T>(key);
+                                else throw new Error(`Unsupported type: ${typeof sample}`);
+
+                                comparator = withNilHandling(comparator, key, nilPosition);
+
+                                return (a, b) => direction * comparator(a, b);
+                            }
+
+                            export function numberComparator<T extends object>(
+                                key: keyof T
+                            ): (a: T, b: T) => number {
+
+                                // Example:
+                                //     const sorted1 = users.toSorted(numberComparator<User>('age'));
+                                //     const sorted2 = users.toSorted(withNilHandling(numberComparator<User>('age'), 'age', 'last'));
+
+                                return (a, b) => (a[key] as unknown as number) - (b[key] as unknown as number);
+                            }
+
+                            export function stringComparator<T extends object>(
+                                key: keyof T
+                            ): (a: T, b: T) => number {
+                                return (a, b) =>
+                                    (a[key] as unknown as string).localeCompare(b[key] as unknown as string, undefined, {
+                                        numeric: true,
+                                        sensitivity: 'base',
+                                    });
+                            }
+
+                            export function dateComparator<T extends object>(
+                                key: keyof T
+                            ): (a: T, b: T) => number {
+                                return (a, b) =>
+                                    (a[key] as unknown as Date).getTime() - (b[key] as unknown as Date).getTime();
+                            }
+
+                            export function booleanComparator<T extends object>(
+                                key: keyof T
+                            ): (a: T, b: T) => number {
+                                return (a, b) => Number(a[key]) - Number(b[key]);
+                            }
+
+                            export function withNilHandling<T extends object>(
+                                comparator: (a: T, b: T) => number,
+                                key: keyof T,
+                                nilPosition: NilPosition
+                            ): (a: T, b: T) => number {
+                                const nilScore = nilPosition === 'last' ? 1 : -1;
+
+                                return (a, b) => {
+                                    const aIsNil = a[key] == null;
+                                    const bIsNil = b[key] == null;
+
+                                    if (aIsNil && bIsNil) return 0;
+                                    if (aIsNil) return nilScore;
+                                    if (bIsNil) return -nilScore;
+
+                                    return comparator(a, b);
+                                };
+                            }
+                        #ref: https://claude.ai/chat/6a6ea2dd-be9f-4c71-a4c6-298c5ac93280
                     Map のキーでソート: #keyword: JavaScript Map sort  #search: JavaScript Map
                         キーが数値の場合:
                             map = new Map([... map.entries()].sort(([key1,_item1], [key2,_item2]) => key1 - key2));
@@ -1950,6 +2094,7 @@
                     参考: #ref: https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Keyed_collections
                 オブジェクト, 連想配列:  #keyword: 連想配列  #// {[name: string]: boolean},  object["key1"]
                     型の例: |
+                        Record<string, boolean>
                         {[name: string]: boolean}
                         {[__DummyName__: __IndexType__]: __ItemType__}
                     オブジェクトのメンバー名:  #keyword: JavaScript Object fields
@@ -1964,6 +2109,9 @@
                             それ以前:
                                 dic[name] = dic[name] || [];  // Set [] only when first item
                                 dic[name].push(item);
+                    マージ: #keyword: JavaScript merge
+                        #search: JavaScript spread operator
+                        #search: Object.assign
                     ループ:  #keyword: JavaScript map for loop,  JavaScript map hash for loop
                         - |
                             for (const key of Object.keys(__Object__)) {
@@ -2379,6 +2527,7 @@
                                 }
                             関数定義: |
                                 function  getExpectedLine(patameters: string, options: OptionOfExample = {}) {
+                                    options = {...{isDetail: '', timeOut: 1000},  ... options};
                                     if (options.isDetail) {  // #search: JavaScript if value only
                                     if ('timeOut' in options) { ____ }
                         書き方:
@@ -2692,6 +2841,7 @@
                             type   Age2 = Person[key2];  // エラーではありません。type = number
                     公式:
                         Indexed Access Types: #keyword:  #ref: https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html
+                #search: JavaScript typeof
             implements, extends: #keyword: TypeScript implements,  TypeScript extends
             プロパティ: #keyword: JavaScript property,  JavaScript attribute  #// 属性とは言いません。データ プロパティ
                 #ref: https://typescriptbook.jp/reference/values-types-variables/object/properties-of-objects
@@ -2771,6 +2921,7 @@
                         newObject = { ...oldObject, attr: overwritingValue };
                         newObject = { ...oldObject, attr1: overwritingValue1, attr2: overwritingValue2 };
                         newObject = { ...oldObject, ...overwritingObject };
+                        newObject = { ...defaultObject, ...specifiedObject };
                         copyObject = { ...sourceObject };
                         copyObject = { ...undefined, ...sourceObject };  // エラーにはなりません
                     説明:
@@ -3061,7 +3212,7 @@
                     }
                 マーク アンド スイープ アルゴリズム: #// 循環参照していても解放できる ガーベージ コレクション のアルゴリズム
                     #ref: ${typrm_files}/ref/JavaScript-AI.yaml#label: circular reference
-            typeof, instanceof, hasInterfaceOf:
+            typeof, instanceof, hasInterfaceOf: #keyword: JavaScript typeof instanceof hasInterfaceOf
                 typeof:
                     書式:
                         typeof __Variable__ === "__TypeName__"
@@ -3498,7 +3649,7 @@
                     #search: 関数型言語
                     #search: Append-only Log
                     #search: Event Sourcing
-        ジェネリクス: #keyword: TypeScript JavaScript generics
+        ジェネリクス: #keyword: TypeScript generics
             #ref: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html#generics
             効果: any にはできない、静的エラーチェックや、エディタの補完を行います
                 TypeScript の仕様です。実行時（JavaScript）では型情報は失われます。
@@ -3519,6 +3670,16 @@
                             return cache;
                         }
                     }
+            制約, extends: #keyword: TypeScript generics extends
+                サンプル:  #keyword: T extends Record<string, unknown>,  <T extends Record<string, unknown>>
+                    function  lazyInit<T extends Record<string, unknown>>() {}
+                    #// T はオブジェクト型でなければならない
+                keyof T 対応: |
+                    // 制約なし → keyof T が any になり型安全でなくなる
+                    function getSortComparator<T>(array: T[], key: keyof T) { ... }
+
+                    // 制約あり → T がオブジェクト型と保証されるので keyof T が安全に使える
+                    function getSortComparator<T extends Record<string, unknown>>(array: T[], key: keyof T) { ... }
             参考: #ref: https://future-architect.github.io/typescript-guide/generics.html#any-unknown
         ユーティリティ型: #keyword: TypeScript utility type  #glossary: TypeScript  #// 既存の型から少し違った型を定義します  #ref: https://typescriptbook.jp/reference/type-reuse/utility-types
             Required<Type>: #keyword: TypeScript Required utility type  #// プロパティをすべてオプションではなくします  #search: JavaScript オプション引数
@@ -3682,6 +3843,10 @@
             main().catch((exception) => {
                 console.error(exception.message);
             });
+        ガード節: | #keyword: JavaScript guard
+            function  foo(a) {
+                if (a === 0) throw new Error();
+            }
         オプション引数, サブルーチン メソッド: #keyword: JavaScript オプション引数
             引数の数が多いとき, interface:
                 コードの断片: |  #focus: argumentC,  ??
@@ -4582,6 +4747,7 @@
                             path.dirname( '/' ) === '/'
                         mac:
                             path.dirname( 'c:/' ) === '.'
+                プロジェクトのルート:  #search: JavaScript project path
             ファイル名:
                 path.parse: | #keyword:
                     path.parse( '/path/to.html' )  // {root: '/', dir: '/path', base: 'to.html', ext: '.html', name: 'to'}
@@ -4622,6 +4788,25 @@
                     'path/to/file.txt'.replace(/\//g, path.sep)
                 #ref: https://nodejs.org/docs/latest/api/path.html#path_path_sep
         カレント フォルダー: #search: js current folder directory
+        プロジェクトのルート: | #keyword: JavaScript project path
+            import * as path from "path";
+
+            declare global {export const  gProjectPath: string} (globalThis as any).
+            gProjectPath = getProjectPath();
+
+            export class  SetTestLib {
+                static  gProjectPath(x: string) {
+                    (globalThis as any).gProjectPath = x;
+                }
+            }
+
+            function  getProjectPath(): string {
+                var  path_ = __dirname;
+                path_ = path.dirname(path_);
+                path_ = path.dirname(path_);
+                path_ = path.dirname(path_);    ///// dirname を呼び出す回数は編集してください
+                return  path_;
+            }
         ソース ファイル名: #// Node.js
             注意❗: src フォルダーにある TypeScript ファイルをビルドすると build フォルダーに移動するので、下記のパスは変わります。
                 __dirname は未定義になります。
@@ -4630,6 +4815,7 @@
             __dirname: #keyword:
                 ソース ファイル を含むフォルダーの フル パス
                 #search: ReferenceError __dirname
+                #search: JavaScript project path
             ____.d.ts, 型定義ファイル: #keyword: .d.ts, type definition file
                 関数の宣言:
                     ____.d.ts: |
@@ -4658,6 +4844,7 @@
                     手動で .d.ts ファイルを作ったときに、.d.ts ファイルの先頭行に書きます。
                     #ref: https://stackoverflow.com/questions/48216163/what-does-reference-types-node-mean
                 参考: #ref: https://typescript-jp.gitbook.io/deep-dive/type-system/intro/d.ts
+            プロジェクトのルート:  #search: JavaScript project path
         ファイルの有無:  #keyword: JavaScript file folder directory exists
             ファイルまたはフォルダーがあるかどうか: |
                 import fs from "fs";  // or fs = require("fs")  // file system
@@ -4708,6 +4895,8 @@
                 ファイル:  #search: copyFileSync
                 フォルダー:  #search: copyFolderSync
                 その他:  #search: #search: lib.ts file
+            ファイルを削除します:
+                unlinkSync
         ファイルの内容: #🌟
             #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#file
             全体をリードします: #keyword: Node.js readFileSync,  Javascript load file
@@ -8895,7 +9084,7 @@ React:
                                             useEffect( async () => {
                                         他のエラーも対処します:
                                             #search: useEffect( async () => {
-                            クリーンアップ関数:  #// 第1引数に指定する関数の中で返す関数は、クリーンアップ（キャンセル、アンマウント）するときに呼ばれます
+                            return, クリーンアップ関数:  #// 第1引数に指定する関数の中で返す関数は、クリーンアップ（キャンセル、アンマウント）するときに呼ばれます
                                 サンプル: |  #// クリーンアップとオープンが行われたこと（または繰り返されること）を確認するサンプル
                                     useEffect(() => {
                                         console.log('opened');
@@ -9026,6 +9215,27 @@ React:
                             class __Component__ extends Component {
                             class __Component__ extends Component<__PropsClass__> {
                             class __Component__ extends Component<__PropsClass__, __StateClass__> {
+                        componentDidMount: #keyword:  #// マウントされたときに呼ばれます
+                            サンプル: |
+                                componentDidMount() {
+                                    this.fetchItem();
+                                }
+                        componentDidUpdate: #keyword:  #// 再レンダリングするときに呼ばれます
+                            サンプル: |
+                                componentDidUpdate(prevProps: Props) {
+                                    if (prevProps.itemId !== this.props.itemId) {
+                                        this.fetchItem();
+                                    }
+                                }
+                        componentWillUnmount: #keyword:  #// マウントされるときに呼ばれます
+                        再マウントと再レンダリングの違い:
+                            // React Router の例
+
+                            // ① 別の itemId に、同じコンポーネントを使い回す → 再レンダリング
+                            <Route path="/items/:itemId" element={<Item />} />
+
+                            // ② key を指定する → URL が変わるたびにアンマウント→マウント
+                            <Route path="/items/:itemId" element={<Item key={itemId} />} />
                         参考: #ref: https://www.mojotech.com/blog/typescript-generic-react-components/ >> A form component
                 組み込みコンポーネント:  #keyword: React defined components  #// React が提供するコンポーネント、HTML タグ名
                     React.StrictMode:  #keyword:  #// ReactDOM.render() に渡すルート要素
@@ -9116,7 +9326,7 @@ React:
                         子コンポーネントとの違い:
                             コンポーネントとカスタムフックはまったく別個の概念ではない
                             #ref: https://qiita.com/uhyo/items/cb6983f52ac37e59f37e
-                props:   #keyword: React property,  React.ClassComponent property
+                props, プロパティ:   #keyword: React property,  React.ClassComponent property
                     （関数コンポーネント）:  #search: React function component props
                     props:  #// 親コンポーネントに書かれた HTML 属性や処理内容を子コンポーネントに渡します  #focus: props, prop1
                         親コンポーネント:  #// 子コンポーネントを参照する親コンポーネントの書き方。子コンポーネントのプロパティへの渡し方
@@ -9185,7 +9395,7 @@ React:
                             }
                         #// <__Children__/> の部分は <a><b>c</b></a> のようなツリー構造も渡すことができます
                         公式: #ref: https://ja.reactjs.org/docs/composition-vs-inheritance.html#containment
-                    props.match, RouteComponentProps: #keyword: React props.match  #// React Router v5 まで。ルーティングに関するマッチ情報
+                    props.match, RouteComponentProps, component: #keyword: React props.match  #// React Router v5 まで。ルーティングに関するマッチ情報
                         props.match: |  #search: React child component property
                             | プロパティ    | 説明                    | 例           |
                             | ------------- | ----------------------- | ------------ |
@@ -10397,6 +10607,26 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             #keyword: Node.js file loop exception
     TypeScript の出力先:  #search: TypeScript outDir
     エラーメッセージ:
+        - #// Property '__Type__' does not exist on type
+            手順: 参照する型を書いたとき
+            ログ: | 
+                Property '__Type__' does not exist on type 'typeof import("__From__/index")'.ts(2339)
+                （近い名前があれば以下のメッセージになりますが、同じ原因です。）
+                Property '__Type__' does not exist on type 'typeof import("__From__/index")'. Did you mean '__Type2__'?ts(2551)
+            対処A:  #// import * を使い、型が interface の場合
+                サンプル: |
+                    import * as models from "models";
+                    models.__Type__
+                フォルダーの存在を確認します: |
+                    "modules" にマウスを合わせると、フル パス が表示されます
+                以下のように書き直します: |  #// このように書かないとクラスを探してしまい、interface が見つかりません
+                    {} as models.__Type__
+            対処B:  #// import * を使い、型がクラスの場合
+                サンプル: |
+                    import * as models from "models";
+                    models.__Type__
+                フォルダーの存在を確認します: |
+                    "modules" にマウスを合わせると、フル パス が表示されます
         - #// '____.js' implicitly has an 'any' type.ts(7016)
             手順: JavaScript のファイルを import する TypeScript を書いたとき
             ログ: |  #// from の右に
@@ -10802,6 +11032,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             対処:
                 map で繰り返し HTML 要素を並べているときは、map に指定した関数の返り値の中で最も親のタグのプロパティに key を追加します。
                 <li> タグとは限りません。
+                修正箇所は、エラーメッセージに付いています。完全なパスはファイル名をクリックして開いたエディターのタブにマウスを合わせると分かります
         - #// Fix the upstream dependency conflict, or retry
             手順: npm install
             エラー: |

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Import Cycle 問題の視覚化</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1000px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .problem-box {
+            fill: #ffebee;
+            stroke: #c62828;
+            stroke-width: 2;
+        }
+        .solution-box {
+            fill: #e8f5e9;
+            stroke: #2e7d32;
+            stroke-width: 2;
+        }
+        .constraint-box {
+            fill: #fff3e0;
+            stroke: #ef6c00;
+            stroke-width: 2;
+        }
+        .result-box {
+            fill: #f3e5f5;
+            stroke: #6a1b9a;
+            stroke-width: 2;
+        }
+        .arrow {
+            stroke: #666;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+        .cycle-arrow {
+            stroke: #c62828;
+            stroke-width: 3;
+            fill: none;
+            marker-end: url(#arrowhead-red);
+        }
+        .code-text {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .title-text {
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .label-text {
+            font-size: 12px;
+            fill: #666;
+        }
+        .bad-text {
+            fill: #c62828;
+            font-weight: bold;
+        }
+        .good-text {
+            fill: #2e7d32;
+            font-weight: bold;
+        }
+        .cross {
+            stroke: #c62828;
+            stroke-width: 3;
+        }
+        .check {
+            stroke: #2e7d32;
+            stroke-width: 3;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Go言語の Import Cycle ジレンマ</h1>
+        <p class="subtitle">循環依存を避けると、命名規則の問題が発生する</p>
+        
+        <svg viewBox="0 0 800 900" xmlns="http://www.w3.org/2000/svg">
+            <!-- 矢印のマーカー定義 -->
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#666"/>
+                </marker>
+                <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#c62828"/>
+                </marker>
+            </defs>
+            
+            <!-- 問題: 循環依存 -->
+            <text x="400" y="30" text-anchor="middle" class="title-text" fill="#c62828">⚠️ 問題: Import Cycle Not Allowed</text>
+            
+            <rect x="100" y="50" width="250" height="120" class="problem-box" rx="5"/>
+            <text x="225" y="75" text-anchor="middle" class="title-text">package config</text>
+            <text x="115" y="100" text-anchor="start" class="code-text" xml:space="preserve">type Config struct {</text>
+            <text x="115" y="120" text-anchor="start" class="code-text" xml:space="preserve">  LogType log.LogType</text>
+            <text x="115" y="140" text-anchor="start" class="code-text" xml:space="preserve">}</text>
+            <text x="225" y="160" text-anchor="middle" class="label-text">log パッケージの型を使いたい</text>
+            
+            <rect x="450" y="50" width="250" height="120" class="problem-box" rx="5"/>
+            <text x="575" y="75" text-anchor="middle" class="title-text">package log</text>
+            <text x="465" y="100" text-anchor="start" class="code-text" xml:space="preserve">import "myapp/config"</text>
+            <text x="465" y="120" text-anchor="start" class="code-text" xml:space="preserve">func New(cfg config.Config)</text>
+            <text x="465" y="140" text-anchor="start" class="code-text" xml:space="preserve">  *Logger { ... }</text>
+            <text x="575" y="160" text-anchor="middle" class="label-text">config を import している</text>
+            
+            <!-- 循環矢印 -->
+            <path d="M 350 90 Q 400 50 450 90" class="cycle-arrow"/>
+            <path d="M 450 130 Q 400 170 350 130" class="cycle-arrow"/>
+            <text x="400" y="45" text-anchor="middle" fill="#c62828" font-size="12">imports</text>
+            <text x="400" y="180" text-anchor="middle" fill="#c62828" font-size="12">imports</text>
+            
+            <text x="400" y="205" text-anchor="middle" fill="#c62828" font-weight="bold" font-size="16">❌ 循環依存エラー！</text>
+            
+            <!-- 解決策 -->
+            <text x="400" y="250" text-anchor="middle" class="title-text" fill="#2e7d32">✓ 解決策: サブパッケージに型定義を分離</text>
+            
+            <rect x="175" y="270" width="200" height="80" class="solution-box" rx="5"/>
+            <text x="275" y="295" text-anchor="middle" class="title-text">package config</text>
+            <text x="190" y="315" text-anchor="start" class="code-text" xml:space="preserve">import "myapp/log/□□"</text>
+            <text x="275" y="335" text-anchor="middle" class="label-text">サブパッケージをimport</text>
+            
+            <rect x="425" y="270" width="200" height="80" class="solution-box" rx="5"/>
+            <text x="525" y="295" text-anchor="middle" class="title-text">package log</text>
+            <text x="440" y="315" text-anchor="start" class="code-text" xml:space="preserve">import "myapp/config"</text>
+            <text x="525" y="335" text-anchor="middle" class="label-text">config を import</text>
+            
+            <rect x="300" y="380" width="200" height="80" class="solution-box" rx="5"/>
+            <text x="400" y="405" text-anchor="middle" class="title-text">package □□</text>
+            <text x="315" y="425" text-anchor="start" class="code-text" xml:space="preserve">type LogType string</text>
+            <text x="400" y="445" text-anchor="middle" class="label-text">型定義のみ（依存なし）</text>
+            
+            <!-- 矢印 -->
+            <path d="M 275 350 L 350 380" class="arrow"/>
+            <path d="M 525 350 L 450 380" class="arrow"/>
+            
+            <!-- 命名規則の制約 -->
+            <text x="400" y="500" text-anchor="middle" class="title-text" fill="#ef6c00">⚠️ ここで問題: パッケージ名をどうする？</text>
+            
+            <rect x="50" y="520" width="330" height="200" class="constraint-box" rx="5"/>
+            <text x="215" y="545" text-anchor="middle" class="title-text">Go の命名規則</text>
+            
+            <!-- ❌ 禁止事項 -->
+            <text x="70" y="575" class="bad-text">❌ log_types</text>
+            <text x="200" y="575" class="label-text">アンダースコア禁止</text>
+            
+            <text x="70" y="605" class="bad-text">❌ logTypes</text>
+            <text x="200" y="605" class="label-text">キャメルケース禁止</text>
+            
+            <text x="70" y="635" class="bad-text">❌ LogTypes</text>
+            <text x="200" y="635" class="label-text">大文字開始禁止</text>
+            
+            <text x="70" y="665" class="good-text">✓ logtypes</text>
+            <text x="200" y="665" class="label-text">これしか選択肢がない</text>
+            
+            <text x="215" y="700" text-anchor="middle" font-size="11" fill="#666" font-style="italic">
+                "小文字、1単語、区切りなし"
+            </text>
+            
+            <!-- 結果 -->
+            <rect x="420" y="520" width="330" height="200" class="result-box" rx="5"/>
+            <text x="585" y="545" text-anchor="middle" class="title-text">結果: 読みにくいパッケージ名</text>
+            
+            <text x="435" y="580" text-anchor="start" class="code-text" font-size="16" xml:space="preserve">log/logtypes/logtypes.go</text>
+            <text x="435" y="605" text-anchor="start" class="code-text" font-size="14" xml:space="preserve">package logtypes</text>
+            
+            <text x="585" y="640" text-anchor="middle" font-size="12" fill="#666">使用例:</text>
+            <text x="435" y="660" text-anchor="start" class="code-text" font-size="13" xml:space="preserve">import "myapp/log/logtypes"</text>
+            <text x="435" y="680" text-anchor="start" class="code-text" font-size="13" xml:space="preserve">var t logtypes.LogType</text>
+            
+            <text x="585" y="710" text-anchor="middle" font-size="11" fill="#6a1b9a" font-weight="bold">
+                😞 "logtypes" は読みにくい
+            </text>
+            
+            <!-- まとめ -->
+            <rect x="50" y="750" width="700" height="120" rx="5" fill="#fff9c4" stroke="#f57f17" stroke-width="2"/>
+            <text x="400" y="780" text-anchor="middle" class="title-text" font-size="16">📊 ジレンマ</text>
+            
+            <text x="400" y="810" text-anchor="middle" font-size="13">
+                循環依存を避ける → パッケージ分割が必要
+            </text>
+            <text x="400" y="830" text-anchor="middle" font-size="13">
+                パッケージ分割 → 複数単語の名前が必要
+            </text>
+            <text x="400" y="850" text-anchor="middle" font-size="13">
+                複数単語 + 区切り文字禁止 = <tspan fill="#c62828" font-weight="bold">読みにくい名前</tspan>
+            </text>
+        </svg>
+    </div>
+</body>
+</html>

@@ -1670,7 +1670,7 @@ HTTP 通信: #keyword: HTTP
                         PROXY が有る場合:
                             - docker run --rm  --env HTTPS_PROXY=____  curlimages/curl:7.82.0  -v -L https://curl.haxx.se
             トラブルシューティング:
-                - #// Docker コンテナーの中で疎通できなくなった。今まで疎通できていたが、Docker ホストの DNS や iptables などの変更があったらしい
+                Docker コンテナーの中で疎通できなくなった。今まで疎通できていたが、Docker ホストの DNS や iptables などの変更があったらしい:
                     手順とログ: |  #keyword: curl time out in docker
                         #// コンテナ―内は NG
                         $ docker exec -it __ContainerName__ bash
@@ -1693,11 +1693,11 @@ HTTP 通信: #keyword: HTTP
                         docker サービスの再起動:
                             sudo systemctl restart docker
                         Docker コンテナ―の再起動:
-                - #// curl を呼ぶと疎通できるようになる
+                curl を呼ぶと疎通できるようになる:
                     対処:
                         未確認
                         #ref: ${typrm_files}/ref/HTML-AI.yaml#label: TCP/IP retry
-                - #// SSL: no alternative certificate subject name matches target host name
+                SSL:;; no alternative certificate subject name matches target host name:
                     手順: curl https://100.100.100.100/api/v4/
                     ログ: |
                         curl: (60) SSL: no alternative certificate subject name matches target host name '100.100.100.100'
@@ -1711,6 +1711,27 @@ HTTP 通信: #keyword: HTTP
                         と一致しないことが原因です。
                     対処:  #// 緊急時
                         curl -k https://100.100.100.100/api/v4/
+                Warning:;; Binary output can mess up your terminal. Use "--output -" to tell:
+                    ログ: | 
+                        curl  "http://localhost:8000/"
+                            Warning: Binary output can mess up your terminal. Use "--output -" to tell 
+                            Warning: curl to output it to your terminal anyway, or consider "--output 
+                            Warning: <FILE>" to save to a file.
+                        curl  "http://localhost:8000/"  --output -
+                            P
+                        curl  "https://localhost:8000/"
+                            curl: (60) SSL certificate problem: self signed certificate
+                            More details here: https://curl.haxx.se/docs/sslcerts.html
+                            curl failed to verify the legitimacy of the server and therefore could not
+                            establish a secure connection to it. To learn more about this situation and
+                            how to fix it, please visit the web page mentioned above.
+                    原因1:
+                        TLSハンドシェイクのバイト列（P を含む）が返ってきており、それをcurlがバイナリと判断して Binary output can mess の警告を出しています
+                    原因2:
+                        自己署名証明書を使っているので (60) エラーになっています
+                    対処:
+                        https を指定し、自己署名証明書を許可します(-k, --insecure):
+                            curl  -k  "https://localhost:8000/"
                 #search: network trouble shooting
                 #search: sudo trouble shooting
         wget:  #search: curl
@@ -2237,6 +2258,279 @@ HTTP 通信: #keyword: HTTP
                         #ref: ${GitHub}/MyPrivateCode/pcap2wiremock/pcap2wiremock.py
                     pcap2sh: #keyword:  #// tcpdump から curl を含む シェル スクリプト を生成します
                         #ref: ${GitHub}/MyPrivateCode/pcap2sh/pcap2sh.py
+                モックを作ります:  #keyword: make WireMock
+                    基本, mappings, 複数のコールを1つのファイルに定義する場合:  #keyword: WireMock mappings basic
+                        mappings キーの配列の中に定義します:
+                            mappings/example.json : |  #focus: mappings  #keyword: WireMock request response
+                                {  // コメントを書くこともできます。 ファイル名の拡張子を .jsonc にすることはできません
+                                    "mappings": [  /* コメント */
+                                        {
+                                            "request": {
+                                                "method": "GET",
+                                                "url": "/hello"
+                                            },
+                                            "response": {
+                                                "status": 200,
+                                                "headers": {
+                                                    "Content-Type": "text/plain"
+                                                },
+                                                "body": "Hello world! /hello"
+                                            }
+                                        },
+                                        {
+                                            "request": {
+                                                "method": "GET",
+                                                "url": "/hello/json"
+                                            },
+                                            "response": {
+                                                "status": 200,
+                                                "headers": {
+                                                    "Content-Type": "application/json"
+                                                },
+                                                "body": "{\"name\": \"John\"}"
+                                            }
+                                        }
+                                    ]
+                                }
+                        curl を使って呼び出します:
+                            curl -X GET  http://localhost:8080/hello/json
+                        呼ばれた回数を表示します: |  #keyword: WireMock count example
+                            curl -X POST  "http://localhost:8080/__admin/requests/count"  -d '{"method": "GET", "url": "/hello/json"}'
+                                #// { "count": 1, "requestJournalDisabled": false }
+                        （参考）1つのコールを1つのファイルに定義する場合:
+                            #search: WireMock mappings-1
+                        関連 >> POST メソッドの body の設定:  #search: bodyPatterns
+                    リクエストのマッチング:  #keyword: WireMock request matching  #// mappings の中のどの mapping にマッチするかの条件を設定します
+                        必要なリクエストの内容を調べます:  #// 設定する前にマッチング条件を調べます
+                            サンプル: |
+                                | Closest stub   | Request    |
+                                -------------------------------
+                                GET              | GET
+                                /hello/json      | /hello/yaml   <<<<< URL does not match
+                            Closest stub: #keyword:  #// リクエストに近い存在する設定
+                            Request: #keyword:  #// リクエストの内容。設定がない内容
+                            長い URL のサンプル: |  #//  /hello/this_is_a_long_url の途中に URL does not match が入ります
+                                | Closest stub   | Request    |
+                                -------------------------------
+                                GET              | GET
+                                /hello/json      | /hello/this_is<<<<< URL does not match
+                                _                | _a_long_url
+                        URL や HTTP メソッドのマッチング: #// URL の値について、マッチングする条件を設定します
+                            基本:
+                                mappings/example.json : |  #focus: hello/json
+                                    "request": {
+                                        "method": "GET",
+                                        "url": "/hello/json"
+                                curl を使って呼び出します:
+                                    curl -X GET  http://localhost:8080/hello/json
+                            URL パラメーター: #keyword: WireMock URL parameter
+                                サンプル: http://localhost:8080/items/(.*)
+                                基本:
+                                    __WireMockRoot__/mappings/example.json : |  #focus: urlPattern, bodyFileName
+                                        {
+                                            "mappings": [
+                                                {
+                                                    "request": {
+                                                        "method": "GET",
+                                                        "urlPattern": "/items/(.*)"
+                                                    },
+                                                    "response": {
+                                                        "status": 200,
+                                                        "bodyFileName": "items-{{ request.path.[1] }}.json"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    __WireMockRoot__/__files/items-123.json : |
+                                        {"name": "Mark"}
+                                    curl を使って呼び出します:
+                                        curl -X GET  http://localhost:8080/items/123
+                                範囲あり:
+                                    mappings/example.json : |
+                                        "request": {
+                                            "method": "GET",
+                                            "urlPattern": "/items/(\\d{1,3})"
+                                    curl を使って呼び出します:
+                                        マッチする:
+                                            curl -X GET  http://localhost:8080/items/123
+                                        マッチしない:
+                                            curl -X GET  http://localhost:8080/items/1234
+                                URL の一部を埋め込む, request.path: #search: WireMock request.path
+                                参考: #ref: https://qiita.com/rubytomato@github/items/c0f4f8f882c2069d91f0
+                            関連:
+                                URL に応じてレスポンスを変えます:  #search: WireMock dynamic response
+                            設定: #settings:
+                                __WireMockJar__: wiremock-jre8-standalone-2.33.2.jar
+                        JSON body のマッチング: #keyword: WireMock JSON body  #// リクエストの内容が JSON で指定される場合に、JSON について、マッチングする条件を設定します
+                            基本:  #focus: bodyPatterns, id, ignoreExtraElements
+                                mappings/example.json : |  #keyword: bodyPatterns,  WireMock POST body
+                                    "request": {
+                                        "method": "POST",
+                                        "url": "/api",
+                                        "bodyPatterns" : [{
+                                            "equalToJson" :
+                                                {"id": 4 },
+                                            "ignoreExtraElements" : true
+                                        }]
+                                curl を使って呼び出します:
+                                    上記定義にマッチするコマンド: |  #focus: id
+                                        curl -X POST -i -d '{ "id": 4 }' -H "Content-Type: application/json" http://localhost:8080/api
+                                    上記定義にマッチしないコマンド: |  #focus: additional
+                                        curl -X POST -i -d '{ "id": 5 }' -H "Content-Type: application/json" http://localhost:8080/api
+                            JSON 文字列でも指定できます: |
+                                "bodyPatterns" : [ {
+                                    "equalToJson" : "{ \"id\": 4 }",
+                            関心がないフィールドの違い:  #focus: ignoreExtraElements  #// 条件に指定したフィールド以外のフィールドは無視します
+                                mappings/example.json : |  #// body 部分は { "id": 4 }
+                                    "bodyPatterns" : [ {
+                                        "equalToJson" : { "id": 4 },
+                                        "ignoreExtraElements" : true,
+                                リクエスト body:
+                                    マッチする: |  #focus: additional
+                                        { "id": 4, "additional":2 }
+                                    マッチしない: |  #focus: 55
+                                        { "id": 55 }
+                            完全一致:
+                                mappings/example.json : |  #// ignoreExtraElements が省略されている
+                                    "bodyPatterns" : [ {
+                                        "equalToJson" : { "id": 4 },
+                                リクエスト body:
+                                    マッチする: |  #focus: id
+                                        { "id": 4 }
+                                    マッチしない: |  #focus: additional
+                                        { "id": 4, "additional":2 }
+                            フィールド名のみ:  #// 型プレースホルダー ${json-unit.any-number}  #// フィールドの値が何であれマッチします
+                                mappings/example.json : |
+                                    "bodyPatterns" : [ {
+                                        "equalToJson" : { "id": "${json-unit.any-number}" },
+                                リクエスト body:
+                                    マッチする: |
+                                        { "id": 4 }
+                                    マッチしない: |
+                                        { "id": "a" }
+                                型プレースホルダーのバリエーション:
+                                    "${json-unit.any-number}":
+                                    "${json-unit.any-string}":
+                                    "${json-unit.any-boolean}":
+                                    #ref: https://github.com/lukas-krecan/JsonUnit#typeplc
+                            正規表現:  #// [?($.name =~ /Req.*/i)]
+                                基本:
+                                    mappings/example.json : |  #// [?( )] の中でのみ =~ 演算子が使えます  #search: =~
+                                        "bodyPatterns" : [ {
+                                            "matchesJsonPath" : "[?($.name =~ /Req.*/i)]"
+                                    リクエスト body:
+                                        マッチする: |
+                                            { "name": "Required" }
+                                        マッチしない: |
+                                            { "name": "NotRequired" }
+                                            { "things": { "name": "Required" } }
+                                子要素について:
+                                    mappings/example.json : |
+                                        "bodyPatterns" : [ {
+                                            "matchesJsonPath" : "$.things[?(@.name =~ /Required.*/i)]"
+                                    リクエスト body:
+                                        マッチする: |
+                                            { "things": { "name": "Required" } }
+                                        マッチしない: |
+                                            { "name": "Required" }
+                            or:  #// [?($.id == 3  ||  $.id == 4)]
+                                mappings/example.json : |
+                                    "bodyPatterns" : [ {
+                                        "matchesJsonPath" : "[?($.id == 3  ||  $.id == 4)]"
+                                リクエスト body:
+                                    マッチする: |
+                                        { "id": 3 }
+                                        { "id": 4 }
+                                    マッチしない: |
+                                        { "id": 5 }
+                            配列要素の順番の違い:  #// [4, 5], [5, 4] 
+                                mappings/example.json : |
+                                    "bodyPatterns" : [ {
+                                        "equalToJson" : { "ids": [4, 5] },
+                                リクエスト body:
+                                    マッチする: |
+                                        { "ids": [4, 5] }
+                                    マッチする (2): |
+                                        { "ids": [5, 4] }
+                                    マッチしない: |
+                                        { "ids": [4, 4] }
+                            配列要素数:  #// $[?(@.ids.size() == 2)]
+                                mappings/example.json : |
+                                    "bodyPatterns" : [ {
+                                        "equalToJson" : "$[?(@.ids.size() == 2)]",
+                                リクエスト body:
+                                    マッチする: |
+                                        { "ids": [4, 5] }
+                                    マッチしない: |
+                                        { "ids": [4] }
+                                        { "ids": [4, 5, 6] }
+                            関連 >> body の JSON に応じてレスポンスを変えます:  #search: WireMock dynamic response
+                        ベーシック認証 のマッチング:  #// マッチングする条件を設定します
+                            設定しない場合:
+                                BASIC 認証があってもなくてもマッチします
+                            指定した BASIC 認証の内容の場合のみマッチします:
+                                mappings/example.json : |  #focus: basicAuthCredentials
+                                    "request": {
+                                        "method": "GET",
+                                        "url": "/hello/json",
+                                        "basicAuthCredentials": {
+                                            "username": "userName",
+                                            "password": "Password"
+                                        }
+                                curl を使って呼び出します:
+                                    curl -X GET  --insecure  --user "userName:Password"  http://localhost:8080/hello/json
+                    レスポンスの内容:  #keyword: WireMock response
+                        通常:  #search: WireMock request response
+                        404 エラー: #keyword: WireMock 404 error
+                            mappings/example.json : |
+                                ...
+                                {
+                                    "request": {
+                                        "method": "GET",
+                                        "url": "/customers/9999"
+                                    },
+                                    "response": {
+                                        "status": 404
+                                    }
+                                }
+                            curl: |
+                                $ curl -i --insecure  "https://localhost:8000/
+                                HTTP/2 404 
+                        mappings ファイルに書く場合:  #search: WireMock mappings basic
+                        bodyFileName:  #keyword: #// body の内容を mappings ファイルとは別のファイルに書く場合
+                            概要: 
+                                - bodyFileName フィールドにファイル名を書きます。
+                                - 基準パスは __files フォルダーです  #keyword: WireMock __files
+                                - サブフォルダーも指定できます（下記）
+                            __WireMockRoot__/mappings/example.json : |  #focus: bodyFileName  #ref: ${GitHub}/MyPrivateCode/WireMock/try_WireMockResponseTemplate/mappings/3_bodyFile.json
+                                {
+                                    "mappings": [
+                                        {
+                                            "request": {
+                                                "method": "GET",
+                                                "url": "/users/profile"
+                                            },
+                                            "response": {
+                                                "status": 200,
+                                                "bodyFileName": "simple.json",
+                                                "headers": {
+                                                    "Content-Type": "application/json"
+                            __WireMockRoot__/__files/simple.json : |  #ref: ${GitHub}/MyPrivateCode/WireMock/try_WireMockResponseTemplate/__files/3_bodyFile.json
+                                {"name": "John"}
+                            サブフォルダーも指定できます: |
+                                mappings/____.json
+                                    "bodyFileName": "_build/____.json"
+                                __files/_build/____.json
+                            関連 >> パラメーター:  #search: WireMock parameters
+                        動的レスポンス: #keyword: WireMock dynamic response  #// URL や body や状態に応じてレスポンスを変えます
+                            response-template:  #search: WireMock response-template  #// URL や body に応じてレスポンスを変えます
+                            body .hbs ファイル:  #search: WireMock .hbs
+                            シナリオと状態: #search: WireMock scenario state  #// ユーザー定義の状態に応じてレスポンスを変えます
+                            extensions: #search: WireMock extensions  #// 何でもありだが Java
+                    Web API をキャプチャーして mappings を作ります:  #search: tcpdump Web API example
+                    遅延したレスポンス: |  #// 3秒
+                        "response": {
+                            "fixedDelayMilliseconds": 3000
                 キャプチャーと再生:
                     #ref: https://wiremock.org/docs/record-playback/
                     #ref: https://github.com/abstracta/wiresham
@@ -2253,283 +2547,29 @@ HTTP 通信: #keyword: HTTP
                     - __WireMockRoot__/mappings/___.json
                     - __WireMockRoot__/mappings/___/____.json  #// サブフォルダーにも置けます
                     #// 拡張子が json 以外のファイルは使われません
-                注意:
+                注意:  #// 再起動
                     .json ファイルの内容を変更したら、WireMock を再起動してください。
                     再起動するには、Ctrl + C キー を押して、起動コマンドを再入力します。
-                基本, mappings, 複数のコールを1つのファイルに定義する場合:  #keyword: WireMock mappings basic
-                    mappings キーの配列の中に定義します:
-                        mappings/example.json : |  #focus: mappings  #keyword: WireMock request response
-                            {  // コメントを書くこともできます。 ファイル名の拡張子を .jsonc にすることはできません
-                                "mappings": [  /* コメント */
-                                    {
-                                        "request": {
-                                            "method": "GET",
-                                            "url": "/hello"
-                                        },
-                                        "response": {
-                                            "status": 200,
-                                            "headers": {
-                                                "Content-Type": "text/plain"
-                                            },
-                                            "body": "Hello world! /hello"
-                                        }
-                                    },
-                                    {
-                                        "request": {
-                                            "method": "GET",
-                                            "url": "/hello/json"
-                                        },
-                                        "response": {
-                                            "status": 200,
-                                            "headers": {
-                                                "Content-Type": "application/json"
-                                            },
-                                            "body": "{\"name\": \"John\"}"
-                                        }
-                                    }
-                                ]
-                            }
-                    curl を使って呼び出します:
-                        curl -X GET  http://localhost:8080/hello/json
-                    呼ばれた回数を表示します: |  #keyword: WireMock count example
-                        curl -X POST  "http://localhost:8080/__admin/requests/count"  -d '{"method": "GET", "url": "/hello/json"}'
-                            #// { "count": 1, "requestJournalDisabled": false }
-                    （参考）1つのコールを1つのファイルに定義する場合:
-                        #search: WireMock mappings-1
-                    関連 >> POST メソッドの body の設定:  #search: bodyPatterns
-                フィールド: #keyword: WireMock mappings fields
-                    mappings:  #// 複数の設定を書くときに必要です
-                    request:  #glossary: WireMock
-                        method:  GET, POST など  #search: HTTP メソッド
-                        url: URL  #// パターン マッチング する場合は urlPattern
-                        urlPattern:  #ref: https://wiremock.org/docs/request-matching/
-                            - "/user\\?offset=.*"  #// URL に含まれる ? は正規表現に解釈されないように \\ でエスケープします
-                            - "\\?q=keyword(&option=no\\+password)?"  #// 空白は URL では + であり、+ は正規表現に解釈されないように \\ でエスケープします
-                                #// メタ文字の (, ) はエスケープしません
-                        urlPath:
-                        urlPathPattern:  #// URL の パターン マッチング
-                    response:
-                        status:
-                        headers:
-                        body:
-                        jsonBody:
-                        bodyFileName:
-                Web API をキャプチャーして mappings を作ります:  #search: tcpdump Web API example
-                リクエストのマッチング:  #keyword: WireMock request matching  #// mappings の中のどの mapping にマッチするかの条件を設定します
-                    必要なリクエストの内容を調べます:  #// 設定する前にマッチング条件を調べます
-                        サンプル: |
-                            | Closest stub   | Request    |
-                            -------------------------------
-                            GET              | GET
-                            /hello/json      | /hello/yaml   <<<<< URL does not match
-                        Closest stub: #keyword:  #// リクエストに近い存在する設定
-                        Request: #keyword:  #// リクエストの内容。設定がない内容
-                        長い URL のサンプル: |  #//  /hello/this_is_a_long_url の途中に URL does not match が入ります
-                            | Closest stub   | Request    |
-                            -------------------------------
-                            GET              | GET
-                            /hello/json      | /hello/this_is<<<<< URL does not match
-                            _                | _a_long_url
-                    URL や HTTP メソッドのマッチング: #// URL の値について、マッチングする条件を設定します
-                        基本:
-                            mappings/example.json : |  #focus: hello/json
-                                "request": {
-                                    "method": "GET",
-                                    "url": "/hello/json"
-                            curl を使って呼び出します:
-                                curl -X GET  http://localhost:8080/hello/json
-                        URL パラメーター: #keyword: WireMock URL parameter
-                            サンプル: http://localhost:8080/items/(.*)
-                            基本:
-                                __WireMockRoot__/mappings/example.json : |  #focus: urlPattern, bodyFileName
-                                    {
-                                        "mappings": [
-                                            {
-                                                "request": {
-                                                    "method": "GET",
-                                                    "urlPattern": "/items/(.*)"
-                                                },
-                                                "response": {
-                                                    "status": 200,
-                                                    "bodyFileName": "items-{{ request.path.[1] }}.json"
-                                                }
-                                            }
-                                        ]
-                                    }
-                                __WireMockRoot__/__files/items-123.json : |
-                                    {"name": "Mark"}
-                                curl を使って呼び出します:
-                                    curl -X GET  http://localhost:8080/items/123
-                            範囲あり:
-                                mappings/example.json : |
-                                    "request": {
-                                        "method": "GET",
-                                        "urlPattern": "/items/(\\d{1,3})"
-                                curl を使って呼び出します:
-                                    マッチする:
-                                        curl -X GET  http://localhost:8080/items/123
-                                    マッチしない:
-                                        curl -X GET  http://localhost:8080/items/1234
-                            URL の一部を埋め込む, request.path: #search: WireMock request.path
-                            参考: #ref: https://qiita.com/rubytomato@github/items/c0f4f8f882c2069d91f0
-                        関連:
-                            URL に応じてレスポンスを変えます:  #search: WireMock dynamic response
-                        設定: #settings:
-                            __WireMockJar__: wiremock-jre8-standalone-2.33.2.jar
-                    JSON body のマッチング: #keyword: WireMock JSON body  #// リクエストの内容が JSON で指定される場合に、JSON について、マッチングする条件を設定します
-                        基本:  #focus: bodyPatterns, id, ignoreExtraElements
-                            mappings/example.json : |  #keyword: bodyPatterns,  WireMock POST body
-                                "request": {
-                                    "method": "POST",
-                                    "url": "/api",
-                                    "bodyPatterns" : [{
-                                        "equalToJson" :
-                                            {"id": 4 },
-                                        "ignoreExtraElements" : true
-                                    }]
-                            curl を使って呼び出します:
-                                上記定義にマッチするコマンド: |  #focus: id
-                                    curl -X POST -i -d '{ "id": 4 }' -H "Content-Type: application/json" http://localhost:8080/api
-                                上記定義にマッチしないコマンド: |  #focus: additional
-                                    curl -X POST -i -d '{ "id": 5 }' -H "Content-Type: application/json" http://localhost:8080/api
-                        JSON 文字列でも指定できます: |
-                            "bodyPatterns" : [ {
-                                "equalToJson" : "{ \"id\": 4 }",
-                        関心がないフィールドの違い:  #focus: ignoreExtraElements  #// 条件に指定したフィールド以外のフィールドは無視します
-                            mappings/example.json : |  #// body 部分は { "id": 4 }
-                                "bodyPatterns" : [ {
-                                    "equalToJson" : { "id": 4 },
-                                    "ignoreExtraElements" : true,
-                            リクエスト body:
-                                マッチする: |  #focus: additional
-                                    { "id": 4, "additional":2 }
-                                マッチしない: |  #focus: 55
-                                    { "id": 55 }
-                        完全一致:
-                            mappings/example.json : |  #// ignoreExtraElements が省略されている
-                                "bodyPatterns" : [ {
-                                    "equalToJson" : { "id": 4 },
-                            リクエスト body:
-                                マッチする: |  #focus: id
-                                    { "id": 4 }
-                                マッチしない: |  #focus: additional
-                                    { "id": 4, "additional":2 }
-                        フィールド名のみ:  #// 型プレースホルダー ${json-unit.any-number}  #// フィールドの値が何であれマッチします
-                            mappings/example.json : |
-                                "bodyPatterns" : [ {
-                                    "equalToJson" : { "id": "${json-unit.any-number}" },
-                            リクエスト body:
-                                マッチする: |
-                                    { "id": 4 }
-                                マッチしない: |
-                                    { "id": "a" }
-                            型プレースホルダーのバリエーション:
-                                "${json-unit.any-number}":
-                                "${json-unit.any-string}":
-                                "${json-unit.any-boolean}":
-                                #ref: https://github.com/lukas-krecan/JsonUnit#typeplc
-                        正規表現:  #// [?($.name =~ /Req.*/i)]
-                            基本:
-                                mappings/example.json : |  #// [?( )] の中でのみ =~ 演算子が使えます  #search: =~
-                                    "bodyPatterns" : [ {
-                                        "matchesJsonPath" : "[?($.name =~ /Req.*/i)]"
-                                リクエスト body:
-                                    マッチする: |
-                                        { "name": "Required" }
-                                    マッチしない: |
-                                        { "name": "NotRequired" }
-                                        { "things": { "name": "Required" } }
-                            子要素について:
-                                mappings/example.json : |
-                                    "bodyPatterns" : [ {
-                                        "matchesJsonPath" : "$.things[?(@.name =~ /Required.*/i)]"
-                                リクエスト body:
-                                    マッチする: |
-                                        { "things": { "name": "Required" } }
-                                    マッチしない: |
-                                        { "name": "Required" }
-                        or:  #// [?($.id == 3  ||  $.id == 4)]
-                            mappings/example.json : |
-                                "bodyPatterns" : [ {
-                                    "matchesJsonPath" : "[?($.id == 3  ||  $.id == 4)]"
-                            リクエスト body:
-                                マッチする: |
-                                    { "id": 3 }
-                                    { "id": 4 }
-                                マッチしない: |
-                                    { "id": 5 }
-                        配列要素の順番の違い:  #// [4, 5], [5, 4] 
-                            mappings/example.json : |
-                                "bodyPatterns" : [ {
-                                    "equalToJson" : { "ids": [4, 5] },
-                            リクエスト body:
-                                マッチする: |
-                                    { "ids": [4, 5] }
-                                マッチする (2): |
-                                    { "ids": [5, 4] }
-                                マッチしない: |
-                                    { "ids": [4, 4] }
-                        配列要素数:  #// $[?(@.ids.size() == 2)]
-                            mappings/example.json : |
-                                "bodyPatterns" : [ {
-                                    "equalToJson" : "$[?(@.ids.size() == 2)]",
-                            リクエスト body:
-                                マッチする: |
-                                    { "ids": [4, 5] }
-                                マッチしない: |
-                                    { "ids": [4] }
-                                    { "ids": [4, 5, 6] }
-                        関連 >> body の JSON に応じてレスポンスを変えます:  #search: WireMock dynamic response
-                    ベーシック認証 のマッチング:  #// マッチングする条件を設定します
-                        設定しない場合:
-                            BASIC 認証があってもなくてもマッチします
-                        指定した BASIC 認証の内容の場合のみマッチします:
-                            mappings/example.json : |  #focus: basicAuthCredentials
-                                "request": {
-                                    "method": "GET",
-                                    "url": "/hello/json",
-                                    "basicAuthCredentials": {
-                                        "username": "userName",
-                                        "password": "Password"
-                                    }
-                            curl を使って呼び出します:
-                                curl -X GET  --insecure  --user "userName:Password"  http://localhost:8080/hello/json
-                レスポンスの内容:  #keyword: WireMock response
-                    mappings ファイルに書く場合:  #search: WireMock mappings basic
-                    bodyFileName:  #keyword: #// body の内容を mappings ファイルとは別のファイルに書く場合
-                        概要: 
-                            - bodyFileName フィールドにファイル名を書きます。
-                            - 基準パスは __files フォルダーです  #keyword: WireMock __files
-                            - サブフォルダーも指定できます（下記）
-                        __WireMockRoot__/mappings/example.json : |  #focus: bodyFileName  #ref: ${GitHub}/MyPrivateCode/WireMock/try_WireMockResponseTemplate/mappings/3_bodyFile.json
-                            {
-                                "mappings": [
-                                    {
-                                        "request": {
-                                            "method": "GET",
-                                            "url": "/users/profile"
-                                        },
-                                        "response": {
-                                            "status": 200,
-                                            "bodyFileName": "simple.json",
-                                            "headers": {
-                                                "Content-Type": "application/json"
-                        __WireMockRoot__/__files/simple.json : |  #ref: ${GitHub}/MyPrivateCode/WireMock/try_WireMockResponseTemplate/__files/3_bodyFile.json
-                            {"name": "John"}
-                        サブフォルダーも指定できます: |
-                            mappings/____.json
-                                "bodyFileName": "_build/____.json"
-                            __files/_build/____.json
-                        関連 >> パラメーター:  #search: WireMock parameters
-                    動的レスポンス: #keyword: WireMock dynamic response  #// URL や body や状態に応じてレスポンスを変えます
-                        response-template:  #search: WireMock response-template  #// URL や body に応じてレスポンスを変えます
-                        body .hbs ファイル:  #search: WireMock .hbs
-                        シナリオと状態: #search: WireMock scenario state  #// ユーザー定義の状態に応じてレスポンスを変えます
-                        extensions: #search: WireMock extensions  #// 何でもありだが Java
-                遅延したレスポンス: |  #// 3秒
-                    "response": {
-                        "fixedDelayMilliseconds": 3000
+                #↓ フィールド  #keyword: WireMock mappings fields
+                mappings:  #// 複数の設定を書くときに必要です
+                request:  #glossary: WireMock
+                    method:  GET, POST など  #search: HTTP メソッド
+                    url: URL  #// パターン マッチング する場合は urlPattern
+                    urlPattern:  #ref: https://wiremock.org/docs/request-matching/
+                        - "/user\\?offset=.*"  #// URL に含まれる ? は正規表現に解釈されないように \\ でエスケープします
+                        - "\\?q=keyword(&option=no\\+password)?"  #// 空白は URL では + であり、+ は正規表現に解釈されないように \\ でエスケープします
+                            #// メタ文字の (, ) はエスケープしません
+                    urlPath:
+                    urlPathPattern:  #// URL の パターン マッチング
+                response:
+                    status:
+                    headers:
+                    body:
+                    jsonBody:
+                    bodyFileName:
+                （モックを作ります）:  #search: make WireMock
             概念:
+                HTTP リクエスト と HTTP レスポンス:  #search: WireMock request response
                 response-template: #keyword: WireMock response-template  #// URL や body に応じてレスポンスを変えます。標準で入っている extensions
                     #ref: https://wiremock.org/docs/response-templating/
                     プロジェクト: #search: try_WireMockResponseTemplate
@@ -2801,6 +2841,8 @@ HTTP 通信: #keyword: HTTP
                                 "response": {
                                     ...
                             #ref: ${GitHub}/MyPrivateCode/WireMock/try_WireMockScenarioState/mappings/scenario.json
+                        特定の状態のときの応答:
+                            上記 requiredScenarioState
                         複数の状態:  #search: WireMock multi requiredScenarioState
                     参照:  #// 状態の参照
                         特定のシナリオの状態:
@@ -3261,6 +3303,14 @@ HTTP 通信: #keyword: HTTP
                     エラー内容: Not Found。（許可されたが）要求されたリソースはサーバーに存在しない
                     対処法: URL を確認します
                 "[401, 429, 504]": #ref: ${programming}/HTML ブラウザ/HTML文法.svg#HTTP_status_code
+                409:  #// Conflict
+                    _: サービスによって異なります
+                    例:
+                        - POST /users で、既存メールアドレスを登録 → 409 Conflict
+                        - PUT /document/1 で、古い version を使って更新 → 409 Conflict
+                        - すでに存在する ID や名前で新規作成しようとした
+                        - 更新対象が他の人に先に更新され、版がずれた
+                        - 現在の状態ではその操作をしてはいけない  例 すでにキャンセル済みの注文をもう一度キャンセルする
                 412: | #// Precondition Failed
                     curl の場合、オプション -H "Content-Type: application/json-rpc" （値は編集すること）を追加します
                 414: #// URL や URI が長すぎる  Request-URI Too Long
@@ -3448,18 +3498,339 @@ HTTP 通信: #keyword: HTTP
         HTTP/2サーバプッシュサポート廃止検討と、103 Early Hintsについて:  #ref: https://asnokaze.hatenablog.com/entry/2020/11/13/001110
             Prelaod と103 Early Hints
     ロング ポーリング: #keyword: long polling
-        メリット:
-            実装がシンプルで、ネットワークに負荷をかけずに即時応答ができる
-        デメリット:
-            API 応答内部では向かない:
-                スレッドモデル（Rails, Django等）はスレッド枯渇しやすい
-                非同期モデル（Node.js, FastAPI等）は比較的耐えやすい
-            すぐに終了できない:
-                ショートポーリングはループの切れ目で止められるが、ロングポーリングは待機中に止まれない。
-        必要な対処:
-            ロングポーリング専用のスレッド/Executorを分離する
-            接続断やエラー時に、即再試行させる無限ループを起きないようにする。
-            接続タイムアウトと待機タイムアウトを分ける
+        概要:
+            メリット:
+                実装がシンプルで、ネットワークに負荷をかけずに即時応答ができる
+            デメリット:
+                サーバーの負荷が高め:  #// シンプルなポーリングよりは低い
+                    比較表: |
+                        | 方式                          | 同時接続 | サーバー処理            | 実装難度   |
+                        |-------------------------------|----------|-------------------------|------------|
+                        | ショートポーリング（5秒おき） | 少ない   | 多い（頻繁なリクエスト）| 簡単       |
+                        | ロングポーリング              | 多い     | 中程度                  | 普通       |
+                        | SSE                           | 多い     | 少ない                  | 普通       |
+                        | WebSocket                     | 多い     | 少ない                  | やや複雑   |
+                    #// 負荷を減らす工夫はキャッシュを使うなど  #search: long polling cache
+                API 応答内部では向かない:
+                    スレッドモデル（Rails, Django等）はスレッド枯渇しやすい
+                    非同期モデル（Node.js, FastAPI等）は比較的耐えやすい
+                すぐに終了できない:
+                    ショートポーリングはループの切れ目で止められるが、ロングポーリングは待機中に止まれない。
+            必要な対処:
+                （未確認）
+                接続タイムアウトと待機タイムアウトを分ける
+                接続断やエラー時に、即再試行させる無限ループを起きないようにする。
+                ロングポーリング専用のスレッド/Executorを分離する
+        手順:
+            サーバー:
+                DB ポーリング:  #search: DB polling
+                サーバー内部でPub/Subにする: |  #// ポーリングをなくす
+                    // EventEmitterで「イベント来たら即レスポンス」
+                    app.get("/api/wait", (req, res) => {
+                        const onEvent = (data) => res.json(data);
+                        emitter.once("update", onEvent);
+
+                        // タイムアウト時のクリーンアップ
+                        req.on("close", () => emitter.off("update", onEvent));
+                        setTimeout(() => {
+                            emitter.off("update", onEvent);
+                            res.json({ type: "timeout" });
+                        }, 30_000);
+                    });
+                タイムアウト: #keyword: Web API time out
+                    大小関係: |  #// クライアントに近いほど長く設定します
+                        | レイヤー    | 設定項目                  | 推奨値   |
+                        |-------------|---------------------------|----------|
+                        | Django      | `q.get(timeout=...)`      | 30秒     |
+                        | Gunicorn    | `--timeout`               | 45秒     |
+                        | Nginx       | `proxy_read_timeout`      | 60秒     |
+                        | React       | `AbortController` timeout | 75秒     |
+                    Gunicorn (WSGI): |
+                        bashgunicorn myproject.wsgi:application \
+                            --timeout 60          # ロングポーリングのタイムアウトより長くする
+                    nginx: |
+                        # nginx.conf
+                        server {
+                            location /poll/ {
+                                proxy_pass http://django_backend;
+                                proxy_read_timeout 90s;    # Django側タイムアウト(30s)より長くする
+                スレッド数、同時接続数:
+                    nginx: |
+                        events {
+                            worker_processes auto;
+                            worker_connections 2048;   # デフォルト1024から増やす
+                            use epoll;                 # Linux では epoll が効率的
+                            multi_accept on;
+                    Gunicorn (WSGI): |
+                        bashgunicorn myproject.wsgi:application \
+                            --workers 4 \
+                            --threads 50 \        # スレッド数を増やして同時接続に対応
+        コード:
+            React:
+                useLongPolling 関数コンポーネント: #keyword: useLongPolling
+                    #// 動作未確認
+                    実装: |  #// カスタムフック
+                        import * as React from 'react';
+
+                        export function useLongPolling<T>(url: string, enabled: boolean, initialData: T) {
+                            const [data, setData] = React.useState<T>(initialData);
+                            const [error, setError] = React.useState<Error | null>(null);
+                            const abortRef = React.useRef<AbortController | null>(null);
+
+                            React.useEffect(() => {
+                                if (!enabled) return;
+                                let active = true;
+
+                                const poll = async () => {
+                                    while (active) {
+                                        abortRef.current = new AbortController();
+                                        try {
+                                            const res = await fetch(url, { signal: abortRef.current.signal });
+                                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                                            const json: T = await res.json();
+                                            if (active) setData(json);
+                                        } catch (err) {
+                                            if (err instanceof Error && err.name === "AbortError") break;
+                                            if (active) setError(err instanceof Error ? err : new Error(String(err)));
+                                        }
+                                    }
+                                };
+
+                                poll();
+                                return () => {
+                                    active = false;
+                                    abortRef.current?.abort();
+                                };
+                            }, [url, enabled]);
+
+                            return { data, error };
+                        }
+                    呼び出し: |  #focus: useLongPolling, isWatching, Item
+                        type ItemData = {
+                            message: string;
+                            isWatching: boolean;
+                        };
+
+                        function Item({ itemId }: { itemId: string }) {
+                            const [item, setItem] = useState<ItemData>({ message: "読み込み中...", isWatching: false });
+                            const [isWatching, setIsWatching] = useState(false);
+
+                            const fetchItem = useCallback(() => {
+                                fetch(`/api/items/${itemId}`)
+                                    .then((r) => r.json())
+                                    .then((res: ItemData) => {
+                                        setItem(res);
+                                        setIsWatching(res.isWatching);
+                                    });
+                            }, [itemId]);
+
+                            // 初回GET
+                            useEffect(() => {
+                                fetchItem();
+                            }, [fetchItem]);
+
+                            // ポーリング
+                            const { data: pollingData, error } = useLongPolling<ItemData>(
+                                `/api/items/${itemId}/watch`,
+                                isWatching,
+                                { isWatching }
+                            );
+
+                            // 表示の更新
+                            useEffect(() => {
+                                setItem(pollingData); // または setItem((prev) => ({ ...prev, ...pollingData }));
+                                setIsWatching(pollingData.isWatching);
+                            }, [pollingData]);
+
+                            // エラー
+                            useEffect(() => {
+                                if (error) setIsWatching(false);
+                            }, [error]);
+
+                            // （必要なら）タブ離脱・復帰
+                            useEffect(() => {
+                                const onVisibilityChange = () => {
+                                    if (document.hidden) {
+                                        setIsWatching(false);
+                                    } else {
+                                        fetchItem();
+                                    }
+                                };
+                                document.addEventListener("visibilitychange", onVisibilityChange);
+                                return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+                            }, [fetchItem]);
+
+                            // 表示内容
+                            return (
+                                <div>
+                                    <p>{item.message}</p>
+                                    {isWatching && <p>監視中...</p>}
+                                    <button onClick={() => setIsWatching(false)}>監視を停止</button>
+                                </div>
+                            );
+                        }
+                    補足:
+                        initialData: 初回GETする前の内容を入れます
+                        isWatching:
+                            - API の仕様に応じて名前を変えます
+                            - 初回 GET API と watch API で isWatching に相当するフィールド名が異なる場合、呼び出し側の上記サンプルから少し修正が必要になります
+                            - サーバーが管理し、クライアントはそのまま反映します
+                            - 初期値を false にすることで、初回GET完了前のポーリングを防ぎます
+                        enabled: false にするとリクエストを発行しません。また、既存のリクエストがあればキャンセルします
+                        AbortController: リクエストをキャンセルします
+                        禁止:
+                            useEffect の中: |
+                                useEffect(() => {
+                                    const { data } = useLongPolling("/api/notifications"); // エラー
+                            条件分岐の中: |
+                                if (isLoggedIn) {
+                                    const { data } = useLongPolling("/api/notifications"); // エラー
+                            イベントハンドラの中: |
+                                const handleClick = () => {
+                                    const { data } = useLongPolling("/api/notifications"); // エラー
+                        複数 URL の並列ウォッチ: 対応。呼び出すたびに独立したインスタンスが生成されます。ただし、isWatching 相当が複数必要です
+                        例外（エラー・タブ離脱・ユーザー操作）時: setIsWatching(false) します
+                    ステータス:
+                        #// 最小構成
+                        polling:
+                        notPolling:
+                        #// 最大構成
+                        pending:    ポーリングする
+                        processing: ポーリングする
+                        completed:  ポーリングしない
+                        error:      ポーリングしない
+                        cancelled:  ポーリングしない  #// ユーザーまたはシステムによるキャンセル
+                        expired:    ポーリングしない  #// タイムアウトや有効期限切れ
+                        タブ離脱・復帰:
+                クラス コンポーネントの例: |  #keyword: runLongPollingLoop,  class component long polling  #focus: longPollingActiveState, Item
+                    import React from "react";
+
+                    type ItemData = {
+                        message: string;
+                        isWatching: boolean;
+                    };
+
+                    type Props = { itemId: string };
+
+                    type State = {
+                        item: ItemData;
+                        watching: boolean;
+                    };
+
+                    class Item extends React.Component<Props, State> {
+                        state: State = {
+                            watching: false,
+                        };
+                        private watchingAbortController: AbortController | null = null;
+                        private watchingLoop = false;
+
+                        componentDidMount() {
+                            this.fetchItem();
+                            // または、fetchItem が無い場合は
+                            if (this.props.data.isWatching) {
+                                this.startLongPolling();
+                            }
+
+                            // 「タブ離脱・復帰」で制御する場合
+                            document.addEventListener("visibilitychange", this.handleVisibilityChange);
+                        }
+
+                        componentDidUpdate(prevProps: Props, prevState: State) {
+                            if (prevProps.itemId !== this.props.itemId) {
+                                this.fetchItem();
+                            }
+                        }
+
+                        componentWillUnmount() {
+                            this.stopLongPolling();
+
+                            // 「タブ離脱・復帰」で制御する場合
+                            document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+                        }
+
+                        fetchItem() {
+                            fetch(`/api/items/${this.props.itemId}`)
+                                .then((r) => r.json())
+                                .then((res: ItemData) => {
+                                    this.setState({ item: res });
+                                    if (res.isWatching) {
+                                        this.startLongPolling();
+                                    } else {
+                                        this.stopLongPolling();
+                                    }
+                                });
+                        };
+
+                        startLongPolling() {
+                            this.setState({ watching: true });
+                            if ( ! this.watchingLoop) {
+                                this.watchingLoop = true;
+                                this.runLongPollingLoop();
+                            }
+                        };
+
+                        stopLongPolling() {
+                            this.setState({ watching: false });
+                            this.watchingLoop = false;
+                            if (this.watchingAbortController) {
+                                this.watchingAbortController.abort();
+                            }
+                        };
+
+                        private async runLongPollingLoop() {
+                            while (this.watchingLoop) {
+                                this.watchingAbortController = new AbortController();
+                                try {
+                                    const res = await fetch(
+                                        `/api/items/${this.props.itemId}/watch`,
+                                        { signal: this.watchingAbortController.signal }
+                                    );
+                                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                                    const data: ItemData = await res.json();
+                                    if ( ! data.isWatching) {
+                                        this.stopLongPolling();
+                                    }
+                                } catch (err) {
+                                    this.stopLongPolling();
+                                }
+                            }
+                        };
+
+                        // ── タブ離脱・復帰 ────────────────────────────
+                        handleVisibilityChange = () => {
+                            if (document.hidden) {
+                                this.stopLongPolling();
+                            } else {
+                                this.fetchItem();
+                            }
+                        };
+
+                        // ── レンダリング ──────────────────────────────
+                        render() {
+                            return (
+                                <div>
+                                    <p>{this.stateitem.message}</p>
+                                    {this.state.watching && <p>監視中...</p>}
+                                    <button onClick={() => this.stopLongPolling()}>
+                                        監視を停止
+                                    </button>
+                                </div>
+                            );
+                        }
+                    }
+
+                    export default Item;
+            Python: #keyword: Python long polling
+                watch_item:  #// Web API のコールバック
+                    # def watch_item(self, request, code) -> Item:
+                    #     start = time.time()
+                    #     while True:
+                    #         record = self.db.query(code)
+                    #         self.db.next_transaction()
+                    next_transaction:  #search: next_transaction
+                    #         if not record.is_watching  or  time.time() - start >= 60:  # See nginx proxy_read_timeout
+                    #             return record
+                    #         time.sleep(2)
     その他:  #search: RabbitMQ  #search: MQTT  #search: Kafka  #search: D-bus
     トラブルシューティング(HTTP):
         - #// 通信をキャプチャーします

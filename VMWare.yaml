@@ -2594,7 +2594,7 @@ Docker compose: #keyword: Docker-compose,  docker compose  #ref: ${programming}/
                     docker-compose up  --exit-code-from flyway
                     docker-compose up  --exit-code-from flyway  --abort-on-container-exit
                         flyway (docker-compose.yml に書かれた service) が終了するまで待ち、終了したら他のサービスも終了します。
-    環境変数: __Project__/.env  #ref: ${programming}/OS/VMWare.svg#DockerCompose-env
+    環境変数: __Project__/.env  #ref: ${programming}/OS/VMWare.svg#DockerCompose-env  #ref: https://docs.docker.jp/compose/environment-variables.html
     構成:
         プロジェクト:  #keyword: Docker-compose project
             概要:
@@ -6648,7 +6648,7 @@ Ansible: #keyword: Ansible, an
                     タスクの標準出力: #🌟 #keyword: Ansible task stdout  #// Ansible が呼び出すコマンドの標準出力と標準エラー出力
                         表示場所: |  #search: Ansible task stdout
                             shell モジュール でエラーが発生したときの "stdout": や "stderr": の右にあります。改行文字が \n で表示されます
-                        shell モジュール を使ってエラーを発生させます:  #keyword: Ansible stderr
+                        shell モジュール を使ってエラーを発生させます:  #keyword: Ansible stderr  #// エラーを発生させれば表示されます
                             shell モジュールのタスク場合:
                                 shell モジュールの Ansible のタスクでエラーを発生させれば stdout や stderr の内容が表示されます
                                 #// -v オプションは不要です
@@ -6664,12 +6664,13 @@ Ansible: #keyword: Ansible, an
                             （参考）エラーにしたくない場合:
                                 ignore_errors: true
                         止まる場合: #keyword: Ansible フリーズ
-                            timeout を使う場合:  #// 内部で入力待ちしている可能性があります
-                                timeout コマンドを shell フィールド の中に指定します。
+                            timeout を使う場合:  #// 内部で入力待ちしている可能性があります。タイムアウトれば表示されます（未確認）
+                                timeout コマンドを shell モジュール を使うタスクの中に指定します。
                                 timeout 10 __Command__
                             exit を使う場合:
                                 呼び出すスクリプトの中で echo "@@@"; exit 1 を実行します
-                            VirtualBox の場合:
+                            処理時間がかかっている場合:  #// もあります
+                            VirtualBox がハングアップしたと思われる場合:
                                 VM を再起動します
                         ネットワークエラーになる場合:
                             https_proxy や no_proxy 環境変数を表示させて確認してください。
@@ -6702,7 +6703,7 @@ Ansible: #keyword: Ansible, an
                         Playbook ファイルのサンプル:
                             roles/__RoleName__/tasks/*.yml : |  #// roles フォルダーは #search: ansible roles
                                 name: __TaskName__
-                チェック、デバッグ:  #glossary: Ansible
+                チェック、デバッグ: #keyword: debug ansible-playbook  #glossary: Ansible
                     タスクの標準出力:  #search: Ansible task stdout
                     --syntax-check オプション:  #// 文法チェックだけ早く行います
                     --list-tasks:
@@ -6987,6 +6988,9 @@ Ansible: #keyword: Ansible, an
                             vi __FilePath__
                         デプロイします:  #// APPROVED 環境変数を 1 に指定して実行します
                             APPROVED=1 ansible-playbook  __Parameters__  --diff
+            トラブルシューティング:
+                止まる場合:  #search: Ansible フリーズ
+                デバッグ:  #search: debug ansible-playbook
         ansible-pull コマンド:  #// git から設定手順のリポジトリーをチェックアウトしてプロビジョニングします
             https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_intro.html#ansible-pull  #template: __DocumentVersion__
         ansible-lint コマンド:  #// スタイル チェック

@@ -1138,6 +1138,8 @@ NAT: #keyword:  #// Network Address Translation。アドレス変換
     概要:
         １つのパブリック IPアドレス を、LAN内のサブネット（内の複数のプライベート IPアドレス）で共有します。
         ルーティングだけでなく TCP/UDPヘッダーの書き換えも行います。
+    ルーティング:
+        Web クライアント → NAT ルーター（物理/仮想ホスト） → Web サーバー
     SNAT: #keyword:  #// source NAT。 LAN ⇒ 外部 にリクエストするときに変換します。LAN 側が source。IPマスカレード。
         10.0.0.2 (LAN) ⇒ 200.40.9.180（public)
         LAN の 10.0.0.2 のホストは、外部インターネットでは 200.40.9.18 であるように見えます。
@@ -1622,10 +1624,14 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     端末が故障したとき:
                         - カメラが故障したとき
                         - 認証器が故障したとき
-                マルチデバイス対応FIDO認証資格情報: #keyword: FIDO認証, パスキー Passkeys
+                パスキー, マルチデバイス対応FIDO認証資格情報: #keyword: FIDO認証, パスキー Passkeys
                     概要:
                         端末アカウントに紐付けられたパスワードの自動生成とローミング
                         #ref: ${typrm_files}/ref/Network-AI.yaml#label: pass key
+                    問題:
+                        端末がパスキーに対応していない:
+                            会社支給 PC など
+                            パスワードが必要です
                     パスキーの有効範囲:
                         サイトごとのパスキー:
                             サイト（URL のドメイン）ごとにパスキーを生成できます、

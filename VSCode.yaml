@@ -21,6 +21,7 @@
         mac に Visual Studio Code をインストールします:  #keyword: VSCode mac install
             ダウンロードして開きます:
                 - https://code.visualstudio.com/download >> Mac  #// Mac のページを開くとダウンロードも始まります
+                - ダウンロードした実行ファイルを Download の外（デスクトップなど）に移動します  #// mac のセキュリティ機能によりバージョンアップができなくなるため
                 - Mac の Dock の右から２番目にある ダウンロード >> Visual Studio Code をクリック
                 - 開く ボタン（ダウンロード警告を無視します。Visual Studio Code はよく使われているため）
             （必要なら）Visual Studio Code のアイコンを Dock に常に表示させるようにします:
@@ -29,7 +30,7 @@
                 #// code コマンドはシェルから Visual Studio Code を開くときのコマンドです。
                 #// パラメーターは、フォルダーまたはファイルのパスです。
                 zsh: |
-                    new_path="\$HOME/Downloads/Visual Studio Code.app/Contents/Resources/app/bin"
+                    new_path="\$HOME/Desktop/Visual Studio Code.app/Contents/Resources/app/bin"
                     cat ~/.zshrc | grep \"$new_path: > /dev/null ||  echo "export PATH=\"$new_path:\$PATH\"" >> ~/.zshrc
                     cat ~/.zshrc
             （必要なら）YAML ファイルを Visual Studio Code で開くようにします:
@@ -901,10 +902,19 @@
             VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >> Toggle Overtype/Insert Mode >>
             Keybinding（の列の該当行を右クリック）>> Remove keybinding
         全ブレークポイントを一時的に無効にする ショートカット キー を設定します: #keyword: VSCode Toggle Activate Breakpoints  #search: customize VSCode shortcuts
-            - VSCode >> 歯車アイコン（左下）>> Keyboard Shortcuts >>
+            - VSCode >> 歯車 ボタン（左下）>> Keyboard Shortcuts >>
             - "View: Focus Next Part（と入力）>>"
             - （右クリックして）Remove Keybinding >>
             - Toggle Activate Breakpoints（と入力し、見つかった行をダブルクリック）>> F6 キー >> Enter キー
+        mac の場合 >> step in するキーを変えます:
+            #// F11 は効きません
+            VSCode >> 歯車 ボタン（左下）>> Keyboard Shortcuts >> debug step in（と入力）>> Key binding（列をダブルクリック）>> Shift + F10
+        TypeScript の import 文を半自動的に書くようにします:
+            settings.json: |
+                "js/ts.suggest.autoImports": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "explicit"
+            使い方: 電球アイコンを押すと import 文が追加されます
         GitLens 初期設定:  #search:
         Markdown のスタイルを設定します:  #keyword: VSCode markdown
             ローカル設定:  #// Visual Studio Code を開いたフォルダーに対する設定

@@ -1,4 +1,4 @@
-#keyword: SoftwareDesign.yaml, 設計
+#keyword: SoftwareDesign.yaml, 設計, Software
 アーキテクチャー:  #keyword:
     MVC: #keyword: MVC,  model view controller
         Model: データ、ビジネス ロジック
@@ -44,11 +44,67 @@
             Domain: ビジネスロジック層 = ルールや制約などのドメイン知識の実現をする層
             Infrastructure: データアクセス層 = データベースとの入出力をする層
             #ref: https://zenn.dev/ayumukob/articles/ff183004d09ede
+        Domain:
+            他の層に依存させないこと, Isolating the Domain: #keyword: Isolating the Domain,  Domain 依存関係
+                参考:
+                    - the domain model layer should not take a dependency on any other layer
+                        #ref: https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice
+                    - Isolating the Domain  #// 見出し
+                        #ref: https://www.barnesandnoble.com/w/domain-driven-design-eric-evans/1125702453  >> Table of Contents >> Show More
+                    - all approaches are fine as long as they maintain the isolation of the domain layer, allowing domain objects to be designed without simultaneously thinking about the user interface that might interact with them.
+                        #ref: https://www.goodreads.com/work/quotes/173058-domain-driven-design-tackling-complexity-in-the-heart-of-software
+                手段:
+                    ロジックの途中にある Infra（ファイル アクセス など）は、インターフェースや引数に渡す関数にします
+                反論:
+                    Domain は Infra に依存してはいけないという原則より、現実のコードが循環せず動く: #keyword: DDD import type
+                        #// 原則は守られている。単純な変換コードを省略できる。getter で対応できる。制限するときは Go のような同ファイル内インターフェース（または関数渡し。その移植のコツ）
+                        #// 実質依存している
+                        TypeScript:
+                            - Domain に書く import は import type にする  #search: import type
+                        Python:
+                            - Domain に書く import は TYPE_CHECKING のときだけにする  #search: TYPE_CHECKING
+                        #ref: https://claude.ai/chat/9fc31a40-6db2-4101-84d7-5d07dfbad0cd
         依存性逆転の法則, DIP:
             逆転: 通常、通常、高レベルのモジュール（ビジネスロジックなど）は、
                 低レベルのモジュール（データアクセスロジック、ユーティリティ、ライブラリなど）に依存します。
                 それを逆転させます
             方針: クラスの詳細がインターフェイスに依存すべきである  #// ただし不要なインターフェースが多い
+        enum と変換層:
+            変換層は早すぎる:
+                _: 将来の変更可能性だけを理由に最初から、ドメインのコードの enum と YAML のコードの enum を分けて、変換層を入れる必要はありません。
+                悪い例:
+                    domain/member_status.py: |
+                        from enum import Enum
+
+                        class Status(Enum):
+                            ACTIVE = "ACTIVE"
+                            INACTIVE = "INACTIVE"
+                    infrastructure/yaml_loader.py: |
+                        def to_status(value: str) -> Status:
+                            mapping = {
+                                "active": Status.ACTIVE,
+                                "inactive": Status.INACTIVE,
+                            }
+                            try:
+                                return mapping[value]
+                            except KeyError:
+                                raise ValueError(f"Invalid status: {value}")
+                良い例:
+                    domain/member_status.py: |
+                        from enum import Enum
+
+                        class MemberStatus(Enum):
+                            ACTIVE = "active"
+                            SUSPENDED = "suspended"
+                    infrastructure/yaml_loader.py: |
+                        import yaml
+                        from domain.member_status import MemberStatus
+
+                        def load_member_status(yaml_text: str) -> MemberStatus:
+                            data = yaml.safe_load(yaml_text)
+                            return MemberStatus(data["member"]["status"])
+        参考:
+            書籍, Domain-Driven Design (Eric Evans):  #// Tackling Complexity in the Heart of Software by Eric Evans
     TERASOLUNA Server Framework for Java: #keyword:
         予想される効果:
             UI と DB の素結合。抽象化（新たなデータ構造）ではない。
@@ -90,7 +146,7 @@
         メモ:
             アプリケーション層、ドメイン層、インフラストラクチャー層は Eric Evansの”Domain-Driven Design
              (2004, Addison-Wesley)”で説明されている用語
-    クリーン アーキテクチャー:
+    クリーン アーキテクチャー: #keyword: clean architecture
         中心:
             Entities:
         その外1:
@@ -105,6 +161,9 @@
             DB:
             Devices:
             External Interfaces:
+        問題点:
+            複雑:  #ref: https://x.com/ts_neko/status/2037733678496067751
+            早すぎる抽象化:  #search: DDD import type
     オニオン アーキテクチャー:
         階層構造を円で表現するため、玉ねぎに見える。
         外） { UI, Infrastructure, Test } => Application Service => Domain Service => Domain Model　（内
@@ -243,7 +302,7 @@
             ステータスレビュー: 進捗
         #ref: https://qiita.com/mima_ita/items/c3490ad1ccc12ad853f1
 アルゴリズム: #keyword:  #// algorithm
-    排他制御: #keyword:
+    排他制御: #keyword:  #// Exclusive control または Mutual exclusion
         TOCTOU 競合: #keyword:
             ロックファイルをチェックした後にロックファイルを作るとその隙に割り込まれること
     バックトラック法: #keyword:
@@ -258,7 +317,15 @@
             M0: 現実世界
         #ref: https://www.ogis-ri.co.jp/otc/hiroba/technical/Jouhoushori-UML/UML7.html
         #rer: https://www.itmedia.co.jp/im/articles/0802/19/news130.html
-    抽象クラス: #keyword: abstract class
+    スーパークラス, 抽象クラス: #keyword: abstract class,  super class,  スーパークラス
+        Protocol スーパークラス:
+            呼び出す側（関連するオブジェクト）の必要性によって、スーパークラスに追加します
+        Facade スーパークラス:
+            使う必要があるメソッドなどが増えたときは、スーパークラスも無条件に追加します
+        冗長 Facade スーパークラス:
+            所有親クラスが特に機能が無く、所有子クラスに委譲している構成は、所有関係が冗長です。
+            この構成をリファクタリングする前なら、所有親と所有子の両方を修正します。
+            修正前に動作確認をします。たとえば、メソッドを追加しないで、flushCache を毎回実行させるなど
     具象クラス: #keyword: concrete class
     派生属性: #keyword: derived attribute
         JavaScript >> computed, 算出プロパティ:  #search: JavaScript computed property
@@ -266,6 +333,7 @@
         delegate (method pointer): メソッドとオブジェクトをまとめたオブジェクト
         delegate (Delegation pattern, forwarding): 所有子の同じ名前のメソッドを呼び出すこと
     GUID, UUID: #keyword:
+        書式: 12345678-ab34-12cd-abcd-123456789012   #// 8-4-4-4-12 文字
         uuidgen:  #// Linux コマンド。UUID を生成します。Git bash では使えません
         ReplaceUUID (bashlib):  #search: ReplaceUUID
 デザイン パターン:  #keyword: design pattern
@@ -310,6 +378,9 @@
                         save を呼ぶ
                         print を呼ぶ
                     を普通に書けばよいからです。
+            #↓ 関連
+            トランザクション:  #search: transaction
+            Unit of Work: #search:
         Chain of Responsibility パターン: #keyword:
             解説:  #ref: https://refactoring.guru/ja/design-patterns/chain-of-responsibility
             不要なケース:  #// 関数コールで十分なケース
@@ -327,6 +398,9 @@
             概要: 大きなプログラムを使って処理を行う場合、 関係しあっているたくさんのクラスを適切に制御しなくてはいけません。
                 その処理を行うための「窓口」を用意しておくと、 個別にたくさんのクラスを制御しなくても、「窓口」に対して、要求するだけですみます。
                 サブシステムを１つのクラスとみなし、構成するクラスによる分類の否定に相当します。
+            Facade インターフェース:
+                窓口の実装はインターフェースが適しています。
+                ドキュメントやコメントだけで十分なこともよくあります。
             注意: #search: 過剰設計
                 Facade は構造体ではなく、オリジナルの computed プロパティ（getter＋メモ化）にすること。そうしないとデータのソースがどこにあるのかかなり分かりにくくなります。
                 追加の情報が欲しいときに、Facade も変更しなければならなくなってしまいます。
@@ -616,6 +690,10 @@
                     たとえば、同じインデックスに対して異なるオブジェクトに置き換えないようにします。
                     どこからでも（グローバルに）参照できるようにします。
                     #ref: ${typrm_files}/Qiita下書き/29_GlobalThisJS/29_GlobalThisJS.md#イミュータブル データ モデリング
+        マジック ナンバー: #keyword:
+            _: マジックナンバーを避けるために謎のシンボルを作るのは良くない
+            良い: ドメイン、アプリ内の役割、型
+            悪い: 抽象概念
     関数: #keyword:
         式渡し: |  #ref: https://x.com/Ts_Neko/status/1705382952455258286
             関数の引数に式を書かないのは和訳コメントぐらい余計だよな。
@@ -814,7 +892,7 @@
             runAtScheduledTime  #keyword: runAtScheduledTime
             #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: runAtScheduledTime
         Go 言語: #search: Go coding style
-        Pyhon PEP8:  #ref: https://pep8-ja.readthedocs.io/ja/latest/
+        Pyhon PEP8:  #keyword: PEP 8  #ref: https://pep8-ja.readthedocs.io/ja/latest/
             一貫性を崩すべき場合がある:
             一貫性の無さのサンプル: |
                 def complex(real, imag=0.0):
@@ -1563,6 +1641,8 @@
     ガード節:  #keyword: ガード節, Guard
         #ref: https://en.wikipedia.org/wiki/Guard_(computer_science)
         #ref: https://ja.wikipedia.org/wiki/ガード_(プログラミング)
+        Swift:  #search: Swift guard
+        JavaScript:  #search: JavaScript guard
     例外処理: #keyword: 例外処理, 例外
         必要性 >> アプリケーションの場合:
             復帰させる:

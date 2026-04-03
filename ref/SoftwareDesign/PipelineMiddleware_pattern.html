@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline/Middleware パターン概要図</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pipeline/Middleware パターン概要図</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #4CAF50;"></div>
+                <span>前処理（リクエスト）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #2196F3;"></div>
+                <span>後処理（レスポンス）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background-color: #FF9800;"></div>
+                <span>最終ハンドラー</span>
+            </div>
+        </div>
+
+        <svg viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+            <!-- 定義セクション -->
+            <defs>
+                <!-- 矢印マーカー（緑：前処理） -->
+                <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L0,6 L9,3 z" fill="#4CAF50" />
+                </marker>
+                <!-- 矢印マーカー（青：後処理） -->
+                <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L0,6 L9,3 z" fill="#2196F3" />
+                </marker>
+            </defs>
+
+            <!-- タイトル -->
+            <text x="500" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">
+                すべてのミドルウェアを通過する
+            </text>
+
+            <!-- リクエスト入力 -->
+            <rect x="20" y="180" width="100" height="60" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+            <text x="70" y="205" text-anchor="middle" font-size="14" font-weight="bold" fill="#2E7D32">Request</text>
+            <text x="70" y="225" text-anchor="middle" font-size="12" fill="#555">リクエスト</text>
+
+            <!-- ミドルウェア1: 認証 -->
+            <g id="middleware1">
+                <rect x="180" y="80" width="120" height="50" fill="#C8E6C9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+                <text x="240" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#2E7D32">前処理</text>
+                <text x="240" y="118" text-anchor="middle" font-size="12" fill="#555">認証チェック</text>
+                
+                <rect x="180" y="290" width="120" height="50" fill="#BBDEFB" stroke="#2196F3" stroke-width="2" rx="5"/>
+                <text x="240" y="310" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565C0">後処理</text>
+                <text x="240" y="328" text-anchor="middle" font-size="12" fill="#555">トークン追加</text>
+            </g>
+
+            <!-- ミドルウェア2: ログ記録 -->
+            <g id="middleware2">
+                <rect x="360" y="80" width="120" height="50" fill="#C8E6C9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+                <text x="420" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#2E7D32">前処理</text>
+                <text x="420" y="118" text-anchor="middle" font-size="12" fill="#555">ログ記録</text>
+                
+                <rect x="360" y="290" width="120" height="50" fill="#BBDEFB" stroke="#2196F3" stroke-width="2" rx="5"/>
+                <text x="420" y="310" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565C0">後処理</text>
+                <text x="420" y="328" text-anchor="middle" font-size="12" fill="#555">実行時間記録</text>
+            </g>
+
+            <!-- ミドルウェア3: バリデーション -->
+            <g id="middleware3">
+                <rect x="540" y="80" width="120" height="50" fill="#C8E6C9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+                <text x="600" y="100" text-anchor="middle" font-size="13" font-weight="bold" fill="#2E7D32">前処理</text>
+                <text x="600" y="118" text-anchor="middle" font-size="12" fill="#555">データ検証</text>
+                
+                <rect x="540" y="290" width="120" height="50" fill="#BBDEFB" stroke="#2196F3" stroke-width="2" rx="5"/>
+                <text x="600" y="310" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565C0">後処理</text>
+                <text x="600" y="328" text-anchor="middle" font-size="12" fill="#555">結果整形</text>
+            </g>
+
+            <!-- 最終ハンドラー -->
+            <g id="finalHandler">
+                <rect x="740" y="160" width="140" height="100" fill="#FFE0B2" stroke="#FF9800" stroke-width="3" rx="5"/>
+                <text x="810" y="190" text-anchor="middle" font-size="14" font-weight="bold" fill="#E65100">最終ハンドラー</text>
+                <text x="810" y="210" text-anchor="middle" font-size="12" fill="#555">ビジネス</text>
+                <text x="810" y="228" text-anchor="middle" font-size="12" fill="#555">ロジック実行</text>
+                <text x="810" y="246" text-anchor="middle" font-size="12" fill="#555">データ処理</text>
+            </g>
+
+            <!-- レスポンス出力 -->
+            <rect x="720" y="280" width="100" height="60" fill="#E3F2FD" stroke="#2196F3" stroke-width="2" rx="5"/>
+            <text x="770" y="305" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565C0">Response</text>
+            <text x="770" y="325" text-anchor="middle" font-size="12" fill="#555">レスポンス</text>
+
+            <!-- 前処理の流れ（緑の矢印） -->
+            <line x1="120" y1="210" x2="180" y2="105" stroke="#4CAF50" stroke-width="3" marker-end="url(#arrowGreen)"/>
+            <line x1="300" y1="105" x2="360" y2="105" stroke="#4CAF50" stroke-width="3" marker-end="url(#arrowGreen)"/>
+            <line x1="480" y1="105" x2="540" y2="105" stroke="#4CAF50" stroke-width="3" marker-end="url(#arrowGreen)"/>
+            <line x1="660" y1="105" x2="740" y2="180" stroke="#4CAF50" stroke-width="3" marker-end="url(#arrowGreen)"/>
+
+            <!-- 後処理の流れ（青の矢印） -->
+            <line x1="740" y1="240" x2="660" y2="315" stroke="#2196F3" stroke-width="3" marker-end="url(#arrowBlue)"/>
+            <line x1="540" y1="315" x2="480" y2="315" stroke="#2196F3" stroke-width="3" marker-end="url(#arrowBlue)"/>
+            <line x1="360" y1="315" x2="300" y2="315" stroke="#2196F3" stroke-width="3" marker-end="url(#arrowBlue)"/>
+            <line x1="180" y1="315" x2="120" y2="210" stroke="#2196F3" stroke-width="3" marker-end="url(#arrowBlue)"/>
+
+            <!-- ミドルウェア内の縦の流れ -->
+            <line x1="240" y1="130" x2="240" y2="290" stroke="#999" stroke-width="2" stroke-dasharray="5,5"/>
+            <line x1="420" y1="130" x2="420" y2="290" stroke="#999" stroke-width="2" stroke-dasharray="5,5"/>
+            <line x1="600" y1="130" x2="600" y2="290" stroke="#999" stroke-width="2" stroke-dasharray="5,5"/>
+
+            <!-- ラベル -->
+            <text x="240" y="200" text-anchor="middle" font-size="11" fill="#666">next_() 呼び出し</text>
+            <text x="420" y="200" text-anchor="middle" font-size="11" fill="#666">next_() 呼び出し</text>
+            <text x="600" y="200" text-anchor="middle" font-size="11" fill="#666">next_() 呼び出し</text>
+
+            <!-- 処理フェーズラベル -->
+            <text x="500" y="60" text-anchor="middle" font-size="16" font-weight="bold" fill="#4CAF50">
+                ① 前処理フェーズ（リクエスト処理）
+            </text>
+            <text x="500" y="380" text-anchor="middle" font-size="16" font-weight="bold" fill="#2196F3">
+                ② 後処理フェーズ（レスポンス加工）
+            </text>
+
+            <!-- 順序の番号 -->
+            <circle cx="150" cy="155" r="18" fill="#4CAF50" opacity="0.8"/>
+            <text x="150" y="162" text-anchor="middle" font-size="14" font-weight="bold" fill="white">1</text>
+
+            <circle cx="240" cy="65" r="18" fill="#4CAF50" opacity="0.8"/>
+            <text x="240" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="white">2</text>
+
+            <circle cx="420" cy="65" r="18" fill="#4CAF50" opacity="0.8"/>
+            <text x="420" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="white">3</text>
+
+            <circle cx="600" cy="65" r="18" fill="#4CAF50" opacity="0.8"/>
+            <text x="600" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="white">4</text>
+
+            <circle cx="810" cy="145" r="18" fill="#FF9800" opacity="0.8"/>
+            <text x="810" y="152" text-anchor="middle" font-size="14" font-weight="bold" fill="white">5</text>
+
+            <circle cx="600" cy="355" r="18" fill="#2196F3" opacity="0.8"/>
+            <text x="600" y="362" text-anchor="middle" font-size="14" font-weight="bold" fill="white">6</text>
+
+            <circle cx="420" cy="355" r="18" fill="#2196F3" opacity="0.8"/>
+            <text x="420" y="362" text-anchor="middle" font-size="14" font-weight="bold" fill="white">7</text>
+
+            <circle cx="240" cy="355" r="18" fill="#2196F3" opacity="0.8"/>
+            <text x="240" y="362" text-anchor="middle" font-size="14" font-weight="bold" fill="white">8</text>
+
+            <circle cx="150" cy="265" r="18" fill="#2196F3" opacity="0.8"/>
+            <text x="150" y="272" text-anchor="middle" font-size="14" font-weight="bold" fill="white">9</text>
+
+            <!-- 説明テキスト -->
+            <text x="500" y="420" text-anchor="middle" font-size="13" fill="#666">
+                ※ すべてのミドルウェアが前処理と後処理の両方を実行する
+            </text>
+            <text x="500" y="440" text-anchor="middle" font-size="13" fill="#666">
+                ※ next_() を明示的に呼び出して次のミドルウェアに制御を渡す
+            </text>
+
+            <!-- フロー説明ボックス -->
+            <g id="flowExplanation">
+                <rect x="50" y="480" width="900" height="100" fill="#F5F5F5" stroke="#999" stroke-width="1" rx="5"/>
+                <text x="500" y="505" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">
+                    実行の流れ
+                </text>
+                <text x="70" y="530" font-size="12" fill="#555">
+                    1. リクエストが入る → 2-4. 各ミドルウェアで前処理 → 5. 最終ハンドラーで処理
+                </text>
+                <text x="70" y="550" font-size="12" fill="#555">
+                    → 6-8. 逆順で各ミドルウェアの後処理 → 9. レスポンスを返す
+                </text>
+                <text x="70" y="570" font-size="12" fill="#E65100" font-weight="bold">
+                    ⚠️ どれか1つのミドルウェアで next_() を呼ばないと、チェーンが途中で止まる
+                </text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>

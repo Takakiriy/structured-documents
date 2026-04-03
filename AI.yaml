@@ -88,6 +88,7 @@
                     GeoGebra: #keyword:  #// ジオジェブラ  #ref: https://www.geogebra.org/graphing
             保存します:  #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
         Markdown の表:  #keyword: AI save table  #search: save AI markdown
+            #snip: ____ の表を markdowm で書いてください。ただし、縦線 | は縦に揃うようにしてください。
         ChatGPT の会話の概要の保存:  #// Markdown
             （関連）>> 図解の保存:  #search: AI HTML SVG
             プロンプト: #keyword: save AI markdown

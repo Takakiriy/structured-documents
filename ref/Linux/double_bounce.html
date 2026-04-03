@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>メール ダブルバウンス 解説</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #0d0d0f;
+  color: #e8e6e0;
+  min-width: 900px;
+  padding: 48px 40px 80px;
+}
+
+.page-title {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #f5f3ee;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 17px;
+  font-weight: 400;
+  color: #888;
+  margin-bottom: 52px;
+  letter-spacing: 0.02em;
+}
+
+.section {
+  margin-bottom: 56px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 18px;
+  padding-left: 2px;
+}
+
+.section-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f0ede6;
+  margin-bottom: 28px;
+  letter-spacing: -0.3px;
+}
+
+/* ── 用語グリッド ── */
+.term-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.term-card {
+  border-radius: 12px;
+  padding: 26px 28px;
+  border: 1.5px solid transparent;
+}
+
+.term-card.mx  { background: #0e1e36; border-color: #1a4070; }
+.term-card.mta { background: #0a2220; border-color: #0f4a40; }
+.term-card.dsn { background: #2a1f08; border-color: #5a3c0a; }
+.term-card.ndr { background: #251510; border-color: #5a2a18; }
+
+.term-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-bottom: 14px;
+}
+
+.mx  .term-badge { background: #1a4070; color: #7ab8f5; }
+.mta .term-badge { background: #0f4a40; color: #5de0b5; }
+.dsn .term-badge { background: #5a3c0a; color: #f5c060; }
+.ndr .term-badge { background: #5a2a18; color: #f5926a; }
+
+.term-name {
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #f0ede6;
+}
+
+.term-full {
+  font-size: 13px;
+  font-weight: 400;
+  color: #888;
+  margin-bottom: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.term-desc {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #b8b4ac;
+}
+
+/* ── SVG コンテナ ── */
+.diagram-wrap {
+  background: #111115;
+  border: 1.5px solid #222228;
+  border-radius: 16px;
+  padding: 36px 32px;
+  overflow-x: auto;
+}
+
+.diagram-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 24px;
+  letter-spacing: 0.05em;
+}
+
+svg text { font-family: 'Noto Sans JP', sans-serif; }
+
+/* ── SVG ノードクラス ── */
+.node-box { stroke-width: 1.5; rx: 10; }
+
+/* 送信者・受信者 */
+.n-person { fill: #0e1e36; stroke: #2a5a9a; }
+.n-person-text { fill: #7ab8f5; font-size: 15px; font-weight: 700; }
+.n-person-sub  { fill: #3a6a9a; font-size: 12px; font-weight: 400; }
+
+/* MTA */
+.n-mta { fill: #0a2220; stroke: #0f5a48; }
+.n-mta-text { fill: #5de0b5; font-size: 15px; font-weight: 700; }
+.n-mta-sub  { fill: #3a7060; font-size: 12px; font-weight: 400; }
+
+/* エラー */
+.n-err { fill: #200a0a; stroke: #6a1a1a; }
+.n-err-text { fill: #f07070; font-size: 15px; font-weight: 700; }
+.n-err-sub  { fill: #883030; font-size: 12px; font-weight: 400; }
+
+/* バウンス */
+.n-bounce { fill: #241606; stroke: #6a3a08; }
+.n-bounce-text { fill: #f5a830; font-size: 15px; font-weight: 700; }
+.n-bounce-sub  { fill: #8a5a18; font-size: 12px; font-weight: 400; }
+
+/* Return-Path */
+.n-return { fill: #1a100a; stroke: #5a2a18; }
+.n-return-text { fill: #f5926a; font-size: 15px; font-weight: 700; }
+.n-return-sub  { fill: #783820; font-size: 12px; font-weight: 400; }
+
+/* ダブルバウンス */
+.n-double { fill: #200a0a; stroke: #8a1010; }
+.n-double-text { fill: #ff5555; font-size: 15px; font-weight: 700; }
+.n-double-sub  { fill: #883030; font-size: 12px; font-weight: 400; }
+
+/* 破棄 */
+.n-discard { fill: #141414; stroke: #3a3a3a; }
+.n-discard-text { fill: #777; font-size: 15px; font-weight: 700; }
+.n-discard-sub  { fill: #444; font-size: 12px; font-weight: 400; }
+
+/* 矢印 */
+.arr-normal  { stroke: #3a7060; stroke-width: 2; fill: none; }
+.arr-err     { stroke: #883030; stroke-width: 2; fill: none; }
+.arr-bounce  { stroke: #8a5a18; stroke-width: 2; fill: none; }
+.arr-return  { stroke: #783820; stroke-width: 2; fill: none; }
+.arr-double  { stroke: #8a1010; stroke-width: 2; fill: none; }
+.arr-discard { stroke: #3a3a3a; stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+
+.arr-label { font-size: 12px; font-weight: 700; fill: #666; }
+
+/* 凡例 */
+.legend-row { display: flex; gap: 28px; margin-top: 24px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+.legend-text { font-size: 13px; color: #666; }
+
+/* ── 説明テキスト ── */
+.explain-box {
+  background: #111115;
+  border: 1.5px solid #222228;
+  border-left: 4px solid #2a5a9a;
+  border-radius: 0 12px 12px 0;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.explain-box.warn { border-left-color: #8a1010; }
+.explain-box.amber { border-left-color: #6a3a08; }
+
+.explain-step {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.explain-text {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #c0bcb4;
+}
+
+.highlight { color: #f5a830; font-weight: 700; }
+.highlight-red { color: #f07070; font-weight: 700; }
+.highlight-blue { color: #7ab8f5; font-weight: 700; }
+.code { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: #1a1a20; padding: 2px 7px; border-radius: 4px; color: #f5926a; }
+
+/* ── 用語の関係図 ── */
+.relation-wrap {
+  background: #111115;
+  border: 1.5px solid #222228;
+  border-radius: 16px;
+  padding: 36px 32px;
+}
+
+/* ── フッター ── */
+.footer {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid #222;
+  font-size: 13px;
+  color: #444;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<h1 class="page-title">メール ダブルバウンス</h1>
+<p class="page-subtitle">配送エラー通知がさらにエラーになる現象の仕組み</p>
+
+<!-- ── 3. ダブルバウンスの流れ ── -->
+<section class="section">
+  <div class="section-label">ダブルバウンスの発生フロー</div>
+
+  <div class="diagram-wrap">
+    <svg width="820" height="520" viewBox="0 0 820 520">
+      <defs>
+        <marker id="mn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#3a7060" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="me" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#883030" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="mb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#8a5a18" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="mr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#783820" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="md" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#8a1010" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="mq" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#3a3a3a" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+      </defs>
+
+      <!-- ===== Row 1: 通常送信フロー ===== -->
+      <!-- 送信者 -->
+      <rect x="20" y="30" width="160" height="64" rx="10" class="node-box n-person"/>
+      <text x="100" y="56" text-anchor="middle" class="n-person-text">送信者</text>
+      <text x="100" y="76" text-anchor="middle" class="n-person-sub">sender@a.com</text>
+
+      <!-- → 送信側MTA -->
+      <line x1="180" y1="62" x2="226" y2="62" stroke="#3a7060" stroke-width="2" marker-end="url(#mn)"/>
+      <text x="203" y="54" text-anchor="middle" class="arr-label">送信</text>
+
+      <!-- 送信側MTA -->
+      <rect x="226" y="30" width="180" height="64" rx="10" class="node-box n-mta"/>
+      <text x="316" y="56" text-anchor="middle" class="n-mta-text">送信側 MTA</text>
+      <text x="316" y="76" text-anchor="middle" class="n-mta-sub">MX レコードを参照</text>
+
+      <!-- → 受信側MTA -->
+      <line x1="406" y1="62" x2="452" y2="62" stroke="#3a7060" stroke-width="2" marker-end="url(#mn)"/>
+      <text x="429" y="54" text-anchor="middle" class="arr-label">配信</text>
+
+      <!-- 受信側MTA -->
+      <rect x="452" y="30" width="180" height="64" rx="10" class="node-box n-mta"/>
+      <text x="542" y="56" text-anchor="middle" class="n-mta-text">受信側 MTA</text>
+      <text x="542" y="76" text-anchor="middle" class="n-mta-sub">b.com のサーバー</text>
+
+      <!-- ===== Row 2: アドレス不明 ===== -->
+      <!-- ↓ 受信側MTAから宛先不明へ -->
+      <line x1="542" y1="94" x2="542" y2="148" stroke="#883030" stroke-width="2" marker-end="url(#me)"/>
+      <text x="564" y="128" class="arr-label">確認</text>
+
+      <!-- 宛先不明 -->
+      <rect x="452" y="148" width="180" height="64" rx="10" class="node-box n-err"/>
+      <text x="542" y="174" text-anchor="middle" class="n-err-text">宛先不明</text>
+      <text x="542" y="194" text-anchor="middle" class="n-err-sub">unknown@b.com</text>
+
+      <!-- ↓ バウンス生成へ -->
+      <line x1="542" y1="212" x2="542" y2="266" stroke="#8a5a18" stroke-width="2" marker-end="url(#mb)"/>
+      <text x="564" y="246" class="arr-label">NDR作成</text>
+
+      <!-- ===== Row 3: バウンス生成 ===== -->
+      <!-- バウンス生成 -->
+      <rect x="452" y="266" width="180" height="64" rx="10" class="node-box n-bounce"/>
+      <text x="542" y="292" text-anchor="middle" class="n-bounce-text">DSN / NDR 生成</text>
+      <text x="542" y="312" text-anchor="middle" class="n-bounce-sub">バウンスメール作成</text>
+
+      <!-- ← Return-Path へ (1st bounce) -->
+      <line x1="452" y1="298" x2="406" y2="298" stroke="#8a5a18" stroke-width="2" marker-end="url(#mb)"/>
+      <text x="429" y="290" text-anchor="middle" class="arr-label">1st bounce</text>
+
+      <!-- Return-Path ボックス -->
+      <rect x="226" y="266" width="180" height="64" rx="10" class="node-box n-return"/>
+      <text x="316" y="292" text-anchor="middle" class="n-return-text">Return-Path 宛先</text>
+      <text x="316" y="312" text-anchor="middle" class="n-return-sub">no-reply@a.com（無効）</text>
+
+      <!-- Return-Pathの補足 -->
+      <rect x="20" y="266" width="180" height="64" rx="10" fill="#1a0e08" stroke="#4a2a10" stroke-width="1.5" rx="10"/>
+      <text x="110" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#a06030">Return-Path とは</text>
+      <text x="110" y="310" text-anchor="middle" font-size="11" fill="#6a4020">バウンス通知の返送先を</text>
+      <text x="110" y="325" text-anchor="middle" font-size="11" fill="#6a4020">指定するメールヘッダー</text>
+
+      <line x1="200" y1="298" x2="224" y2="298" stroke="#4a2a10" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+      <!-- ===== Row 4: ダブルバウンス ===== -->
+      <!-- ↓ Return-Path も無効 -->
+      <line x1="316" y1="330" x2="316" y2="384" stroke="#8a1010" stroke-width="2" marker-end="url(#md)"/>
+      <text x="338" y="364" class="arr-label" fill="#883030">Return-Path</text>
+      <text x="338" y="378" class="arr-label" fill="#883030">も無効</text>
+
+      <!-- ダブルバウンス -->
+      <rect x="226" y="384" width="180" height="64" rx="10" class="node-box n-double"/>
+      <text x="316" y="410" text-anchor="middle" class="n-double-text">ダブルバウンス</text>
+      <text x="316" y="430" text-anchor="middle" class="n-double-sub">2nd bounce 発生</text>
+
+      <!-- → 破棄 -->
+      <line x1="226" y1="416" x2="192" y2="416" stroke="#3a3a3a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#mq)"/>
+      <text x="209" y="408" text-anchor="middle" class="arr-label">RFC規定</text>
+
+      <!-- 破棄 -->
+      <rect x="20" y="384" width="172" height="64" rx="10" class="node-box n-discard"/>
+      <text x="106" y="410" text-anchor="middle" class="n-discard-text">破棄（消失）</text>
+      <text x="106" y="430" text-anchor="middle" class="n-discard-sub">誰にも通知されない</text>
+
+      <!-- ===== ステップ番号 ===== -->
+      <circle cx="50" cy="20" r="14" fill="#0a2220" stroke="#0f5a48" stroke-width="1.5"/>
+      <text x="50" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#5de0b5">1</text>
+      <text x="68" y="25" font-size="13" font-weight="700" fill="#3a5a50">通常の送信フロー</text>
+
+      <circle cx="470" cy="138" r="14" fill="#200a0a" stroke="#6a1a1a" stroke-width="1.5"/>
+      <text x="470" y="143" text-anchor="middle" font-size="13" font-weight="700" fill="#f07070">2</text>
+      <text x="488" y="143" font-size="13" font-weight="700" fill="#5a2a2a">アドレス不在を検出</text>
+
+      <circle cx="470" cy="256" r="14" fill="#241606" stroke="#6a3a08" stroke-width="1.5"/>
+      <text x="470" y="261" text-anchor="middle" font-size="13" font-weight="700" fill="#f5a830">3</text>
+      <text x="488" y="261" font-size="13" font-weight="700" fill="#5a3a18">1st バウンス（NDR）送信</text>
+
+      <circle cx="244" cy="374" r="14" fill="#200a0a" stroke="#8a1010" stroke-width="1.5"/>
+      <text x="244" y="379" text-anchor="middle" font-size="13" font-weight="700" fill="#ff5555">4</text>
+      <text x="262" y="379" font-size="13" font-weight="700" fill="#6a1a1a">2nd バウンス → 破棄</text>
+
+    </svg>
+  </div>
+
+  <!-- 凡例 -->
+  <div class="legend-row">
+    <div class="legend-item"><div class="legend-dot" style="background:#3a7060;"></div><span class="legend-text">正常な配送</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#883030;"></div><span class="legend-text">配送エラー検出</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8a5a18;"></div><span class="legend-text">1st バウンス処理</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8a1010;"></div><span class="legend-text">ダブルバウンス発生</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3a3a3a;"></div><span class="legend-text">破棄（RFC規定）</span></div>
+  </div>
+</section>
+
+<!-- ── 4. 各ステップ解説 ── -->
+<section class="section">
+  <div class="section-label">各ステップの詳細</div>
+
+  <div class="explain-box">
+    <div class="explain-step">STEP 1 — 通常の送信フロー</div>
+    <div class="explain-text">
+      送信者がメールを送ると、<span class="highlight-blue">送信側 MTA</span> は DNS に問い合わせて宛先ドメインの <span class="highlight-blue">MX レコード</span>を取得し、<span class="highlight-blue">受信側 MTA</span> に SMTP で配送します。
+    </div>
+  </div>
+
+  <div class="explain-box warn">
+    <div class="explain-step">STEP 2 — アドレス不在を検出</div>
+    <div class="explain-text">
+      受信側 MTA が宛先アドレス（例：<span class="code">unknown@b.com</span>）を確認すると、そのアドレスが存在しないことがわかります。受信側 MTA はエラーを返し、<span class="highlight-red">NDR（Non-Delivery Report）</span> の生成が始まります。
+    </div>
+  </div>
+
+  <div class="explain-box amber">
+    <div class="explain-step">STEP 3 — 1st バウンス（DSN / NDR）送信</div>
+    <div class="explain-text">
+      受信側 MTA は <span class="highlight">DSN</span> に従ったバウンスメールを生成し、元のメールの <span class="code">Return-Path</span> ヘッダーに設定されたアドレス宛に返送します。このアドレスは通常、<span class="code">no-reply@a.com</span> などのシステムアドレスか、場合によっては空（<span class="code">&lt;&gt;</span>）です。
+    </div>
+  </div>
+
+  <div class="explain-box warn">
+    <div class="explain-step">STEP 4 — ダブルバウンス発生 → 破棄</div>
+    <div class="explain-text">
+      <span class="code">Return-Path</span> のアドレスも無効だった場合、そのバウンスメールを届けようとするとさらにエラーが発生します。これが<span class="highlight-red">ダブルバウンス</span>です。RFC の仕様では、エンベロープ送信者が空（<span class="code">&lt;&gt;</span>）のメールにはバウンス通知を送ってはならないと定められており、このメールは<span class="highlight-red">黙って破棄</span>されます。誰にも通知されず、問題の追跡が困難になります。
+    </div>
+  </div>
+</section>
+
+<!-- ── 1. 用語解説 ── -->
+<section class="section">
+  <div class="section-label">用語解説</div>
+  <div class="term-grid">
+
+    <div class="term-card mx">
+      <div class="term-badge">MX</div>
+      <div class="term-name">Mail Exchanger レコード</div>
+      <div class="term-full">DNS MX record</div>
+      <div class="term-desc">
+        DNS に登録された情報で、「このドメイン宛のメールをどのサーバーが受け取るか」を指定します。メール送信時、送信側 MTA はまずこの MX レコードを DNS に問い合わせて配送先サーバーを決定します。
+      </div>
+    </div>
+
+    <div class="term-card mta">
+      <div class="term-badge">MTA</div>
+      <div class="term-name">Mail Transfer Agent</div>
+      <div class="term-full">メール転送エージェント</div>
+      <div class="term-desc">
+        メールを実際に転送・配送するサーバーソフトウェア。Postfix / Sendmail / Microsoft Exchange などが代表例。送信側と受信側の両方に存在し、MX レコードを参照して次のホップへメールを届けます。
+      </div>
+    </div>
+
+    <div class="term-card dsn">
+      <div class="term-badge">DSN</div>
+      <div class="term-name">Delivery Status Notification</div>
+      <div class="term-full">配送状態通知（RFC 3464）</div>
+      <div class="term-desc">
+        配送状態を通知する仕組みの総称。成功・遅延・失敗の3種類があります。バウンスメール本文の標準フォーマットそのものを指し、<code class="code">Return-Path</code> に設定されたアドレス宛に送られます。
+      </div>
+    </div>
+
+    <div class="term-card ndr">
+      <div class="term-badge">NDR</div>
+      <div class="term-name">Non-Delivery Report</div>
+      <div class="term-full">配送失敗通知（DSN の一種）</div>
+      <div class="term-desc">
+        DSN のうち「配送失敗」に絞った通知の俗称。バウンスメール・エラーメールとも呼ばれ、特に Microsoft Exchange 環境でよく使われる用語です。DSN が上位概念、NDR はその失敗ケースにあたります。
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── 2. 用語の関係図 ── -->
+<section class="section">
+  <div class="section-label">用語の関係</div>
+  <div class="relation-wrap">
+    <svg width="820" height="130" viewBox="0 0 820 130">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#3a7060" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#8a5a18" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#2a5a9a" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+      </defs>
+
+      <!-- DNS/MX -->
+      <rect x="10" y="38" width="148" height="52" rx="10" class="node-box n-person"/>
+      <text x="84" y="59" text-anchor="middle" class="n-person-text">DNS / MX</text>
+      <text x="84" y="79" text-anchor="middle" class="n-person-sub">宛先サーバーを解決</text>
+
+      <line x1="158" y1="64" x2="196" y2="64" stroke="#3a7060" stroke-width="2" marker-end="url(#a1)"/>
+      <text x="177" y="56" text-anchor="middle" class="arr-label">参照</text>
+
+      <!-- 送信MTA -->
+      <rect x="196" y="38" width="148" height="52" rx="10" class="node-box n-mta"/>
+      <text x="270" y="59" text-anchor="middle" class="n-mta-text">送信 MTA</text>
+      <text x="270" y="79" text-anchor="middle" class="n-mta-sub">メールを配送</text>
+
+      <line x1="344" y1="64" x2="382" y2="64" stroke="#3a7060" stroke-width="2" marker-end="url(#a1)"/>
+      <text x="363" y="56" text-anchor="middle" class="arr-label">SMTP</text>
+
+      <!-- 受信MTA -->
+      <rect x="382" y="38" width="148" height="52" rx="10" class="node-box n-mta"/>
+      <text x="456" y="59" text-anchor="middle" class="n-mta-text">受信 MTA</text>
+      <text x="456" y="79" text-anchor="middle" class="n-mta-sub">アドレスを検証</text>
+
+      <line x1="530" y1="64" x2="568" y2="64" stroke="#8a5a18" stroke-width="2" marker-end="url(#a2)"/>
+      <text x="549" y="56" text-anchor="middle" class="arr-label">失敗時</text>
+
+      <!-- DSN/NDR -->
+      <rect x="568" y="38" width="148" height="52" rx="10" class="node-box n-bounce"/>
+      <text x="642" y="59" text-anchor="middle" class="n-bounce-text">DSN / NDR 生成</text>
+      <text x="642" y="79" text-anchor="middle" class="n-bounce-sub">バウンスメール作成</text>
+
+      <line x1="716" y1="64" x2="754" y2="64" stroke="#2a5a9a" stroke-width="2" marker-end="url(#a3)"/>
+      <text x="735" y="56" text-anchor="middle" class="arr-label">返送</text>
+
+      <!-- Return-Path -->
+      <rect x="754" y="38" width="58" height="52" rx="10" class="node-box n-return"/>
+      <text x="783" y="57" text-anchor="middle" class="n-return-text" font-size="12">Return</text>
+      <text x="783" y="73" text-anchor="middle" class="n-return-text" font-size="12">-Path</text>
+      <text x="783" y="88" text-anchor="middle" class="n-return-sub">宛先</text>
+    </svg>
+  </div>
+</section>
+
+
+<div class="footer">
+  MX / MTA / DSN / NDR / ダブルバウンス 解説ページ &nbsp;|&nbsp; RFC 3464 準拠
+</div>
+
+</body>
+</html>

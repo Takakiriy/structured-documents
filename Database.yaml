@@ -21,6 +21,16 @@
     検索: #search: SQL SELECT
         最も大きい値をもつレコード: #search: SQL SELECT MAX
     追加: #search: SQL INSERT
+    ポーリング: #keyword: DB polling
+        間隔: 3〜5秒  #// 業務システムなど数秒の遅延が許容できる場合はこの程度が無難
+        負荷を下げる工夫:
+            - クライアントごとに自分のジョブIDだけを問い合わせる
+            - job_id と status にインデックスを貼る
+            - WHERE status = '処理中' に絞り、完了済みを除外する
+            - DB直叩きをやめてキャッシュで確認、または、キャッシュが更新されないのでキャッシュを使わない  #keyword: long polling cache
+                # const data = await db.query("SELECT * FROM events WHERE new = true");
+                #     ↓
+                # const data = await redis.lpop("events:queue");
 SQL文:  #keyword: SQL, SQL文
     参考 >> SQL Tutorial: #ref: https://www.w3schools.com/sql/default.asp  >> ブラウザーの検索機能で SQL のキーワードを検索
     標準SQL:
@@ -102,6 +112,22 @@ SQL文:  #keyword: SQL, SQL文
                             ...
                             ON DELETE CASCADE
                     ON UPDATE CASCADE: 連動して関連するテーブル内のレコードを更新します
+                必要条件:  #// 外部キーを作ったほうが良い条件
+                    整合性の強制:
+                        親レコードが存在しない子レコード（ゴミデータ）が作れないようにする
+                        処理途中にエラーが発生したときでも不整合が生じないようにする
+                    ON DELETE, 親データ削除時の連動設定（制約）:  #// 基本的に物理削除はしないことが多いので、あまり重要でないかもしれない
+                        CASCADE:  子も一緒に削除
+                        SET NULL: 親だけ削除。親を指す子のカラムは NULL にして子のレコードは残す
+                        RESTRICT: 子があるときは、親の削除禁止
+                    ON UPDATE, 親データ(ID)更新時の連動設定（制約）:  #// 基本的にキーの値は更新しないので、あまり重要でないかもしれない
+                        RESTRICT: エラーで更新できない
+                        CASCADE: customer_id が自動的に 100 に変わる
+                        SET NULL: customer_id が NULL になる
+                        SET DEFAULT: customer_id がデフォルト値になる
+                    外部キーを設定しないケース:
+                        パフォーマンス最優先
+                        分散・マイクロサービスのために外部キーを作れない
             複合主キー: #keyword: composite primary key  #// 2つのフィールドで一意に識別します
                 注意: 外部キーやAPIで利用する場合には適しません
                 SQLAlchemy によるサンプル: |  #focus: primary_key  #// primary_key=True を 2箇所に書くだけです
@@ -119,6 +145,27 @@ SQL文:  #keyword: SQL, SQL文
                 field1 と field2 の組み合わせが一意である場合、それを基に生成した一意の id を格納
         クエリ:  #search: SQL SELECT
         スキーマ:  #search: MySQL ALTER TABLE
+        トランザクション: #keyword: transaction
+            ライトの整合性:
+                複数の UPDATE などを実行するときに、一部のデータが更新された状態を作らないようにします
+            リードの整合性: #keyword: read transaction
+                複数の SELECT などを実行するときに、次の SELECT までの間にデータが変わらないようにして、整合性を保ちます
+                #search: next_transaction
+            Unit of Work: #keyword: Unit of Work,  UoW  #// アプリ層の話
+                トランザクションと Unit of Work の違い: #keyword: transaction vs Unit of Work
+                    アプリ層とデータベース層の違いです
+                    図  #ref: ${typrm_files}/ref/Database/Transaction_vs_Unit_of_Work.html
+                #↓ 参考
+                Martin Fowler:  #ref: https://martinfowler.com/eaaCatalog/unitOfWork.html
+                SQLAlchemy:  #ref: https://docs.sqlalchemy.org/en/20/glossary.html#term-unit-of-work
+                cosmicpython.com:  #ref: https://www.cosmicpython.com/book/chapter_06_uow.html
+                reddit:  #ref: https://www.reddit.com/r/dotnet/comments/17npjtx/unit_of_work_pattern_still_necessary_in_net_8/?tl=ja
+            Command パターン: #search:
+            SQLAlchemy:
+                データベース操作の一貫性を保つために、リードも含めたすべての操作をトランザクション内で行う設計になっています。
+        キャッシュ:
+            データが更新されないとき:
+                トランザクションの可能性があります  #search: transaction
         タイムゾーン:  #keyword: DB タイムゾーン
             MySQL:
                 タイムゾーン:
@@ -324,9 +371,10 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                                 /docker-entrypoint-initdb.d フォルダーの中の .sql ファイルを実行します:
         コピー, バックアップ: #keyword: MySQL back up
             コピーとバックアップの違い: | #keyword: MySQL コピーとバックアップの違い
-                -    | コピー        | バックアップ
-                ---- | ------------- | ------------------
-                GTID | コピーしない  | コピーする
+                    -    | コピー        | バックアップ
+                    ---- | ------------- | ------------------
+                    GTID | コピーしない  | コピーする
+                #// 商用版のバックアップが使えないときは、コピーでもバックアップ相当のことができます。上記の違いがあってもデータベースを作り直せばよいです
             mysqldump コマンド: #keyword: mysqldump,  mysqldump example  #// データを追加する SQL 文を出力します  #ref: https://dev.mysql.com/doc/refman/8.0/ja/mysqldump.html
                 データベースをコピーします:  #search: MySQL コピーとバックアップの違い
                     #ref: ${GitHub}/MyPrivateCode/docker/docker_centos7_mysql_copy/tasks.sh#// Back up and restore  #keyword: docker_centos7_mysql_copy
@@ -818,6 +866,10 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                     into: 無くてもいい？
                     __Column1__ の例: id, name, datetime
                     __Value1__ の例: 123, 'string', '2020-12-03 12:00:00', true
+                    timestamp 型の値: '2020-12-03 12:00:00'  #// 文字列リテラルを指定すれば、timestamp 型になります
+                    UUID:
+                        MySQL: BINARY(16)  #// mysql CLI では 0x____ 表記
+                        Python: uuid4() で生成される UUID 型。文字列型に変換すると 
                 #// ' の代わりに " も使えます。 シェルから実行するときの " や ' について  #search: run MySQL command
             UPDATE:  #keyword: SQL UPDATE
                 書式: update __Table__ set __UpdatingFieldName__ = '__NewValue__'  where  __SearchingFieldName__ = __KeyValue__;
@@ -853,6 +905,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
             集約関数: #keyword: SQL aggregate functions
                 COUNT(), MAX(), MIN(), SUM(), AVG()
             コピー: #search: copy MySQL table
+        値:  #search: SQL value
         スキーマ: #keyword: MySQL schema
             表示: desc __TableName__;
             型: #keyword: MySQL data type
@@ -2493,11 +2546,26 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
         操作: #keyword: SQLAlchemy CRUD  #// Create Read Update Delete
             テーブルを作ります:  #// スキーマを元に、データベースの中に作ります
                 Base.metadata.create_all(engine)
-            セッション (sessionmaker): |
-                from sqlalchemy.orm import sessionmaker
-                SessionClass = sessionmaker(engine)
+            セッション (sessionmaker):  #// DB接続、ORMオブジェクトの管理、トランザクション
+                基本: |
+                    from sqlalchemy.orm import sessionmaker
+                    SessionClass = sessionmaker(engine)
 
-                session = SessionClass()
+                    session = SessionClass()
+                autobegin:
+                    query などを実行すると自動的にトランザクションを開始します
+                commit: #keyword: SQLAlchemy commit
+                    トランザクションの正常終了
+                rollback:
+                    トランザクションの内容を破棄してトランザクションを終了します
+                refresh:  #search: SQLAlchemy refresh
+                next_transaction: #keyword: next_transaction  #// commit を含む DB アクセス層のメソッド（独自）
+                    _: アプリ層が、次のトランザクションに移らせます
+                    対象構成: |
+                        [アプリ層] → [DBアクセス層（sessionを持つ, commit を呼び出す）] → SQLAlchemy → MySQL
+                    参考:
+                        リードの整合性:  #search: read transaction
+                        Unit of Work との違い: #search: transaction vs Unit of Work
             Create (add):  #ref: ${GitHub}/MyPrivateCode/try_SQLAlchemy/s3_create.py#session.add
                 user_a = __TableClassName__(first_name="first_a", last_name="last_a", age=20)
                 session.add(user_a)
@@ -2545,6 +2613,11 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                 id: | #keyword: SQLAlchemy record ID  #ref: ${GitHub}/MyPrivateCode/try_SQLAlchemy/s4_CRUD.py#filter(User.id == 2)   #ref: https://zenn.dev/myuki/books/02fe236c7bc377/viewer/18c884
                     user2 = session.query(User).filter(User.id == 2).first()
                     print(user2.name, user2.address)
+                #↓ その他
+                refresh: #keyword: SQLAlchemy refresh  #// add した後でも commit する前に同じトランザクションでリードします
+                    - 同一トランザクション内での話
+                    - query と異なり、1オブジェクト（レコード）の指定が必要
+                    - DB側で自動設定された値（トリガー、デフォルト値、採番など）をオブジェクトに反映したいとき
             Update:  #ref: ${GitHub}/MyPrivateCode/try_SQLAlchemy/s4_CRUD.py:csv#user2.address =, session.commit()
                 user2 = session.query(User).filter(User.id == 2).first()
                 print(user2.name, user2.address)
@@ -2556,6 +2629,12 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                 session.commit()
             SQL 文, execute: | #keyword: SQLAlchemy execute
                 session.execute("SELECT * FROM users WHERE id = :id", {"id": 1})
+    トラブルシューティング:
+        エラー, NoForeignKeysError:
+            ログ: |
+                sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between parent/child tables on relationship __ParentTableClass__.__ChildColumnName__ - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.
+            対処:
+                子テーブルの SqlAlchemy.Table のカラムに SqlAlchemy.ForeignKey を書いてください
     参考: #ref: https://qiita.com/ariku/items/75799665acd09520bed2
 Flyway: #keyword: Flyway, .sql file  #// マイグレーション。データベースの バージョン コントロール
     公式: #// https://flywaydb.org/
@@ -2828,6 +2907,23 @@ Flyway: #keyword: Flyway, .sql file  #// マイグレーション。データベ
                         #ref: https://flywaydb.org/documentation/concepts/migrations.html#schema-creation
     コマンド (Flyway): #keyword: flyway command  #glossary:
         flyway info:  #// 現在の状態、Pending状態などを表示します
+            CLI で flyway を実行します: | #keyword: flyway CLI
+                export FLYWAY_USER="admin"
+                read -s -p "Enter password: "  FLYWAY_PASSWORD
+                export FLYWAY_PASSWORD="${FLYWAY_PASSWORD}"
+                FlyWayLocationsPath="/var/tmp/mysql-schema-migration"
+                export FLYWAY_LOCATIONS="filesystem:${FlyWayLocationsPath}"  #// flyway を実行するホストの中の .sql ファイルがあるパス  #ref: https://documentation.red-gate.com/fd/flyway-locations-setting-277579008.html
+                export FLYWAY_TARGET="4.3"  #// 2.0 など  #ref: https://documentation.red-gate.com/fd/flyway-target-setting-277579044.html
+
+                DataBaseName="__Name__"
+                export FLYWAY_URL="jdbc:mysql://__MySQLServer__/${DataBaseName}"
+                rm  "${FlyWayLocationsPath}/"*
+                mkdir -p  "${FlyWayLocationsPath}"
+                cp ./sql/migrations/${DataBaseName}/*  "${FlyWayLocationsPath}"
+                ls  "${FlyWayLocationsPath}"
+
+                /opt/flyway/flyway -X info
+                    #// State が Future と表示される場合、FlyWayLocationsPath に .sql ファイルがあることを確認してください
             Pending 状態の表示例: #search: Flyway panding
         flyway migrate:  #// DB のスキーマの更新など、.sql ファイルの内容を実行します
             書式: flyway migrate
@@ -2835,10 +2931,7 @@ Flyway: #keyword: Flyway, .sql file  #// マイグレーション。データベ
             -skipExecutingMigrations オプション:  #// 実行しないでベースラインを最新にします
                 コマンド例: flyway -skipExecutingMigrations="true" migrate
                 公式: https://flywaydb.org/documentation/configuration/parameters/skipExecutingMigrations
-            flyway_schema_history テーブル:  #keyword:
-                flyway migrate を実行すると、MySQL などの中のそれぞれのデータベースに
-                管理用の flyway_schema_history テーブルが作られます。
-                データベースを削除(drop database)すると、flyway_schema_history テーブルも削除されます。
+            #// flyway_schema_history テーブルが更新されます  #search: flyway_schema_history
             関連 >> アンドゥ:  #search: flyway undo
         flyway validate:  #// ローカルのマイグレーションファイルが適用されているかチェックします
             詳細:
@@ -2910,6 +3003,46 @@ Flyway: #keyword: Flyway, .sql file  #// マイグレーション。データベ
             -configFile:  #search: flyway.conf
             -password:  #// flyway.conf に設定してある MySQL ユーザーのパスワード
                 flyway -password=${FLYWAY_PASSWORD} info
+    DB:
+        flyway_schema_history テーブル:  #keyword: flyway_schema_history
+            flyway migrate 実行時:
+                flyway migrate を実行すると、MySQL などの中のそれぞれのデータベースに
+                管理用の flyway_schema_history テーブルが作られます。
+                データベースを削除(drop database)すると、flyway_schema_history テーブルも削除されます。
+            表示:
+                use __DataBaseName__;
+                select * from flyway_schema_history;
+            無くなる原因の可能性:
+                dump に flyway_schema_history が含まれていなかった
+                flyway_schema_history だけ削除した
+            追加:  #search: SQL INSERT  #// PRD, STG, DEV 環境のテーブルを参考にします
+                use __DataBaseName__;
+
+                INSERT INTO  flyway_schema_history (
+                    installed_rank,  version,  description,  type,  script,
+                    checksum,  installed_by,  installed_on,  execution_time,  success
+                ) VALUES (
+                    2,   '2',   'create users',  'SQL',  'V2__create_users.sql',
+                    1234,    'manual_fix',  '2020-12-03 12:00:00',   131,   1
+                );
+            スキーマ: |
+                mysql> desc flyway_schema_history;
+                | Field          | Type          | Null | Key | Default           | Extra             |
+                +----------------+---------------+------+-----+-------------------+-------------------+
+                | installed_rank | int           | NO   | PRI | NULL              |                   |
+                | version        | varchar(50)   | YES  |     | NULL              |                   |
+                | description    | varchar(200)  | NO   |     | NULL              |                   |
+                | type           | varchar(20)   | NO   |     | NULL              |                   |
+                | script         | varchar(1000) | NO   |     | NULL              |                   |
+                | checksum       | int           | YES  |     | NULL              |                   |
+                | installed_by   | varchar(100)  | NO   |     | NULL              |                   |
+                | installed_on   | timestamp     | NO   |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+                | execution_time | int           | NO   |     | NULL              |                   |
+                | success        | tinyint(1)    | NO   | MUL | NULL              |                   |
+            （レアケース）本当のテーブル名を一覧します:  #// 通常、テーブル名は flyway_schema_history から変えません
+                SELECT table_schema, table_name
+                FROM information_schema.tables
+                WHERE table_name = 'flyway_schema_history';
     トラブルシューティング:
         - #// ERROR: Validate failed: Detected applied migration not resolved locally: 1.0.0.01
             手順: flyway migrate

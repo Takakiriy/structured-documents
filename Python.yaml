@@ -1227,13 +1227,14 @@
                     コマンド: Python のコンパイル時
                     エラーメッセージ: |
                         ImportError: cannot import name '__Class__' from partially initialized module '__Application__.__Folder__' (most likely due to a circular import) 
-                    対処A:
+                    対処A:  #// from を深くします
                         from a.b import C を from a.b.c import C に修正する（範囲を狭くします）
                         from a.b import c as D
-                    対処B:
-                        メソッド(def)内で import する
+                        #// ただし、a.b にある __init__.py が from ____ import * していると回避できません
+                    対処B:  #// メソッド(def)内で import します
+                        メソッド(def)内で import します
                         #ref: https://qiita.com/puriketu99/items/a1347bf5200f095e486e
-                    対処C:
+                    対処C:  #// 循環経路の解析
                         循環 import
                         インポートの順番はエラーメッセージに表示されます。コールスタックに似た表示です。
                         __all__ = ( __Symbol__ ) にたどり着く前に循環するのでエラーになります。
@@ -1249,15 +1250,60 @@
                             A → B → C → A という循環になることがあります。
                         #ref: https://stackoverflow.com/questions/59762996/how-to-fix-attributeerror-partially-initialized-module
                         #search: import 循環参照
-                    対処D: #keyword: Python typing.TYPE_CHECKING mutual
+                    対処D, TYPE_CHECKING:  #// 静的型チェッカー用  #keyword: Python typing.TYPE_CHECKING mutual
                         型だけインポートする場合:
                             コード: |  #// 実行時は __Class__ = None を実行し、その型を参照するときは、文字列 '__Class__' で参照します
-                                if typing.TYPE_CHECKING:
+                                from __future__ import annotations
+                                from typing import TYPE_CHECKING
+                                if TYPE_CHECKING:
                                     import __Class__
-                                else: #// Type information for runtime
-                                    __Class__ = None
-                        TYPE_CHECKING: mypy や PyCharm などの静的型チェッカーが解析する際にはTrueとして扱われます。
-                        関連 >> TypeScript の場合:  #search: TypeScript import type 
+                        TYPE_CHECKING:
+                            - VSCode の pylance や mypy や PyCharm などの静的型チェッカーが解析する際には True として扱われます。
+                            - 実行時は型情報が無くても、プロパティにアクセスできます
+                        annotations: |
+                            from __future__ import annotations
+                            # これがないと実行時に Order を評価しようとして失敗する
+                            def process(order: Order) -> None: ...  # ← 実行時に Order が未定義
+
+                            # これがあると型アノテーションが文字列として扱われる
+                            from __future__ import annotations
+                            def process(order: Order) -> None: ...  # ← 実行時に評価されない
+                        #↓ 関連
+                        TypeScript の場合:  #search: TypeScript import type 
+                            #// import type を導入する提案があります  #ref: https://discuss.python.org/t/import-type-statement-to-replace-typing-type-checking-idiom-and-fix-circular-references/69518/6
+                        DDD との関係:  #search: DDD import type
+                    対処E:
+                        Domain は他に依存させないようにします:  #search: Isolating the Domain
+                            #search: DDD import type
+                            #↓ 予防策
+                            # 非推奨。 推奨は #search: DDD import type
+                            from を短くできるメリットを捨てる:
+                                捨てるメリット:
+                                    __init__.py に
+                                        from .order import *
+                                    を書くことで
+                                        from domain.order import Order
+                                    を
+                                        from domain import Order
+                                    のように order を省略できます。
+                                副作用:
+                                    循環 import が発生しやすくなります:
+                                        value.py に enum
+                    長期的に「依存の方向チェック」をCIに組み込む: |  #// 未確認
+                            import ast, glob
+
+                            def test_domain_does_not_import_infra():
+                                violations = []
+                                for path in glob.glob("domain/**/*.py", recursive=True):
+                                    source = open(path).read()
+                                    tree = ast.parse(source)
+                                    for node in ast.walk(tree):
+                                        if isinstance(node, (ast.Import, ast.ImportFrom)):
+                                            names = [a.name for a in node.names]
+                                            module = getattr(node, "module", "") or ""
+                                            if "infrastructure" in module or any("infrastructure" in n for n in names):
+                                                violations.append(f"{path}: {module or names}")
+                                assert violations == [], f"Domain→Infra の依存があります:\n" + "\n".join(violations)
                 - ケース:
                     コマンド: python manage.py loaddata
                     エラーメッセージ: |
@@ -3917,6 +3963,11 @@
                 複数行の文字列: |  #// 改行は改行文字になります
                     """line1
                     line2"""
+                        text = """\
+                    1行目
+                    2行目
+                    """  # バックスラッシュで最初の改行を除去できる
+
                 1行の文字列を複数行で書く:
                     s = 'https://ja.wikipedia.org'\
                         '/wiki/'\
@@ -4147,6 +4198,7 @@
         数値:  #ref: ${programming}/スクリプト/Python.svg#int_type
             文字列と数値の変換: #keyword: Python str int
                 str(1) == "1"
+                str(42).zfill(5) == "00042"
             日付と文字列の変換:
                 str, 非可逆:
                     str( datetime.date(2018, 4, 1) ) == "2018-04-12"
@@ -4286,6 +4338,24 @@
                     TABLE_NAME = 'A'  #// Error that "TABLE_NAME" is declared as Final and cannot be reassigned
             型情報の取得:  #// ランタイムでの型情報の取得（イントロスペクション）
             参考 >> 型を導入することのメリット:  #search:: type merit
+            トラブルシューティング（型ヒント）:
+                Any 型になってしまう:
+                    手順: |
+                        class X:
+                            def get(self, id: int) -> Data:
+                        と定義されているとき
+                            obj = X()
+                            a = obj.get(id)
+                        では a は Data になりますが、
+                            obj = X()
+                            a: Data = obj.get(id)
+                        では a が Any になってしまいます。
+                    原因:
+                        import Data
+                        の Data が参照できないために
+                        Data が Any 型と解釈されたため
+                    対処:
+                        import を修正します
         配列:  #keyword: Python list, Python array  #ref: ${programming}/スクリプト/Python.svg#seq
             list:  #keyword: Python list append
                 基本: |
@@ -4345,6 +4415,20 @@
                             print(john1)
                         if not john1:
                             print('Not found John.')
+                    if x と書くことの問題点: |  #// x is not None と書く
+                        items = [x for x in items if x]  # truthy
+                            オブジェクトが __bool__ や __len__ を定義している場合、それが False や 0 を返すと除外されてしまいます。
+                            x is not None と書くほうが無難です。
+                None を除く: #keyword: Python list comprehensions not None
+                    #// 不具合が発生し、返すべきでない要素を None としている場合
+                    警告ログありの場合: | #// 推奨  #focus: items, foo, foos
+                        results = [(i, foo(i)) for i in items]
+                        for item in [i for i,r in results if r is None]:
+                            logger.warning(f'Skipped because foo returns None. input={item.id}')
+                        foos = [r for i,r in results if r is not None]
+                    警告ログなしの場合: | #// 非推奨  #focus: items, foo, foos
+                        foos = [foo(i) for i in items]
+                        foos = [f for f in foos if f is not None]
                 インデックスを取得します: |  #focus: index
                     dicts = [
                         { "name": "Tom", "age": 10 },
@@ -4636,6 +4720,7 @@
                                     print('teardown ' + dictionary['a'])
                     (@contextlib.contextmanager) を使う場合: #keyword: @contextlib.contextmanager  #ref: ${GitHub}/MyPrivateCode/Python/try_Python/examples/yield/contextmanager.py
                         #keyword: finally close 方式
+                        #search: Python with
                         #// @contextlib.contextmanager は with に指定する関数の定義を finally に対応することを簡単にします
                         #// @contextlib.contextmanager は オブジェクトの生成と削除を 1つの関数内で定義できるようにします
                         呼び出される側:
@@ -5133,7 +5218,7 @@
                         ['1', '3']
                 積集合, &: #keyword: Python Set &
                     list({1,2,3} & {3,2}) == [2, 3]  または [3, 2]
-        日時:  #// 日付  #keyword: Python datetime  #ref: ${programming}/スクリプト/Python.svg#date
+        日時:  #// 日付  #keyword: Python datetime,  Python date  #ref: ${programming}/スクリプト/Python.svg#date
             公式:  #// https://docs.python.org/ja/3/library/datetime.html
                 date:  #// datetime を参照
                 datetime:  #// datetime.datetime クラス
@@ -5173,7 +5258,7 @@
                             >>> a_datetime
                             datetime.datetime(2012, 12, 29, 13, 49, 37)
                         任意の形式 ⇒ datetime:  #search: Python datetutil
-                    文字列へ:
+                    文字列へ: #keyword: Python datetime str
                         ISO 形式:
                             タイムゾーン付きの datetime の場合:
                                 持っているタイムゾーンのままの場合:  #focus: 
@@ -5193,6 +5278,48 @@
                                 utc_time = datetime.utcnow()
                                 iso_string = utc_time.isoformat() + 'Z'
                                 print(iso_string)  # 2025-07-10T12:30:45.123456Z
+                            YYYY-MM-DD 形式: #keyword: Python YYYY-MM-DD
+                                datetime 型から:  #focus: strftime
+                                    from datetime import datetime
+                                    dt = datetime.now()
+                                    s = dt.strftime("%Y-%m-%d")
+                                date 型から:  #focus: isoformat
+                                    from datetime import date
+                                    s = date.today().isoformat()
+                        任意書式:
+                            YYYY-MM-DD 形式:  #search: Python YYYY-MM-DD
+                            #// 未調査
+                        関数例: |
+                            from datetime import datetime, timedelta, timezone
+
+                            import pytz
+
+                            __all__ = (
+                                'get_date_time_str',
+                                'get_next_date_time',
+                                'JST',
+                            )
+
+                            JST = pytz.timezone('Asia/Tokyo')
+
+                            def get_date_time_str(date_time: datetime) -> str:
+                                date_time_str = date_time.astimezone(timezone.utc).isoformat()
+                                if '.' in  date_time_str:
+                                    return date_time_str.replace('+00:00', 'Z')
+                                else:
+                                    return date_time_str.replace('+00:00', '.000Z')
+
+                            def get_next_date_time(next_time: str) -> str:
+                                now = datetime.now(JST)
+                                next_hour, next_minute = [int(x) for x in  next_time.split(':')]
+                                if (now.hour < next_hour) or (now.hour == next_hour and now.minute < next_minute):
+
+                                    next_date_time = now.replace(hour=next_hour, minute=next_minute, second=0, microsecond=0)
+                                else:
+                                    tomorrow = now + timedelta(days=1)
+                                    next_date_time = tomorrow.replace(hour=next_hour, minute=next_minute, second=0, microsecond=0)
+
+                                return get_date_time_str(next_date_time)
                     計算:
                         1日前:  #focus: days
                             from datetime import datetime, timedelta
@@ -5438,6 +5565,22 @@
                         __exit__ を直接呼び出す場合:
                             __exit__([])
                         参考: #ref: https://techacademy.jp/magazine/31663
+                    with を使わないメソッドも用意する場合: |
+                        import contextlib
+
+                        class ____:
+                            def put(self):
+                                with self.__connect() as client:  #// これは、呼び出し元の with とは関係ありません
+                                    client.put(self.local_path, "tmp/")
+                                return True
+
+                            @contextlib.contextmanager
+                            def temp_put(self):
+                                self.put()
+                                try:
+                                    yield True  #// with ____ as __YieldVariable__
+                                finally:
+                                    remove()
                 参考: #ref: https://www.python.jp/pages/with-statement-3.9.html
             public_dict:  #keyword: Python  deep_equals
                 #search: public_dict
@@ -6676,6 +6819,13 @@
             待つ: #keyword: Python time.sleep
                 import time
                 time.sleep(3)  #// 秒。小数も可能
+            ループ時間: |
+                start = time.time()
+                while True:
+                    ____
+                    if ! data.isWaiting  or  time.time() - start >= 15:  #// 秒。小数も可能
+                        return data
+                    time.sleep(1)
             timeit: | #keyword: timeit,  decorate_all_methods_with  #// 特定のクラスの全てのメソッドに対して処理時間を計測するようにします
                     from timeit import timeit, decorate_all_methods_with
 
@@ -9077,6 +9227,7 @@
                     {'token': token}
                 )
             session.request: #keyword: Python request session.request  #// session.get などから呼ばれます  #search: Python requests .get or .request
+                #↓ 引数
                 method:  #// メソッド名
                     GET:
                         session = requests.Session()
@@ -9163,7 +9314,7 @@
             自己署名証明書の HTTPS サーバーの場合: #keyword: Python requests self signed certificate
                 self.__session.request(____, verify=False)
         関連 >> Basic 認証:  #search: Python basic authentication
-    HTTP 通信 >> WSGI: #keyword: WSGI  #// サーバー
+    HTTP 通信 >> WSGI: #keyword: WSGI ASGI  #// サーバー
         wsgiref:  #// wsgiref (WSGI ref) は、WSGI アプリケーション を CGI として動作させるためのモジュールの１つ
             サンプル 関数: | #keyword: wsgiref code  #focus: start_response,  application
                 #// 未確認
@@ -9235,9 +9386,12 @@
                     start_response('200 OK', [('Content-type', 'text/plain')])
                     return [b'Hello, world']
             関連 >> wsgiref .py: #search: wsgiref code
+        WSGI インターフェース: #keyword: WSGI
+            #search: Gunicorn vs Uvicorn
         uWSGI: #keyword:
         ASGI インタフェース: #keyword: ASGI  #ref: https://asgi.readthedocs.io/en/latest/  #ref: https://en.wikipedia.org/wiki/Asynchronous_Server_Gateway_Interface
             概要: Asynchronous Server Gateway Interface。WSGI の後方互換。非同期？ 実装例は Uvicorn
+                #search: Gunicorn vs Uvicorn
             サンプル: |  #ref: https://note.com/keyem/n/nc6d879ed59a4
                 async def application(scope, receive, send):
                     await send({
@@ -9268,10 +9422,11 @@
                     "body": b'{"example": "JSON data"}',
                     "more_body": False,
                 }
-        Gunicorn: #keyword:  #// Gunicorn は Web サーバー です。gnicorn ではありません。GreenUnicorn の略称。発音は「グニコーン」または「ジーユニコーン」  #ref: https://gunicorn.org/
+        Gunicorn: #keyword:  #// WSGI Web サーバー。gnicorn ではありません。GreenUnicorn の略称。発音は「グニコーン」または「ジーユニコーン」  #ref: https://gunicorn.org/
             概要:
                 Django の python manage.py runserver より速い
                     #ref: https://blog.hirokiky.org/entry/2018/10/06/151830
+                #search: Uvicorn
             手順: #keyword: Gunicorn tutorial
                 #ref: https://blog.hirokiky.org/entry/2018/10/06/151830
                 CentOS7 の VM を作ります:
@@ -9386,6 +9541,18 @@
                 サンプル: #search: gunicorn.conf.py example
                 ファイルの指定: #ref: https://docs.gunicorn.org/en/stable/settings.html#config-file
                 構文: #ref: https://docs.gunicorn.org/en/stable/configure.html#configuration-file
+        Uvicorn: #keyword:  #// ASGI Web サーバー
+            Gunicorn との比較: | #keyword: Gunicorn vs Uvicorn
+                | 項目                 | Gunicorn            | Uvicorn                        |
+                |----------------------|---------------------|--------------------------------|
+                | インターフェース     | WSGI（同期）        | ASGI（非同期）                 |
+                | 対応フレームワーク   | Flask, Django       | FastAPI, Starlette, Django 3   |
+                | 並行処理の仕組み     | プロセス / スレッド | イベントループ（asyncio）      |
+                | 1ワーカーの同時処理  | 1リクエストのみ     | 複数リクエストを await で切替  |
+                | ロングポーリング適性 | △ ワーカー数が上限 | ◎ 少ワーカーで大量接続に対応  |
+                | ORM の扱い           | そのまま使える      | sync_to_async が必要な場合あり |
+                | 設定のシンプルさ     | ◎ シンプル         | △ やや複雑                    |
+                | 向いているケース     | 一般的な Web アプリ | リアルタイム通信・高並行処理   |
     HTTP 通信 >> XML-RPC:  #keyword: Python XML-RPC
         サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/Python/try_Python_XML_RPC
             client: #ref: ${GitHub}/MyPrivateCode/Python/try_Python_XML_RPC/1_XML_RPC/client.py
@@ -11198,6 +11365,7 @@
             パッケージ >> バージョン:  #search: Python Package versions
         コード:  #// コード内でパッケージを利用または参照できるようにします
             import:  #keyword: Python import from,  Python import
+                #↓ 手順
                 シンボル（クラス名など）を参照できるようにします:  #// from ____ import ____
                     絶対インポートで書く場合:  #// from ____ import ____
                         書式: from ____ import ____  #// from（または from のない import）のすぐ右をピリオド以外から始めるように書きます
@@ -11220,7 +11388,34 @@
                         参考: https://qiita.com/ysk24ok/items/2711295d83218c699276
                     参照するシンボルを複数定義する場合:
                         from ____ import __Symbol__, __Symbol__
-                    __init__.py: #keyword: Python __init__.py  #// 公開するシンボルがあるファイルを設定するファイル
+                    __init__.py: #search: Python __init__.py
+                ファイルを別名で参照できるようにします:  #// from ____ as ____
+                    サンプル: |
+                        from  core.http  as  ht  #// __Project__/core/http.py ファイルが定義するクラスを ht から参照できるようにします
+                        instance = ht.MyClass()
+                development 用モジュールをインポートします: #keyword: Python development import
+                    概要: development 用モジュールは関数内でインポートしてください。
+                        そうしないと、リリース時（development 用モジュールが無い場合）にエラーになってしまいます。
+                        development 用モジュールとは  #search: poetry add --dev
+                    サンプル: |  #focus: import
+                        if config.get('inspector', None):
+                            enable_inspector(config['inspector'])
+
+                        def enable_inspector():
+                            import inspector
+                            inspector.function()
+                循環参照対策:  #search: Python 相互 import
+                import 文のソート:  #search: isort
+                #↓ ファイル
+                __init__.py: #keyword: Python __init__.py  #// 公開するシンボルがあるファイルを設定するファイル
+                    __init__.py を作るか作らないか:
+                        _: 基本的に作る必要はありません。Python 3.3 以降は `__init__.py` がなくても「名前空間パッケージ」として動作します。
+                        公開 API:  #// 公開 API の明示的な re-export
+                            #// 外部に公開するものだけを明示的に列挙する
+                            #// `*` は使わず、1行1クラスで明示します。
+                            from domain.order.order import Order
+                            from domain.value import OrderStatus
+                            __all__ = ["Order", "OrderStatus"]
                         作らない場合:
                             __Project__/__Site__ の中の場合:  #// __init__.py を作る必要はありません
                                 __Project__/urls.py: |
@@ -11238,29 +11433,18 @@
                             __Project__/urls.py: |
                                 from  example.module1.file1  import  function1   #// OK
                             __Project__/example/__init__.py: |
-                                from .module1 import *
+                                from .module1 import *    #search: 非推奨 Python import *
                             __Project__/example/module1/__init__.py: |
-                                from .file1 import *
+                                from .file1 import *      #search: 非推奨 Python import *
                             __Project__/example/module1/file1.py: |
                                 __all__ = ['function1']  #keyword: Python __all__  #// import されます  #ref: https://docs.python.org/ja/3.13/tutorial/modules.html#importing-from-a-package
 
                                 def function1():
                                     pass
-                ファイルを別名で参照できるようにします:  #// from ____ as ____
-                    サンプル: |
-                        from  core.http  as  ht  #// __Project__/core/http.py ファイルが定義するクラスを ht から参照できるようにします
-                        instance = ht.MyClass()
-                development 用モジュールをインポートします: #keyword: Python development import
-                    概要: development 用モジュールは関数内でインポートしてください。
-                        そうしないと、リリース時（development 用モジュールが無い場合）にエラーになってしまいます。
-                        development 用モジュールとは  #search: poetry add --dev
-                    サンプル: |  #focus: import
-                        if config.get('inspector', None):
-                            enable_inspector(config['inspector'])
-
-                        def enable_inspector():
-                            import inspector
-                            inspector.function()
+                    from ____ import *:
+                        非推奨:  #search: 非推奨 Python import *
+                            PEP 8:
+                                Wildcard imports (from module import *) should be avoided, as they make it unclear which names are present in the namespace.
                 namespace package:  #// Python 3.3 以降の __init__.py がないとき
                     判断基準: import する対象のフォルダーに __init__.py ファイルがないとき
                     __path__: _NamespacePathオブジェクト
@@ -11269,8 +11453,7 @@
                 regular package:
                     判断基準: import する対象のフォルダーに __init__.py ファイルがあるとき
                     __path__: リスト
-                循環参照対策:  #search: Python 相互 import
-                import 文のソート:  #search: isort
+                #↓ ...
                 エラー:  #keyword: Python import error trouble
                     #search: Import "__DotPath__" could not be resolved
                     #search: No module named

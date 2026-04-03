@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>Marmaid による図解</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      flowchart: {
+        useMaxWidth: false
+      }
+    });
+    mermaid.parseError = function(err, hash) {
+        const el = document.getElementById('mermaid-error');
+        if (!el) return;
+        el.textContent = `Mermaid文法エラー: ${err.message}`;
+        el.style.display = 'block';
+    };
+  </script>
+<style>
+  .mermaid svg {
+    max-width: none !important;
+    height: auto;
+    transform-origin: top left;
+  }
+  .mermaid foreignObject div {
+    white-space: nowrap !important;
+  }
+</style>
+</head>
+<body>
+  <div id="mermaid-error" style="display:none; background:#fee; color:#600; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre-wrap;"></div>
+  <div id="diagram-wrapper" style="overflow-x:auto; width:100%;"></div>
+    <pre class="mermaid">
+
+graph TB
+    subgraph KEY["🔑 秘密鍵 .key"]
+        KEY_DESC["サーバーだけが持つ秘密の鍵
+        ・暗号化と復号の核心
+        ・絶対に外部に漏らさない
+        ・最初に生成する"]
+    end
+
+    subgraph CSR["📋 証明書署名要求 .csr"]
+        CSR_DESC["私はlocalhostです という申請書
+        ・サーバー情報 CN=localhost 等
+        ・公開鍵を含む（秘密鍵から導出）
+        ・証明書の発行を依頼する書類"]
+    end
+
+    subgraph CRT["📜 証明書 .crt"]
+        CRT_DESC["この者は本物です という証明書
+        ・CAの署名が入っている
+        ・SAN, 有効期限, 用途の情報
+        ・クライアントに公開する"]
+    end
+
+    subgraph CA["🏛️ 認証局 CA"]
+        CA_DESC["証明書を発行する信頼された機関
+        ・自己署名の場合は自分自身がCA
+        ・CA秘密鍵で署名する"]
+    end
+
+    KEY -->|"① 秘密鍵からCSRを生成
+    openssl req -new"| CSR
+    CSR -->|"② CAに提出して署名を依頼"| CA
+    CA -->|"③ 署名して証明書を発行
+    openssl x509 -req -CA ca.crt"| CRT
+
+    subgraph SELF["💡 自己署名の場合"]
+        SELF_DESC["openssl req -new -x509 で
+        ①②③を一度にまとめて実行
+        CSR不要で直接 .crt を生成
+        自分自身がCAになる"]
+    end
+
+    KEY -.-> SELF
+    SELF -.-> CRT
+
+    subgraph HTTPS["🔒 HTTPS通信"]
+        direction LR
+        SERVER["サーバー
+        .key + .crt を配置"]
+        CLIENT["クライアント
+        vault CLI / ブラウザ"]
+        SERVER <-->|"証明書を提示して暗号化通信"| CLIENT
+    end
+
+    KEY -.->|"配置"| SERVER
+    CRT -.->|"配置"| SERVER
+
+    style KEY fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style CSR fill:#ffd43b,stroke:#f08c00,color:#333
+    style CRT fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style CA fill:#748ffc,stroke:#364fc7,color:#fff
+    style SELF fill:#e4c1f9,stroke:#7b2cbf,color:#333
+    style HTTPS fill:#e8f5e9,stroke:#2e7d32,color:#333
+    style SERVER fill:#a5d8ff,stroke:#1971c2,color:#333
+    style CLIENT fill:#a5d8ff,stroke:#1971c2,color:#333
+    </pre>
+  </div>
+</body>
+</html>

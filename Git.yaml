@@ -440,6 +440,8 @@
         git add コマンドでファイルをステージに入れると、内部的にはファイルの内容（ハッシュ値等）を git のインデックスに反映します
     ブランチ: #keyword: Git branch,  branch  #// 作成コマンドの例： git checkout -b "__NewBranch__"
         現在のブランチの表示:  #search: Git current branch
+        ブランチの情報:
+            #search: search GitHub branch
         切り替え: #keyword: switch Git branch,  git checkout __Branch__  #// 現在のブランチを切り替えます
             コマンド: git checkout __BranchName__
             Visual Studio Code:  #keyword: VSCode current branch
@@ -672,6 +674,7 @@
                     ! [remote rejected] master (refusing to delete the current branch: refs/heads/master)
                     error: failed to push some refs to 'https://github.com/__RepositoryUser__/__Project__'
                 #ref: https://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master
+        #↓ 詳細
         リモート追跡ブランチ: #keyword:
             不要なものを削除する:  #search: git fetch -p
         ブランチを別のブランチにマージします:  #search: git merge
@@ -1244,6 +1247,9 @@
                             具体的には develop-wip ブランチを新しい develop ブランチから作り直す（リバートでは複雑になる）
                             #search: git merged branches
                     develop-wip ブランチに集めます: #keyword: merge develop-wip  #// マージします。または、作り直します。または、develop/release ブランチに移動します
+                        概要:
+                            git merge --no-edit --no-ff  __FeatureBranchA__
+                            #// 上記コマンドを下方向に検索してください
                         初めて develop-wip ブランチを作る場合:
                             develop ブランチに develop-wip ブランチを作ります:
                             各種 feature ブランチをリベースします:
@@ -1293,7 +1299,8 @@
                                 git branch -D  develop-wip   #// 2回目以降。リモートの develop-wip の削除は後で行います
                                 git checkout -b develop-wip  #// develop から枝分かれ
                             #// ブランチのループ開始
-                            ブランチをリベースしてマージ: |  #// feature ブランチを 1つマージします
+                            ブランチをリベースしてマージ: | #keyword: git merge develop-wip main command  #// feature ブランチを 1つマージします
+                                #// __FeatureBranchA__ が rebase してあること
                                 git checkout  __FeatureBranchA__
                                 git pull
                                 git rebase  develop   #// または git cherry-pick など  #search: Git rebase cherry-pick
@@ -1539,6 +1546,14 @@
                     develop から枝分かれした featureA と featureB に共通する部品は common ブランチ（名前は適切に変える）に作ります。
                     develop => common => featureA => develop と
                     develop => common => featureB => develop の方向でマージします。
+                feature-with ブランチ: #keyword: feature-with ブランチ,  Git 早期 結合 テスト  #// ___Feature__-with-__Other__ ブランチ（最初はアンダーバー）
+                    feature-with ブランチ を普段から使う:
+                        他の人のブランチを普段使いしてバグを早期発見できるように、自分のブランチと一時的にマージした feature-with ブランチを普段使いします。
+                        #// 他の人のブランチが原因で自分の作業への影響が大きいときはお勧めしません
+                    git push しない:  #// feature-with ブランチ は git push しない
+                        自分のブランチをマージ（リリース）するときに他の人のブランチの内容をリリースするのは問題なので、feature-with ブランチは git push しないようにします。
+                    コミットしたらチェリーピック:
+                        feature-with ブランチ を普段使いして、コミットしたら、自分のブランチにそのコミットをチェリーピックします。
                 develop-sync ブランチ: #keyword: develop-sync branch  #// 複数の develop ブランチ を双方向マージした後のテスト前。扱いは feature ブランチ と同じ
                     双方向マージ:  #search: git mutual merge
                     テスト範囲:
@@ -1578,7 +1593,11 @@
             #search: マージ ベース
         マージ ベース: #keyword:  #// 枝分かれしたコミット、各ブランチに共通の祖先のコミット  #search: git merge-base
             枝分かれ: #keyword:  #// 派生
+        #↓ 応用
         マージやプルリクエストがブランチに含まれているか調べます: #search: GitHub list pull request merge
+        並行するブランチ: #keyword: Git parallel branch
+            本当に並行するとマージが大変になるため、最後付近のコミットをブランチ間の差分にします。
+            マージする時はリベースします
         ブランチを使ったコンポーネント:  #keyword: Git branch multi component projects
             設定: #settings:
                 __FeatureBranch__: java  #original: feature_A
@@ -1933,6 +1952,7 @@
                 管理対象の数が多い場合:
                     親プロジェクトの __Project__/.components で独自に管理します:  #keyword: .components
                         参考: #search: .gitmodules
+        早期結合テスト, feature-with ブランチ: #search: feature-with ブランチ
     ワーキング ツリー: #keyword: Git working tree  #// git clone してローカルにできたフォルダー。 Worktree とは異なります  #search: Git worktree
     Worktree: #keyword: Git worktree  #// ワーキング ツリーとは異なります  #search: Git working tree
         サンプル:
@@ -3831,6 +3851,7 @@ Git: #keyword: git
                     core.bare: = false
                     core.logallrefupdates: = true
                     rebase.autoStash:  #// git rebase (git pull の内部などで) するときに自動的に git stash と git stash pop を行います
+                        注意: git add で Staging された状態は、Staging 前に戻ります
                     pull.rebase:  #// git pull するときに自動的にリベースを行います
             git diff: #keyword:
                 比較対象別:
@@ -4162,9 +4183,18 @@ Git: #keyword: git
                 #search: VSCode git merge-base
             git pull: #keyword:
                 git stash をしなくて済むようにします:  #// ワーキング フォルダー が clean ではないときに git pull すると git stash する必要がありますが、それを自動で行います
-                    cd  __Project__
-                    git config pull.rebase true
-                    git config rebase.autoStash true  #// --autostash は rebase モード でのみ機能します
+                    #// git stash しないとエラーになる場合
+                    （状況）エラーになる設定:
+                        cd  __Project__
+                        git config pull.ff only  # FFできる場合のみ許可（FFできない場合はエラー）
+                    git pull でリベースする設定:
+                        cd  __Project__
+                        git config pull.rebase true
+                        git config rebase.autoStash true  #// --autostash は rebase モード でのみ機能します。
+                            #// git add で Staging された状態は、Staging 前に戻ります  #search: rebase.autoStash
+                    git pull でマージする設定:
+                        cd  __Project__
+                        git config pull.ff false
                 別のブランチを同期（git pull）します:
                         #// 1つのコマンドではできません
                     -   git stash   #// git status が clean ではないときだけ
@@ -4206,7 +4236,7 @@ Git: #keyword: git
                             Economics.yaml |  4 ++++
                             Life.yaml      |  1 +
                             3 files changed, 16 insertions(+), 6 deletions(-)
-            git push:
+            git push: #keyword:
                 基本:
                     -   git push  #// 現在のブランチのコミットをサーバーに同期します
                     -   git push origin __Branch__
@@ -4300,6 +4330,9 @@ Git: #keyword: git
                         #search: git rebase remote branch
                 rebase するか警告されたとき: #keyword: git pull rebase warning
                     // git config pull.rebase true  #// 警告されないようにします。git pull で rebase するように設定します
+                git push した日時:
+                    git push したことが分かっていれば、push した日時は、コミット日時の近くでしょう
+                    git push したかどうか GitHub など（リモート側）にコミットがあるかどうかで基本的に分かりますが、 force push されたら消えている可能性があります。
             git rebase: #keyword:  #// リベースした後で push するときは git push --force-with-lease
                 ブランチのベースを移動します:  #keyword: git rebase branch
                     コミットを１つでも git push した後の場合: #keyword: git rebase remote branch  #// リベース前がリポジトリにある場合
@@ -4548,6 +4581,7 @@ Git: #keyword: git
                     コンフリクトが発生した場合: #keyword: git rebase conflict  #// git rebase __BranchName__ を実行したらコンフリクトが発生した場合
                         手順:  #ref: https://docs.github.com/en/get-started/using-git/resolving-merge-conflicts-after-a-git-rebase
                             コンフリクトを解消する場合:  #keyword: git rebase --continue
+                                _: リベースのコンフリクトが多いときは、同じ場所を何度も変更しているモジュールを１つのコミットにまとめるとよさそう。
                                 基本:  #// コンフリクトが発生したファイルについてコンフリクトを解消する編集をします
                                     git add/rm _____
                                     git rebase --continue
@@ -4972,6 +5006,13 @@ Git: #keyword: git
                         #search: git symbolic-ref
                 hard: #keyword: git reset --hard,  git cancel,  git undo  #// 現在のブランチの位置、インデックス、ワーキング フォルダー を変更します
                     手順:
+                        編集がある場合、暫定的にコミットします:
+                            git status
+                                not clean
+                            git checkout -b tmp
+                            git add "."
+                            git commit -m "WIP"
+                            git checkout __PreviousBranch__
                         キャンセルする内容を確認します:
                             git reflog --date=iso  #// --date オプションを付けると日時が表示されます
                         出力例 >>> --date=iso あり: |  #search: rebase (start)
@@ -6780,6 +6821,9 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
             プライベート プロジェクト:
                 ログインするとヒットします
                 他のユーザーでログインするとヒットしません
+            エンタープライズ料金:
+                年間100万円、1人月弱の効果じゃ導入できない。なお導入のためにセキュリティコンサルやらNW工事等で1,000万～2000万ぐらいかかる。改修に10年近くかかるんじゃね
+                #ref: https://x.com/s5ml/status/2033121828999504323
         手順: #keyword: GitHub steps
             コード参照:  #search: GitHub code
             ダウンロード:
@@ -8321,6 +8365,14 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                 ランナー:  #search: GitHub runner within organization
                     Enterprise:
             ブランチ: #keyword: GitHub branch
+                検索: #keyword: search GitHub branch
+                    _: プルリクを作って、そのプルリクの対象のブランチ名を検索しても、ヒットしません
+                    検索できるようにする:
+                        プルリクの本文にブランチ名を書いておきます:
+                            __Name__ ブランチ
+                        ブランチ名を書くように表示します:
+                            __Name__ ブランチ  （ブランチ名で検索できるようにするため）
+                            #search: GitHub pull request template 
                 追加:  #search: GitHub new file
                 ブランチ保護:
                     #search: GitHub branch protection rule
