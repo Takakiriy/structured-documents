@@ -38,6 +38,9 @@
         用語, ユビキタス言語:  #keyword:
             ドメイン駆動設計において、コードにドメインの用語を使用することは非常に重要です。
             これは「ユビキタス言語（Ubiquitous Language）」と呼ばれる概念の中心的な部分です。
+        偶発的複雑性: #keyword: 偶発的複雑性,  Accidental Complexity
+            - 問題そのものの本質的な難しさではなく、私たちが選んだ解決手段や道具、プロセスによって生じる複雑さのこと
+            - フレッド・ブルックス（Fred Brooks）が1986年の論文「No Silver Bullet」で提唱した概念で、本質的複雑性（Essential Complexity）と対比されます。
         レイヤード アーキテクチャ:
             UserInterface: プレゼンテーション層 = クライアントとの入出力をする層
             Application: ビジネスロジック層 = ユースケースの実現をする層
@@ -64,11 +67,12 @@
                         Python:
                             - Domain に書く import は TYPE_CHECKING のときだけにする  #search: TYPE_CHECKING
                         #ref: https://claude.ai/chat/9fc31a40-6db2-4101-84d7-5d07dfbad0cd
-        依存性逆転の法則, DIP:
+        依存性逆転の原則, 依存性逆転の法則, DIP: #keyword: DDD 依存性逆転の原則
             逆転: 通常、通常、高レベルのモジュール（ビジネスロジックなど）は、
                 低レベルのモジュール（データアクセスロジック、ユーティリティ、ライブラリなど）に依存します。
                 それを逆転させます
             方針: クラスの詳細がインターフェイスに依存すべきである  #// ただし不要なインターフェースが多い
+            #search: The Clean Archtecture 依存性逆転の原則
         enum と変換層:
             変換層は早すぎる:
                 _: 将来の変更可能性だけを理由に最初から、ドメインのコードの enum と YAML のコードの enum を分けて、変換層を入れる必要はありません。
@@ -105,65 +109,355 @@
                             return MemberStatus(data["member"]["status"])
         参考:
             書籍, Domain-Driven Design (Eric Evans):  #// Tackling Complexity in the Heart of Software by Eric Evans
-    TERASOLUNA Server Framework for Java: #keyword:
-        予想される効果:
-            UI と DB の素結合。抽象化（新たなデータ構造）ではない。
-        警告とそれに対する意見:
-            警告: 「開発規模が大きくなった際に、修正の影響範囲が分かりにくくなったり、横断的な共通処理を追加しにくくなる」
-            （意見）: 
-                コンポーネントの置き換えとサービスの メジャー バージョン アップ は同時に行われることが殆どだから、
-                素結合させても効果が出ることはほぼ無い
-        構成:  #ref: http://terasolunaorg.github.io/guideline/current/ja/Overview/ApplicationLayering.html
-            アプリケーション層: #keyword: TERASOLUNA アプリケーション層
-                #// 薄い
-                Controller:
-                    - UI イベント
-                    - 画面遷移
-                    - Service へのアクセス
-                View:
-                    Spring MVC:
-                        - View クラス
-                        - HttpMessageConverterクラスがViewの役割を担う #// これは良くない。View を無くすべき
-                Form:
-                    - HTML の <form>
-                Helper:
-                    - 同じフィールドに対する View と Domain Object の変換
-            ドメイン層: #keyword: TERASOLUNA ドメイン層
-                Service: 業務処理
-                Domain Object: 業務処理の対象やイベント
-                Repository: Domain Object の CRUD のインターフェース。処理は RepositoryImpl へ。
-                    チーム体制によっては、データアクセスの共通化が難しい場合は無くても良い。O/R Mapper を呼ぶ
-            インフラストラクチャ層:  #// データストア, メッセージ通信
-                RepositoryImpl:
-                    - CRUD 処理。DB。インターフェースは Repository へ
-                    - 自動生成される #// MyBatis3, Spring Data JPA などによって
-                O/R Mapper:
-                    MyBatis3: Mapperインタフェース や SqlSession
-                    JPA: EntityManager
-                    Spring JDBC: JdbcTemplate
-                Integration System Connector:  #// データベース以外のデータストア
-                    メッセージングシステム、Key-Value-Store、Webサービス、既存システム、外部システムなど
-        メモ:
-            アプリケーション層、ドメイン層、インフラストラクチャー層は Eric Evansの”Domain-Driven Design
-             (2004, Addison-Wesley)”で説明されている用語
-    クリーン アーキテクチャー: #keyword: clean architecture
-        中心:
-            Entities:
-        その外1:
-            Use Cases:
-        その外2:
-            Controllers:
-            Gateways:
-            Presenters:
-        その外3:
-            Web:
-            UI:
-            DB:
-            Devices:
-            External Interfaces:
+    クリーン アーキテクチャー: #keyword: The Clean Architecture
+        概要:
+            ビジネス ロジック を中心に書き、インフラの実装に依存させないインターフェースを挟む
+            クリーンとは、依存関係、ビジネス ロジック、関心事 が重要でないもの（技術的な詳細）に汚されていない状態
+            問題点も多い
+        構成, 依存関係ルール, The Dependency Rule:
+            （最重要ルール）: 外側→内側の依存関係ルール。内側の円にあるものは、外側の円にあるものについて一切知ることはできません。
+            中心, Enterprise Business Rule:  #// 他の構成要素に依存しない（import しない）
+                Entities:
+            その外1, Application Business Rule:
+                Use Cases:
+            その外2, Interface Adapter:
+                Controllers:  #// 外部からの入力（HTTPリクエスト、フォームデータなど）を、Use Case が理解できる形式（Input DTO）に変換します。
+                Gateways:  #// sUse Case が定義したインターフェースを実装し、DBやAPIなどの外部リソースへのアクセスを抽象化します
+                Presenters:  #// Use Case の出力（Output DTO）を、View やクライアントが必要とする形式（ViewModel, JSON など）に変換します。表示ロジックはここに集まります。
+            その外3, Framework:
+                Web:
+                UI:
+                DB:
+                Devices:
+                External Interfaces:
+        境界を越える, Crossing boundaries:
+            図: #ref: https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg
+            - 制御は、コントローラー（入力）で始まり、ユースケース（処理）を通過し、最終的にプレゼンター（出力）で実行されます  #// 図のピンクの線
+            - 依存関係は、コントローラー → ユースケース ← プレゼンター  #// 、プレゼンターからユースケースの関係が制御と依存関係で逆になっている
+            - インターフェース（Output Port）だけを知っている
+                #// こうすることで、ビジネス ロジック（Use Case）をUIやフレームワークの変更から守ります
+            - インターフェースのメソッドの引数にあるデータは、ビジネス ロジック のみ
+        実装方法:
+            第11章 依存性逆転の原則:  #keyword: The Clean Archtecture 依存性逆転の原則
+                ポイント:  #search: Clean Architecture Book
+                    - 具象に依存するべきではない
+                    - 安定した抽象インターフェース
+                補足:
+                    import type で十分:
+                        相互依存できる
+            第22章 クリーンアーキテクチャ >> 依存性のルール:
+            第23章 プレゼンターと Humble Object:
+                #// 書きかけ
+        通信クライアント:  #// インフラ層
+            スレッドセーフかどうか:
+                適切にロックすれば安全なものはスレッドセーフではない
+            マルチスレッドかどうか:
+                注意: 自分でスレッドを生成しなくても、フレームワーク側でスレッドを生成している可能性があります
+                Django REST Framework: Gunicorn などの Web サーバーの設定次第です
+                Gnicorn:
+                    引数指定の場合:
+                        gunicorn --workers=4 --threads=2 myapp.wsgi
+                    ファイル指定の場合:
+                        コマンド:
+                            gunicorn -c /etc/gunicorn_conf.py
+                        gunicorn_conf.py:
+                            workers = 1
+                            threads = 2
+            トランザクション:
+                スレッドセーフによってオブジェクトの内部状態は壊れませんが、
+                データの整合性は別途ユーザーが必ず保証する必要があります
+            接続状態:
+                常にオブジェクトを持っていても、接続は自動的に切れて、再接続もできます
+            オブジェクトの配置: |
+                |                | スレッドセーフ              | スレッドセーフでない Session        |
+                |----------------|-----------------------------|-------------------------------------|
+                | オブジェクト   | Singleton                   | 関数ローカル や Factory など        |
+                | インスタンス数 | アプリ全体で1つ             | スレッド数分                        |
+                | 理由           | 内部で安全に管理されている  | 競合を避けるためスレッドごとに分離  |
+            早すぎる Factory 化を避ける:
+                インスタンスがリードオンリーの場合:
+                    singleton で配置して、ユーザーは直接参照することができます
+                クラスや関数をグローバルに配置する場合:
+                    ラッパーが create 関数だけの場合:  #// これでもスレッドごとに分離できます
+                        ① 関数内（メソッド内）で create 関数を呼び出して with を書く:
+                    ラッパーがクラスの場合:
+                        ① 関数内（メソッド内）で create 関数を呼び出して try/finally を書く:
+                        ② 関数内（メソッド内）で create 関数を呼び出して with を書く:
+                            コンテキスト マネージャ プロトコル への対応が必要
+                    #↓ 参考
+                    close を確実にする手段: | #keyword:
+                        | 仕組み             | 言語          | 自動か       |
+                        |--------------------|---------------|--------------|
+                        | closeメソッド      | 多くの言語    | ❌ 手動     |
+                        | try/finally        | 多くの言語    | ⚠️ 半自動   |
+                        | with / using       | Python, C#    | ✅ 自動     |
+                        | defer              | Go            | ✅ 自動     |
+                        | RAII               | C++           | ✅ 自動     |
+                        | スマートポインタ   | C++           | ✅ 自動     |
+                インスタンスをグローバルに配置する場合:
+                    ⓪ singleton を直接持つ:  #// 危険
+                    ① ラッパークラスで保護する:  #// Web サーバーではマルチスレッドになっているものが多いです
+                        スレッドが変わっていないことをチェックします
+                    ② Factory パターンで生成を抽象化する:
+                        スレッドローカル: スレッドが生成されて get すると生成され、スレッドが削除されるとオブジェクトも削除されます
+                        コネクション プール: 最大スレッド数と合わせる必要があります
         問題点:
             複雑:  #ref: https://x.com/ts_neko/status/2037733678496067751
+                #ref: クリーン アーキテクチャー p255
+            「安定した抽象インターフェース」は存在しない:
+                インフラの変更より ビジネス ロジック のほうが変化が激しいので、インターフェースと具象の両方を変えるケースが多発する
+                関数化するだけでインターフェースは存在する。著者が言う安定を持っている
+                    データベースゲートウェイ
+                Java の interface を書くことだけではない。
+                    日本語で言うと何と言うか知っていますか？馬鹿の一つ覚えです。
+            守る方法:
+                直接呼び出さないように CI test で守らせる。大規模開発でも同じ。
+                インターフェースを作ったところで直接呼び出しから守られるわけではない。動的にする必要性がない
+            独自インターフェース仕様に依存してしまう:
+                各種言語の抽象化ライブラリの挑戦
             早すぎる抽象化:  #search: DDD import type
+        #↓ 参考
+        Uncle Bob:  #ref: https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
+            #// 書籍の 第22章 と全く同じ
+        書籍: #keyword: Clean Architecture Book
+            #// 電子書籍購入済み → Kindle
+            #↓ 目次
+            第I部 イントロダクション:
+                第1章 設計とアーキテクチャ:
+                    目的は？:
+                    ケーススタディ:
+                    まとめ:
+                第2章 2つの価値のお話:
+                    振る舞い:
+                    アーキテクチャ:
+                    大きな価値:
+                    アイゼンハワーのマトリックス:
+                    アーキテクチャの戦い:
+            第II部 構成要素から始めよ：プログラミングパラダイム:
+                第3章 パラダイムの概要:
+                    構造化プログラミング:
+                    オブジェクト指向プログラミング:
+                    関数型プログラミング:
+                    考えるべきこと:
+                    まとめ:
+                第4章 構造化プログラミング:
+                    証明:
+                    有害宣言:
+                    機能分割:
+                    正式に証明できない:
+                    救済のための科学:
+                    テスト:
+                    まとめ:
+                第5章 オブジェクト指向プログラミング:
+                    カプセル化とは？:
+                    継承とは？:
+                    ポリモーフィズムとは？:
+                    まとめ:
+                第6章 関数型プログラミング:
+                    整数の二乗:
+                    不変性とアーキテクチャ:
+                    可変性の分離:
+                    イベントソーシング:
+                    まとめ:
+            第III部 設計の原則:
+                第7章 SRP：単一責任の原則:
+                    症例1：想定外の重複:
+                    症例2：マージ:
+                    解決策:
+                    まとめ:
+                第8章 OCP：オープン・クローズドの原則:
+                    思考実験:
+                    方向の制御:
+                    情報隠蔽:
+                    まとめ:
+                第9章 LSP：リスコフの置換原則:
+                    継承の使い方の指針:
+                    正方形・長方形問題:
+                    リスコフの置換原則（LSP）とアーキテクチャ:
+                    リスコフの置換原則（LSP）違反の例:
+                    まとめ:
+                第10章 ISP：インターフェイス分離の原則:
+                    インターフェイス分離の原則（ISP）と言語との関係:
+                    インターフェイス分離の原則（ISP）とアーキテクチャとの関係:
+                    まとめ:
+                第11章 DIP：依存関係逆転の原則: # p124
+                    安定した抽象:
+                        Abstract Factory パターンを使うしかないだろう
+                    Factory:
+                        #search: Abstract Factory パターン
+                        ソースコードの依存性と処理の流れは逆向きになるから DIP
+                    具象コンポーネント:
+                    まとめ:
+            第IV部 コンポーネントの原則:
+                第12章 コンポーネント:
+                    コンポーネントの簡単な歴史:
+                    リロケータビリティ（再配置可能性）:
+                    リンカ:
+                    まとめ:
+                第13章 コンポーネントの凝集性:
+                    再利用・リリース等価の原則（REP）:
+                    閉鎖性共通の原則（CCP）:
+                    全再利用の原則（CRP）:
+                    コンポーネントの凝集性のテンション図:
+                    まとめ:
+                第14章 コンポーネントの結合:
+                    非循環依存関係の原則（ADP）:
+                    トップダウンの設計:
+                    安定依存の原則（SDP）:
+                    安定度・抽象度等価の原則（SAP）:
+                    まとめ:
+            第V部 アーキテクチャ:
+                第15章 アーキテクチャとは？:
+                    開発:
+                    デプロイ:
+                    運用:
+                    保守:
+                    選択肢を残しておく:
+                    デバイス非依存:
+                    ダイレクトメール:
+                    物理アドレス:
+                    まとめ:
+                第16章 独立性:
+                    ユースケース:
+                    運用:
+                    開発:
+                    デプロイ:
+                    選択肢を残しておく:
+                    レイヤーの切り離し:
+                    ユースケースの切り離し:
+                    切り離し方式:
+                    独立した開発が可能:
+                    独立デプロイ可能性:
+                    重複:
+                    切り離し方式（再び）:
+                    まとめ:
+                第17章 バウンダリー：境界線を引く:
+                    結合の悲しい物語:
+                    FitNesse:
+                    あなたの境界線は何か？    いつ境界線を引くのか？:
+                    入力と出力はどうする？:
+                    プラグインアーキテクチャ:
+                    プラグインの戦い:
+                    まとめ:
+                第18章 境界の解剖学:
+                    境界を越える:
+                    恐怖のモノリス:
+                    デプロイコンポーネント:
+                    スレッド:
+                    ローカルプロセス:
+                    サービス:
+                    まとめ:
+                第19章 方針とレベル:
+                    レベル:
+                    まとめ:
+                第20章 ビジネスルール:
+                    エンティティ:
+                    ユースケース:
+                    リクエストとレスポンスのモデル:
+                    まとめ:
+                第21章 叫ぶアーキテクチャ:
+                    アーキテクチャのテーマ:
+                    アーキテクチャの目的:
+                    だが、ウェブはどうか？:
+                    フレームワークはツールであり、生き方ではない:
+                    テスト可能なアーキテクチャ:
+                    まとめ:
+                第22章 クリーンアーキテクチャ: # p248
+                    依存性のルール:
+                    典型的なシナリオ:
+                    まとめ:
+                第23章 プレゼンターと Humble Object:
+                    Humble Object パターン: # p258  #search: Humble Object
+                    プレゼンターとビュー:
+                    テストとアーキテクチャ:
+                    データベースゲートウェイ:
+                    データマッパー:
+                    サービスリスナー:
+                    まとめ:
+                第24章 部分的な境界:
+                    最後のステップを省略する:
+                    片方だけの境界:
+                    Facade: # p267  #keyword: The Clean Archtecture Facade
+                    まとめ:
+                第25章 レイヤーと境界:
+                    Hunt the Wumpus:
+                    クリーンアーキテクチャ？:
+                    流れを横切る:
+                    流れを分割する:
+                    まとめ:
+                第26章 メインコンポーネント:
+                    究極的な詳細:
+                    まとめ:
+                第27章 サービス：あらゆる存在:
+                    サービスアーキテクチャ？:
+                    サービスのメリット？:
+                    子猫の問題:
+                    救世主のオブジェクト:
+                    コンポーネントベースのサービス:
+                    横断的関心事:
+                    まとめ:
+                第28章 テスト境界:
+                    システムコンポーネントとしてのテスト:
+                    テスト容易性のための設計:
+                    テストAPI:
+                    まとめ:
+                第29章 クリーン組込みアーキテクチャ:
+                    適性テスト:
+                    ターゲットハードウェアのボトルネック:
+                    まとめ:
+            第VI部 詳細:
+                第30章 データベースは詳細:
+                    リレーショナルデータベース:
+                    なぜデータベースシステムが普及しているのか？:
+                    もしもディスクがなかったら？:
+                    詳細:
+                    だけど、パフォーマンスはどうなの？:
+                    小話:
+                    まとめ:
+                第31章 ウェブは詳細:
+                    止まらない振り子:
+                    結論:
+                    まとめ:
+                第32章 フレームワークは詳細:
+                    フレームワークの作者たち:
+                    一方的な結婚:
+                    リスク:
+                    解決策:
+                    今あなたたちを夫婦として宣言する:
+                    まとめ:
+                第33章 事例：動画販売サイト:
+                    プロダクト:
+                    ユースケース分析:
+                    コンポーネントアーキテクチャ:
+                    依存性管理:
+                    まとめ:
+                第34章 書き残したこと:
+                    レイヤーによるパッケージング:
+                    機能によるパッケージング:
+                    ポートとアダプター:
+                    コンポーネントによるパッケージング:
+                    悪魔は実装の詳細に宿る:
+                    組織化かカプセル化か:
+                    そのほかの分割方法:
+                    まとめ：言い残したこと:
+            第VII部 付録:
+                付録A    アーキテクチャ考古学:
+                    組合の会計システム:
+                    レーザーカット:
+                    アルミダイキャストの監視:
+                    4-Tel:
+                    サービスエリアコンピュータ:
+                    C言語:
+                    BOSS:
+                    pCCU:
+                    DLU/DRU:
+                    VRS:
+                    電子受付:
+                    転送システムの作成:
+                    明確なコミュニケーション:
+                    ROSE:
+                    アーキテクト登録試験:
+                    まとめ:
     オニオン アーキテクチャー:
         階層構造を円で表現するため、玉ねぎに見える。
         外） { UI, Infrastructure, Test } => Application Service => Domain Service => Domain Model　（内
@@ -232,7 +526,6 @@
                 ログを元に再現（リプレイ）できる可能性があります
             メトリクス監視: #keyword:
                 _: ログや分散トレーシングでは見えない「システム全体の健全性」を継続的に把握できる
-                
     複数 OS サポート: #keyword: multi OS support  #// 複数の メジャー バージョン をサポートするときも同様
         _:
             - ファイル名にバージョン名を含める。シンボリック リンク を使う  #// 全比較しやすいように
@@ -265,6 +558,47 @@
             transferToView():
                 oldField = new_field;
         （参考）>> 中間 DTO の禁止:  #search: middle DTO
+    TERASOLUNA Server Framework for Java: #keyword:
+        予想される効果:
+            UI と DB の素結合。抽象化（新たなデータ構造）ではない。
+        警告とそれに対する意見:
+            警告: 「開発規模が大きくなった際に、修正の影響範囲が分かりにくくなったり、横断的な共通処理を追加しにくくなる」
+            （意見）: 
+                コンポーネントの置き換えとサービスの メジャー バージョン アップ は同時に行われることが殆どだから、
+                素結合させても効果が出ることはほぼ無い
+        構成:  #ref: http://terasolunaorg.github.io/guideline/current/ja/Overview/ApplicationLayering.html
+            アプリケーション層: #keyword: TERASOLUNA アプリケーション層
+                #// 薄い
+                Controller:
+                    - UI イベント
+                    - 画面遷移
+                    - Service へのアクセス
+                View:
+                    Spring MVC:
+                        - View クラス
+                        - HttpMessageConverterクラスがViewの役割を担う #// これは良くない。View を無くすべき
+                Form:
+                    - HTML の <form>
+                Helper:
+                    - 同じフィールドに対する View と Domain Object の変換
+            ドメイン層: #keyword: TERASOLUNA ドメイン層
+                Service: 業務処理
+                Domain Object: 業務処理の対象やイベント
+                Repository: Domain Object の CRUD のインターフェース。処理は RepositoryImpl へ。
+                    チーム体制によっては、データアクセスの共通化が難しい場合は無くても良い。O/R Mapper を呼ぶ
+            インフラストラクチャ層:  #// データストア, メッセージ通信
+                RepositoryImpl:
+                    - CRUD 処理。DB。インターフェースは Repository へ
+                    - 自動生成される #// MyBatis3, Spring Data JPA などによって
+                O/R Mapper:
+                    MyBatis3: Mapperインタフェース や SqlSession
+                    JPA: EntityManager
+                    Spring JDBC: JdbcTemplate
+                Integration System Connector:  #// データベース以外のデータストア
+                    メッセージングシステム、Key-Value-Store、Webサービス、既存システム、外部システムなど
+        メモ:
+            アプリケーション層、ドメイン層、インフラストラクチャー層は Eric Evansの”Domain-Driven Design
+             (2004, Addison-Wesley)”で説明されている用語
     OSPL 普及問題: #keyword:
         目的は好感: 自分がいないときにされる作成物の評価を上げること。承認が義務なら普及まではしない
         イノベーター理論: #keyword:
@@ -336,6 +670,20 @@
         書式: 12345678-ab34-12cd-abcd-123456789012   #// 8-4-4-4-12 文字
         uuidgen:  #// Linux コマンド。UUID を生成します。Git bash では使えません
         ReplaceUUID (bashlib):  #search: ReplaceUUID
+    SOLID 原則: #keyword:
+        #ref: Clean Architecture Book >> 第7〜11章
+        Single Responsibility Principle（単一責任の原則）:
+            モジュールは1つのアクターに対してのみ責任を持つべき。「変更する理由が1つだけであるべき」という言い方もします。
+        Open/Closed Principle（オープン・クローズドの原則）:  #keyword: 開放/閉鎖原則
+            - 既存コードを変更せずに、新しいコードを追加するだけで機能を拡張できる状態を目指す原則。
+            - ファイルなどの open/close ではありません。 #search: close を確実にする手段
+            - 拡張に対してオープン、修正に対してクローズドであるべき。新しい機能を追加するとき、既存のコードを変更せず追加だけで済む設計が理想。
+        Liskov Substitution Principle（リスコフの置換原則）:
+            派生クラスは基底クラスと置き換えられるべき。サブクラスを使っても親クラスと同じように動くべきという原則。
+        Interface Segregation Principle（インターフェース分離の原則）:
+            使わないメソッドへの依存を強制すべきでない。大きなインターフェースより小さく分割されたインターフェースの方がよい。
+        Dependency Inversion Principle（依存関係逆転の原則）:
+            上位モジュールは下位モジュールに依存すべきでない。どちらも抽象に依存すべき。
 デザイン パターン:  #keyword: design pattern
     GoF: #keyword:  #ref: ${programming}/方法論/オブジェクト指向.svg#gof
         Abstract Factory パターン: #keyword:
@@ -392,8 +740,12 @@
                 最初にマッチしたら終了
                 ハンドラーの追加頻度が高い
             関数呼び出しや Pipeline/Middleware との比較:
+                普通の関数呼び出し: 決められた処理を順次実行
+                Chain of Responsibility: 動的に最初に成功した処理まで実行、または、マッチした処理だけ実行
+                Pipeline/Middleware: すべてのステージを通過
                 #ref: ${typrm_files}/ref/SoftwareDesign/Chain_of_Responsibility_Compare.md
                 #search: Middleware pattern
+                    #ref: ${typrm_files}/ref/SoftwareDesign/PipelineMiddleware_pattern.html
         Facade パターン: #keyword:  #// ファサード
             概要: 大きなプログラムを使って処理を行う場合、 関係しあっているたくさんのクラスを適切に制御しなくてはいけません。
                 その処理を行うための「窓口」を用意しておくと、 個別にたくさんのクラスを制御しなくても、「窓口」に対して、要求するだけですみます。
@@ -404,6 +756,7 @@
             注意: #search: 過剰設計
                 Facade は構造体ではなく、オリジナルの computed プロパティ（getter＋メモ化）にすること。そうしないとデータのソースがどこにあるのかかなり分かりにくくなります。
                 追加の情報が欲しいときに、Facade も変更しなければならなくなってしまいます。
+            Clean Archtecture:  #search: The Clean Archtecture Facade
             Wikipadiaより:  #ref: https://ja.wikipedia.org/wiki/Facade_パターン
                 - Facadeクラスはあくまでサブシステム内部に仕事を投げるだけで複雑な実装は持たない。
                 - Facadeパターンはサブシステムの直接使用を妨げない。
@@ -442,6 +795,12 @@
         DTO: #search:
         Middleware: #keyword: Middleware pattern
             概要図: #ref: ${typrm_files}/ref/SoftwareDesign/PipelineMiddleware_pattern.html
+        NullObject: #keyword: NullObject pattern
+            - 無効値・不在を表すオブジェクトを、本物と同じ型やインターフェースで用意するパターン。
+            - null チェックが至る所に散らばる問題を解消します。
+            - 型やインターフェースが更新されたら Null Object も追従する必要があります。
+            - そのため、Null Object を生成または取得する static method を用意して呼び出します。
+            #// Martin Fowler の Patterns of Enterprise Application Architecture や Robert C. Martin（Uncle Bob）の著作で広く言及しています
         Shim: #keyword:
             古い環境で新しいAPIを使うためのライブラリ。Adapter パターン。
             es5-shim npm パッケージは、ECMAScript 5 (ES5) をサポートしていないブラウザーで ES5 を動かせるようにする Shim です。
@@ -493,6 +852,8 @@
                     たとえば、親の兄弟を引数で取るオブジェクトの初期化コードは、親で子オブジェクトの初期化をするコードに変える。
             コールバック関数:  #// 所有子にくるイベントを親で処理するために、親が定義する関数
             グローバル変数:  #search: declare global dependency
+            逆依存性の原則:
+                #search: The Clean Architecture
             弱参照:  #search: weak reference
             Go: #ref: ${programming}/プログラミング言語、環境/go_language.svg#import_cycle_not_allowed
             Python: #search: Python 相互 import
@@ -504,7 +865,7 @@
             その他: プロジェクト名 + import で検索
     疎結合, 独立性: #keyword: 疎結合, 独立性 モジュール化 モジュール性 高凝集 凝集性 カプセル化 分離
         制御の抽象化
-    過度な抽象化, 早すぎる抽象化: #keyword: Over-abstraction,  Over-engineering,  Premature Abstraction,  オーバー エンジニアリング,  過剰な抽象化, 行き過ぎた抽象化, 野心的
+    過度な抽象化, 早すぎる抽象化: #keyword: Over-abstraction,  Over-engineering,  Premature Abstraction,  オーバー エンジニアリング,  過度な抽象化, 早すぎる抽象化, 過剰な抽象化, 行き過ぎた抽象化, 野心的
         #// 将来を見越して抽象的なモジュールを開発したけど、いざその時になったら使い物にならなかった
         _: 実際に共通化ができるまでは、公式化しないでください。
         #ref: ${typrm_files}/ref/SoftwareDesign-AI.yaml#label: Over-abstraction
@@ -513,6 +874,29 @@
                 DRY 原則 よりも YAGNI 原則（You Aren't Gonna Need It）を優先
         YAGNI 原則: #keyword:  #ref: https://ja.wikipedia.org/wiki/YAGNI
             実際に必要となるまで機能を追加しない方が良い
+        1回しか参照されない変数:  #// かつ、値に対する属性情報が付加されていない、かつ、説明変数ではない
+    リーキー抽象: #keyword: Leaky Abstraction, リーキー抽象
+        #ref: https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/
+        #ref: https://en.wikipedia.org/wiki/Leaky_abstraction
+        抽象化は便利だが、実装を理解しないといけない場面が来る:  #// 避けられない現実
+            反論:  #// 避けられない現実ではない
+                「実装を理解しないといけない場面が来る」ことは、名前に実装を漏らす理由にならない
+                「実装を理解しないといけない場面が来る」は事実としてあり得る。
+                しかしその場面では、開発者は名前ではなく実装のコードやドキュメントを直接見る。
+                名前を見る場面と実装を見る場面は別々に存在しており、混在させる必要がない。
+                したがって「実装を理解しないといけない場面が来る」ことは、名前に実装を漏らす理由にはならない。
+                名前は常に意図だけを表せばよく、実装を理解しないといけない場面への対処は、実装を直接見ることで行われる。
+                unlink はその典型的な失敗例である。ファイルを削除したい場面では unlink という名前は不要な知識を要求し、
+                実際にハードリンクの仕組みを理解しないといけない場面が来たとしても、
+                開発者はソースコードやOSのドキュメントを直接参照するのであって、名前から得られる情報に頼るわけではない。
+                #search: POSIX unlink
+            抽象化への支持:  #ref: https://www.cs.cornell.edu/courses/cs211/2006sp/Lectures/L08-Abstraction/08_abstraction.html
+                抽象化はクライアントとインプリメンターという二つの役割を作り出す。
+                The interface creates a contract between the client and the implementer.
+                クライアントは実装がどのように動いているかを理解しなくても関数を呼び出せる。
+                もし問題が起きた場合、インターフェースの存在により「クライアントがインターフェースを誤って使っているのか、
+                インプリメンターが実装を誤っているのか」のどちらかに責任を切り分けることができ、
+                どちらかのコードを修正すればよいことが明確になる
 図解:
     UML: #keyword:  #glossary: UML  #ref: ${programming}/方法論/UML.svg
         クラス図:
@@ -520,7 +904,7 @@
         コラボレーション図:
         シーケンス図:  #search: シーケンス図の書き方
         ステートチャート図:
-        アクティビティ図:
+        アクティビティ図:  #// 状態遷移図相当 #keyword: 状態遷移図,  State transition
         コンポーネント図:  #// サーバー（仮想）と（コンポーネントやクラス）の対応関係と一覧
             （構成）:  #focus: コンポーネント
                 システム:
@@ -908,6 +1292,48 @@
         変数名の大文字小文字:
             大文字小文字を区別する名前空間:
                 大文字小文字の宗教論争に巻き込まれる。http_proxy と HTTP_PROXY など
+        定数のスタイル: #keyword: coding style const
+            Camel ケースの利点: |  #// JSON style
+                API レスポンスの値と一致させやすい
+                    const user: { status: Status } = await fetchUser();
+                JSON が JavaScript から生まれたため、JavaScript の慣習（camelCase）が自然に持ち込まれました。（定数だが受け入れられた）
+                実績としては、VSCode の launch.json の "console": "integratedTerminal" など
+            TypeScript:
+                union type: | #// Camel ケース  #search: TypeScript union type
+                    // 定数インスタンスの定義
+                    const statusMap = {
+                        active:   'アクティブ',
+                        inactive: '非アクティブ',
+                        pending:  '保留中',
+                    } as const;
+
+                    // 文字列の Union 型の定義。 定数インスタンスのキーの型
+                    type Status = keyof typeof statusMap; // 'active' | 'inactive' | 'pending'
+
+                    var  status: Status = 'active';
+                enum: | #// 大文字のスネークケース。ただし、enum も非推奨になりつつある
+                    enum EvidenceTypeEnum {
+                        UNKNOWN = '',
+                        PASSPORT_VISA = 'passport_visa',
+                        PASSPORT = 'passport',
+                        SIGHTED_STUDENT_CARD = 'sighted_tertiary_edu_id',
+                    }
+
+                    EvidenceTypeEnum.PASSPORT_VISA
+            C言語:
+                _:
+                    C の時代は「定数かどうか」が言語機能として保証されていなかったので、命名で区別する必要がありました。
+                    それが Java → JavaScript → TypeScript と引き継がれてきた慣習です。
+                    TypeScript では const や as const が型レベルで不変性を保証するので、命名で強調する意味は薄いです。
+                サンプル: |
+                    #define MAX_SIZE 100  // プリプロセッサで置換される「本物の定数」
+                    int maxSize = 100;    // 変数（再代入できる）
+                スコープ派: |
+                    const MAX_RETRY_COUNT = 3;  // グローバルな設定値という意図を示したい
+                    function fetchData() {
+                        const retryCount = 0;   // ローカルな変数
+                    }
+                    トップレベルに置くグローバルな設定値とローカルな変数を区別したいというが、関数も定数である。
         ハイフンとアンダースコア:
             Docker: コンテナー名のイメージ名と数字の間を _ から - に変更
             Ansible: ホスト名の - を警告。_ を推奨
@@ -1588,14 +2014,49 @@
     タイミングのデバッグ: #keyword: timing debug, 非同期処理 デバッグ リアルタイム
         - テストにおいて、時間で待っている場合、時間を増やすなどします
         - print を使うとタイミングがずれるので、代わりに変数や配列への代入を使います
-エラーと警告とログ:  #keyword:
+エラーと警告とログ: #keyword: エラーと警告とログ,  エラー
     エラー メッセージ: 顧客が対処できないエラーは表示せず、ログに残して社内通知する
+        #search: PublicError
     警告 メッセージ: #keyword:
         個別に非表示にできること  suppress/ignore/skip warning
     エラー ログ: #keyword: エラー ログ
         本番環境のログのチェックとエラーの処置。エラーログは全く無いようにする（警告はあり）。定期的にチェックする
+    PublicError: #keyword: PublicError
+        概要:
+            - 見せる相手（ロール）ごとに エラー メッセージ の内容を変えられる PublicError 例外
+            - 見せる媒体（チャンネル）ごとに、表示（取得）するメッセージをフィルタリングします。
+                たとえば、サポートチーム用メッセージは、開発チームの媒体（ログ）にも出力しますが、顧客の媒体には表示しません
+        Python: |
+            from django.utils.translation import gettext
+            from typing import List
+
+            class PublicError(Exception):
+                def __init__(self, *, for_customer: str = "", for_support: str = "", for_developer = ""):
+                    self.for_customer = for_customer
+                    self.for_support = for_support
+                    self.for_developer = for_developer
+
+                @property
+                def message_to_customer_channel(self) -> str:
+                    return (PublicError).collect_message([self.for_customer])
+
+                @property
+                def message_to_support_channel(self) -> str:
+                    return (PublicError).collect_message([self.for_customer, self.for_support])
+
+                @property
+                def message_to_developer_channel(self) -> str:
+                    return (PublicError).collect_message([self.for_customer, self.for_support, self.for_developer])
+
+                @staticmethod
+                def collect_message(messages: List[str]) -> str:
+                    message = '; '.join(x for x in messages if x)
+                    if message.strip() == "":
+                        message = "Error occurred."
+                    return gettext(message)
     不整合データ: 部門Aが入力するデータと部門Bが入力するデータには不整合がある状態は運用上イレギュラーではあるが
         本番環境では有りうるので、その場合の動作を仕様化すること
+    無いことの扱い:  #search: YAML default
     高可用性, HA, 耐障害性: #keyword: 高可用性, HA, high availability, 耐障害性, システムの信頼性
         設計:
             高可用性: システムの停止時間をどれだけ短くできるかに焦点を当てた考えた方
@@ -1616,8 +2077,13 @@
             ロードバランシング:
                 - 複数のサーバーに負荷を分散
                 - 特定のサーバーへの過度な負荷を防ぎ、全体的なパフォーマンスを向上
-            フェイルオーバー機能:
+            フェイルオーバー機能: #keyword: フェイル オーバー, フェール オーバー,  fail over  #// 英語の発音に近いフェイル。日本語で慣用的なフェール
                 - 主要システムに障害が発生した場合、自動的にバックアップシステムに切り替え
+            フェイルセーフ: #keyword: フェイル セーフ, フェール セーフ,  fail safe
+            フールプループ: #keyword: フール プループ, fool proof
+            フォールバック: #keyword: フォール バック, fall back
+                - 本来の手段が失敗したとき、代替の手段に切り替えること
+                - 軍事用語で後退する、撤退する、予備部隊に下がる
             自動スケーリング:
                 - 負荷に応じて自動的にリソースを増減
                 - クラウド環境で特に有効
@@ -1679,136 +2145,7 @@
         参考: #ref: https://stackoverflow.com/questions/1507082/python-is-it-bad-form-to-raise-exceptions-within-init
 静的解析ツール: #keyword:  #// コーディング スタイル や静的に分かるバグをチェックします
 コーディング スタイル:  #search: コーディング スタイル
-テスト環境、テストデータ: #keyword: テスト環境, テストデータ, test design,  test
-    テスト ツール: #search: Test.yaml
-    自動テストの目的:  #keyword: 自動テスト,  回帰テスト regression test
-        基本的なケースや特定のケースで正しい動作をすることを実証することで、ほとんどの機能が使えることが期待できるようになる状態にすること
-        開発と同時に作ることができる。効果が出るのは回帰テストのとき。
-        コーディングのために基本的な内部関数をテストするのではなく、基本的なケースについて結合テストする。
-    手動テストの書き方:  #keyword: 手動テスト  #ref: https://qiita.com/Takakiri/items/a3d900fc2a105ca9f412
-    実施率を上げる:  #// テストの失敗が他のテストの実施に影響しないようにします
-        エラー復帰:
-            テストでエラーが発生しても、次のテストを実施できるように例外処理などを行います。
-        環境のリストア:
-            環境をセットアップする機能のテストが失敗しても、
-            環境を使った本体のテストが実施できるように
-            環境のバックアップをリストアしてからテストを開始します。
-        リストア実行オプション --from:
-            テストスクリプトの構成によっては、
-            VM をリストアして途中から実行する --from __VmName__ オプションを実装します。
-            途中から実行するテストを実行したログが無ければ、
-            --from オプションを付けて再実行します
-    テスト環境の自動判定: #keyword:
-        概要: テスト環境を表すレコードが存在することをチェックすることで、テスト環境であることを自動判定します
-        注意: テスト固有の Web API を追加しないこと。本番環境と違うコードになってしまうため。
-        テスト固有のレコードを使う場合:
-            注意: 正常動作に影響しないレコードが作れる場合のみ
-            ローカルに起動するデータベースの初期状態にテスト固有のデータを入れます:
-                テスト環境であることを確認して、
-                手動、または、テスト固有のスクリプトでテスト固有のデータ this_is_test_environment を入れます。
-            各テスト開始時に、テスト環境を表すレコードが存在することをチェックします:
-                特定のデータを取得する API を使って判定します
-            テストがレコードを消してしまったら、そのテストが終わったときに復帰するようにテストを書きます:
-        テスト固有のテーブルを使う場合:  #// 非推奨
-            注意: テスト固有の API を追加しなければならないため非推奨
-            テスト固有のテーブルを追加します:
-                できれば手動で。スクリプト等で本番環境などに追加されないようにするため
-    テスト環境との切り替え: #keyword:
-        概要: WireMock を使うように URL を設定するなど、テスト環境を切り替える方法
-        設定方法:
-            手動テストの場合:
-                環境変数のファイルや設定ファイルでモックのアタッチを行うかどうかを決定します。
-                test_____ ファイルにアタッチする詳細な手順の関数を書き、その関数を呼び出します。リリース ビルド するときの対象外にするためです。
-                    test_____ ファイルとは、一般に使われる テスト スイート が テスト コード 用 のファイルと判定する名前のファイルです。
-                    呼び出す関数を（モックで）アタッチするか？
-                README に設定方法を書きます。
-            自動テストの場合:
-                手順: beforeEach やフィクスチャ―などでアタッチします
-                補足:
-                    beforeEach: #ref: ${programming}/方法論/テスト.svg#beforeEach
-                    フィクスチャ―:  #search: pytest fixture
-        （補足）DI との関係:  #// Dependency Injection
-            テスト環境との切り替えに DI は使わないこと。テスト以外に使うものだから
-    テスト関数を探す: #keyword: which test  #// あるテスト対象のコードがどのテストで使われているかを調べる
-        ブレークポイントを張ります
-    正常系, 異常系: #glossary:
-        正常系: normal test。正しい入力での出力チェック
-        異常系: error checking test, abnormal test, irregular test。想定外の異常、その他の例外が発生した際の動作を確認  #search: エラーと警告とログ
-        準正常系: 想定される異常な値の入力での出力チェック  #search: フォールト トレランス
-    バージョン アップ のテスト: #keyword: version up test
-        バージョン アップ の方法:  #search: version up  #search: version up DTO DAO
-        #↓ DTO/DAO/DataSource
-        テスト データ などにアクセスする関数(DAO)のテスト: #keyword: test data
-            テスト データ のファイルを分ける:
-                疎結合:
-                    構成が変わってもレアな機能はすぐに対応しないでメイン機能のみリリースできるようにすべきなので、
-                    アクセス関数の テスト データ と個別機能の テスト データ は疎結合にします。
-                    疎結合にするとは、たとえば、それぞれのファイルを用意して、同期をオフにできるようにします。
-                DAO のデータのソース: DAO がアクセスする古いバージョンの テスト データ はそのまま使い（更新不要）、
-                    新しいバージョンの テスト データ を追加する。
-                    アクセスした後の DAO のリテラルを テスト データ にしてしまうと手間がかかる。
-                    プロパティ名が違うとエラーになるリテラルやデータ形式（strict な json-schema を通す YAML等）を使うこと
-                    #ref: https://qiita.com/dhirabayashi/items/f3707e5fc9d91cb61880#完全な垂直スライドのテストに集中する
-        ビジネス ロジック 関数のテスト(DTO):
-            方法: ビジネス ロジック の関数(DTO)をテストするとき、
-                マスター データ は扱いやすい形式のデータ（YAMLの文字列リテラルなど）とし、
-                テスト プログラム で DAO のアクセス関数を呼び、得られた構造体（のキャッシュ）を ビジネス ロジック の関数に渡す。
-            効果: DAO と DTO の単体テストが十分であれば、
-                フィールドの改名や、不要になったと思われるフィールドを削除して実は不要ではなかったことが、
-                テスト段階で判明する。
-                Python のようにメソッド名のスペルミスを静的解析できない言語でも、テストで対応する。
-                もしスペルミスがあれば期待する出力が得られない
-    リリース当日コマンド: #keyword:  #// 本番相当のテスト環境で同じコマンドを実行すること
-        #// マニュアルに書いてあるコードをテストします
-        test_release.md.sh:
-            コマンドを抽出するコマンド: |  #keyword:
-                #!/bin/bash
-                documentFilePath="$1"
-                cat  "${documentFilePath}"  |  grep -f  [install-A] |  \
-                    sed "s|/prd|/stg|"  | \
-                    >> _test.sh
-        release.md: |  #// マニュアル
-            ## コマンド
-                ./install-A.sh  prd   #[install-A]
-                ./install-B.sh  prd   #[install-B]
-                ./uninstall-A.sh  prd   #[install-A:rollback]
-    本番データを使う:
-        データベースのレプリケーションを使う:
-            #ref: https://www.ashisuto.co.jp/delphix_blog/article/201709-test-data.html
-    ユニットテスト: #keyword: ユニット テスト,  単体テスト
-        負債:
-            単体テストはただの負債だから今すぐ書くのをやめるべき (かもしれない):
-                #ref: https://zenn.dev/miketako3/articles/b6bb71c8d9946e
-                - 内部の実装によって書かれるホワイトボックスのテストはメインコードの修正のたびに変更が必要になる可能性が高いため、何かが間違っている、すなわち書く方がおかしいということである。
-                - ユニットが公開しているAPI  システムの公開APIに対して呼び出しを行うということだ。
-                - 基本的にビジネス価値はより粒度の高いテストで表現すべきである
-                - ビジネス価値のあるテストとは、ビジネス要求に由来するテストだけです。ユニットテストは完成した機能ではなく構成部品を検証するテストに過ぎないため、信頼を得られません。
-        アルゴリズムのテスト:
-            ユニットテストは、テストデータがテーブルの場合にのみ作ります。
-            テスト対象となる処理のうち、アルゴリズム（ビジネス ロジック）に関する入出力だけに絞り込んだ関数（テスト対象）
-            を作りユニットテストをします。
-        受け入れテスト:
-            使うライブラリの破壊的バージョンアップがされたときに検出できるようにします。
-            ライブラリのラッパーを作るときは必須です。
-        基本ケース 1つなら不要:
-            結合テストなど全体のテストで通っているコードに対しては、ユニットテストでそのコードを通す必要はありません。
-            カバレッジで考えると分かりやすい。
-            また、負債になる理由は、開発者しか知らない内部仕様（関数仕様）をテストしているため。
-    結合テスト: #keyword:
-        結合テスト（一般）:
-            メリット: ユニット テスト の対象の外側までテストできる
-            デメリット: 動作が遅い。結合の組み合わせのみ網羅度を上げ、アルゴリズム（ビジネス ロジック）は ユニット テスト で行う
-            #ref: https://products.sint.co.jp/obpm/blog/join-test
-        内部結合テスト: #keyword:  #// 独自用語
-            概要: 外部との接続はモックを使い、内部はモックを使わないテスト
-            メリット: 内部でモックを使わないことで、要求仕様に無い独自仕様（内部 Web APIなど）をテストの正解として用意してしまうことが無くなります
-    プライベート メソッド のテスト: #keyword: test private
-        JavaScript:
-            export されていない関数やクラスを参照します:  #search: JavaScript not exported
-    修正の影響範囲:  #keyword: 再テスト 修正 影響範囲
-        手段: 使用箇所の検索, ブレークポイントを置いて確認する, 自動テスト
-        #ref: https://hiroronn.hatenablog.jp/entry/20180912/1536755089
-        #ref: https://www.google.com/search?q=コード修正+影響範囲
+テスト環境、テストデータ: #search: テスト環境, テストデータ, test design,  test
 用語: #glossary:  #keyword: プログラミング 用語
     DSL: ドメイン固有言語 domain-specific language。SQL, HDL など  #ref: https://ja.wikipedia.org/wiki/ドメイン固有言語
     LT: ライトニング トーク。5～10分のプレゼンテーション

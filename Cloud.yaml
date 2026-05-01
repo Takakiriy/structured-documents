@@ -1571,7 +1571,7 @@ RabbitMQ: #keyword:  #// メッセージ キュー  #ref: https://www.rabbitmq.c
                 宣言, 作成:  #search: RabbitMQ exchange_declare
             コネクション:
             チャンネル:  #// 主な処理をするメソッドを持っています。ブローカー。コネクションの子要素
-            #↓ メソッド的なオブジェクト
+            #↓ メソッド的なオブジェクト。メソッドも参照
             publish, subscribe:  #// 送信。発行
                 publish: #keyword: RabbitMQ publish
                     同義語: produce
@@ -1582,7 +1582,7 @@ RabbitMQ: #keyword:  #// メッセージ キュー  #ref: https://www.rabbitmq.c
             publish:  #keyword: RabbitMQ publisher  #// 送信すること
                 文章上: send  #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
                 コード: publish
-            consumer: #keyword: RabbitMQ consumer  #// 受信者
+            consumer: #keyword: RabbitMQ consumer  #// 受信者, ワーカー
                 - 受信することは receive  #ref: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
         vhost:
             各vhostは独立したエンティティとして機能し、一つのvhost内のキューや交換機は他のvhostからはアクセスできません。

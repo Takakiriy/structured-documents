@@ -925,7 +925,7 @@
                 スクリプト実行中に入力する内容:
                     please review the license agreement: (Enter)
                     Do you accept the license terms?: yes
-                    /Users/totadashi/miniforge3: (Enter)
+                    /Users/user1/miniforge3: (Enter)
                     Do you wish the installer to initialize Miniforge3 by running conda init? [yes|no]: yes
                 デフォルトでは conda 環境をオフにします:
                     conda config --set auto_activate_base false
@@ -1256,7 +1256,7 @@
                                 from __future__ import annotations
                                 from typing import TYPE_CHECKING
                                 if TYPE_CHECKING:
-                                    import __Class__
+                                    import __Class__    #// import type 相当
                         TYPE_CHECKING:
                             - VSCode の pylance や mypy や PyCharm などの静的型チェッカーが解析する際には True として扱われます。
                             - 実行時は型情報が無くても、プロパティにアクセスできます
@@ -1981,7 +1981,7 @@
                 Hello, world
                 >>> exit()
                 $
-        シェルから実行します: #keyword: try Python,  python3 -c
+        シェルやスクリプトから実行します: #keyword: try Python,  python3 -c
             1行:
                 python -c 'print("Hi")'
             複数行: |  #search: Linux here document
@@ -3959,7 +3959,7 @@
             (%フォーマット): | #keyword: Python string %,  Python sprintf  #// 古い f-strings。非推奨。 推奨は  #search: f-strings
                 "abc=%s" % abc                #// f"abc={abc}"
                 "abc=%s, %s" % (abc1, abc2)   #// f"abc={abc1}, {abc2}"
-            複数行: #keyword: Python multi-line  #// """～""",  '''～'''
+            複数行: #keyword: Python multi-line,  Python 改行  #// """～""",  '''～'''
                 複数行の文字列: |  #// 改行は改行文字になります
                     """line1
                     line2"""
@@ -3967,7 +3967,6 @@
                     1行目
                     2行目
                     """  # バックスラッシュで最初の改行を除去できる
-
                 1行の文字列を複数行で書く:
                     s = 'https://ja.wikipedia.org'\
                         '/wiki/'\
@@ -3997,6 +3996,7 @@
                 配列変換:  #// 複数行の文字列を１行ずつの配列に変換します
                     配列⇒複数行の文字列: | #keyword: Python str join
                         "\n".join(["aaa", "bbb", "ccc"]) == "aaa\nbbb\nccc"
+                        '; '.join(x for x in ("aaa", "", "ccc") if x) == "aaa; ccc"
                     複数行の文字列⇒配列: | #keyword: Python str split
                         "aaa\nbbb\nccc".split("\n") == ["aaa", "bbb", "ccc"]
                         "aaa\nbbb\nccc\n".split("\n") == ["aaa", "bbb", "ccc", ""]
@@ -4013,6 +4013,7 @@
                     - ord('A') == 65
                     - hex(ord('A')) == '0x41'
             国際化: #keyword: Python 国際化  #ref: https://stackoverflow.com/questions/57188115/flask-form-l-symbol-meaning/57188189
+                #search: Django 翻訳関数
             bytes: #keyword: Python bytes,  Python binary  #// 変更できないバイト配列  #ref: https://docs.python.org/ja/dev/library/stdtypes.html#text-and-binary-sequence-type-methods-summary
                 #// バイト配列の内容が変更できないだけで、既存の bytes 型の変数に別のバイト配列を代入することはできます。
                 リテラル:
@@ -4183,7 +4184,7 @@
             キャピタライゼーション:
                 __Str__.lower():
                 __Str__.upper():
-                __Str__.capitalize(): |
+                __Str__.capitalize(): |  #keyword: Python capitalize
                     print("hello python".capitalize())
                     >> Hello python
                     print("MY FAVORITE THINGS".capitalize())
@@ -4195,6 +4196,10 @@
                     >> Hellopython
                     print("MY FAVORITE THINGS".title())
                     >> My Favorite Things
+                to_camel_case: | #keyword:  #// 独自
+                    def to_camel_case(snake: str) -> str:
+                        words = snake.lower().split("_")
+                        return words[0] + "".join(w.capitalize() for w in words[1:])
         数値:  #ref: ${programming}/スクリプト/Python.svg#int_type
             文字列と数値の変換: #keyword: Python str int
                 str(1) == "1"
@@ -5258,6 +5263,13 @@
                             >>> a_datetime
                             datetime.datetime(2012, 12, 29, 13, 49, 37)
                         任意の形式 ⇒ datetime:  #search: Python datetutil
+                    番兵値, NullObject 相当: #keyword: datetime.min,  Python datetime NullObject
+                        サンプル:
+                            from datetime import datetime
+                            datetime.min
+                        イミュータブル: #keyword: Python datetime immutable
+                            datetime オブジェクトの内容を直接変更するメソッドは存在しません
+                            replace() は、元のオブジェクトを変更せず新しいオブジェクトを返します。
                     文字列へ: #keyword: Python datetime str
                         ISO 形式:
                             タイムゾーン付きの datetime の場合:
@@ -5392,21 +5404,28 @@
                     GREEN = 2
                     BLUE = 3
                     DEEP_BLUE = 4
-            比較: |  #// RED はオブジェクトです
+            RED など: #// 列挙型の値であり、列挙メンバーであり、Color クラス のインスタンスです
+            RED.value など: #// 列挙メンバーの値
+            RED.name など:  #// 列挙メンバーの名前
+            参照、比較: |  #// RED はオブジェクトです
                 if Color.RED is Color.RED:  // True
-                if Color.RED.value == 1:  // True
+                if Color.RED.value == 1:    // True
+                if Color.RED.name == "RED"  // True
             一覧: |
                 for name, member in Color.__members__.items():
-            文字列から列挙型へ:
-                サンプル:
+            文字列から列挙型へ:  #keyword: Python Enum member
+                .name から列挙メンバーへ:
                     Color['RED']
+                    Color2[color1.name]
+                    #// 該当なしの場合は ValueError
                     #ref: https://stackoverflow.com/questions/41407414/convert-string-to-enum-in-python
+                .value から列挙メンバーへ:
+                    Color(1)
+                    Color2[color1.value]
+                    #// 該当なしの場合は ValueError
                 一致しない場合:
                     例外が発生します。一致しないときの値は指定できません。
                     #ref: https://stackoverflow.com/questions/43252708/what-kind-of-exception-to-raise-for-unknown-enum-value
-            列挙型から列挙型へ:
-                Signal.map_from(ModeEnum.ENABLED)
-                #ref:
             (@enum.unique):  #// 重複させない
                 値が重複したらエラーにします
             派生属性:  #// 列挙値のグループ化
@@ -5424,7 +5443,24 @@
                 使用例: |
                     status = Status.RUNNING
                     if status.is_active:
-            別名: #keyword: Python TypeAlias  #// 列挙型の別名を作ります
+            別の値のセット:  #// Color.RED.value 以外に Color.RED.ja という値も使えるようにします
+                定義: |
+                    from enum import Enum
+
+                    class Color(Enum):
+                        RED   = ("red",   "赤")
+                        GREEN = ("green", "緑")
+                        BLUE  = ("blue",  "青")
+
+                        def __new__(cls, value, ja):
+                            obj = object.__new__(cls)
+                            obj._value_ = value  # RED.value
+                            obj.ja = ja          # RED.ja
+                            return obj
+                使用例: |
+                    print(Color.RED.value)  # red
+                    print(Color.RED.ja)     # 赤
+            型の別名: #keyword: Python TypeAlias  #// 列挙型の別名を作ります
                 Python 3.9 以前: |
                     __MyStatusEnum__ = __StatusEnum__
                 Python 3.10, 3.11: |
@@ -5527,7 +5563,11 @@
                                     open("file2") as file2, \
                                     open("file3") as file3:
                                 print(file1.read(), file2.read(), file3.read())
-                呼び出される側:  #keyword: Python __enter__ __exit__
+                呼び出される側:  #keyword: Python __enter__ __exit__  #// コンテキスト マネージャ プロトコル に対応する必要があります
+                    create だけする場合:
+                        ライブラリのオブジェクトが コンテキスト マネージャ プロトコル に対応していて、
+                        かつ、オブジェクトの生成(create)だけの関数（メソッド）だけを作るなら、
+                        コンテキスト マネージャ プロトコル に対応する必要はありません。
                     (@contextlib.contextmanager) を使う場合:
                         #search: @contextlib.contextmanager
                     __enter__, __exit__ を定義する場合:
@@ -5736,7 +5776,10 @@
                                 error_time_epoch: float = 0
                         default_factory: #keyword: Python default_factory field  #keyword: Python 配列 array list 辞書 dict 初期化 initialize
                             #focus: default_factory
-                            _: 基本的な型以外の初期値を設定するのに必要です
+                            _: 基本的な型以外の初期値を設定するのに default_factory が必要です。
+                                ミュータブルなオブジェクトに必要です。
+                                イミュータブルに使うと決めたオブジェクトでも default_factory が必要です。
+                                #search: Python datetime immutable
                             サンプル: |
                                 from dataclasses import field
 
@@ -5879,9 +5922,12 @@
             type, mro, isinstance, issubclass:  #// サブクラス
                 type:  #// インスタンス ⇒ 型  #keyword: Python type,  Python type typeof
                     書式: type(__Instance__) -> type or Type[__TypeOfInstance__]  #search: Python typing Type type
-                    文字列を返す場合: |
-                        str(type(__Instance__)) == "<class '__PeriodPath__.__Class__'>"
-                        "__Class__" in str(type(__Instance__))
+                    文字列を返す場合:
+                        値:  #// ドット記法（dot notation）
+                            "<class '__DotPath__.__Class__'>"
+                        コード: |
+                            str(type(__Instance__)) == "<class '__DotPath__.__Class__'>"
+                            "__Class__" in str(type(__Instance__))
                     基本: #focus: type
                         print(type(1) == int)  #// True
                     継承があるオブジェクトの型:
@@ -5904,6 +5950,14 @@
                                     print(sub.sub_attribute)
 
                             function(Sub())
+                    定義へのジャンプと実行時で違う場合: #keyword: Python Runtime Go to Definition,  Python runtime type info static type
+                        _: エディターの「定義へのジャンプ」機能で表示されるクラスが、実行時のクラスと違う場合があります
+                        実行時のクラスの確認方法:
+                            print(type(__Object__))  #// <class '__DotPath__.__Class__'>
+                            #// __DotPath__ 部分が微妙に違うことがよくあるので、VSCode 等でテキストを比較してください
+                        実行時のメソッドの引数の確認方法:
+                            import inspect
+                            print(inspect.signature(__Method__))  #// (__Argument1__, __Argument2__, ____)
                 Type[__TypeParameter__]:  #keyword: Python typing Type type
                     サンプル: |
                         a = 3         # Has type 'int'
@@ -6578,6 +6632,13 @@
                     print( element )
                 for  index, element  in  enumerate([ 1, 2, 3 ]) :
                     print( element )
+            インデックスとアイテム: #keyword: Python enumerate  #// for i, fruit in enumerate(fruits):
+                サンプル: |
+                    for i, fruit in enumerate(fruits):
+                        print(i, fruit)
+                使わない場合のサンプル: |
+                    for i in range(len(fruits)):
+                        print(i, fruits[i])
             インデックス: #keyword: Python range
                 for 文: |
                     for  num  in  range( 1, 5 ) :
@@ -6955,10 +7016,21 @@
                 パラメーターなし:  #// 再度 raise します
                     raise  #// 現在発生中の例外を、呼び出し元の except に raise します
                 exception chaining:  #keyword: Python exception chaining,  Python exception wrap  #// 発生した例外を変えて再度発生させる
-                    try:
-                        ...
-                    except Exception as exception:
-                        raise ValueError(f"call_index = {call_index}") from exception
+                    例外をラップします: |
+                        try:
+                            ...
+                        except Exception as exception:
+                            raise ValueError(f"call_index = {call_index}") from exception
+                    ラップした例外を受け取ります: |
+                        try:
+                            （上記を呼び出す）
+                        except ValueError as e:
+                            str(e)             #// "call_index = 3"
+                            str(e.__cause__)   #// 元の例外のメッセージ
+                            repr(e.__cause__)  #// "TypeError('something went wrong')" など
+                            format_exception_cause_chain(e)  #// チェーンの str を 1行ずつまとめたメッセージ
+                                #// call_index = 3
+                                #//  -> 元の例外のメッセージ
                     #ref: https://stackoverflow.com/questions/696047/re-raise-exception-with-a-different-type-and-message-preserving-existing-inform
                 その他: #ref: https://docs.python.org/ja/3/library/exceptions.html
                 raise という用語:  #ref: https://stackoverflow.com/questions/53600218/what-do-programmers-mean-when-they-say-raise-an-error-example-why-do-this
@@ -6993,16 +7065,14 @@
                 複数のクラス:  #// 複数のクラスの例外を同じコードの行で catch する場合:
                     except (NameError, TypeError) as error
                     #ref: https://stackoverflow.com/questions/6470428/catch-multiple-exceptions-in-one-line-except-block
-                継承サンプル: | #keyword: PublicError
-                    #focus: PublicError, public_message
+                継承サンプル: |  #focus: PublicError  #search: PublicError  #// エラーのサブクラスと他全部のクラスで except の飛び先を変えます
                     class PublicError(Exception):
-                        def __init__(self, public_message: str, private_message: str = ''):
-                            self.public_message = public_message
-                            self.private_message = private_message
+                        def __init__(self, *, for_customer: str = ""):
+                            self.for_customer = for_customer
                     try:
-                        raise PublicError('ユーザーに見せるエラーメッセージ')
+                        raise PublicError(for_customer='ユーザーに見せるエラーメッセージ')
                     except PublicError as exception:
-                        print(exception.public_message)
+                        print(exception.for_customer)
                     except Exception as exception:
                         print('Error.')
                         print(exception)
@@ -8865,6 +8935,45 @@
                 parameters = Parameters(**parameters_dict)
             キャメル ケース から スネーク ケース に変換することもできます。:
                 #ref: https://qiita.com/ninomiyt/items/a5c9252784a33f8eb464
+            (@model_serializer): #keyword: @model_serializer
+                Enum 値の名前を camel ケースにした値を代入します: |
+                    from pydantic import BaseModel, field_serializer, model_serializer
+                    from typing import Any
+
+                    def to_camel(snake: str) -> str:
+                        words = snake.lower().split("_")
+                        return words[0] + "".join(w.capitalize() for w in words[1:])
+
+                    class CamelEnumSerializerMixin(BaseModel):
+                        """Enum フィールドをすべて camelCase name で出力する Mixin"""
+
+                        @model_serializer(mode="wrap")
+                        def serialize_enums(self, handler: Any) -> dict:
+                            result = handler(self)
+                            for key, value in result.items():
+                                original = getattr(self, key, None)
+                                if isinstance(original, Enum):
+                                    result[key] = to_camel(original.name)
+                            return result
+
+                    # --- 使用例 ---
+                    class Role(Enum):
+                        SITE_ADMIN = 10
+                        GENERAL_USER = 20
+
+                    class UserResponse(CamelEnumSerializerMixin):
+                        name: str
+                        status: Status
+                        role: Role
+
+                    @app.get("/user")
+                    def get_user():
+                        return UserResponse(
+                            name="Alice",
+                            status=Status.USER_ACTIVE,
+                            role=Role.SITE_ADMIN,
+                        )
+                    # → {"name": "Alice", "status": "userActive", "role": "siteAdmin"}
             関連 >> @dataclass:
                 parameters = Parameters(**parameters_dict)
                 キャメル ケース から スネーク ケース に変換することはできないと思われる
@@ -11736,7 +11845,7 @@ Microsoft Store からダウンロードする:
                             2 LOAD_FAST                1 (b)
                             4 BINARY_ADD_UNICODE
                             6 RETURN_VALUE
-トラブルシューティング:
+トラブルシューティング: #keyword: Python trouble
     デバッグ実行:  #search: Python debug
     手順:
     - #// lambda で発生する例外をデバッグする  #search: LambdaDebugTracer for Python
@@ -11818,7 +11927,18 @@ Microsoft Store からダウンロードする:
         ログ: |
             TypeError: __init__() got an unexpected keyword argument '__Keyword__'
         対処:
-            
+            書きかけ
+    - #// List object is not subscriptable
+        手順:
+            List[____]
+        ログ: |
+            TypeError: 'type' object is not subscriptable
+        対処:
+            from ast import List
+                ↓
+            from typing import List
+        原因:
+            List がコレクションではないので [ ] が使えません
     - #// VSCode で Python のデバッグを起動したとき AttributeError: module 'matplotlib' has no attribute 'rcParams' と表示されてデバッグ対象のプロセスを起動できない
         手順: VSCode で Python のデバッグを起動
         ログ: |
@@ -11836,10 +11956,10 @@ Microsoft Store からダウンロードする:
                 class TemporaryClass(__SuperClass__, __Argument1__=__Value1__, __Argument2__=__Value2__):
         補足:
             これらの引数は、__SuperClass__ のクラス type(__SuperClass__) が要求しているようです。
-    - #// cannot load: module '__PeriodPath__' has no attribute '__FileName__'  #keyword: Python cannot load module has no attribute ModuleNotFoundError: No module named
+    - #// cannot load: module '__DotPath__' has no attribute '__FileName__'  #keyword: Python cannot load module has no attribute ModuleNotFoundError: No module named
         手順: python 実行
         エラー: |
-            cannot load: module '__PeriodPath__' has no attribute '__FileName__'
+            cannot load: module '__DotPath__' has no attribute '__FileName__'
             ModuleNotFoundError: No module named '__PeriodFilePath__.__ClassName__'; '__PeriodFilePath__' is not a package
         対処A:
             __Class__ でエラーになる場合:  #// ピリオドを含まない場合

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>Squid url_rewrite_program</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      flowchart: {
+        useMaxWidth: false
+      }
+    });
+    mermaid.parseError = function(err, hash) {
+        const el = document.getElementById('mermaid-error');
+        if (!el) return;
+        el.textContent = `Mermaid文法エラー: ${err.message}`;
+        el.style.display = 'block';
+    };
+  </script>
+<style>
+  .mermaid svg {
+    max-width: none !important;
+    height: auto;
+    transform-origin: top left;
+  }
+  .mermaid foreignObject div {
+    white-space: nowrap !important;
+  }
+</style>
+</head>
+<body>
+  <div id="mermaid-error" style="display:none; background:#fee; color:#600; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre-wrap;"></div>
+  <div id="diagram-wrapper" style="overflow-x:auto; width:100%;"></div>
+    <pre class="mermaid">
+
+sequenceDiagram
+    participant C as クライアント
+    participant S as Squid
+    participant R as url_rewrite_program<br/>(外部スクリプト)
+    participant O as オリジンサーバー
+
+    C->>S: HTTPリクエスト<br/>(例: http://example.com/page)
+
+    S->>R: URLを渡す (stdin)<br/>"http://example.com/page"
+
+    alt URLを書き換える場合
+        R->>S: 書き換えURLを返す (stdout)<br/>"OK rewrite-url=http://new-example.com/page"
+        S->>O: 書き換え後のURLへリクエスト
+    else 書き換えない場合
+        R->>S: そのまま返す (stdout)<br/>"ERR"
+        S->>O: 元のURLへリクエスト
+    else ブロックする場合
+        R->>S: ブロック指示 (stdout)<br/>"OK rewrite-url=http://block-page/"
+        S->>C: ブロックページを返す
+    end
+
+    O->>S: レスポンス
+    S->>C: レスポンスを転送
+
+    </pre>
+  </div>
+</body>
+</html>

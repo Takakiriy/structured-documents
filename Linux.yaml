@@ -123,6 +123,11 @@ man 検索: #keyword: Linux man
             Rocky8 >> PowerTools:  #keyword: Rocky8 PowerTools
                 dnf --enablerepo=powertools install -y  libnfnetlink-devel  #keyword: --enablerepo=powertools
         Docker イメージ:  #search: Docker Rocky
+        ネットワーク: #keyword: Rocky Linux network
+            nftables: #search:  #// Rocky9 以降
+                EditNetworkFilter
+            iptables: #search:  #// Rocky8 以前
+                AddToIPAccounting
         関連バージョン:
             Rocky Linux 8: RHEL 8, Fedora 28, 29, 30
         トラブルシューティング:
@@ -173,8 +178,30 @@ man 検索: #keyword: Linux man
             apk add:
                 apk add rsync  #// rsync を使えるようにします  #ref: https://pkgs.alpinelinux.org/package/v3.4/main/x86/rsync
     POSIX: #keyword:
-        祝🎉 POSIX.1-2024 (Issue 8) 改定！16年ぶりの大幅改定でシェルスクリプトはどう新しくなるのか  https://qiita.com/ko1nksm/items/b8dbf6aab82cb03eec51
-        POSIX の移植性の要は C 言語インターフェースです。文字列の大小を比較するための <, > 演算子の追加
+        POSIX.1-2024 (Issue 8):
+            祝🎉 POSIX.1-2024 (Issue 8) 改定！16年ぶりの大幅改定でシェルスクリプトはどう新しくなるのか  https://qiita.com/ko1nksm/items/b8dbf6aab82cb03eec51
+            POSIX の移植性の要は C 言語インターフェースです。文字列の大小を比較するための <, > 演算子の追加
+        unlink: #keyword: POSIX unlink,  syscall unlink
+            概要:
+                Linux や POSIX ではファイルの削除を unlink と言います。Dynamic Link などのリンクを外す意味ではありません。
+                システムコール unlink() から来ています。
+                #search: リーキー抽象
+            トラブルシューティング:
+                エラー, EPERM operation not permitted, syscall unlink:
+                    手順: npm ci など
+                    エラー: |
+                        npm error code EPERM
+                        npm error syscall unlink
+                        npm error path C:\Users\user1\GitProjects\GitHub\typrm\node_modules\sharp\build\Release\libgobject-2.0-0.dll
+                        npm error errno -4048
+                        npm error [Error: EPERM: operation not permitted, unlink 'C:\Users\user1\GitProjects\GitHub\typrm\node_modules\sharp\build\Release\libgobject-2.0-0.dll'] {
+                        npm error   errno: -4048,
+                        npm error   code: 'EPERM',
+                        npm error   syscall: 'unlink',
+                        npm error   path: 'C:\\Users\\user1\\GitProjects\\GitHub\\typrm\\node_modules\\sharp\\build\\Release\\libgobject-2.0-0.dll'
+                    対処:
+                        DLL を使っているプロセスを終了させます:
+                            #search: search Windows DLL user
 for Windows:
     （環境判定）:
         Linux か Windows かを判定します: #keyword: if Git bash Windows Linux  #// Git bash で実行されているかどうかを判定します
@@ -643,8 +670,11 @@ for Windows:
                 #search: ModifyGlobalVariables USERPROFILE
             ファイル間で共有, 動的定義: #keyword: bash global export  #// 変数定義のスクリプト（文字列）から変数を定義します。source や eval の安全なバージョン
                 DefineGlobalVariablesSafely: #keyword:  #// 他のスクリプトが定義する変数の値をインポートすることもできます
-                    定義: |  #// import する側に定義します
+                    関数定義: |  #// import する側に定義します。変数を参照する側に書きます
                         function  DefineGlobalVariablesSafely() {
+                            #// Example:
+                            #//     DefineGlobalVariablesSafely  "$( cat "${instanceFilePath}"  ||  echo "" )"
+                            #//     DefineGlobalVariablesSafely  "$( ./sub-script.sh --variables )"
                             local  defineScriptString="$1"
                             local  cr=$'\r'
                             local  regularExpression="^([A-Za-z_][A-Za-z0-9_]*)='([^']*)' *${cr}?$"  #// Name='Value' format
@@ -688,6 +718,7 @@ for Windows:
                             echo  "VMGroup='${VMGroup}'"
                             echo  "VMGroupDefault='${VMGroupDefault}'"
                         }
+                    関連 >> インスタンス ファイル:  #search: bashlib instance file
                 オプションの継承, SubScriptOptions:  #keyword: SubScriptOptions,  sub child options shell script 継承
                     #// 他の シェルスクリプト ファイル を呼び出すときに常に設定するオプションを集めた変数を定義すると便利です
                     InstallBaseScriptOptions=()
@@ -927,6 +958,7 @@ for Windows:
                     #ref: ${GitHub}/shell-script-tutorial/4-data/1-string.sh#Trim
                     #ref: https://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable/75467732#75467732
                 関連 >> sed >> 一部を参照する, 一部を削除する:  #search: sed delete
+                関連 >> strict CSV:  #search: bash strict CSV
             複数行: #keyword: bash str multi line
                 サンプル: |  #// インデントは削除してください
                     lines=\
@@ -1092,6 +1124,7 @@ for Windows:
                     出力: |
                         ./_sh: line 1: syntax error: unexpected "("
                     参考:  #search: busybox "$@"
+                関連 >> strict CSV:  #search: bash strict CSV
             要素数:  #keyword: bash array count,  bash array length
                 配列: "${#__Array__[@]}"  #// 2 のとき [1] まで存在します (${__Array__[1]})
                 引数: "$#"                #// 2 のとき [2] まで存在します ($2)
@@ -1114,6 +1147,7 @@ for Windows:
                     for (( i = 0; i < ${#arr[@]}; i ++ )); do  #// i ++ の代わりに i += 2 もできます
                         echo  "${arr[${i}]}"
                     done
+                サンプル:  #search: bash arguments loop
             追加: #keyword: add Linux bash array
                 配列の場合:  #// 以下のいずれか
                     - arr+=( "add" )
@@ -1207,7 +1241,7 @@ for Windows:
                     printf '%s\n' "${output[@]}"  >  "${outputFile}"
             検索:  #search: Linux bash array loop  #search: strict CSV item match
             演算, 共通, 差分:  #search: Linux comm
-            関連 >> 引数をループします:  #search: bash arguments loop
+            関連 >> strict CSV:  #search: bash strict CSV
         連想配列 (bash): #keyword: Linux bash associative array,  bash dic hash
             初期化: #keyword: create bash associative array,  bash declare -A
                 初期値付き: |
@@ -2518,7 +2552,7 @@ for Windows:
                 検索結果の表示方法:  #search: grep output
                 （色を付けるだけ）: #keyword: color grep  #// 入力した内容をそのまま表示しつつ、マッチした部分だけ色を付けます
                     cat  __FilePath__  |  grep -E --color=always  "__Pattern__|$"
-        キーワードの指定方法: #keyword: grep keyword
+        (in) キーワードの指定方法: #keyword: grep keyword
             -F オプション: パターンを正規表現ではなく、文字列として解釈します
             -f オプション: パターンをファイルから読み取ります
             -v オプション: どのパターンにも含まない行を出力します  #search: bashlib CutCommonPartLines
@@ -2527,7 +2561,7 @@ for Windows:
                 code  ~/_tmp.txt   #// コマンドに絵文字を指定できないので、ファイルに絵文字を書きます
                     abc🔥def
                 grep -P 'bc\x{1F525}de'  ~/_tmp.txt  #// 1F525 は🔥の文字コードです  #search: grep -P
-        検索結果の表示方法: #keyword: grep output
+        (out) 検索結果の表示方法: #keyword: grep output
             -n オプション: みつかった場所の行番号も表示します。
                 __LineNum__:__LineText__
                 #// VSCode でジャンプできるようにコロンの後に必ず空白を入れる場合: #search: grep path space
@@ -3662,6 +3696,15 @@ for Windows:
                 #// "{ folder1, folder2 }" にすると、1つの { folder1, folder2 } フォルダーができます。
                 #// '{ folder1, folder2 }' でも同じです
                 #// {{folder1}} のように { や } が 2つ連続する場合は展開されず、そのままコマンドのパラメーターに渡ります
+    touch: #keyword:  #// 空のファイルを作ります
+        touch-p, フォルダーも作る場合: #keyword: touch-p  #// 指定したパスがファイルのパスとして、ファイルを格納するフォルダーが無ければ、touch コマンドはエラーになります
+            touch-p コマンドを作ります:
+                #// ~/bin に PATH が通っている場合
+                mkdir -p ~/bin
+                echo  'mkdir -p "$( dirname "$1" )" && touch  "$1"' > ~/bin/touch-p
+                chmod +x  ~/bin/touch-p
+            実行します:
+                touch-p  __FilePath__
     rm:
         ❗注意: ディスク使用量削減のために ログ ファイル を削除してはいけません。サイズを変えます  #search: truncate
         ファイルを削除します:  rm __FilePath__
@@ -5833,9 +5876,9 @@ for Windows:
                     #search: Linux expect
             クライアントで使われる SSH キー: #keyword: using client SSH key  #// ssh コマンド などで SSH キー を指定する方法
                 __User__@__Host__ 形式の場合:
-                    - ssh-agent で指定したもの  #search: ssh-agent
                     - ~/.ssh/config の HostName にマッチする設定の IdentityFile の値  #search: ~/.ssh/config
                     - ~/.ssh/id_rsa  または  ~/.ssh/id_ecdsa  または  ~/.ssh/id_ed25519
+                    - ssh-agent で指定したもの  #search: ssh-agent
                 __ConfigName__ 形式の場合:
                     ~/.ssh/config の Host にマッチする設定の IdentityFile の値
                 #search: SSH key
@@ -6134,7 +6177,7 @@ for Windows:
                             ~/.netrc: #search:
                     id_rsa.pub, 公開鍵: #keyword: 公開鍵,  id_rsa.pub,  SSH (@client) ~/.ssh/id_rsa.pub  #// クライアントの公開鍵。サーバー内
                         - 秘密鍵を生成したときに同時に作られます
-                        - 内容以外は使われません（内容をコピーできます）
+                        - 内容以外は使われません  #// 内容をコピーして使えます。ファイル名を変えられます
                         - このファイルの情報は秘密鍵から調べることができるので削除できます  #search: SSH show public key
                         - このファイルの情報はサーバーの authorized_keys ファイルの一部に記入します
                         - ログインするときにこのファイルは参照されません
@@ -6182,7 +6225,7 @@ for Windows:
                             １行＝１サーバー（ホスト）です:
                                 __ServerName__,__ServerAddress__ __CypherType__ __ServerPublicKey__
                             __ServerPublicKey__: サーバーの公開鍵。fingerprint とは違います。fingerprint は公開鍵のハッシュ値です
-                        接続してよいかの確認のサンプル: |  #keyword: SSH fingerprint,  Are you sure you want to continue connecting (yes/no)?
+                        接続してよいかの確認のサンプル: |  #keyword: SSH fingerprint example,  Are you sure you want to continue connecting (yes/no)?
                             [user1@localhost packages]$ ssh git@github.com
                             The authenticity of host 'github.com' can't be established.
                             ECDSA key fingerprint is SHA256:lfadfaewffwefwfwfewefwefew.
@@ -6225,7 +6268,7 @@ for Windows:
                         #// 上記のコマンドはログインしてすぐ exit コマンドでログアウトします
                         #// No route to host エラーになったら追加されません
                 #↓ 属性
-                フィンガー プリント:  #// 鍵を識別するための値。SSH キー の フィンガー プリント をハッシュ値で表示します
+                フィンガー プリント: #keyword: SSH ID,  SSH fingerprint  #// 鍵を識別するための値。SSH キー の フィンガー プリント をハッシュ値で表示します
                     #// 同じ フィンガー プリント でも各種方式のハッシュ値を表示できます
                     MD5 ハッシュ値:  #// MD5:__:__:__:__ ...
                         ssh-keygen -l -E md5 -f __PubOrPrivateFilePath__
@@ -6233,6 +6276,12 @@ for Windows:
                     SHA256 ハッシュ値:  #// SHA256://____
                         ssh-keygen -l -f __PubOrPrivateFilePath__
                             2048 SHA256://__Hash__ vagrant@localhost.localdomain (RSA)
+                    サンプル:  #search: SSH fingerprint example
+                    #↓ 関連
+                    鍵を特定します:
+                        URL や ~/.ssh/config から鍵を特定します:  #search: using client SSH key
+                        公開鍵から鍵を特定します:  #search: 公開鍵
+                        フィンガー プリント から鍵を特定します:  #search: SSH fingerprint
                 パスワードの変更: #keyword: change SSH password
                     ssh-keygen -p  -f ~/.ssh/id_rsa
                 パスフレーズの有無を調べます: #keyword: SSH key passphrase request
@@ -7001,9 +7050,75 @@ for Windows:
                         CRL を生成します:  #keyword: create CRL
                             PEM 形式:
                                 openssl ca  -gencrl  -out crl.pem  -config openssl.cnf
-                            DER 形式:
+                            DER 形式:  #// DER 形式（バイナリ）は PEM より約30%小さくなります
                                 PEM から DER に変換します:
                                     openssl crl  -in crl.pem  -outform DER  -out crl.der
+                            大きい CRL ファイル:
+                                large_crl_create.sh: |
+                                    #!/bin/bash
+                                    if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
+                                    #// 大きい CRL ファイルの作成
+                                    #// ./large_crl_create.sh  1_370_000  ./large_39MB.crl
+                                    #// ./large_crl_create.sh  1_420_000  ./large_41MB.crl
+                                    EntryCount="$1"
+                                    OutputCRL="$2"
+
+                                    #// ディレクトリ構成
+                                    rm -rf  ./_ca
+                                    mkdir -p _ca/{certs,crl,newcerts,private}  ||  exit 2
+                                    touch _ca/index.txt    ||  exit 2
+                                    echo 1000 > _ca/serial  ||  exit 2
+                                    echo 1000 > _ca/crlnumber  ||  exit 2
+
+                                    #// CA 秘密鍵と自己署名証明書の作成
+                                    openssl genrsa -out "_ca/private/ca.key" 4096  ||  exit 2
+                                    openssl req -new -x509 -days 3650 \
+                                    -key "_ca/private/ca.key" \
+                                    -out "_ca/certs/ca.crt" \
+                                    -subj "/CN=Test CA"  ||  exit 2
+
+                                    #// 大量の失効エントリを index.txt に直接書き込む
+                                    python <<- __HERE_DOCUMENT__  ||  exit 2
+                                    import datetime
+                                    count = ${EntryCount}                          # エントリ数（ファイルサイズが変わります）
+                                    with open("_ca/index.txt", "w") as f:
+                                        for i in range(count):
+                                            serial = format(0x1000 + i, '06X')
+                                            # 失効日時（ASN.1 UTCTime形式）
+                                            revoke_date = "240101000000Z"
+                                            # フォーマット: R <有効期限> <失効日時> <シリアル> unknown <DN>
+                                            f.write(f"R\t991231235959Z\t{revoke_date}\t{serial}\tunknown\t/CN=cert{i}\n")
+                                    print(f"{count} エントリを生成しました")
+                                    __HERE_DOCUMENT__
+
+                                    #// openssl.cnf の設定
+                                    echo \
+                                    '[ ca ]
+                                    default_ca = CA_default
+
+                                    [ CA_default ]
+                                    dir               = ./_ca
+                                    database          = $dir/index.txt
+                                    crlnumber         = $dir/crlnumber
+                                    certificate       = $dir/certs/ca.crt
+                                    private_key       = $dir/private/ca.key
+                                    default_crl_days  = 30
+                                    default_md        = sha256
+
+                                    [ crl_ext ]
+                                    authorityKeyIdentifier = keyid:always
+                                    '   >  "_ca/openssl.cnf"  ||  exit 2
+
+                                    #// CRL の生成
+                                    echo  "#// openssl ca"
+                                    openssl ca  -config "_ca/openssl.cnf"  -gencrl  -out  "${OutputCRL}"  ||  exit 2
+
+                                    #// サイズ確認・検証
+                                    echo  "#// check"
+                                    openssl crl  -in "${OutputCRL}"  -noout -text | head -50  ||  exit 2
+                                    ls -lh  "${OutputCRL}"  ||  exit 2
+
+                                    rm -rf  ./_ca
                         失効されたことをチェックします:  #// 主にブラウザー内
                             1. ブラウザが証明書を受け取る
                             2. 証明書内の CRL URL を読み取る
@@ -7044,7 +7159,7 @@ for Windows:
                                             X509v3 CRL Distribution Points:
                                                 Full Name:
                                                 URI:http://crl.example.com/example-ca.crl
-                        CRL, 証明書失効リスト:
+                        CRL, 証明書失効リスト, RFC 5280:
                             含まれる情報:
                                 発行者（Issuer）
                                 発行日時（This Update）
@@ -7071,7 +7186,9 @@ for Windows:
                                     python3 -m http.server 8080
                                     # http://localhost:8080/dev-crl.pem
                                 6. アプリケーションがCRLを正しく確認するかテスト
+                            CRL を生成します:  #search: create CRL
                             形式チェック:  #search: check CRL type
+                        OCSP, CRLite:  #// CRL の改良版
             ファイル: #keyword: SSL files
                 （関係図）: 
                 server_private.key:  #search: サーバーの秘密鍵
@@ -7863,10 +7980,12 @@ for Windows:
             d 1
             quit
             #search: Linux mail command
-        virtual_alias_maps: #keyword: postfix virtual_alias_maps  #// 複数のメールアドレスに来たメールを 1つのユーザーが受信できるようにします
+        virtual_alias_maps: #keyword: postfix virtual_alias_maps,  virtual mail account user  #// 複数のメールアドレスに来たメールを 1つのユーザーが受信できるようにします
             設定します:  #focus: __VirtualAccountName__, __RecieverUserName__  #// localhost に複数のメールアドレスを作る場合
                 sudo vi /etc/postfix/virtual
                     __VirtualAccountName__@localhost  __RecieverUserName__
+                    __VirtualAccountName__@localhost  __RecieverUserName__
+                    ...
                 sudo postmap  /etc/postfix/virtual
                 sudo vi  /etc/postfix/main.cf
                     virtual_alias_domains = localhost
@@ -9796,6 +9915,8 @@ for Windows:
                     Error: Failed to download metadata for repo '__RepositoryName__': repomd.xml parser error: Parse error at line: 84 (Opening and ending tag mismatch: link line 0 and head
                 対処A:
                     リポジトリを Public にします
+                対処B:
+                    リポジトリのミラーを作ります
             - #// 古い RPM（同じファイル名）がインストールされてしまう  #search: old RPM installed
             - #// yum history が右端で途切れる: #search: yum history width
             - #// yum install remove syntax error near unexpected token `fi'
@@ -10061,7 +10182,18 @@ for Windows:
                         ファイル サイズ や ファイル の内容を確認し、それぞれに応じた対処をしてください
         関連: #search: systemctl, journalctl
     brew: #keyword:
-        brew install jq
+        手順:
+            brew をインストールします:
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            VSCode を開いていたら、VSCode を完全再起動します:
+            Formula をインストールします:
+                brew install jq  #// サンプル
+        構成:
+            Formula: CLIツール・ライブラリ
+                brew install git など
+            Cask: GUIアプリ（.app）
+                brew install --cask firefox など
+            Tap: Formulaをまとめたリポジトリ
     GPG キー:  #// GNU Privacy Guard(GnuPG)、ソフトウェアの署名集、インストールする内容のチェックに使われます  #keyword: RPM GPG key
         Ansible から GPG キーをインストールします:  #search: ansible rpm_key
     tar.gz:  #keyword: tar
@@ -13697,10 +13829,11 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                             細かい config ほど上（遠く）に表示されるように CallStartOperationsInCorrectOrder などを定義します
                         表示量:
                             多くても10行程度にします。他の status も同時に表示されることが多いため
-                    --config:  #// コンフィグ（モード）の参照・変更。グローバル変数
+                    --config: #keyword: tasks.sh --config  #// コンフィグ（モード）の参照・変更。グローバル変数
                         参照: ./tasks.sh  --config __Key__            #// __Key__ は基本的に Pascal ケース
+                        一覧: ./tasks.sh  --config
                         設定: ./tasks.sh  --config __Key__=__Value__
-                        複数: ./tasks.sh  --config __Key__=__Value__&__Key__=__Value__
+                        複数: ./tasks.sh  --config __Key__=__Value__&__Key__=__Value__  #// 複数設定
                         デフォルトに戻す: #keyword: tasks.sh --config All=Default
                             実行: ./tasks.sh --config All=Default  all   #// __Key__ が All 以外でも Default を予約語のように使えます。all は全ての tasks.sh を対象にします
                             作成: #// サービスが All を受け付けるようにします
@@ -13721,6 +13854,13 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                             以下を出力する処理が必要です
                                 __Service__:__SubCommand__| from __Operation__
                                 __Service__:__SubCommand__?__Key__=__Value__| from __Operation__
+                        編集対象が他の行とマッチしてしまう場合: #keyword: tasks.sh --config comment
+                            設定ファイルの行:
+                                編集前のサンプル: |
+                                    port: 8083
+                                編集後のサンプル: |
+                                    port: 8083  # tasks.sh --config ZabbixPort=WireMock
+                            自動編集関数:  #search: SetKeyValue
                     --value:  #// コンフィグ参照時に最初の値だけ表示します
                         #search: bashlib ValueFilter
                     固有サブコマンド:  #search: tasks.sh specific sub command
@@ -13830,7 +13970,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     --single-process:
                         --stop:
                         --state:
-            コール ツリー: #keyword: tasks.sh call tree  #focus: --start, --only  #// 依存するそれぞれのサービスについて start などの処理をします
+            コード: #keyword: tasks.sh call tree  #focus: --start, --only  #// 依存するそれぞれのサービスについて start などの処理をします
                 # cd  __Root__
                 # ./tasks.sh  --start  __ServiceName__
                 (root)/tasks.sh:  #// __Main__/tasks.sh を呼び出します。__ServiceName__ から __Main__ のパスを解決します
@@ -13848,6 +13988,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                         #// 設定値の優先度は ConfigValuePriority 変数 に従います
                                 CallStartOperationsInCorrectOrder:
                                     CallOperationIfSelected (1):  #// --only オプションを付けて依存するサービスを起動する関数
+                                        # "${serviceScriptPath}" "${optionAndParametersArray[@]}"  --only  "${arguments[@]}"  ||  Error
                                         # __Sub__/tasks.sh  --start --only  #// 冪等性を持たせること
                                         (sub)/tasks.sh:
                                             StartOnly:
@@ -13857,6 +13998,19 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                         (main)/tasks.sh:
                                             StartOnly:
                                                 主な処理
+                                CallForegroundCommamdIfSelected:
+                                    # grep -E  ':(start-command|log|follow)\|'  | \
+                            DelegateToRoot:
+                                Systemd:
+                                    SystemdStart:
+                                    SystemdStop:
+                                    SystemdLog:
+                                    SystemdFollow:
+                                Docker:
+                                    # if [ "${Options_Docker}" != "" ]; then
+                                    #     if [ "${Options_Stop}" != "" ]; then
+                                    # if [ "${Options_DockerCompose}" != "" ]; then
+                                    #     if [ "${Options_Start}" != ""
             開発:  #search: tasks.sh development
         cron, crontab:  #keyword: cron,  Linux 定期実行 スケジュール  #// 定期的にスクリプトを自動実行します。クロンタブ。読みは様々 クーロン、クロン、クローン
             概要: cron は、指定した日時になると、ジョブ（スクリプト）を自動実行するデーモン・プロセスです。
@@ -14100,6 +14254,31 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
     終了コード: #keyword: exit code,  終了ステータス
         参照: $?
         終了コードを変数に入れます:  #search: exit code variable
+        値:  #// POSIX / 慣習的に意味が決まっている終了コード
+            POSIX 標準:
+                0 — 成功
+                1 — 一般的なエラー
+                2 — シェルの使い方の誤り（misuse of shell builtins）
+            bash の特殊値:
+                126 — コマンドは見つかったが実行できない（権限なしなど）
+                127 — コマンドが見つからない
+                128 — exit に不正な引数
+                128+N — シグナル N で終了（例：130 = Ctrl+C = SIGINT）
+                130 — SIGINT (Ctrl+C)
+                137 — SIGKILL
+                143 — SIGTERM
+            慣習的（sysexits.h）:
+                64 — EX_USAGE（コマンドライン引数の誤り）
+                65 — EX_DATAERR（入力データの誤り）
+                66 — EX_NOINPUT（入力ファイルが開けない）
+                69 — EX_UNAVAILABLE（サービス利用不可）
+                70 — EX_SOFTWARE（内部ソフトウェアエラー）
+                71 — EX_OSERR（OS エラー）
+                72 — EX_OSFILE（システムファイルが開けない）
+                74 — EX_IOERR（I/O エラー）
+                75 — EX_TEMPFAIL（一時的な失敗、再試行可）
+                78 — EX_CONFIG（設定エラー）
+                #// スクリプトで独自コードを定義する場合は 64〜113 の範囲が慣習的に使われます。
         エラーを発生させます:  #// エラーが発生したときに終了コードの値を表示します
             sed コマンドでエラーを発生させる: |
                 $ sed 's/error'
@@ -14410,12 +14589,23 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
         終了コード:
             指定した子プロセスの終了コード
             すでに終了していても取得できます
-    setsid:  #// 別セッションに隔離します。親プロセスと異なる PGID にします。プロセスをターミナルから切り離します（ファイルへリダイレクトで出力はできます）
-        サンプル: |  #focus: setsid,  my-service
+    setsid:  #// 起動するプロセスを別セッションに隔離します。サービスなどの子プロセスを非同期で起動するときに使えます
+        概要:
+            - 親プロセスと異なる PGID にします  #search: PGID
+            - 親プロセスに対して Ctrl+C キーを押したときや異常終了したときに期待通り子プロセスを終了するようにできます
+            - プロセスをターミナルから切り離します。ファイルへリダイレクトすれば出力内容は分かります
+            - bashlib を使う場合、関連する関数定義を用意し、DeferKillProcessGroup を呼ぶ必要があります
+        #↓ 手順
+        サービスを起動します: |  #focus: setsid,  my-service,  DeferKillProcessGroup
             PYTHONUNBUFFERED=1  setsid  ./my-service  >  >( tee "./service.log" )  2>&1  &  #search: pipe like process substitution
             local  servicePID=$!  #// $! は setsid の PID です。 通常、setsid 内部で exec を実行しているため、my-service の PID でもあります
             DeferKillProcessGroup  "${servicePID}"  #search: DeferKillProcessGroup
-        PGID: #search:
+        子プロセスの開始を待ちます:  #// サービスの起動または異常終了するまで待ちます  #search: WaitForOpenPortOrProcessExit
+        プロセスを終了するタイミング:
+            明示的に終了させます:  #// サービスの使用やテストなどが終了したとき  #search: KillProcessGroup
+                CancelDeferKillProcessGroup を呼ぶ必要はありません
+            親プロセス終了時:  #// 親プロセス終了時に子プロセスも終了します  #search: AtExitForDeferKillProcessGroup
+            子プロセス終了時:  #// 子プロセスが終了したので登録を解除します  #search: CancelDeferKillProcessGroup
     timeout:  #// タイムアウトを設定してコマンドを実行します。ただし、シェルスクリプトでは Ctrl+C が効かなくなるようです。
         ターミナルに入力する場合: |
             timeout 5s  read -s -p "Enter password: "  PASSWORD
@@ -15260,14 +15450,15 @@ bash: #keyword: bash  #// Bourne Again Shell
                     $0:
                         mac: スクリプトのパス
                         Windows: ？
-                        カレント フォルダー:
+                        カレント フォルダー: #keyword: cd this file folder
                             新しい方法:
                                 移動: |  #keyword: cd this file folder,  bash-debug|systemd  #// カレント フォルダー をスクリプトがあるフォルダーに移動します
                                     if [[ "$0" == *"/"*  &&  "$0" != *"bash-debug"*  &&  "$0" != *"systemd"* ]]; then  cd "${0%/*}"  ;fi  # cd this file folder
                                         または
                                     if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
                                         （後者は遅い）
-                                応用: |  #keyword: ThisScriptFullPath, ThisFolderFullPath, ParentFolderName
+                                応用: |  #keyword: ParentProcessCurrentFolder, ThisScriptFullPath, ThisFolderFullPath, ParentFolderName
+                                    ParentProcessCurrentFolder="${PWD}"
                                     if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
                                     ThisScriptFullPath="$( readlink -f "${0##*/}" )"
                                     ThisFolderFullPath="${ThisScriptFullPath%/*}"
@@ -15283,7 +15474,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 cd  "${ThisFolderFullPath}"
                     _Dbg_DEBUGGER_LEVEL 環境変数: 空でなければ、デバッガーに接続しています
                 関連 >> set -x:
-                関連 >> pp: |  #keyword: bashlib pp  #// デバッグ用表示。複数行の値も表示できます
+                関連 >> pp: |  #keyword: bashlib pp,  pp  #// デバッグ用表示。複数行の値も表示できます
                     #section: Debug
 
                     function  pp() {
@@ -15356,8 +15547,8 @@ bash: #keyword: bash  #// Bourne Again Shell
                     変数の値の表示:  EACH_BREADCRUMB='eval  echo  " @@@ PWD = ${PWD}"'  __Command__
                 ログ サンプル:  #ref: ${GitHub}/breadcrumb/log#EACH_BREADCRUMB
             --new-start オプション:
-            サブ ジョブ 対応: #keyword: sub job breadcrumb,  bash sub job  #search: Linux job  #// サブ ジョブ としてプロセスを起動して、処理を並列に進めるときの、開始位置
-                --sub-job オプション 仮対応: |  #focus: Options_SubJob  #// --sub-job が指定されたら、--start-at の位置が後に設定したとしても、サブ ジョブ を起動します
+            サブ ジョブ 対応: #keyword: sub job breadcrumb,  bash sub job,  --sub-job  #search: Linux job  #// サブ ジョブ としてプロセスを起動して、処理を並列に進めるときの、開始位置
+                --sub-job オプション 仮対応: |  #focus: startAt, Options_SubJob  #// --sub-job が指定されたら、--start-at の位置が後に設定したとしても、サブ ジョブ を起動・実行します（--start-at によってスキップされなくなります）
                     --sub-job) Options_SubJob="yes"; shift;;
                     function  StartSubJob() {
                         PushBreadcrumb  " >> subJob"  -o  "${Options_SubJob}" != ""  "HasStarted"  ||  return  0
@@ -15832,15 +16023,16 @@ bash: #keyword: bash  #// Bourne Again Shell
             getopts 版:  #keyword: bash getopts
                 注意: 長いオプション名が使えません。例 --help は使えません
                 参考: #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#opt
-            MakeOptionString: #search:
+            AddOptionToArray: #search:
             参考:
                 Stack overflow: #ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
                 bash によるオプション解析: #ref: https://qiita.com/b4b4r07/items/dcd6be0bb9c9185475bb
                 Snap Note: #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#bash_param
-        継承して指定: #keyword: bashlib MakeOptionString example  #search: bashlib MakeOptionString
-            local  testOption="$( MakeOptionString  "  --test"  "${Options_Test}" )"
-            command  ${testOption}
-            SubScriptOptions="${testOption}${anotherOption}"
+        継承して指定: #keyword: bashlib AddOptionToArray example,  bashlib MakeOptionString example  #search: bashlib AddOptionToArray
+            local  options=()
+            AddOptionToArray  options  "--test"  "${Options_Test}"
+            command  "${options[@]}"
+            SubScriptOptions="${options[@]}"
             sub-script  ${SubScriptOptions}
         サブコマンド: #keyword: bash subCommand  #// ハイフン無し
             入力サンプル:
@@ -17013,9 +17205,16 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ログ: PushBreadcrumb, PopBreadcrumb, HasStarted, EchoWithBreadcrumb, SetBreadcrumb, OnEachBreadcrumb,
             EchoParentProcessBreadcrumb, GetStartAtOption, SetStartAt
             #search: shell script breadcrumb
+        ユーザー インターフェース: EchoWithIndent, Input, CompleteName, RunWithEcho, RunAfterPause
         アサーション: AssertExist, AssertNotExist, AssertReadOnly, AssertNotReadOnly, AssertInstalled
         比較: Compare, GetDiffFilePaths, CutTimeStampInDiffOutput, CutFilePathInDiffOutput
-        実行: RunInGitBash, RunWithEcho, RunInGitBashSilent, RunAfterPause, RunUntil, SendAndRunViaSSH, MakeOptionString
+        実行: RunInGitBash, RunWithEcho, RunInGitBashSilent, RunAfterPause, RunUntil, SendAndRunViaSSH, AddOptionToArray
+        プロセス: IsProcessExists, RunUntil, AddOptionToArray
+        プロセス起動終了待ち: WaitForUpMySQL, WaitForOpenPortOrProcessExit, WaitForLineInFileOrProcessExit, WaitForProcessFinished
+        プロセス グループ: DispatchProcessGroupMethod, KillProcessGroup, DeferKillProcessGroup, AtExitForDeferKillProcessGroup, CancelDeferKillProcessGroup
+        環境変数: LoadEnvironmentVariables, DefineGlobalVariablesSafely, LookUpEnvironmentVariable, Evaluate, DefineVariable, UnsetVariables, 
+        シェルの初期化: AddPATHEnvironment, AddToBashrc, GetCurrentShellOptions, SetShellOptions
+        ユーザー アカウント: AllowNoPasswordSudo
         ファイル:
             一般ファイル: CopyFolder, DeleteFolder, RestoreFolder, GetHash, WaitForFileExists, WaitForRemoteFileExists
             Zip: CheckZipCommandInstalled,  GetFileSizeIn7z
@@ -17078,24 +17277,19 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             演算: CommonLines, NotCommonLines  #search: Linux comm
         検索: GrepLineNumRange
         辞書: SetToTabDic, GetFromTabDic, TestOfTabDic  #keyword: TabDic
-        ユーザー インターフェース: EchoWithIndent, Input, CompleteName, RunWithEcho, RunAfterPause
-        ネットワーク: GetIpAddress, AddKnownHost, CheckKnownHost, RemoveOldKnownHost
-        プロセス: IsProcessExists, WaitForProcessFinished, RunUntil, MakeOptionString, WaitForUpMySQL,
-            KillProcessGroup, DeferKillProcessGroup, AtExitForDeferKillProcessGroup, CancelDeferKillProcessGroup
-        ユーザー アカウント: AllowNoPasswordSudo
         Git: GetCommitID, GetCurrentGitBranch, ChangeGitBranch, AllFilesAreGitAdd, CheckIfGitResetState, EchoGitLogTree,
             GitCheckOut, GitStatusShort, CopyGitModifiedFiles, SetGitCommitDate
         WSL: ShowWslHelp, CheckDebugDistroOfWSL
         Ansible: LoadAnsibleHosts
         Python: CreatePythonVenv
-        環境変数: LoadEnvironmentVariables, LookUpEnvironmentVariable, Evaluate, DefineVariable, UnsetVariables, 
-        シェルの初期化: AddPATHEnvironment, AddToBashrc, GetCurrentShellOptions, SetShellOptions
+        ネットワーク: GetIpAddress, AddKnownHost, CheckKnownHost, RemoveOldKnownHost
         その他: NoOperation
     関数 >> その他 ABC 順: #keyword: bash library bashlib  #glossary: bashlib
         AddKnownHost:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  AddKnownHost
-        AddOptionToArray:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddOptionToArray
+        AddOptionToArray: #keyword: bashlib add option  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddOptionToArray
             #search: remove bash array empty element
             #search: SubScriptOptions
+            #search: ParseOption
             #ref: https://claude.ai/chat/8a5504c3-b1e2-4b16-9d44-98476fe0b288
         AddPATHEnvironment:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddPATHEnvironment
         AddToBashrc:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AddToBashrc
@@ -17109,9 +17303,14 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         AssertReadOnly: #ref: ${GitHub}/locommit/test/test-locommit#function  AssertReadOnly
         AssertNotReadOnly: #ref: ${GitHub}/locommit/test/test-locommit#function  AssertNotReadOnly
         AssertInstalled: #ref: ${GitHub}/locommit/test/test-locommit#function  AssertInstalled
+        AtExitForDeferKillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  AtExitForDeferKillProcessGroup
+            #search: setsid
+        CancelDeferKillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CancelDeferKillProcessGroup
+            #search: setsid
         ChangeGitBranch: #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  ChangeGitBranch()
         CheckLinesInLog:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckLinesInLog
             #search: manage.py without buffer
+        CheckLinesInLogFile:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckLinesInLogFile
         CheckLogByGrep:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckLogByGrep
             通常の推奨:  #search: CheckLinesInLog
             #// 古い名前： CheckByGrep
@@ -17147,13 +17346,13 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         CutSingleQuotation:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CutSingleQuotation
         CutTimeStampInDiffOutput: #ref: ${GitHub}/MyPrivateCode/bash/sh-order/sh-order.sh#CutTimeStampInDiffOutput()
         DeferKillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  DeferKillProcessGroup
-            #search: AtExitForDeferKillProcessGroup
-            #search: CancelDeferKillProcessGroup
-            #search: KillProcessGroup
             #search: setsid
         DefineVariable: #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  DefineVariable()
         DeleteFolder: #ref: ${GitHub}/locommit/test/test-locommit#function  DeleteFolder
         DeleteMatchedLines: #keyword:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  DeleteMatchedLines
+        DisaptchFunction: #keyword:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  DisaptchFunction
+            LibScript="${RootFolder}/script.sh  --library-function"
+        DispatchProcessGroupMethod:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  DispatchProcessGroupMethod
         EchoCommonLines:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EchoCommonLines
             推奨: #search: CommonLines
         EchoDebuggerParameters:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EchoDebuggerParameters
@@ -17291,6 +17490,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         IsWindowsFile:  #ref: ${GitHub}/locommit/bin/locommit#function  IsWindowsFile
         IsWindowsFolder:  #ref: ${GitHub}/locommit/bin/locommit#function  IsWindowsFolder
         KillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  KillProcessGroup
+            #search: setsid
         LastIs: #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  LastIs
             #// $(  ) の中で発生したエラーを処理します
             #search: bashlib EndsWith
@@ -17323,9 +17523,13 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ParseKeyValueKey:    #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  ParseKeyValueKey
         ParseKeyValueValue:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  ParseKeyValueValue
             関連: #search: GetValueFromKeyValueText
+        ParseOption:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ParseOption
         Pause:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  Pause
+        Playwright:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  Playwright
+        PlaywightHasSkippedTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  PlaywightHasSkippedTest
         PopBreadcrumb:  #ref: ${GitHub}/breadcrumb/breadcrumb.sh#function  PopBreadcrumb
         PrintCallStack:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  PrintCallStack
+            #keyword: PrintCallStack bash call tree
         PushBreadcrumb:  #ref: ${GitHub}/breadcrumb/breadcrumb.sh#function  PushBreadcrumb
             #search: shell script breadcrumb
         RemoveEmptyElement:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RemoveEmptyElement
@@ -17385,6 +17589,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ShiftCSV:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ShiftCSV
         ShouldRunTest:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#ShouldRunTest()
         ShowWslHelp:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ShowWslHelp
+        SkipEcho: #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  SkipEcho()
         StartFrom:  #// インターフェース  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/install.sh#function  StartFrom
         StartsWith: #ref: ${GitHub}/locommit/bin/locommit#function  StartsWith
         TestCaseName:
@@ -17400,6 +17605,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             #search: bash function exit trap
         TestOfTabDic:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  TestOfTabDic
         TestOptionIsValid:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#TestOptionIsValid()
+        TestStartCommand:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  TestStartCommand()
         UnsetVariables:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  UnsetVariables
         ValueFilter:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ValueFilter
         WaitForFileExists:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#WaitForFileExists
@@ -17407,6 +17613,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         WaitForLineInFileOrProcessExit:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  WaitForLineInFileOrProcessExit
             #search: WaitForOpenPortOrProcessExit
         WaitForOpenPortOrProcessExit: #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  WaitForOpenPortOrProcessExit
+            #search: setsid
             #search: curl wait for Linux port
         WaitForRemoteFileExists:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#WaitForRemoteFileExists
             シーケンス:  #keyword: WaitForRemoteFileExists sequence
@@ -17456,6 +17663,19 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         WaitForUpMySQL:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#WaitForUpMySQL
         WslMnt:  #ref: ${GitHub}/codediff/codediff#WslMnt=
     コマンド:
+        ライブラリ関数呼び出し:  #keyword: bashlib library function call  #search: DisaptchFunction
+        ライブラリ メソッド 呼び出し, インスタンス ファイル: #keyword: bashlib library method call,  bashlib instance file,  instanceFilePath,  dispatch bashlib object method
+            #// 外部スクリプトの関数をオブジェクトのメソッドのように呼び出します
+            サンプル:  #focus: DeferKillProcessGroup  #search: DispatchProcessGroupMethod
+                スクリプト内で定義された場合:
+                    DeferKillProcessGroup  "${servicePID}"
+                    #↓
+                外部スクリプトで定義された場合:
+                    ProcessGroupInstanceFile="./_instance_pg.log"
+                    ProcessGroupScript="${RootScript} --process-group ${ProcessGroupInstanceFile} --"
+                    rm -f  "${ProcessGroupInstanceFile}"
+
+                    ${ProcessGroupScript}  DeferKillProcessGroup  "${servicePID}"
         関数定義順比較 sh-order: #keyword: sh-order.sh,  bash compare function define 関数定義 順序 比較  #ref: ${GitHub}/MyPrivateCode/bash/sh-order/sh-order.sh
             コマンド書式:
                 - sh-order.sh  __LeftScriptFilePath__ __RightScriptFilePath__

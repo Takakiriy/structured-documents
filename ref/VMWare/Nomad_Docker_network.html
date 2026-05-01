@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>開発環境 vs CI環境 — ネットワーク構成図</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #162032;
+    --border: #334155;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --web: #0ea5e9;
+    --web-soft: rgba(14,165,233,0.12);
+    --api: #e94560;
+    --api-soft: rgba(233,69,96,0.12);
+    --mysql: #f59e0b;
+    --mysql-soft: rgba(245,158,11,0.12);
+    --ok: #22c55e;
+    --docker-bridge: #3b82f6;
+    --lo: #a78bfa;
+    --lo-soft: rgba(167,139,250,0.10);
+    --eth0: #34d399;
+    --eth0-soft: rgba(52,211,153,0.10);
+    --internal: #f97316;
+    --internal-soft: rgba(249,115,22,0.08);
+    --nomad: #f97316;
+    --browser: #f472b6;
+    --browser-soft: rgba(244,114,182,0.12);
+    --ci: #60a5fa;
+    --ci-soft: rgba(96,165,250,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'IBM Plex Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem 1rem;
+  }
+
+  .page-title { text-align: center; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .page-sub {
+    text-align: center; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem; color: var(--text-dim); margin-bottom: 2.5rem;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 1.4rem;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .card.dev::before { background: var(--lo); }
+  .card.ci::before { background: var(--eth0); }
+
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .card-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  .card-label.dev { background: var(--lo-soft); color: var(--lo); }
+  .card-label.ci { background: var(--eth0-soft); color: var(--eth0); }
+  .card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.8rem; }
+
+  /* Config block */
+  .config-block {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.8rem;
+    margin-bottom: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+  }
+  .config-block .file-label {
+    font-size: 0.52rem;
+    color: var(--text-dim);
+    opacity: 0.6;
+    margin-bottom: 0.3rem;
+    display: block;
+  }
+  .config-block .key { color: var(--text); }
+  .config-block .val-lo { color: var(--lo); font-weight: 600; }
+  .config-block .val-eth0 { color: var(--eth0); font-weight: 600; }
+  .config-block .val-int { color: var(--internal); font-weight: 600; }
+  .config-block .val-common { color: var(--text-dim); }
+  .config-block + .config-block { margin-top: 0.5rem; }
+
+  /* Diagram */
+  .diagram {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.15;
+    min-height: 380px;
+  }
+
+  .host-box {
+    position: absolute; inset: 0;
+    border: 2px dashed var(--border); border-radius: 12px;
+  }
+  .host-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.5rem;
+    color: var(--text-dim); position: absolute; top: 4px; left: 7px;
+  }
+
+  /* Interface bands */
+  .if-band {
+    position: absolute;
+    border-radius: 7px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.46rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.4;
+    padding: 3px 6px;
+  }
+  .if-band.lo {
+    border: 1.5px solid var(--lo); background: var(--lo-soft); color: var(--lo);
+  }
+  .if-band.eth0 {
+    border: 1.5px solid var(--eth0); background: var(--eth0-soft); color: var(--eth0);
+  }
+  .if-band.docker0 {
+    border: 1.5px solid var(--internal); background: var(--internal-soft); color: var(--internal);
+  }
+
+  /* Bridge box */
+  .bridge-box {
+    position: absolute;
+    border: 1.5px dashed var(--docker-bridge);
+    border-radius: 9px;
+    background: rgba(59,130,246,0.04);
+  }
+  .bridge-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.42rem;
+    color: var(--docker-bridge); position: absolute; top: 3px; left: 6px;
+  }
+
+  /* Nodes */
+  .node {
+    position: absolute; border-radius: 7px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 0.58rem; font-weight: 600; text-align: center; line-height: 1.25; padding: 3px;
+  }
+  .node.web { border: 2px solid var(--web); background: var(--web-soft); color: var(--web); }
+  .node.api { border: 2px solid var(--api); background: var(--api-soft); color: var(--api); }
+  .node.mysql { border: 2px solid var(--mysql); background: var(--mysql-soft); color: var(--mysql); }
+  .node.browser { border: 2px solid var(--browser); background: var(--browser-soft); color: var(--browser); }
+  .node.ci-client { border: 2px solid var(--ci); background: var(--ci-soft); color: var(--ci); }
+  .node .port { font-family: 'IBM Plex Mono', monospace; font-size: 0.44rem; opacity: 0.8; margin-top: 1px; }
+  .node .ip { font-family: 'IBM Plex Mono', monospace; font-size: 0.38rem; opacity: 0.6; margin-top: 1px; }
+  .node .bind-info {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.38rem;
+    margin-top: 2px; padding: 1px 4px; border-radius: 3px;
+  }
+  .bind-lo { background: var(--lo-soft); color: var(--lo); }
+  .bind-eth0 { background: var(--eth0-soft); color: var(--eth0); }
+  .bind-int { background: var(--internal-soft); color: var(--internal); }
+
+  .diagram svg {
+    position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  }
+
+  .slabel { font-family: 'IBM Plex Mono', monospace; font-size: 7px; }
+  .slabel.ok { fill: var(--ok); }
+  .slabel.dim { fill: var(--text-dim); }
+  .slabel.lo { fill: var(--lo); }
+  .slabel.eth0 { fill: var(--eth0); }
+  .slabel.int { fill: var(--internal); }
+  .slabel.web { fill: var(--web); }
+  .slabel.api { fill: var(--api); }
+  .slabel.browser { fill: var(--browser); }
+
+  /* Shared / different highlight */
+  .diff-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 860px) {
+    .diff-row { grid-template-columns: 1fr; max-width: 520px; margin-left: auto; margin-right: auto; }
+  }
+  .diff-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.62rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+  .diff-box .title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    font-family: 'IBM Plex Sans JP', sans-serif;
+  }
+  .diff-box .same { color: var(--ok); }
+  .diff-box .dev { color: var(--lo); }
+  .diff-box .ci { color: var(--eth0); }
+
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    font-size: 0.73rem;
+    line-height: 1.9;
+    color: var(--text-dim);
+  }
+  .summary strong { color: var(--text); }
+  .summary code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: rgba(255,255,255,0.08);
+    padding: 1px 5px; border-radius: 3px; font-size: 0.68rem;
+  }
+  .summary .lo { color: var(--lo); font-weight: 600; }
+  .summary .eth0 { color: var(--eth0); font-weight: 600; }
+  .summary .int { color: var(--internal); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="page-title">開発環境 vs CI環境</div>
+<p class="page-sub">切り替えるのは Web ポートの host_network だけ — internal は共通</p>
+
+<div class="grid">
+
+  <!-- ===== DEV ===== -->
+  <div class="card dev">
+    <div class="card-head">
+      <span class="card-label dev">開発環境</span>
+    </div>
+    <div class="card-title">localhost でブラウザからアクセス</div>
+
+    <!-- client.hcl -->
+    <div class="config-block">
+      <span class="file-label"># /etc/nomad.d/client.hcl</span>
+      <span class="key">host_network</span> "<span class="val-lo">local</span>" {<br>
+      &nbsp;&nbsp;<span class="key">interface</span> = "<span class="val-lo">lo</span>"<br>
+      }<br>
+      <span class="key">host_network</span> "<span class="val-int">internal</span>" {<br>
+      &nbsp;&nbsp;<span class="key">interface</span> = "<span class="val-int">docker0</span>"<br>
+      }
+    </div>
+
+    <!-- job -->
+    <div class="config-block">
+      <span class="file-label"># myapp.nomad.hcl</span>
+      <span class="key">port</span> "web" { <span class="key">static</span> = 3000, <span class="key">host_network</span> = "<span class="val-lo">local</span>" }<br>
+      <span class="key">port</span> "api" { <span class="key">static</span> = 8080, <span class="key">host_network</span> = "<span class="val-int">internal</span>" }
+    </div>
+
+    <div class="diagram">
+      <div class="host-box">
+        <span class="host-label">Host</span>
+
+        <!-- Browser -->
+        <div class="node browser" style="top:3%;left:5%;width:35%;height:10%;">
+          ブラウザ
+        </div>
+
+        <!-- lo interface -->
+        <div class="if-band lo" style="top:16%;left:5%;width:35%;height:7%;">
+          lo — 127.0.0.1<br>host_network "local"
+        </div>
+
+        <!-- docker0 interface -->
+        <div class="if-band docker0" style="top:16%;right:5%;width:42%;height:7%;">
+          docker0 — 172.17.0.1<br>host_network "internal"
+        </div>
+
+        <!-- bridge -->
+        <div class="bridge-box" style="top:28%;left:5%;right:5%;bottom:16%;">
+          <span class="bridge-label">docker0 bridge (172.17.0.0/16)</span>
+
+          <div class="node web" style="top:22%;left:6%;width:38%;height:32%;">
+            Web<span class="port">:3000</span><span class="ip">172.17.0.2</span>
+            <span class="bind-info bind-lo">127.0.0.1:3000</span>
+          </div>
+          <div class="node api" style="top:22%;right:6%;width:38%;height:32%;">
+            API<span class="port">:8080</span><span class="ip">172.17.0.3</span>
+            <span class="bind-info bind-int">172.17.0.1:8080</span>
+          </div>
+        </div>
+
+        <!-- MySQL -->
+        <div class="node mysql" style="bottom:3%;right:5%;width:30%;height:10%;">
+          MySQL<span class="port">:3306</span>
+        </div>
+      </div>
+
+      <svg viewBox="0 0 400 440">
+        <defs>
+          <marker id="d-lo" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#a78bfa"/></marker>
+          <marker id="d-int" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#f97316"/></marker>
+          <marker id="d-ok" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#22c55e"/></marker>
+          <marker id="d-api" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#e94560"/></marker>
+        </defs>
+
+        <!-- 1: Browser -> lo -> Web -->
+        <path d="M 82 55 L 82 75" fill="none" stroke="#a78bfa" stroke-width="2" marker-end="url(#d-lo)"/>
+        <text x="92" y="68" class="slabel lo">localhost:3000</text>
+        <path d="M 82 100 L 82 158" fill="none" stroke="#a78bfa" stroke-width="2" marker-end="url(#d-lo)"/>
+        <text x="24" y="135" class="slabel lo">lo 経由</text>
+
+        <!-- 2: Web -> docker0 -> API -->
+        <path d="M 178 200 Q 200 175 222 175" fill="none" stroke="#f97316" stroke-width="1.8"/>
+        <path d="M 222 175 L 222 200" fill="none" stroke="#f97316" stroke-width="1.8" marker-end="url(#d-int)"/>
+        <text x="155" y="170" class="slabel int">host.docker.internal:8080</text>
+
+        <!-- 3: API -> MySQL -->
+        <path d="M 310 275 L 330 370" fill="none" stroke="#22c55e" stroke-width="1.5" marker-end="url(#d-ok)"/>
+        <text x="340" y="335" class="slabel ok">:3306</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===== CI ===== -->
+  <div class="card ci">
+    <div class="card-head">
+      <span class="card-label ci">CI環境</span>
+    </div>
+    <div class="card-title">外部クライアントからアクセス</div>
+
+    <!-- client.hcl -->
+    <div class="config-block">
+      <span class="file-label"># /etc/nomad.d/client.hcl</span>
+      <span class="key">host_network</span> "<span class="val-eth0">public</span>" {<br>
+      &nbsp;&nbsp;<span class="key">interface</span> = "<span class="val-eth0">eth0</span>"<br>
+      }<br>
+      <span class="key">host_network</span> "<span class="val-int">internal</span>" {<br>
+      &nbsp;&nbsp;<span class="key">interface</span> = "<span class="val-int">docker0</span>"<br>
+      }
+    </div>
+
+    <!-- job -->
+    <div class="config-block">
+      <span class="file-label"># myapp.nomad.hcl</span>
+      <span class="key">port</span> "web" { <span class="key">static</span> = 3000, <span class="key">host_network</span> = "<span class="val-eth0">public</span>" }<br>
+      <span class="key">port</span> "api" { <span class="key">static</span> = 8080, <span class="key">host_network</span> = "<span class="val-int">internal</span>" }
+    </div>
+
+    <div class="diagram">
+      <div class="host-box">
+        <span class="host-label">Host</span>
+
+        <!-- CI client -->
+        <div class="node ci-client" style="top:3%;left:5%;width:35%;height:10%;">
+          CIクライアント
+        </div>
+
+        <!-- eth0 interface -->
+        <div class="if-band eth0" style="top:16%;left:5%;width:35%;height:7%;">
+          eth0 — 192.168.x.x<br>host_network "public"
+        </div>
+
+        <!-- docker0 interface -->
+        <div class="if-band docker0" style="top:16%;right:5%;width:42%;height:7%;">
+          docker0 — 172.17.0.1<br>host_network "internal"
+        </div>
+
+        <!-- bridge -->
+        <div class="bridge-box" style="top:28%;left:5%;right:5%;bottom:16%;">
+          <span class="bridge-label">docker0 bridge (172.17.0.0/16)</span>
+
+          <div class="node web" style="top:22%;left:6%;width:38%;height:32%;">
+            Web<span class="port">:3000</span><span class="ip">172.17.0.2</span>
+            <span class="bind-info bind-eth0">0.0.0.0:3000</span>
+          </div>
+          <div class="node api" style="top:22%;right:6%;width:38%;height:32%;">
+            API<span class="port">:8080</span><span class="ip">172.17.0.3</span>
+            <span class="bind-info bind-int">172.17.0.1:8080</span>
+          </div>
+        </div>
+
+        <!-- MySQL -->
+        <div class="node mysql" style="bottom:3%;right:5%;width:30%;height:10%;">
+          MySQL<span class="port">:3306</span>
+        </div>
+      </div>
+
+      <svg viewBox="0 0 400 440">
+        <defs>
+          <marker id="c-eth0" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#34d399"/></marker>
+          <marker id="c-int" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#f97316"/></marker>
+          <marker id="c-ok" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#22c55e"/></marker>
+        </defs>
+
+        <!-- 1: CI client -> eth0 -> Web -->
+        <path d="M 82 55 L 82 75" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#c-eth0)"/>
+        <text x="92" y="68" class="slabel eth0">192.168.x.x:3000</text>
+        <path d="M 82 100 L 82 158" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#c-eth0)"/>
+        <text x="20" y="135" class="slabel eth0">eth0 経由</text>
+
+        <!-- 2: Web -> docker0 -> API -->
+        <path d="M 178 200 Q 200 175 222 175" fill="none" stroke="#f97316" stroke-width="1.8"/>
+        <path d="M 222 175 L 222 200" fill="none" stroke="#f97316" stroke-width="1.8" marker-end="url(#c-int)"/>
+        <text x="155" y="170" class="slabel int">host.docker.internal:8080</text>
+
+        <!-- 3: API -> MySQL -->
+        <path d="M 310 275 L 330 370" fill="none" stroke="#22c55e" stroke-width="1.5" marker-end="url(#c-ok)"/>
+        <text x="340" y="335" class="slabel ok">:3306</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- Difference summary -->
+<div class="diff-row">
+  <div class="diff-box">
+    <div class="title">環境間で異なる設定</div>
+    client.hcl:<br>
+    &nbsp;&nbsp;開発: host_network "<span class="dev">local</span>" { interface = "<span class="dev">lo</span>" }<br>
+    &nbsp;&nbsp;CI: host_network "<span class="ci">public</span>" { interface = "<span class="ci">eth0</span>" }<br><br>
+    Job ファイル:<br>
+    &nbsp;&nbsp;開発: port "web" { host_network = "<span class="dev">local</span>" }<br>
+    &nbsp;&nbsp;CI: port "web" { host_network = "<span class="ci">public</span>" }
+  </div>
+  <div class="diff-box">
+    <div class="title">環境間で共通の設定</div>
+    client.hcl:<br>
+    &nbsp;&nbsp;host_network "<span class="same">internal</span>" { interface = "<span class="same">docker0</span>" }<br><br>
+    Job ファイル:<br>
+    &nbsp;&nbsp;port "api" { host_network = "<span class="same">internal</span>" }<br>
+    &nbsp;&nbsp;extra_hosts = ["host.docker.internal:host-gateway"]<br>
+    &nbsp;&nbsp;API_URL = "http://host.docker.internal:8080"<br>
+    &nbsp;&nbsp;DB_HOST = "host.docker.internal"
+  </div>
+</div>
+
+<div class="summary">
+  <strong>通信経路は両環境で同じ構造</strong><br><br>
+  アクセス元 → <code>Web :3000</code> → <code>host.docker.internal:8080</code> → <code>API :8080</code> → <code>host.docker.internal:3306</code> → <code>MySQL</code><br><br>
+  違いは Web ポートの入り口だけです。
+  開発環境では <span class="lo">lo（127.0.0.1）</span> にバインドしてブラウザから <code>localhost:3000</code> でアクセスし、
+  CI環境では <span class="eth0">eth0（0.0.0.0）</span> にバインドして外部クライアントから <code>192.168.x.x:3000</code> でアクセスします。
+  API ポートは両環境とも <span class="int">docker0（172.17.0.1）</span> にのみ公開され、外部に露出しません。
+</div>
+
+</div>
+</body>
+</html>

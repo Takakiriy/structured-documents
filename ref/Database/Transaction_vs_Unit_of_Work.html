@@ -1,0 +1,239 @@
+
+<style>
+  .wrap { padding: 24px 20px; font-family: var(--font-sans); }
+  .section-title {
+    font-size: 13px; font-weight: 500;
+    color: var(--color-text-secondary);
+    letter-spacing: .04em;
+    margin: 0 0 10px;
+  }
+  .card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 16px 18px 18px;
+    margin-bottom: 24px;
+    background: var(--color-background-secondary);
+  }
+  .row-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    width: 76px;
+    flex-shrink: 0;
+    padding-top: 12px;
+  }
+  .lane-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .track {
+    flex: 1;
+    height: 36px;
+    border-radius: 6px;
+    border: 0.5px solid var(--color-border-tertiary);
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .bar {
+    position: absolute;
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .bar-uow {
+    background: #EEEDFE;
+    border: 0.5px solid #534AB7;
+    color: #3C3489;
+  }
+  .bar-tx {
+    background: #E1F5EE;
+    border: 0.5px solid #0F6E56;
+    color: #085041;
+  }
+  .bar-tx-seg {
+    background: #E1F5EE;
+    border: 0.5px solid #0F6E56;
+    color: #085041;
+  }
+  @media (prefers-color-scheme: dark) {
+    .bar-uow { background: #3C3489; border-color: #AFA9EC; color: #EEEDFE; }
+    .bar-tx  { background: #085041; border-color: #5DCAA5; color: #E1F5EE; }
+    .bar-tx-seg { background: #085041; border-color: #5DCAA5; color: #E1F5EE; }
+  }
+  .timeline {
+    position: relative;
+    height: 28px;
+    margin: 4px 0 0;
+  }
+  .tl-line {
+    position: absolute;
+    top: 50%;
+    left: 76px;
+    right: 0;
+    height: 0.5px;
+    background: var(--color-border-secondary);
+  }
+  .tl-tick {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 14px;
+    background: var(--color-border-primary);
+    transform: translateX(-50%);
+  }
+  .tl-label {
+    position: absolute;
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    transform: translateX(-50%);
+    top: 15px;
+    white-space: nowrap;
+  }
+  .alert {
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 10px;
+    display: inline-block;
+  }
+  .alert-warn {
+    background: #FAECE7;
+    border: 0.5px solid #993C1D;
+    color: #712B13;
+  }
+  .alert-ok {
+    background: #E1F5EE;
+    border: 0.5px solid #0F6E56;
+    color: #085041;
+  }
+  @media (prefers-color-scheme: dark) {
+    .alert-warn { background: #4A1B0C; border-color: #F0997B; color: #F5C4B3; }
+    .alert-ok   { background: #04342C; border-color: #5DCAA5; color: #9FE1CB; }
+  }
+  .divider {
+    border: none;
+    border-top: 0.5px dashed var(--color-border-tertiary);
+    margin: 4px 0 20px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .summary-card {
+    border-radius: var(--border-radius-md);
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+  .summary-card-warn {
+    background: #FAECE7;
+    border: 0.5px solid #993C1D;
+    color: #712B13;
+  }
+  .summary-card-ok {
+    background: #E1F5EE;
+    border: 0.5px solid #0F6E56;
+    color: #085041;
+  }
+  @media (prefers-color-scheme: dark) {
+    .summary-card-warn { background: #4A1B0C; border-color: #F0997B; color: #F5C4B3; }
+    .summary-card-ok   { background: #04342C; border-color: #5DCAA5; color: #9FE1CB; }
+  }
+  .summary-card strong { font-weight: 500; display: block; margin-bottom: 4px; font-size: 13px; }
+</style>
+
+<div class="wrap">
+
+  <p class="section-title">REPEATABLE READ（MySQL デフォルト）</p>
+  <div class="card">
+    <div class="lane-row">
+      <div class="row-label">Unit of Work</div>
+      <div class="track">
+        <div class="bar bar-uow" style="left:0;right:0;">1つの Unit of Work（トランザクション終了まで継続）</div>
+      </div>
+    </div>
+    <div class="lane-row">
+      <div class="row-label">Transaction</div>
+      <div class="track">
+        <div class="bar bar-tx" style="left:0;right:0;">BEGIN ─────── スナップショット固定 ─────── COMMIT</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-line"></div>
+      <div class="tl-tick"  style="left: calc(76px + 0%)"></div>
+      <div class="tl-label" style="left: calc(76px + 0%)">BEGIN</div>
+      <div class="tl-tick"  style="left: calc(76px + 33%)"></div>
+      <div class="tl-label" style="left: calc(76px + 33%)">他プロセス COMMIT</div>
+      <div class="tl-tick"  style="left: calc(76px + 60%)"></div>
+      <div class="tl-label" style="left: calc(76px + 60%)">SELECT（古いデータ）</div>
+      <div class="tl-tick"  style="left: calc(76px + 85%)"></div>
+      <div class="tl-label" style="left: calc(76px + 85%)">SELECT（古いデータ）</div>
+    </div>
+
+    <div style="margin-top: 28px;">
+      <span class="alert alert-warn">他プロセスが COMMIT 済みでも、自プロセスでは古いデータが見える — SQLAlchemy のセッションは、ここが、Unit of Work と一致しない</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <p class="section-title">READ COMMITTED, next_transaction</p>
+  <div class="card">
+    <div class="lane-row">
+      <div class="row-label">Unit of Work</div>
+      <div class="track">
+        <div class="bar bar-uow" style="left:0;right:0;">1つの Unit of Work（業務の区切りで自由に設計できる）</div>
+      </div>
+    </div>
+    <div class="lane-row">
+      <div class="row-label">Transaction</div>
+      <div class="track" style="overflow:visible;">
+        <div class="bar bar-tx-seg" style="left:0; width:22%; font-size:10px;">TX 1</div>
+        <div class="bar bar-tx-seg" style="left:25%; width:22%; font-size:10px;">TX 2</div>
+        <div class="bar bar-tx-seg" style="left:50%; width:22%; font-size:10px;">TX 3</div>
+        <div style="position:absolute;left:73%;font-size:11px;color:var(--color-text-tertiary);top:50%;transform:translateY(-50%);">…</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-line"></div>
+      <div class="tl-tick"  style="left: calc(76px + 0%)"></div>
+      <div class="tl-label" style="left: calc(76px + 0%)">BEGIN</div>
+      <div class="tl-tick"  style="left: calc(76px + 33%)"></div>
+      <div class="tl-label" style="left: calc(76px + 33%)">他プロセス COMMIT</div>
+      <div class="tl-tick"  style="left: calc(76px + 60%)"></div>
+      <div class="tl-label" style="left: calc(76px + 60%)">SELECT（最新データ）</div>
+      <div class="tl-tick"  style="left: calc(76px + 85%)"></div>
+      <div class="tl-label" style="left: calc(76px + 85%)">SELECT（最新データ）</div>
+    </div>
+
+    <div style="margin-top: 28px;">
+      <span class="alert alert-ok">READ COMMITTED は、SELECT のたびに最新のコミット済みデータを読む — Unit of Work を業務の意図で設計できる</span>
+      <span class="alert alert-ok">next_transaction は、明示的に次のコミット済みデータを読む — Unit of Work を業務の意図で設計できる</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <p class="section-title">まとめ</p>
+  <div class="summary-grid">
+    <div class="summary-card summary-card-warn">
+      <strong>REPEATABLE READ</strong>
+      トランザクションの制約が Unit of Work の設計を強制する。区切りが「業務の意図」ではなく「技術的事情」で決まる。
+    </div>
+    <div class="summary-card summary-card-ok">
+      <strong>READ COMMITTED, next_transaction</strong>
+      Unit of Work の区切りを業務ロジック本来の意図で決められる。トランザクションを意識せず最新データを取得できる。
+      ただし、READ COMMITTED では毎回トランザクションが作られるため非効率。
+      next_transaction メソッドを作るとよい。
+    </div>
+  </div>
+
+</div>

@@ -69,7 +69,7 @@
         HTML+SVG 形式: #keyword: AI HTML SVG  #// 表示が簡単です。多少の編集もできます。Mermaid より遅いです。
             描かせます:
                 プロンプト:
-                    ____ のイメージを HTML+SVG で描いてください。ただし、デスクトップPC で普通に表示できるようレスポンシブではなくしつつ、iPhone の Safari でも viewport の問題が出ないようにしてください。CSS は class で指定してください。@media は使わないでください。文字を大きく太くしてください。
+                    ____ のイメージを HTML+SVG で描いてください。ただし、背景を白くして、デスクトップPC で普通に表示できるようレスポンシブではなくしつつ、iPhone の Safari でも viewport の問題が出ないようにしてください。CSS は class で指定してください。@media は使わないでください。文字を大きく太くしてください。
                 追加プロンプト:
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     回答は、body部分だけでいいです。
@@ -87,8 +87,10 @@
                 数式から描いたグラフが正しいことを確認します:  #keyword: 数式 グラフ プロット
                     GeoGebra: #keyword:  #// ジオジェブラ  #ref: https://www.geogebra.org/graphing
             保存します:  #ref: ${typrm_files}/ref/SoftwareDesign/StateSourcing_vs_EventSourcing.html
-        Markdown の表:  #keyword: AI save table  #search: save AI markdown
+        Markdown の表: #keyword: AI save table  #search: save AI markdown
             #snip: ____ の表を markdowm で書いてください。ただし、縦線 | は縦に揃うようにしてください。
+        パワポ形式: #keyword: AI save PowerPoint,  AI save .pptx
+            〜を解説する1枚ずつのスライドを作ってください。日本語は読みやすい日本語のゴシックフォント、テーマは明るいテーマ、パワポで作ってPDFで出力してください。
         ChatGPT の会話の概要の保存:  #// Markdown
             （関連）>> 図解の保存:  #search: AI HTML SVG
             プロンプト: #keyword: save AI markdown
@@ -691,6 +693,18 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
     流暢性: #keyword:
         「人間はAIをうまく使いこなせているのか？」を検証する指標「AI Fluency Index」をAnthropicが公表 - GIGAZINE
         #ref: https://gigazine.net/news/20260224-ai-fluency-index/
+    評判, 偏見: #keyword: AI 偏見, AI 評判 評価
+        AIの使用を避けるブランドを好む:  #ref: https://gigazine.net/news/20260322-consumers-prefer-brands-avoid-using-genai/
+            懐疑的な見方
+            AIがいつ使われたのか・何をしたのかを透明化し、顧客にオプトアウトの明確な選択肢を提供するブランド
+            AI が弱い分野に興味がある人や、使いこなせない人が多いことによる偏見は消えない。
+        中学教師の3分の2がAIの使用により生徒の思考力が低下していると回答:  #ref: https://gigazine.net/news/20260406-losing-thinking-skills-ai/
+            学業面でのサポート以上のものが必要
+            不正行為を助長する
+            音声認識技術の普及により子どもたちがスペルを覚える必要性を感じなくなった（偏見？）
+            AIは『学習』の本質、つまり問題解決能力、批判的思考(クリティカルシンキング)能力、協調性を破壊している（偏見？）
+            しかし、日常業務にAIを活用している
+            職員は適切な使用方法について訓練を受けていない
     法的契約書:
         AIと弁護士で法的契約書のレビュー対決をした結果とは？
         #ref: https://gigazine.net/news/20240210-lawyers-llm/
@@ -858,7 +872,7 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
                         導入している MCP 設定を定期的にチェックする（MCP ホストの確認機能などを利用）
                         感染・攻撃された時の対策・運用プランを考えておく
                         その他、自分の運用ルールを決めておく
-規制:
+規制: #keyword: AI 規制, AI 脅威 安全性
     AI 規制法:  #ref: https://gigazine.net/news/20240314-european-parliament-artificial-intelligence-act/
         健康や安全、基本的権利、環境、民主主義、法の支配などに重大な影響を及ぼす可能性のある高リスクなAIシステムについても明確な法的義務が発生します。
         汎用 AI は特定の透明性要件を満たす必要があります。
@@ -870,6 +884,68 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
         個人情報保護の促進
         プライバシーポリシーの強化
         AIのリスク監視を通じて人権を擁護
+    セキュリティ:
+        Claude Mythos の脅威: #keyword:  #ref: https://red.anthropic.com/2026/mythos-preview/
+            内容の構造:
+                -   AIによる攻撃的サイバーセキュリティ能力は急速に進化しており、ゼロデイ発見・エクスプロイト生成が現実的な水準に到達しつつある
+                    -   ゼロデイ発見能力の評価
+                        -   最先端モデルは攻撃的サイバーセキュリティ能力を急速に向上させている（1-1-1, 約3%）
+                        -   Claude Mythos Previewのゼロデイ発見能力の評価（1-1, 0%）
+                    -   エクスプロイト開発能力の飛躍的向上
+                        -   モデルは複雑な脆弱性に対して実用的なエクスプロイトを生成できる（1-2-1, 約15%）
+                        -   モデル世代を通じて性能が急速に向上している（1-2-2, 約18%）
+                        -   エクスプロイト開発能力の急速な向上（1-2, 約12%）
+                    -   自律的な攻撃実行能力の確立
+                        -   Claude Mythos Previewは複数の工程を自律的に連鎖できる（1-3-1, 約25%）
+                        -   ツール利用はエクスプロイト生成能力を大きく向上させる（1-3-2, 約28%）
+                        -   自律的なエクスプロイト生成（1-3, 約22%）
+                    -   大規模かつ現実的な脆弱性発見への拡張
+                        -   モデルは大規模に脆弱性を発見できる（1-4-1, 約38%）
+                        -   ゼロデイ発見がより現実的になりつつある（1-4-2, 約42%）
+                        -   脆弱性発見のスケーリング（1-4, 約35%）
+                -   現実世界への影響と責任ある運用が重要な課題となっている
+                    -   実際に発見された脆弱性は適切に開示されている
+                        -   発見された脆弱性は責任ある形で開示された（1-5-1, 約55%）
+                        -   影響を受けるベンダーとの連携（1-5-2, 約58%）
+                        -   現実世界への影響と責任ある開示（1-5, 約52%）
+                -   評価方法と結果の解釈には注意が必要である
+                    -   ベンチマーク手法の整理
+                        -   評価設定（1-6-1, 約70%）
+                        -   指標とスコアリング（1-6-2, 約73%）
+                        -   ベンチマーク手法（1-6, 約68%）
+                    -   限界と注意点
+                        -   結果はすべての環境に一般化できるとは限らない（1-7-1, 約85%）
+                        -   依然として人間の専門知識が必要（1-7-2, 約88%）
+                        -   制限事項と注意点（1-7, 約82%）
+                -   AIとサイバーセキュリティの将来に対する重要な示唆
+                    -   防御への応用可能性とリスクの両立
+                        -   防御的応用（1-8-1, 約95%）
+                        -   政策および安全性に関する考慮（1-8-2, 約97%）
+                        -   AIとサイバーセキュリティへの示唆（1-8, 約93%）
+            見出し:
+                -   Evaluating Claude Mythos Preview’s ability to find zero-days（1-1, 0%）
+                    -   Frontier models are rapidly improving at offensive cybersecurity tasks（1-1-1, 約3%）
+                -   Rapid capability gains in exploit development（1-2, 約12%）
+                    -   Models can now generate working exploits for complex vulnerabilities（1-2-1, 約15%）
+                    -   Performance is improving quickly across model generations（1-2-2, 約18%）
+                -   Autonomous exploit generation（1-3, 約22%）
+                    -   Claude Mythos Preview can autonomously chain multiple steps（1-3-1, 約25%）
+                    -   Tool use significantly enhances exploit generation（1-3-2, 約28%）
+                -   Scaling vulnerability discovery（1-4, 約35%）
+                    -   Models can discover vulnerabilities at scale（1-4-1, 約38%）
+                    -   Zero-day discovery is becoming more practical（1-4-2, 約42%）
+                -   Real-world impact and responsible disclosure（1-5, 約52%）
+                    -   Discovered vulnerabilities were responsibly disclosed（1-5-1, 約55%）
+                    -   Coordination with affected vendors（1-5-2, 約58%）
+                -   Benchmarking methodology（1-6, 約68%）
+                    -   Evaluation setup（1-6-1, 約70%）
+                    -   Metrics and scoring（1-6-2, 約73%）
+                -   Limitations and caveats（1-7, 約82%）
+                    -   Results may not generalize to all environments（1-7-1, 約85%）
+                    -   Human expertise is still required（1-7-2, 約88%）
+                -   Implications for AI and cybersecurity（1-8, 約93%）
+                    -   Defensive applications（1-8-1, 約95%）
+                    -   Policy and safety considerations（1-8-2, 約97%）
     ハッキング, ジェイルブレイク: #keyword: AI ハッキング,  AI ジェイルブレイク
         #ref: https://gigazine.net/news/20230317-gpt-4-jail-break/
 著作権: #keyword: AI 著作権  #// AI イラスト
@@ -972,6 +1048,8 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
                         (5) 第２項及び第３項第１号に基づき権限を有する者は、第１項に基づく複製を、それが、学術の研究の目的又は学術の知見に関する審査のために必要と認められる場合には、無権限使用に対する相当なセキュリティ対策を講じたうえで、保存することができる。
                         (6) 権利保有者は、第１項に基づく複製により、自らのネットワーク及びデータベースのセキュリティ及び完全性が損なわれることを防ぐため、必要な措置を講ずる権限を有する。
         法規制が求めていること:  #ref: ${my_images}/2023/AIと著作権/法規制.png
+        訴訟:
+            - Claude の著作権訴訟が決着へ、和解金は過去最大規模の約2400億円  #ref: https://japan.cnet.com/article/35245446/
         利益還元方法:  #ref: ${my_images}/2023/AIと著作権/利益還元.png
         ウェブ上のコンテンツ:
             MicrosoftのAI責任者が「オープンウェブ上のコンテンツはフリーウェア」と発言、AIトレーニングにウェブ上のコンテンツを利用しても問題ないという考えを強調
@@ -1008,6 +1086,9 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
     HTTP >> RSL 1.0:  #// HTTP 402 レスポンス
         #ref: https://gigazine.net/news/20251211-really-simple-licensing-1-0/
         #ref: https://claude.ai/share/6dc93803-4734-447f-881a-0baaad8e3361
+利用率:
+    生成AI利用率、ついに5割超え　15～69歳調査　もはや使っていない人が少数派
+    #ref: https://japan.cnet.com/article/35246084/
 用語: #glossary: AI
     ハルシネーション: #// 幻覚
         _: 真実ではないことを真実かのように話すこと

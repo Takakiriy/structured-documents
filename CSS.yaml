@@ -277,8 +277,19 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                         {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
                     #// エラーメッセージの表示と同時に、枠を赤くしています
                 #keyword: Client-side form validation
-        コンポーネント:
+            デフォルトのプロパティをまとめる（共通）:  #// HTML 要素の class 相当
+                上書き: | #keyword: Material-UI custom default properties  #search: defaultSelectProps
+                    <TextField
+                        {...defaultSelectProps}
+                        variant="filled"  // ← こちらが優先される
+                        select
+                        value={value}
+                        onChange={handleChange}
+                    >
+        コンポーネント:  #keyword: React GUI parts,  Material-UI WebUI 部品
             （見た目の一覧）:  #ref: ${my_images}/2021/Material-UI/components/1.1.1.Box.png
+            （既存のプロジェクトがある場合）:
+                Atomic Design で分類されたフォルダーにある部品を優先して使います  #search: Atomic Design
             レイアウト:  #focus: Box, Container, Grid, Hidden, Image List  #glossary: Material-UI
                 Box:  #//🌟  #keyword: Material-UI Box  #// <div> などの代わり  #ref: https://v4.mui.com/components/box/
                     <div> の代わり:
@@ -338,6 +349,8 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                 Hidden:
                 Image List:  #//🌟
             入力:  #focus: Button, Checkbox, Date / Time, Select, Switch, Text Field  #glossary: Material-UI4
+                （既存のプロジェクトがある場合）:
+                    Atomic Design で分類されたフォルダーにある部品を優先して使います  #search: Atomic Design
                 Button:  #//🌟
                 Button Group:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#buttongroup(core)
                 Checkbox:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#checkbox(core)
@@ -345,9 +358,48 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                 Date / Time:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#date-%2F-time(pickers)
                 Radio:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#radio(core)
                 Select:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#select(core)
+                    サンプル: |
+                        <Select value={__Value__} onChange={__HandlevValueChange__}>
+                            <MenuItem value="">
+                                <em>未選択</em>
+                            </MenuItem>
+                            <MenuItem value="apple" key="apple">りんご</MenuItem>
+                            <MenuItem value="banana" key="banana">バナナ</MenuItem>
+                            <MenuItem value="orange" key="orange">オレンジ</MenuItem>
+                            {Object.keys(stateMap)).map((key) => (
+                                <MenuItem value={key} key={key}>     MenuItem value に無い key が Select value に指定されたら空欄になります
+                                    {stateMap[key]}
+                                </MenuItem>
+                            ))}
+                        </Select>
+
+                        const __HandlevValueChange__ = (event: React.ChangeEvent<{ name?: string; value: unknown; }>) => {
+                            setValue(event.target.value as __ValueType__);
+                        };
+                    デフォルトのプロパティをまとめる: | #keyword: defaultSelectProps  #search: Material-UI custom default properties
+                        const defaultSelectProps = {
+                            // Example:
+                            //     <TextField {...defaultSelectProps} value={state} onChange={handleStateChange}>
+                            select: true,
+                            variant: "outlined" as const,
+                            SelectProps: {
+                                SelectDisplayProps: {
+                                    style: { padding: "12px 24px 12px 12px" }
+                                }
+                            }
+                        };
                 Slider:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#slider(core)
                 Switch:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#switch(core)
                 Text Field:  #//🌟  #ref: https://v4.mui.com/components/text-fields/
+                    数値:
+                        デフォルトのプロパティをまとめる: | #keyword: defaultNumberInputProps  #search: Material-UI custom default properties
+                            export const  defaultNumberInputProps = {
+                                // Example:
+                                //     <TextField {...defaultNumberInputProps} value={revision} onChange={handleRevisionChange}>
+                                type: "number",
+                                variant: "outlined" as const,
+                                inputProps: {style: { padding: "12px" }},
+                            };
                 Transfer List:
                 関連:
                     Chip:  #search: Material-UI Chip
@@ -484,6 +536,14 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                                 );
                             }
                     React Router を使う場合:  #search: React Router Tabs
+            見出し:
+                Typography:
+                    <h3>:
+                        import Typography from '@mui/material/Typography';
+                        <Typography variant="h3">見出し</Typography>
+                    variant と component を分ける場合:  #// variant はデザイン（見た目）、component は実際に出力されるHTMLタグ（SEOや構造）
+                        import Typography from '@mui/material/Typography';
+                        <Typography variant="h3" component="h1">見出し</Typography>
             サーフェス:  #focus: Card, Accordion  #glossary: Material-UI  #glossary: Material-UI
                 App Bar:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#app-bar(core)
                 Paper:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#paper(core)
@@ -552,99 +612,120 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                                     #     const handleClose = () => {
                                     #         onClose(selectedValue);
                                     onClose:  #search: Material-UI SimpleDialog onClose
-                    サンプル: |
-                        import React from 'react';
-                        import { makeStyles } from '@material-ui/core/styles';
-                        import Button from '@material-ui/core/Button';
-                        import Avatar from '@material-ui/core/Avatar';
-                        import List from '@material-ui/core/List';
-                        import ListItem from '@material-ui/core/ListItem';
-                        import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-                        import ListItemText from '@material-ui/core/ListItemText';
-                        import DialogTitle from '@material-ui/core/DialogTitle';
-                        import Dialog from '@material-ui/core/Dialog';
-                        import PersonIcon from '@material-ui/icons/Person';
-                        import AddIcon from '@material-ui/icons/Add';
-                        import Typography from '@material-ui/core/Typography';
-                        import { blue } from '@material-ui/core/colors';
+                    サンプル: #keyword: Material-UI Dialog example
+                        ダイアログ: |  #focus: SimpleDialog, useEffect
+                            import React from 'react';
+                            import { makeStyles } from '@material-ui/core/styles';
+                            import Button from '@material-ui/core/Button';
+                            import Avatar from '@material-ui/core/Avatar';
+                            import List from '@material-ui/core/List';
+                            import ListItem from '@material-ui/core/ListItem';
+                            import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+                            import ListItemText from '@material-ui/core/ListItemText';
+                            import DialogTitle from '@material-ui/core/DialogTitle';
+                            import Dialog from '@material-ui/core/Dialog';
+                            import PersonIcon from '@material-ui/icons/Person';
+                            import AddIcon from '@material-ui/icons/Add';
+                            import Typography from '@material-ui/core/Typography';
+                            import { blue } from '@material-ui/core/colors';
 
-                        const emails = ['username@gmail.com', 'user02@gmail.com'];
-                        const useStyles = makeStyles({
-                            avatar: {
-                                backgroundColor: blue[100],
-                                color: blue[600],
-                            },
-                        });
+                            const emails = ['username@gmail.com', 'user02@gmail.com'];
+                            const useStyles = makeStyles({
+                                avatar: {
+                                    backgroundColor: blue[100],
+                                    color: blue[600],
+                                },
+                            });
 
-                        export interface SimpleDialogProps {
-                            open: boolean;
-                            selectedValue: string;
-                            onClose: (value: string) => void;
-                        }
+                            export interface SimpleDialogProps {
+                                open: boolean;
+                                selectedValue: string;
+                                onClose: (value: string) => void;
+                            }
 
-                        function SimpleDialog(props: SimpleDialogProps) {
-                            const classes = useStyles();
-                            const { onClose, selectedValue, open } = props;
+                            function SimpleDialog(props: SimpleDialogProps) {
+                                const classes = useStyles();
+                                const { onClose, selectedValue, open } = props;
 
-                            const handleClose = () => {
-                                onClose(selectedValue);
-                            };
+                                // ダイアログに一時的に記憶する変数
+                                const [value, setValue] = useState("");
 
-                            const handleListItemClick = (value: string) => {
-                                onClose(value);
-                            };
+                                useEffect(() => {
+                                    if (open && user) {
+                                        setValue(user.name);
+                                    }
+                                }, [open]);    // 開いたときにリセットします
+                                
+                                const handleClose = () => {
+                                    onClose(selectedValue);
+                                };
 
-                            return (
-                                <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-                                    <DialogTitle id="simple-dialog-title">Set backup account</DialogTitle>
-                                    <List>
-                                        {emails.map((email) => (
-                                            <ListItem button onClick={() => handleListItemClick(email)} key={email}>
-                                                <ListItemAvatar>
-                                                    <Avatar className={classes.avatar}>
-                                                        <PersonIcon />
-                                                    </Avatar>
-                                                </ListItemAvatar>
-                                                <ListItemText primary={email} />
-                                            </ListItem>
-                                        ))}
-                                        <ListItem autoFocus button onClick={() => handleListItemClick('addAccount')}>
-                                            <ListItemAvatar>
-                                                <Avatar>
-                                                    <AddIcon />
-                                                </Avatar>
-                                            </ListItemAvatar>
-                                            <ListItemText primary="Add account" />
-                                        </ListItem>
-                                    </List>
-                                </Dialog>
-                            );
-                        }
+                                const handleListItemClick = (value: string) => {
+                                    onClose(value);
+                                };
 
-                        export default function SimpleDialogDemo() {
-                            const [open, setOpen] = React.useState(false);
-                            const [selectedValue, setSelectedValue] = React.useState(emails[1]);
+                                const handleSave = (updated) => {
+                                    setItems(prevs => prevs.map(prev => prev.id !== updated.id ? prev :
+                                        updated
+                                    ));
+                                };
 
-                            const handleClickOpen = () => {
-                                setOpen(true);
-                            };
+                                // 仮想 HTML
+                                return (
+                                    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
+                                        <DialogTitle id="simple-dialog-title">Set backup account</DialogTitle>
+                                        <DialogContent>
+                                            <List>
+                                                {emails.map((email) => (
+                                                    <ListItem button onClick={() => handleListItemClick(email)} key={email}>
+                                                        <ListItemAvatar>
+                                                            <Avatar className={classes.avatar}>
+                                                                <PersonIcon />
+                                                            </Avatar>
+                                                        </ListItemAvatar>
+                                                        <ListItemText primary={email} />
+                                                    </ListItem>
+                                                ))}
+                                                <ListItem autoFocus button onClick={() => handleListItemClick('addAccount')}>
+                                                    <ListItemAvatar>
+                                                        <Avatar>
+                                                            <AddIcon />
+                                                        </Avatar>
+                                                    </ListItemAvatar>
+                                                    <ListItemText primary="Add account" />
+                                                </ListItem>
+                                            </List>
+                                        </DialogContent>
+                                        <DialogActions>
+                                        </DialogActions>
+                                    </Dialog>
+                                );
+                            }
+                        呼び出し側: |
+                            export default function SimpleDialogDemo() {
+                                const [open, setOpen] = React.useState(false);
+                                const [selectedValue, setSelectedValue] = React.useState(emails[1]);
 
-                            const handleClose = (value: string) => {
-                                setOpen(false);
-                                setSelectedValue(value);
-                            };
+                                const handleClickOpen = () => {
+                                    setOpen(true);
+                                };
 
-                            return (
-                                <div>
-                                    <Typography variant="subtitle1">Selected: {selectedValue}</Typography>
-                                    <br />
-                                    <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-                                        Open simple dialog
-                                    </Button>
-                                    <SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
-                                </div>
-                            );
-                        }
+                                const handleClose = (value: string) => {
+                                    setOpen(false);
+                                    setSelectedValue(value);
+                                };
+
+                                return (
+                                    <div>
+                                        <Typography variant="subtitle1">Selected: {selectedValue}</Typography>
+                                        <br />
+                                        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+                                            Open simple dialog
+                                        </Button>
+                                        <SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+                                    </div>
+                                );
+                            }
                     サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/react_examples/dialog_material_ui
                 Snackbar:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#snackbar(core)
                 Backdrop:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#backdrop(core)
@@ -1272,7 +1353,35 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
             (@material-ui/x-grid): データグリッド機能を提供するコンポーネント（フル機能のエンタープライズ版）
             (@material-ui/data-grid): データグリッド機能を提供するコンポーネント（無料のコミュニティ版）
         スタイル, @material-ui/core/styles, @material-ui/styles:
-            JSS を使っています: #keyword: Material-UI JSS  #ref: https://github.com/cssinjs/jss
+            JSS: #keyword: Material-UI JSS,  CSS-in-JS,  JSX CSS  #ref: https://github.com/cssinjs/jss
+                #// Material-UI は JSS (CSS-in-JS) を使っています
+                書式:
+                    埋め込みの場合:
+                        JSS: |
+                            <button style={{ background: 'blue', color: 'white', padding: '10px' }}>ボタン</button>
+                        上記と同じ CSS: |
+                            <button style="background: blue; color: white; padding: 10px;">ボタン</button>
+                    別ファイルの場合:
+                        JSS: |
+                            const styles = {
+                                button: {
+                                    background: 'blue',
+                                    color: 'white',
+                                    padding: 10,
+                                }
+                            }
+                        上記と同じ CSS:
+                            style.css: |
+                                .button {
+                                    background: blue;
+                                    color: white;
+                                    padding: 10px;
+                                }
+                    注意点:
+                        埋め込みの場合: |
+                            {{ }} のように 2重で囲むことに注意してください。 1重目は JavaScript にするため、2重目は オブジェクト リテラル にするためです
+                        スタイル名: Camel style で書いてください
+                        値: 文字列のリテラルは " " で囲んでください
             スタイルのカスタマイズ:
                 フック API:  #// classes = useStyles();  #keyword: Material-UI フック API,  Material-UI  makeStyles,  Material-UI  useStyles,  Material-UI  classes
                     関連 >> フック API を使った子コンポーネント:  #search: Material-UI フック API 子コンポーネント
@@ -1566,6 +1675,7 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                         };
 
                         export default InlineStyleButton;
+            Next.js の CSS: #search: Next.js JSS
     関連:
         notistack: #keyword: notistack,  notistack React 通知  #// 複数の通知をスタック形式で表示できます
             公式: #ref: https://www.npmjs.com/package/notistack

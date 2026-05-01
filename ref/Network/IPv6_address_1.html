@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>IPv6 アドレス構造と割り当てガイド</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-width: 320px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            font-weight: bold;
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 15px 0;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c3e50;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .important-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .important-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .list {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .list-item {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .svg-container {
+            width: 100%;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .svg-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table-header {
+            background: #667eea;
+            color: white;
+        }
+
+        .table-header-cell {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .table-row {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-row:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .table-cell {
+            padding: 12px 15px;
+            vertical-align: top;
+        }
+
+        .method-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .method-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .method-usage {
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .method-example {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .pros {
+            color: #27ae60;
+            margin-top: 8px;
+        }
+
+        .cons {
+            color: #e74c3c;
+            margin-top: 8px;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">IPv6 アドレス構造と割り当てガイド</div>
+            <div class="header-subtitle">128ビットアドレス空間の完全理解</div>
+        </div>
+
+        <div class="content">
+            <!-- Section 1: 基本構造 -->
+            <div class="section">
+                <div class="section-title">1. IPv6アドレスの基本構造</div>
+                <div class="description">
+                    IPv6アドレスは<span class="highlight">128ビット</span>で構成され、上位64ビットのネットワークプレフィックスと下位64ビットのインターフェースIDに分かれています。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 200" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Network Prefix -->
+                        <rect x="50" y="50" width="480" height="80" fill="#667eea" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="290" y="95" font-size="18" font-weight="bold" fill="white" text-anchor="middle">
+                            ネットワークプレフィックス
+                        </text>
+                        <text x="290" y="115" font-size="16" fill="white" text-anchor="middle">
+                            64ビット
+                        </text>
+                        
+                        <!-- Interface ID -->
+                        <rect x="570" y="50" width="480" height="80" fill="#e74c3c" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="810" y="95" font-size="18" font-weight="bold" fill="white" text-anchor="middle">
+                            インターフェースID
+                        </text>
+                        <text x="810" y="115" font-size="16" fill="white" text-anchor="middle">
+                            64ビット
+                        </text>
+                        
+                        <!-- Example -->
+                        <text x="550" y="170" font-size="16" font-family="monospace" text-anchor="middle" fill="#2c3e50">
+                            2001:0db8:1234:5678 : a4b3:7f2c:8d91:e3f5
+                        </text>
+                        <line x1="380" y1="175" x2="540" y2="175" stroke="#667eea" stroke-width="2"/>
+                        <line x1="560" y1="175" x2="720" y2="175" stroke="#e74c3c" stroke-width="2"/>
+                    </svg>
+                </div>
+
+                <div class="code-block">
+例: 2001:0db8:1234:5678:021a:2bff:fe3c:4d5e
+    └─────┬─────┘└─┬─┘└────────┬────────┘
+        ISP割当  サブネット  ホスト識別
+                </div>
+            </div>
+
+            <!-- Section 2: プレフィックス長 -->
+            <div class="section">
+                <div class="section-title">2. よく使われるプレフィックス長</div>
+                
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- /32 -->
+                        <rect x="50" y="30" width="250" height="50" fill="#9b59b6" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="175" y="60" font-size="16" font-weight="bold" fill="white" text-anchor="middle">/32 - ISP割当</text>
+                        
+                        <!-- /48 -->
+                        <rect x="50" y="100" width="400" height="50" fill="#3498db" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="250" y="130" font-size="16" font-weight="bold" fill="white" text-anchor="middle">/48 - 企業割当（65,536サブネット）</text>
+                        
+                        <!-- /56 -->
+                        <rect x="50" y="170" width="480" height="50" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="290" y="200" font-size="16" font-weight="bold" fill="white" text-anchor="middle">/56 - 家庭割当（256サブネット）</text>
+                        
+                        <!-- /64 -->
+                        <rect x="50" y="240" width="550" height="50" fill="#e67e22" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="325" y="270" font-size="16" font-weight="bold" fill="white" text-anchor="middle">/64 - LANセグメント（標準・18京アドレス）</text>
+                        
+                        <!-- /127 and /128 -->
+                        <rect x="50" y="310" width="1000" height="50" fill="#95a5a6" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="250" y="340" font-size="16" font-weight="bold" fill="white" text-anchor="start">/127 - P2Pリンク</text>
+                        <text x="600" y="340" font-size="16" font-weight="bold" fill="white" text-anchor="start">/128 - 単一ホスト</text>
+                    </svg>
+                </div>
+
+                <div class="important-box">
+                    <div class="important-title">💡 重要ポイント</div>
+                    <div class="description">
+                        <span class="highlight">/64</span>がIPv6の標準サブネットサイズです。すべてのLANセグメントに/64を割り当てることで、SLAAC（自動アドレス設定）が正常に動作し、管理もシンプルになります。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: 階層的構造 -->
+            <div class="section">
+                <div class="section-title">3. 階層的サブネット構成</div>
+                
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 600" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#2c3e50"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- ISP -->
+                        <rect x="400" y="30" width="300" height="70" fill="#9b59b6" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="550" y="60" font-size="16" font-weight="bold" fill="white" text-anchor="middle">ISP: 2001:0db8::/32</text>
+                        <text x="550" y="85" font-size="13" fill="white" text-anchor="middle">約40億の /48 割当可能</text>
+                        
+                        <!-- Arrow down -->
+                        <line x1="550" y1="100" x2="550" y2="150" stroke="#2c3e50" stroke-width="3" marker-end="url(#arrowhead)"/>
+                        
+                        <!-- Enterprise -->
+                        <rect x="400" y="150" width="300" height="70" fill="#3498db" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="550" y="180" font-size="16" font-weight="bold" fill="white" text-anchor="middle">企業: 2001:0db8:1234::/48</text>
+                        <text x="550" y="205" font-size="13" fill="white" text-anchor="middle">65,536個の /64 サブネット</text>
+                        
+                        <!-- Arrows to subnets -->
+                        <line x1="550" y1="220" x2="550" y2="250" stroke="#2c3e50" stroke-width="2"/>
+                        <line x1="550" y1="250" x2="150" y2="290" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="550" y1="250" x2="380" y2="290" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="550" y1="250" x2="720" y2="290" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <line x1="550" y1="250" x2="950" y2="290" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        
+                        <!-- Subnets -->
+                        <rect x="30" y="290" width="240" height="60" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="150" y="315" font-size="14" font-weight="bold" fill="white" text-anchor="middle">:0001::/64</text>
+                        <text x="150" y="335" font-size="12" fill="white" text-anchor="middle">本社1階</text>
+                        
+                        <rect x="290" y="290" width="240" height="60" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="410" y="315" font-size="14" font-weight="bold" fill="white" text-anchor="middle">:0002::/64</text>
+                        <text x="410" y="335" font-size="12" fill="white" text-anchor="middle">本社2階</text>
+                        
+                        <rect x="550" y="290" width="240" height="60" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="670" y="315" font-size="14" font-weight="bold" fill="white" text-anchor="middle">:0010::/64</text>
+                        <text x="670" y="335" font-size="12" fill="white" text-anchor="middle">サーバールーム</text>
+                        
+                        <rect x="810" y="290" width="240" height="60" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="930" y="315" font-size="14" font-weight="bold" fill="white" text-anchor="middle">:00ff::/64</text>
+                        <text x="930" y="335" font-size="12" fill="white" text-anchor="middle">ゲストWiFi</text>
+                        
+                        <!-- Detail of first subnet -->
+                        <line x1="150" y1="350" x2="150" y2="390" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        
+                        <rect x="30" y="390" width="240" height="180" fill="#ecf0f1" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="150" y="415" font-size="13" font-weight="bold" fill="#2c3e50" text-anchor="middle">アドレス割当例</text>
+                        
+                        <text x="40" y="440" font-size="11" fill="#2c3e50" font-family="monospace">::1</text>
+                        <text x="90" y="440" font-size="11" fill="#2c3e50">ゲートウェイ</text>
+                        
+                        <text x="40" y="460" font-size="11" fill="#2c3e50" font-family="monospace">::2</text>
+                        <text x="90" y="460" font-size="11" fill="#2c3e50">DNSサーバー</text>
+                        
+                        <text x="40" y="480" font-size="11" fill="#2c3e50" font-family="monospace">::10</text>
+                        <text x="90" y="480" font-size="11" fill="#2c3e50">Webサーバー</text>
+                        
+                        <text x="40" y="500" font-size="11" fill="#2c3e50" font-family="monospace">::1000</text>
+                        <text x="90" y="500" font-size="11" fill="#2c3e50">DHCPプール</text>
+                        
+                        <text x="40" y="520" font-size="11" fill="#2c3e50" font-family="monospace">::8000:...</text>
+                        <text x="90" y="520" font-size="11" fill="#2c3e50">SLAAC用</text>
+                        
+                        <text x="40" y="550" font-size="10" fill="#7f8c8d">※18京個のアドレス利用可能</text>
+                    </svg>
+                </div>
+
+                <div class="section-subtitle">サブネットIDの構造化例</div>
+                <div class="code-block">
+2001:0db8:1234:SSFF::/64
+                  ││││
+                  ││└└─ フロア/VLAN番号（00-FF）
+                  └└─── サイト番号（00-FF）
+
+具体例:
+:0101::/64  → サイト01、フロア01
+:0102::/64  → サイト01、フロア02
+:0201::/64  → サイト02、フロア01
+                </div>
+            </div>
+
+            <!-- Section 4: インターフェースID -->
+            <div class="section">
+                <div class="section-title">4. インターフェースID（下位64ビット）の割り当て方法</div>
+                
+                <div class="method-card">
+                    <div class="method-title">① 手動割り当て（静的設定）</div>
+                    <div class="method-usage"><strong>用途:</strong> サーバー、ルーター、ネットワーク機器</div>
+                    <div class="method-example">
+::1                         # ゲートウェイ（ルーター）
+::2, ::3                    # 重要なサーバー
+::10～::99                  # サーバー群
+::dead:beef                 # 覚えやすいパターン
+                    </div>
+                    <div class="pros">✓ 予測可能で管理しやすい</div>
+                    <div class="pros">✓ DNSや証明書の設定に適している</div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">② EUI-64（MACアドレスベース）</div>
+                    <div class="method-usage"><strong>用途:</strong> 従来の自動生成方式</div>
+                    <div class="method-example">
+MACアドレス: 00:1a:2b:3c:4d:5e
+→ インターフェースID: 021a:2bff:fe3c:4d5e
+
+処理手順:
+1. MACを分割: 00:1a:2b | 3c:4d:5e
+2. 真ん中にff:fe挿入
+3. 7ビット目を反転
+                    </div>
+                    <div class="cons">⚠️ MACアドレスが露出（プライバシー問題）</div>
+                    <div class="cons">⚠️ 現在はあまり推奨されない</div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">③ プライバシー拡張（RFC 4941）</div>
+                    <div class="method-usage"><strong>用途:</strong> クライアントPC（推奨）</div>
+                    <div class="method-example">
+例: a4b3:7f2c:8d91:e3f5
+    ↓ 定期的に変更（デフォルト24時間毎）
+    2c8f:91a3:b5d7:4e12
+                    </div>
+                    <div class="pros">✓ ユーザーの追跡を困難にする</div>
+                    <div class="pros">✓ Windows/macOS/Linuxでデフォルト有効</div>
+                    <div class="cons">⚠️ ログ追跡が困難</div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">④ 安定プライバシーアドレス（RFC 7217）</div>
+                    <div class="method-usage"><strong>用途:</strong> IoT機器、企業内端末</div>
+                    <div class="method-example">
+hash(プレフィックス + ネットワークID + MACアドレス + シークレット)
+→ 3f8a:c2d5:9e17:4b6a
+                    </div>
+                    <div class="pros">✓ 同じネットワークでは同じアドレス</div>
+                    <div class="pros">✓ ネットワークが変わると異なるアドレス</div>
+                    <div class="pros">✓ 再接続時の安定性とプライバシーの両立</div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">⑤ DHCPv6</div>
+                    <div class="method-usage"><strong>用途:</strong> 企業環境での集中管理</div>
+                    <div class="method-example">
+連番方式: ::1000, ::1001, ::1002
+ランダム方式: a3f4:b2c8:d5e1:7f90
+MACベース予約: ::aaaa:bbbb:cccc
+                    </div>
+                    <div class="pros">✓ 集中管理が可能</div>
+                    <div class="pros">✓ 割り当てポリシーの柔軟な設定</div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">⑥ SLAAC（自動設定）</div>
+                    <div class="method-usage"><strong>用途:</strong> プラグアンドプレイ環境</div>
+                    <div class="method-example">
+ルーター広告でプレフィックスを受信
+→ 自動的にインターフェースIDを生成
+→ 設定不要で即座に通信可能
+                    </div>
+                    <div class="pros">✓ /64必須</div>
+                    <div class="pros">✓ 設定不要で簡単</div>
+                    <div class="pros">✓ プライバシー拡張と組み合わせ可能</div>
+                </div>
+            </div>
+
+            <!-- Section 5: 実際の運用 -->
+            <div class="section">
+                <div class="section-title">5. /64サブネット内のアドレス割り当て例</div>
+                
+                <table class="table">
+                    <thead class="table-header">
+                        <tr>
+                            <th class="table-header-cell">アドレス範囲</th>
+                            <th class="table-header-cell">用途</th>
+                            <th class="table-header-cell">備考</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::0</code></td>
+                            <td class="table-cell">サブネット自体</td>
+                            <td class="table-cell">使用しない</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::1</code></td>
+                            <td class="table-cell">ゲートウェイ（ルーター）</td>
+                            <td class="table-cell">標準的な慣例</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::2 ～ ::ff</code></td>
+                            <td class="table-cell">インフラ機器</td>
+                            <td class="table-cell">DNS、NTP、監視サーバー等</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::100 ～ ::1ff</code></td>
+                            <td class="table-cell">サーバー</td>
+                            <td class="table-cell">手動割り当て</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::1000 ～ ::1fff</code></td>
+                            <td class="table-cell">DHCPv6プール</td>
+                            <td class="table-cell">固定端末用</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::8000:0:0:0 ～<br>::8fff:ffff:ffff:ffff</code></td>
+                            <td class="table-cell">SLAAC/プライバシー拡張</td>
+                            <td class="table-cell">クライアント端末用</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-cell"><code>::ffff:ffff:ffff:ffff</code></td>
+                            <td class="table-cell">予約</td>
+                            <td class="table-cell">通常使用しない</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="important-box">
+                    <div class="important-title">🎯 ベストプラクティス</div>
+                    <ul class="list">
+                        <li class="list-item"><strong>サーバー・インフラ:</strong> 手動で意味のある固定値を割り当て</li>
+                        <li class="list-item"><strong>一般ユーザー:</strong> プライバシー拡張（自動変更）を使用</li>
+                        <li class="list-item"><strong>企業環境:</strong> DHCPv6で集中管理</li>
+                        <li class="list-item"><strong>IoT機器:</strong> 安定プライバシーアドレスを使用</li>
+                        <li class="list-item"><strong>ドキュメント化:</strong> サブネット番号の意味を必ず文書化</li>
+                        <li class="list-item"><strong>将来の拡張:</strong> 予約領域を確保しておく</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 6: まとめ -->
+            <div class="section">
+                <div class="section-title">6. まとめ</div>
+                
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 300" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">IPv6設計の3つの重要原則</text>
+                        
+                        <!-- Principle 1 -->
+                        <rect x="50" y="60" width="320" height="200" fill="#3498db" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="210" y="95" font-size="18" font-weight="bold" fill="white" text-anchor="middle">すべてのLANに</text>
+                        <text x="210" y="120" font-size="20" font-weight="bold" fill="white" text-anchor="middle">/64</text>
+                        <text x="210" y="150" font-size="14" fill="white" text-anchor="middle">を割り当てる</text>
+                        <text x="210" y="180" font-size="12" fill="white" text-anchor="middle">・SLAACが正常動作</text>
+                        <text x="210" y="200" font-size="12" fill="white" text-anchor="middle">・管理がシンプル</text>
+                        <text x="210" y="220" font-size="12" fill="white" text-anchor="middle">・アドレス枯渇の心配なし</text>
+                        
+                        <!-- Principle 2 -->
+                        <rect x="390" y="60" width="320" height="200" fill="#e74c3c" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="550" y="95" font-size="18" font-weight="bold" fill="white" text-anchor="middle">階層的に</text>
+                        <text x="550" y="120" font-size="20" font-weight="bold" fill="white" text-anchor="middle">設計</text>
+                        <text x="550" y="150" font-size="14" fill="white" text-anchor="middle">する</text>
+                        <text x="550" y="180" font-size="12" fill="white" text-anchor="middle">・サイト/フロア/用途で分類</text>
+                        <text x="550" y="200" font-size="12" fill="white" text-anchor="middle">・ルーティング集約が可能</text>
+                        <text x="550" y="220" font-size="12" fill="white" text-anchor="middle">・拡張性の確保</text>
+                        
+                        <!-- Principle 3 -->
+                        <rect x="730" y="60" width="320" height="200" fill="#1abc9c" stroke="#2c3e50" stroke-width="3" rx="8"/>
+                        <text x="890" y="95" font-size="18" font-weight="bold" fill="white" text-anchor="middle">用途に応じた</text>
+                        <text x="890" y="120" font-size="20" font-weight="bold" fill="white" text-anchor="middle">ID生成</text>
+                        <text x="890" y="150" font-size="14" fill="white" text-anchor="middle">方式を選ぶ</text>
+                        <text x="890" y="180" font-size="12" fill="white" text-anchor="middle">・サーバー: 手動割当</text>
+                        <text x="890" y="200" font-size="12" fill="white" text-anchor="middle">・クライアント: プライバシー拡張</text>
+                        <text x="890" y="220" font-size="12" fill="white" text-anchor="middle">・IoT: 安定プライバシー</text>
+                    </svg>
+                </div>
+
+                <div class="description">
+                    IPv6は<span class="highlight">アドレス空間が潤沢</span>という前提で設計されています。そのため、アドレスをケチらず、標準化とシンプルさを優先した設計を心がけることが重要です。
+                </div>
+
+                <div class="code-block">
+IPv6のアドレス空間:
+/64サブネット = 約18京個（18,446,744,073,709,551,616個）のアドレス
+/48企業割当 = 65,536個の /64サブネット
+/32 ISP割当 = 約40億個の /48企業割当
+
+地球上の全砂粒の数よりも多いアドレスが利用可能です！
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-text">IPv6 アドレス構造と割り当てガイド - 2026</div>
+        </div>
+    </div>
+</body>
+</html>

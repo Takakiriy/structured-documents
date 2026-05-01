@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>IPv6アドレス技術解説 - JPNIC準拠</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-width: 320px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1e3c72;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            font-weight: bold;
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #1e3c72;
+            padding: 15px 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2c3e50;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .important-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .important-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .svg-container {
+            width: 100%;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .svg-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table-header {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .table-header-cell {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        .table-row {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table-row:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .table-cell {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .table-cell code {
+            background: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border: 2px solid #1e3c72;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .example-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .example-content {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .address-type-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .address-type-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .address-type-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .note {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .note-title {
+            font-weight: bold;
+            color: #f57c00;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">IPv6アドレス技術解説</div>
+            <div class="header-subtitle">JPNIC インターネット10分講座準拠</div>
+        </div>
+
+        <div class="content">
+            <!-- Section 1: アドレス表記法 -->
+            <div class="section">
+                <div class="section-title">1. IPv6アドレスの表記法</div>
+                
+                <div class="description">
+                    IPv6アドレスは128ビットを16ビットずつ8つに":"（コロン）で区切った数値列を、<span class="highlight">16進数</span>で表記します。
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">基本表記</div>
+                    <div class="example-content">
+ABCD:EF01:2345:6789:ABCD:EF01:2345:6789
+2001:0DB8:0000:0000:0008:0800:200C:417A
+                    </div>
+                </div>
+
+                <div class="section-subtitle">省略ルール</div>
+                
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">IPv6アドレス省略記法</text>
+                        
+                        <!-- Rule 1 -->
+                        <rect x="50" y="60" width="1000" height="100" fill="#e3f2fd" stroke="#1e3c72" stroke-width="2" rx="8"/>
+                        <text x="70" y="90" font-size="16" font-weight="bold" fill="#1e3c72">ルール1：各16ビットフィールドの先頭の0は省略可能</text>
+                        <text x="70" y="120" font-size="14" font-family="monospace" fill="#2c3e50">元: 2001:0DB8:0000:0000:0008:0800:200C:417A</text>
+                        <text x="70" y="145" font-size="14" font-family="monospace" fill="#e74c3c">→  2001:DB8:0:0:8:800:200C:417A</text>
+                        
+                        <!-- Rule 2 -->
+                        <rect x="50" y="180" width="1000" height="120" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="8"/>
+                        <text x="70" y="210" font-size="16" font-weight="bold" fill="#f57c00">ルール2：連続する0のフィールドは"::"で省略可能（1回のみ）</text>
+                        <text x="70" y="240" font-size="14" font-family="monospace" fill="#2c3e50">元: 2001:DB8:0:0:8:800:200C:417A</text>
+                        <text x="70" y="265" font-size="14" font-family="monospace" fill="#e74c3c">→  2001:DB8::8:800:200C:417A</text>
+                        <text x="70" y="290" font-size="12" fill="#666">※"::"は一度しか使えません（どこまでが省略されたかわからなくなるため）</text>
+                    </svg>
+                </div>
+
+                <div class="table-container">
+                    <table class="info-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="table-header-cell">省略表記</th>
+                                <th class="table-header-cell">アドレスの種類</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>FF01::101</code></td>
+                                <td class="table-cell">マルチキャストアドレス</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>2001:DB8::8:800:200C:417A</code></td>
+                                <td class="table-cell">ユニキャストアドレス</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>::1</code></td>
+                                <td class="table-cell">ループバックアドレス</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>::</code></td>
+                                <td class="table-cell">未指定アドレス</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="note">
+                    <div class="note-title">プレフィックス表記</div>
+                    IPv4のCIDR表記と同様に、[IPv6アドレス]/[プレフィックス長] で表記します。<br>
+                    例: <code>2001:DB8::/32</code>、<code>2001:DB8:1234:5678::/64</code>
+                </div>
+            </div>
+
+            <!-- Section 2: アドレスの型 -->
+            <div class="section">
+                <div class="section-title">2. IPv6アドレスの型</div>
+                
+                <div class="description">
+                    IPv6アドレスは上位ビットの値によって、複数の型に分類されます。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 550" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">IPv6アドレスの型</text>
+                        
+                        <!-- Unspecified -->
+                        <rect x="50" y="60" width="350" height="80" fill="#95a5a6" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="225" y="90" font-size="15" font-weight="bold" fill="white" text-anchor="middle">未指定アドレス</text>
+                        <text x="225" y="115" font-size="13" fill="white" text-anchor="middle">::/128</text>
+                        <text x="225" y="135" font-size="11" fill="white" text-anchor="middle">(00…0 128ビット)</text>
+                        
+                        <!-- Loopback -->
+                        <rect x="425" y="60" width="300" height="80" fill="#3498db" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="575" y="90" font-size="15" font-weight="bold" fill="white" text-anchor="middle">ループバック</text>
+                        <text x="575" y="115" font-size="13" fill="white" text-anchor="middle">::1/128</text>
+                        <text x="575" y="135" font-size="11" fill="white" text-anchor="middle">(00…1 128ビット)</text>
+                        
+                        <!-- Link-local -->
+                        <rect x="750" y="60" width="300" height="80" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="900" y="90" font-size="15" font-weight="bold" fill="white" text-anchor="middle">リンクローカル</text>
+                        <text x="900" y="115" font-size="13" fill="white" text-anchor="middle">fe80::/10</text>
+                        <text x="900" y="135" font-size="11" fill="white" text-anchor="middle">(1111 1110 10)</text>
+                        
+                        <!-- Multicast -->
+                        <rect x="50" y="160" width="300" height="80" fill="#e74c3c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="200" y="190" font-size="15" font-weight="bold" fill="white" text-anchor="middle">マルチキャスト</text>
+                        <text x="200" y="215" font-size="13" fill="white" text-anchor="middle">ff00::/8</text>
+                        <text x="200" y="235" font-size="11" fill="white" text-anchor="middle">(1111 1111)</text>
+                        
+                        <!-- Global Unicast -->
+                        <rect x="375" y="160" width="675" height="80" fill="#9b59b6" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="712" y="190" font-size="15" font-weight="bold" fill="white" text-anchor="middle">グローバルユニキャスト</text>
+                        <text x="712" y="215" font-size="13" fill="white" text-anchor="middle">2000::/3（上記以外）</text>
+                        <text x="712" y="235" font-size="11" fill="white" text-anchor="middle">インターネットで使用可能</text>
+                        
+                        <!-- Descriptions -->
+                        <g transform="translate(50, 270)">
+                            <text x="0" y="0" font-size="16" font-weight="bold" fill="#2c3e50">各アドレスタイプの説明</text>
+                            
+                            <text x="0" y="30" font-size="13" font-weight="bold" fill="#95a5a6">● 未指定アドレス (::/128)</text>
+                            <text x="15" y="50" font-size="12" fill="#555">アドレスが未設定の状態を示す。通信には使用されない。</text>
+                            
+                            <text x="0" y="80" font-size="13" font-weight="bold" fill="#3498db">● ループバックアドレス (::1/128)</text>
+                            <text x="15" y="100" font-size="12" fill="#555">自分自身への通信に使用。IPv4の127.0.0.1に相当。</text>
+                            
+                            <text x="0" y="130" font-size="13" font-weight="bold" fill="#1abc9c">● リンクローカルユニキャスト (fe80::/10)</text>
+                            <text x="15" y="150" font-size="12" fill="#555">同一リンク上でのみ有効。設定不要で自動的に付与される。</text>
+                            <text x="15" y="170" font-size="12" fill="#555">近隣探索やアドレス自動設定に使用。</text>
+                            
+                            <text x="0" y="200" font-size="13" font-weight="bold" fill="#e74c3c">● マルチキャストアドレス (ff00::/8)</text>
+                            <text x="15" y="220" font-size="12" fill="#555">複数のインターフェースへの同報通信。IPv6にはブロードキャストなし。</text>
+                            
+                            <text x="0" y="250" font-size="13" font-weight="bold" fill="#9b59b6">● グローバルユニキャストアドレス (2000::/3)</text>
+                            <text x="15" y="270" font-size="12" fill="#555">インターネット上でグローバルに一意。IPv4のグローバルIPに相当。</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+
+            <!-- Section 3: ユニキャストアドレスについて -->
+            <div class="section">
+                <div class="section-title">3. ユニキャストアドレスについて</div>
+
+                  <!-- Section 3.1: 2000::/3の詳細 -->
+                <div class="section-subtitle">3.1 グローバルユニキャストアドレスの範囲</div>
+                
+                <div class="description">
+                    <span class="highlight">2000::/3</span>は「先頭3ビットが001」という意味です。これがグローバルユニキャストアドレスの範囲全体を表しており、2001:から始まるアドレスもこの範囲に含まれます。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 500" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">2000::/3 と 2001: の関係</text>
+                        
+                        <!-- Binary explanation -->
+                        <rect x="50" y="60" width="1000" height="140" fill="#e3f2fd" stroke="#1e3c72" stroke-width="2" rx="8"/>
+                        <text x="70" y="90" font-size="16" font-weight="bold" fill="#1e3c72">2000::/3 の意味：先頭3ビットが "001"</text>
+                        
+                        <g transform="translate(70, 110)">
+                            <text x="0" y="0" font-size="14" fill="#2c3e50">2進数で見ると：</text>
+                            <text x="0" y="25" font-size="13" font-family="monospace" fill="#2c3e50">2000 (16進) = </text>
+                            <text x="150" y="25" font-size="13" font-family="monospace" fill="#e74c3c" font-weight="bold">001</text>
+                            <text x="185" y="25" font-size="13" font-family="monospace" fill="#666">0 0000 0000 0000</text>
+                            
+                            <text x="0" y="50" font-size="13" font-family="monospace" fill="#2c3e50">2001 (16進) = </text>
+                            <text x="150" y="50" font-size="13" font-family="monospace" fill="#e74c3c" font-weight="bold">001</text>
+                            <text x="185" y="50" font-size="13" font-family="monospace" fill="#666">0 0000 0000 0001</text>
+                            
+                            <text x="150" y="70" font-size="11" fill="#e74c3c">↑ 先頭3ビットが同じ</text>
+                        </g>
+                        
+                        <!-- Range visualization -->
+                        <rect x="50" y="210" width="1000" height="250" fill="#f8f9fa" stroke="#2c3e50" stroke-width="2" rx="8"/>
+                        <text x="70" y="240" font-size="16" font-weight="bold" fill="#2c3e50">2000::/3 のアドレス空間</text>
+                        
+                        <!-- Main range -->
+                        <rect x="100" y="260" width="900" height="60" fill="#9b59b6" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="550" y="285" font-size="14" font-weight="bold" fill="white" text-anchor="middle">2000::/3 全体</text>
+                        <text x="550" y="305" font-size="12" fill="white" text-anchor="middle">2000:: 〜 3FFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF</text>
+                        
+                        <!-- 2000::/4 -->
+                        <rect x="120" y="340" width="400" height="50" fill="#3498db" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="320" y="360" font-size="13" font-weight="bold" fill="white" text-anchor="middle">2000::/4</text>
+                        <text x="320" y="378" font-size="11" fill="white" text-anchor="middle">2000:: 〜 2FFF::...</text>
+                        
+                        <!-- 3000::/4 -->
+                        <rect x="580" y="340" width="400" height="50" fill="#1abc9c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="780" y="360" font-size="13" font-weight="bold" fill="white" text-anchor="middle">3000::/4</text>
+                        <text x="780" y="378" font-size="11" fill="white" text-anchor="middle">3000:: 〜 3FFF::...</text>
+                        
+                        <!-- 2001: detail -->
+                        <text x="315" y="425" font-size="12" font-weight="bold" fill="black" text-anchor="middle">2001::/16 ← 2001:から始まるアドレス</text>
+                    </svg>
+                </div>
+
+                <div class="section-subtitle">2001:から始まる特定のアドレスブロック</div>
+                
+                <div class="table-container">
+                    <table class="info-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="table-header-cell">プレフィックス</th>
+                                <th class="table-header-cell">用途</th>
+                                <th class="table-header-cell">説明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>2001::/32</code></td>
+                                <td class="table-cell">Teredo</td>
+                                <td class="table-cell">IPv4/IPv6トンネリング技術用</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>2001:db8::/32</code></td>
+                                <td class="table-cell">文書・ドキュメント用</td>
+                                <td class="table-cell">RFC 3849で定義。実際の通信には使用不可</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell"><code>2001:2::/48</code></td>
+                                <td class="table-cell">ベンチマーク用</td>
+                                <td class="table-cell">性能測定用途</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell">その他の2001:...</td>
+                                <td class="table-cell">グローバルユニキャスト</td>
+                                <td class="table-cell">通常のインターネットアドレス</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="important-box">
+                    <div class="important-title">階層的な包含関係</div>
+                    <div class="code-block">
+2000::/3 (グローバルユニキャスト全体)
+    ⊃ 2000::/4 (2000:〜2FFF:の範囲)
+        ⊃ 2001::/16 (2001:から始まるアドレス)
+            ⊃ 2001::/32 (Teredo用)
+            ⊃ 2001:db8::/32 (文書用)
+            ⊃ 2001:2::/48 (ベンチマーク用)
+                    </div>
+                    <div class="description" style="margin-top: 15px;">
+                        例えば、<code>2001:db8::1</code> というアドレスは：
+                        <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                            <li>✅ 2000::/3 の範囲内（先頭3ビットが001）</li>
+                            <li>✅ 2001::/16 の範囲内</li>
+                            <li>✅ 2001:db8::/32 の範囲内（文書用）</li>
+                            <li>✅ グローバルユニキャストアドレス</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <div class="note-title">なぜ2000::/3なのか？</div>
+                    IPv6のアドレス空間（128ビット）は非常に広大です。先頭3ビットを見ることで、アドレスの大まかな分類が可能です：
+                    <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.6;">
+                        <li><code>000</code>: 特殊用途（未指定、ループバック等）</li>
+                        <li><code>001</code>: グローバルユニキャスト（2000::/3）← 最も重要</li>
+                        <li><code>010</code>〜<code>110</code>: 将来の利用のため予約</li>
+                        <li><code>111</code>: マルチキャスト（ff00::/8は実際には先頭8ビット）</li>
+                    </ul>
+                </div>
+                
+                <div class="section-subtitle">3.2 インタフェース識別子（EUI-64）</div>
+                
+                <div class="description">
+                    IPv6のインタフェース識別子は、多くの場合MACアドレスから生成されます。48ビットのMACアドレスを64ビットに拡張する方法を<span class="highlight">Modified EUI-64</span>と呼びます。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">Modified EUI-64によるインタフェース識別子の生成</text>
+                        
+                        <!-- Step 1: Original MAC -->
+                        <rect x="150" y="60" width="800" height="50" fill="#e3f2fd" stroke="#1e3c72" stroke-width="2" rx="5"/>
+                        <text x="160" y="90" font-size="14" font-weight="bold" fill="#1e3c72">① 元のMACアドレス（48ビット）</text>
+                        <text x="500" y="90" font-size="16" font-family="monospace" fill="#2c3e50">00:0C:29:0C:47:D5</text>
+                        
+                        <!-- Arrow -->
+                        <line x1="550" y1="115" x2="550" y2="145" stroke="#2c3e50" stroke-width="2"/>
+                        <polygon points="550,145 545,135 555,135" fill="#2c3e50"/>
+                        
+                        <!-- Step 2: Split -->
+                        <rect x="150" y="150" width="350" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="250" y="180" font-size="16" font-family="monospace" fill="#2c3e50">00:0C:29</text>
+                        
+                        <rect x="600" y="150" width="350" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                        <text x="700" y="180" font-size="16" font-family="monospace" fill="#2c3e50">0C:47:D5</text>
+                        
+                        <text x="550" y="180" font-size="14" font-weight="bold" fill="#2c3e50" text-anchor="middle">分割</text>
+                        
+                        <!-- Arrow -->
+                        <line x1="325" y1="205" x2="325" y2="235" stroke="#2c3e50" stroke-width="2"/>
+                        <polygon points="325,235 320,225 330,225" fill="#2c3e50"/>
+                        <line x1="775" y1="205" x2="775" y2="235" stroke="#2c3e50" stroke-width="2"/>
+                        <polygon points="775,235 770,225 780,225" fill="#2c3e50"/>
+                        
+                        <!-- Step 3: Insert FFFE -->
+                        <rect x="100" y="240" width="300" height="50" fill="#c8e6c9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="180" y="270" font-size="16" font-family="monospace" fill="#2c3e50">00:0C:29</text>
+                        
+                        <rect x="425" y="240" width="250" height="50" fill="#ffcdd2" stroke="#f44336" stroke-width="2" rx="5"/>
+                        <text x="490" y="270" font-size="16" font-family="monospace" fill="#2c3e50">FF:FE</text>
+                        
+                        <rect x="700" y="240" width="300" height="50" fill="#c8e6c9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                        <text x="780" y="270" font-size="16" font-family="monospace" fill="#2c3e50">0C:47:D5</text>
+                        
+                        <text x="550" y="225" font-size="13" font-weight="bold" fill="#f44336" text-anchor="middle">② FF:FEを挿入</text>
+                        
+                        <!-- Arrow -->
+                        <line x1="550" y1="295" x2="550" y2="325" stroke="#2c3e50" stroke-width="2"/>
+                        <polygon points="550,325 545,315 555,315" fill="#2c3e50"/>
+                        
+                        <!-- Step 4: Flip bit -->
+                        <rect x="150" y="330" width="800" height="50" fill="#e1bee7" stroke="#9c27b0" stroke-width="2" rx="5"/>
+                        <text x="160" y="360" font-size="14" font-weight="bold" fill="#7b1fa2">③ 7ビット目を反転（U/Lビット）</text>
+                        <text x="450" y="360" font-size="16" font-family="monospace" fill="#2c3e50">02:0C:29:FF:FE:0C:47:D5</text>
+                        
+                        <text x="250" y="340" font-size="11" fill="#7b1fa2">00→02</text>
+                        
+                        <!-- Final result -->
+                        <text x="550" y="405" font-size="14" font-weight="bold" fill="#2c3e50" text-anchor="middle">最終的なインタフェース識別子：020c:29ff:fe0c:47d5</text>
+                    </svg>
+                </div>
+
+                <div class="note">
+                    <div class="note-title">7ビット目の反転（U/Lビット）</div>
+                    MACアドレスの先頭バイトの7ビット目はU/L（Universal/Local）ビットと呼ばれます。<br>
+                    ・0 = ローカル管理アドレス<br>
+                    ・1 = グローバルに一意（IEEE割り当て）<br>
+                    IPv6では意味を反転させるため、このビットを反転します。
+                </div>
+
+                <div class="section-subtitle">3.3 ユニークローカルIPv6ユニキャストアドレス（ULA）</div>
+                
+                <div class="description">
+                    ULAは、組織内ネットワークで使用するプライベートアドレスです。IPv4のプライベートアドレス（10.0.0.0/8など）に相当しますが、より高度な仕組みを持っています。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 300" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">ユニークローカルアドレス（ULA）のフォーマット</text>
+                        
+                        <!-- Bit structure -->
+                        <rect x="50" y="60" width="80" height="60" fill="#e74c3c" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="90" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">8ビット</text>
+                        
+                        <rect x="130" y="60" width="50" height="60" fill="#f39c12" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="155" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">1</text>
+                        
+                        <rect x="180" y="60" width="350" height="60" fill="#3498db" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="355" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">40ビット</text>
+                        
+                        <rect x="530" y="60" width="200" height="60" fill="#1abc9c" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="630" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">16ビット</text>
+                        
+                        <rect x="730" y="60" width="320" height="60" fill="#9b59b6" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="890" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">64ビット</text>
+                        
+                        <!-- Labels -->
+                        <text x="90" y="145" font-size="12" font-weight="bold" fill="#e74c3c" text-anchor="middle">プレフィックス</text>
+                        <text x="90" y="165" font-size="11" fill="#2c3e50" text-anchor="middle">fc00::/7</text>
+                        
+                        <text x="155" y="145" font-size="12" font-weight="bold" fill="#f39c12" text-anchor="middle">L</text>
+                        <text x="155" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">0or1</text>
+                        
+                        <text x="355" y="145" font-size="12" font-weight="bold" fill="#3498db" text-anchor="middle">グローバルID</text>
+                        <text x="355" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">ランダムまたは割当</text>
+                        
+                        <text x="630" y="145" font-size="12" font-weight="bold" fill="#1abc9c" text-anchor="middle">サブネットID</text>
+                        <text x="630" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">65,536サブネット</text>
+                        
+                        <text x="890" y="145" font-size="12" font-weight="bold" fill="#9b59b6" text-anchor="middle">インタフェースID</text>
+                        <text x="890" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">ホスト識別</text>
+                        
+                        <!-- Examples -->
+                        <g transform="translate(50, 200)">
+                            <text x="0" y="0" font-size="15" font-weight="bold" fill="#2c3e50">ULAの例</text>
+                            
+                            <rect x="0" y="10" width="500" height="35" fill="#f8f9fa" stroke="#ddd" stroke-width="1" rx="3"/>
+                            <text x="10" y="32" font-size="13" font-family="monospace" fill="#2c3e50">fc00::/7 - ULAのプレフィックス範囲</text>
+                            
+                            <rect x="0" y="50" width="500" height="35" fill="#f8f9fa" stroke="#ddd" stroke-width="1" rx="3"/>
+                            <text x="10" y="72" font-size="13" font-family="monospace" fill="#e74c3c">fd00::/8 - ローカル割り当て（一般的に使用）</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="important-box">
+                    <div class="important-title">ULAの特徴</div>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Lビット:</strong> 0の場合は将来の利用のため予約（現在未使用）、1の場合はローカルで割り当て可能（fd00::/8）</li>
+                        <li><strong>グローバルID:</strong> 40ビットのランダム値を使用することで、異なる組織間での重複を最小化</li>
+                        <li><strong>インターネット経路広告禁止:</strong> インターネット上でのルーティングは行わない</li>
+                        <li><strong>ISP非依存:</strong> ISPを変更してもアドレス変更不要</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 4: マルチキャストアドレス -->
+            <div class="section">
+                <div class="section-title">4. マルチキャストアドレス</div>
+                
+                <div class="description">
+                    IPv6のマルチキャストアドレスは、複数のノードに対して同時にデータを送信するためのアドレスです。IPv6にはブロードキャストがなく、マルチキャストがその役割を果たします。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 350" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">マルチキャストアドレスのフォーマット</text>
+                        
+                        <!-- Bit structure -->
+                        <rect x="50" y="60" width="150" height="60" fill="#e74c3c" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="125" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">8ビット</text>
+                        
+                        <rect x="200" y="60" width="150" height="60" fill="#f39c12" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="275" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">4ビット</text>
+                        
+                        <rect x="350" y="60" width="150" height="60" fill="#3498db" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="425" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">4ビット</text>
+                        
+                        <rect x="500" y="60" width="550" height="60" fill="#9b59b6" stroke="#2c3e50" stroke-width="2"/>
+                        <text x="775" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">112ビット</text>
+                        
+                        <!-- Labels -->
+                        <text x="125" y="145" font-size="12" font-weight="bold" fill="#e74c3c" text-anchor="middle">11111111</text>
+                        <text x="125" y="165" font-size="11" fill="#2c3e50" text-anchor="middle">(ff)</text>
+                        
+                        <text x="275" y="145" font-size="12" font-weight="bold" fill="#f39c12" text-anchor="middle">フラグ</text>
+                        <text x="275" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">0000-1111</text>
+                        
+                        <text x="425" y="145" font-size="12" font-weight="bold" fill="#3498db" text-anchor="middle">スコープ</text>
+                        <text x="425" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">有効範囲</text>
+                        
+                        <text x="775" y="145" font-size="12" font-weight="bold" fill="#9b59b6" text-anchor="middle">グループID</text>
+                        <text x="775" y="165" font-size="10" fill="#2c3e50" text-anchor="middle">マルチキャストグループ識別</text>
+                        
+                        <!-- Scope table -->
+                        <g transform="translate(50, 200)">
+                            <text x="0" y="0" font-size="15" font-weight="bold" fill="#2c3e50">主なスコープ値</text>
+                            
+                            <rect x="0" y="10" width="480" height="30" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+                            <text x="10" y="30" font-size="12" fill="#2c3e50">1 - インタフェースローカル（ノード内のみ）</text>
+                            
+                            <rect x="0" y="40" width="480" height="30" fill="#e3f2fd" stroke="#ddd" stroke-width="1"/>
+                            <text x="10" y="60" font-size="12" fill="#2c3e50">2 - リンクローカル（同一リンク）</text>
+                            
+                            <rect x="0" y="70" width="480" height="30" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+                            <text x="10" y="90" font-size="12" fill="#2c3e50">5 - サイトローカル（同一サイト）</text>
+                            
+                            <rect x="0" y="100" width="480" height="30" fill="#e3f2fd" stroke="#ddd" stroke-width="1"/>
+                            <text x="10" y="120" font-size="12" fill="#2c3e50">8 - 組織ローカル（同一組織）</text>
+                            
+                            <rect x="0" y="130" width="480" height="30" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+                            <text x="10" y="150" font-size="12" fill="#2c3e50">E - グローバル（インターネット全体）</text>
+                        </g>
+                        
+                        <!-- Examples -->
+                        <g transform="translate(550, 210)">
+                            <text x="0" y="0" font-size="15" font-weight="bold" fill="#2c3e50">マルチキャストアドレス例</text>
+                            
+                            <rect x="0" y="10" width="500" height="30" fill="#f8f9fa" stroke="#ddd" stroke-width="1" rx="3"/>
+                            <text x="10" y="30" font-size="12" font-family="monospace" fill="#2c3e50">ff02::1 - 全ノード（リンクローカル）</text>
+                            
+                            <rect x="0" y="45" width="500" height="30" fill="#f8f9fa" stroke="#ddd" stroke-width="1" rx="3"/>
+                            <text x="10" y="65" font-size="12" font-family="monospace" fill="#2c3e50">ff02::2 - 全ルーター（リンクローカル）</text>
+                            
+                            <rect x="0" y="80" width="500" height="30" fill="#f8f9fa" stroke="#ddd" stroke-width="1" rx="3"/>
+                            <text x="10" y="100" font-size="12" font-family="monospace" fill="#2c3e50">ff05::101 - 全NTPサーバー（サイト）</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="important-box">
+                    <div class="important-title">マルチキャストの特徴</div>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>スコープによる範囲制御:</strong> パケットの到達範囲を明確に定義できる</li>
+                        <li><strong>ブロードキャストの代替:</strong> IPv6にはブロードキャストがなく、マルチキャストで実現</li>
+                        <li><strong>効率的な配信:</strong> 必要なノードだけが受信するため、ネットワーク負荷を軽減</li>
+                        <li><strong>近隣探索に利用:</strong> IPv6の基本機能である近隣探索プロトコル（NDP）で使用</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 5: 特殊なアドレス -->
+            <div class="section">
+                <div class="section-title">5. 特殊用途のIPv6アドレス</div>
+                
+                <div class="section-subtitle">5.1 文書記述用アドレスプレフィックス</div>
+                
+                <div class="description">
+                    マニュアルや設定サンプルへの利用を想定した、文書記述専用のアドレスプレフィックスが定義されています。
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">文書用プレフィックス: 2001:db8::/32</div>
+                    <div class="example-content" style="white-space: pre;">
+例: 2001:db8:1234:5678::1
+    2001:db8:abcd:ef01::100
+
+特徴:
+・RFC 3849で定義
+・ドキュメント、マニュアル、設定例での使用専用
+・実際の通信には使用不可
+・本ガイドでもこのプレフィックスを使用
+                    </div>
+                </div>
+
+                <div class="section-subtitle">5.2 IPv4アドレス埋め込みIPv6アドレス</div>
+                
+                <div class="description">
+                    IPv4とIPv6の共存・移行技術で使用される特殊なアドレス形式です。
+                </div>
+
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 250" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">IPv4射影IPv6アドレス</text>
+                        
+                        <!-- Structure -->
+                        <rect x="100" y="60" width="300" height="60" fill="#95a5a6" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="250" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">80ビット（すべて0）</text>
+                        
+                        <rect x="400" y="60" width="200" height="60" fill="#3498db" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="500" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">16ビット（FFFF）</text>
+                        
+                        <rect x="600" y="60" width="400" height="60" fill="#e74c3c" stroke="#2c3e50" stroke-width="2" rx="5"/>
+                        <text x="800" y="95" font-size="13" font-weight="bold" fill="white" text-anchor="middle">32ビット（IPv4アドレス）</text>
+                        
+                        <!-- Example -->
+                        <text x="550" y="160" font-size="15" font-weight="bold" fill="#2c3e50" text-anchor="middle">表記例</text>
+                        
+                        <rect x="200" y="175" width="700" height="35" fill="#f8f9fa" stroke="#ddd" stroke-width="1" rx="3"/>
+                        <text x="210" y="198" font-size="13" font-family="monospace" fill="#2c3e50">::ffff:192.168.1.1 または ::ffff:c0a8:0101</text>
+                        
+                        <text x="550" y="230" font-size="12" fill="#666" text-anchor="middle">IPv4アドレス 192.168.1.1 をIPv6形式で表現</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Section 6: まとめ -->
+            <div class="section">
+                <div class="section-title">6. IPv6アドレス設計のポイント</div>
+                
+                <div class="svg-container">
+                    <svg viewBox="0 0 1100 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Title -->
+                        <text x="550" y="30" font-size="20" font-weight="bold" fill="#2c3e50" text-anchor="middle">IPv6の設計思想</text>
+                        
+                        <!-- Point 1 -->
+                        <rect x="50" y="60" width="480" height="150" fill="#e3f2fd" stroke="#2196f3" stroke-width="3" rx="8"/>
+                        <text x="290" y="95" font-size="18" font-weight="bold" fill="#1976d2" text-anchor="middle">階層的アドレス構造</text>
+                        <text x="70" y="125" font-size="13" fill="#2c3e50">• 固定された64/64分割</text>
+                        <text x="70" y="150" font-size="13" fill="#2c3e50">• ネットワーク設計が容易</text>
+                        <text x="70" y="175" font-size="13" fill="#2c3e50">• アドレス集約が可能</text>
+                        <text x="70" y="200" font-size="13" fill="#2c3e50">• ルーティングテーブルの効率化</text>
+                        
+                        <!-- Point 2 -->
+                        <rect x="570" y="60" width="480" height="150" fill="#fff3e0" stroke="#ff9800" stroke-width="3" rx="8"/>
+                        <text x="810" y="95" font-size="18" font-weight="bold" fill="#f57c00" text-anchor="middle">自動設定機能</text>
+                        <text x="590" y="125" font-size="13" fill="#2c3e50">• ステートレスアドレス自動設定</text>
+                        <text x="590" y="150" font-size="13" fill="#2c3e50">• リンクローカルアドレスの自動生成</text>
+                        <text x="590" y="175" font-size="13" fill="#2c3e50">• DHCPv6も利用可能</text>
+                        <text x="590" y="200" font-size="13" fill="#2c3e50">• 設定作業の大幅な削減</text>
+                        
+                        <!-- Point 3 -->
+                        <rect x="50" y="230" width="480" height="150" fill="#f3e5f5" stroke="#9c27b0" stroke-width="3" rx="8"/>
+                        <text x="290" y="265" font-size="18" font-weight="bold" fill="#7b1fa2" text-anchor="middle">豊富なアドレス空間</text>
+                        <text x="70" y="295" font-size="13" fill="#2c3e50">• 128ビット = 約340澗個</text>
+                        <text x="70" y="320" font-size="13" fill="#2c3e50">• 枯渇の心配なし</text>
+                        <text x="70" y="345" font-size="13" fill="#2c3e50">• すべてのLANに/64を割当可能</text>
+                        <text x="70" y="370" font-size="13" fill="#2c3e50">• NATが不要</text>
+                        
+                        <!-- Point 4 -->
+                        <rect x="570" y="230" width="480" height="150" fill="#e8f5e9" stroke="#4caf50" stroke-width="3" rx="8"/>
+                        <text x="810" y="265" font-size="18" font-weight="bold" fill="#2e7d32" text-anchor="middle">柔軟なアドレスタイプ</text>
+                        <text x="590" y="295" font-size="13" fill="#2c3e50">• グローバル、リンクローカル、ULA</text>
+                        <text x="590" y="320" font-size="13" fill="#2c3e50">• スコープ付きマルチキャスト</text>
+                        <text x="590" y="345" font-size="13" fill="#2c3e50">• エニーキャストアドレス</text>
+                        <text x="590" y="370" font-size="13" fill="#2c3e50">• 用途に応じた使い分け</text>
+                    </svg>
+                </div>
+
+                <div class="important-box">
+                    <div class="important-title">💡 IPv6アドレス設計の重要ポイント</div>
+                    <div class="description">
+                        IPv6は単にアドレス空間を拡張しただけでなく、アドレスに構造を持たせ、自動設定を容易にし、将来の拡張性を確保した設計となっています。IPv4のアドレス不足問題を解決するだけでなく、ネットワーク管理の複雑さを軽減することも目的としています。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-text">IPv6アドレス技術解説 - JPNIC インターネット10分講座準拠 - 2026</div>
+        </div>
+    </div>
+</body>
+</html>

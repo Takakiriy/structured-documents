@@ -671,6 +671,9 @@ Wikipedia: #keyword:
     出典:
         Twitter を出典にしていいか:
             発言があったと書く場合は良い  #ref: https://ja.m.wikipedia.org/wiki/Wikipedia:井戸端/subj/twitterの発言は出典として利用可能か
+    方針:
+        生成AI ガイドライン:  #ref: https://gigazine.net/news/20260327-wikipedia-llm-article-text-ban/
+            認められるのは、基本的な校正補助と、所定の手順に沿った翻訳支援だけ
 Markdown:  #keyword: Markdown, md
     Markdown 書式:
         基本: |
@@ -1650,7 +1653,7 @@ ISO, JIS, 規格:
         JIS Z8301:2019:  #ref: https://kikakurui.com/z8/Z8301-2019-01.html
             H.6 外来語の表記
             外来語の表記は，主として“外来語の表記（平成3.6.28 内閣告示第2号）”による。
-        外来語の表記（平成3.6.28 内閣告示第2号）:
+        外来語の表記（平成3.6.28 内閣告示第2号）: #keyword: 外来語の表記
             #ref: http://www.mext.go.jp/b̲menu/hakusho/nc/k19910628002/k19910628002.html
             #ref: https://hourei.ndl.go.jp/#/detail?lawId=0000077441&searchDiv=1&current=6
             閲覧:

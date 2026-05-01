@@ -13824,7 +13824,7 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
             対処:
                 vault サービスを起動します:
                     sudo systemctl start  vault
-        エラー, Vault is sealed: #keyword:
+        エラー, Vault is sealed: #keyword: Vault is sealed
             手順: |
                 vault secrets list -detailed | grep version:
             ログ: |

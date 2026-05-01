@@ -1174,15 +1174,29 @@
                 #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#Date
                 現在の日時: const  now = new Date();  #keyword: JavaScript now
                 基本: |
-                    dateB.getFullYear()
-                    dateB.getMonth()    #// 0 から 11
-                    dateB.getDate()     #// 1 から 31
-                    dateB.getHours()    #// 0 から 23
-                    dateB.getMinutes()
-                    dateB.getSeconds()
+                    date.getFullYear()
+                    date.getMonth()    #// 0 から 11
+                    date.getDate()     #// 1 から 31
+                    date.getHours()    #// 0 から 23
+                    date.getMinutes()
+                    date.getSeconds()
+                    date.toLocaleString()
+                    date.toLocaleDateString()
+                    date.toLocaleTimeString()
+                    date.toISOString()
                 ローカル タイムゾーン: #keyword: JavaScript local time zone
-                    - HTML であれば、ブラウザー（クライアント）の設定や、ブラウザーが動いている OS の設定によります
-                    - サーバー（Web API 呼び出し）であれば、サーバーの OS の設定によります
+                    基本:
+                        - date.toLocaleString()      // "2024/1/15 19:30:00"（JST の場合）
+                        - date.toLocaleDateString()  // "2024/1/15"
+                        - date.toLocaleTimeString()  // "19:30:00"
+                        - HTML であれば、ブラウザー（クライアント）の設定や、ブラウザーが動いている OS の設定によります
+                        - サーバー（Web API 呼び出し）であれば、サーバーの OS の設定によります
+                    mac:
+                        プロジェクトに full-icu をインストールします:
+                            npm install  full-icu
+                        node コマンドに --icu-data-dir オプションを指定します:
+                            launch.json の場合: |
+                                "runtimeArgs": ["--icu-data-dir=node_modules/full-icu"],
                 0時:
                     ローカル タイムゾーン での今日 0:00: |
                         const  now = new Date();
@@ -1237,7 +1251,7 @@
                     タイムゾーン指定なしの場合:  #search: JavaScript without ISO time zone
                 Unix Time: #keyword: JavaScript エポック秒,  JavaScript Unix Time
                     new Date(__UnixTime13__)  #// 13桁の Unix Time。 10桁のときは ×1000
-                書式, 文字列:
+                書式, 文字列: #keyword: JavaScript Date format
                     ISO8601 形式: #keyword: JavaScript ISO 日時  #// 例：2000-04-09T15:00:00.000Z
                         ローカル: | #keyword: getLocalISOString  #// 末尾にタイムゾーンは付きません
                             export function  getLocalISOString(date: Date): string {
@@ -1254,6 +1268,7 @@
                             #ref: https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
                         #search: Day.js YYYY
                         #search: formatDate
+                    #search: JavaScript formatDate
                 コピー: #keyword: copy JavaScript Date
                     const  copiedDate = new Date(originalDate);
                 比較: |
@@ -1279,10 +1294,14 @@
                         dateB.setHours(    dateB.getHours()   + 1 );   // 時
                         dateB.setMinutes(  dateB.getMinutes() + 1 );   // 分
                         dateB.setSeconds(  dateB.getSeconds() + 1 );   // 秒。ミリ秒は setMilliseconds
-                    差: |
-                        function diffMinutes(later, earlier) {
-                            return (later.getTime() - earlier.getTime()) / 60000;
-                        }
+                    差: #keyword: JavaScript diffMinutes,  JavaScript Date sub
+                        diffMinutes 関数: |
+                            export function  diffMinutes(later: Date, earlier: Date): number {
+                                return (later.getTime() - earlier.getTime()) / 60_000;
+                            }
+                        関数なし: |
+                            const  diffMilliseconds = gNow.time.getTime() - start.getTime();
+                            const  diffMinutes = diffMilliseconds / (1000 * 60);
                     ボツ:
                         他の date + n:
                             サンプル: dateB.setSeconds( dateA.getSeconds() + 1 );
@@ -1320,7 +1339,8 @@
                         サンプル: |
                             import { performance } from 'perf_hooks';
                             performance.now();  // ミリ秒。ミリ秒以下の小数も含みます
-                formatDate: | #keyword: JavaScript formatDate
+                #↓ ライブラリ
+                formatDate: | #keyword: JavaScript formatDate  #search: JavaScript Date format
                         function  formatDate(date: Date, format: string): string {
                             return  format
                                 .replace('yyyy', String(date.getFullYear()))
@@ -1347,7 +1367,7 @@
                             console.log(format(now, 'yyyy-MM-dd HH:mm:ss'));  // 2025-11-25 14:30:45
                 Moment.js, moment: #keyword: #// Moment.js は現在「メンテナンスモード」になっており、新規プロジェクトでは推奨されていません。
                     書式:
-                        YYYY/MM/DD: | #keyword: Moment.js YYYY  #// "YYYY/MM/DD" のような指定はできません
+                        YYYY/MM/DD: | #keyword: Moment.js YYYY
                             import moment from 'moment';
                             moment(new Date(this.year, this.month - 1)).format("YYYY-MM")
                             const  now = moment();
@@ -1395,7 +1415,7 @@
                             }).replace(/\//g, '/'); // 既にスラッシュ区切りになっている場合が多い
 
                             console.log(formatted); // 2025/11/25
-                日時ピッか:
+                日時ピッカー:
         定数: #keyword: TypeScript const
             グローバル:
                 // グローバル スコープ で
@@ -1430,19 +1450,41 @@
                     - const  names = "Mario" | "Luigi";  // "Mario" のリテラル型と "Luigi" のリテラル型のユニオン（Union 型）です
                     - const  numbers = 0 | 1 | 2;
                     - const  n = number | "default";     // number 型と "default" のリテラル型のユニオン（Union 型）です
-            as const: #keyword: JavaScript as const  #// シンボルと表示用ラベル
-                定義: |
-                    const STATUS = {
+            as const, union type: #keyword: TypeScript as const,  TypeScript union type,  literal union type  #// シンボルと表示用ラベル
+                定義: |  #search: coding style const
+                    // 文字列の Union 型の定義。 定数インスタンスのキーの型
+                    type Status = keyof typeof statusMap; // 'active' | 'inactive' | 'pending'
+
+                    // 定数インスタンスの定義。末尾に Map を付けた Camel Case
+                    const statusMap = {
                         active:   'アクティブ',
                         inactive: '非アクティブ',
                         pending:  '保留中',
                     } as const;
 
-                    type Status = keyof typeof STATUS; // 'active' | 'inactive' | 'pending'
-                表示用ラベルの取得: |
-                    STATUS['active']   // → 'アクティブ'
-                    STATUS['inactive'] // → '非アクティブ'
-                    STATUS['pending']  // → '保留中'
+                    // サンプル。status や Status にマウスを合わせると 'active' | 'inactive' | 'pending' と表示されます
+                    var  status: Status = 'active';
+                表示用ラベルの取得:
+                    基本（参考）: |  #// 定数インスタンスのプロパティの値
+                        // ただし、undefined が返ることがあるので、非推奨。undefined という表示は印象が良くないし、value.length, value.toUpperCase などで例外が発生します
+                        statusMap['active']   // → 'アクティブ'
+                        statusMap['inactive'] // → '非アクティブ'
+                        statusMap['pending']  // → '保留中'
+                    lookupValue: | #keyword: TypeScript union type lookupValue
+                        // Generated by Claude
+
+                        export function lookupValue<T extends Record<string, V>, V, F>(
+                            mapObject: T,
+                            key: unknown,
+                            fallbackValue: F
+                        ): V | F {
+                            // Example:
+                            //     lookupValue(statusMap, 'active', '----');
+                            if (typeof key !== 'string') return fallbackValue;  // If key is undefined, number, ... in JSON value
+                            if (!(key in mapObject)) return fallbackValue;      // Reject empty string keys and unknown keys
+
+                            return mapObject[key as keyof T];
+                        }
                 型の恩恵:
                     Status 型として静的型チェック: |
                         const s: Status = 'active'; // ✅
@@ -1495,6 +1537,13 @@
                         enum と Union 型の比較: #search: TypeScript enum Union
             enum:
                 enum 型:
+                    文字列の値: |  #// スタイルについて  #search: coding style const
+                        enum EvidenceTypeEnum {
+                            UNKNOWN = '',
+                            PASSPORT_VISA = 'passport_visa',
+                            PASSPORT = 'passport',
+                            SIGHTED_STUDENT_CARD = 'sighted_tertiary_edu_id',
+                        }
                     基本:
                         定義: |
                             enum CardSuit {
@@ -1510,13 +1559,6 @@
                             DarkRed = 3,  // 3
                             DarkGreen,    // 4
                             DarkBlue      // 5
-                        }
-                    文字列の値: |
-                        enum EvidenceTypeEnum {
-                            UNKNOWN = '',
-                            PASSPORT_VISA = 'passport_visa',
-                            PASSPORT = 'passport',
-                            SIGHTED_STUDENT_CARD = 'sighted_tertiary_edu_id',
                         }
                     Unicode 文字のシンボル: |
                         enum TestID {
@@ -1710,7 +1752,7 @@
                         for (let i = 0;  i < names.length;  i+=1) {
                             WScript.Echo  value
                         }
-                    reduce:  #keyword: JavaScript reduce
+                    reduce: #keyword: JavaScript reduce
                         基本形:  #// オブジェクトの配列には使えません
                             サンプル: |  #// sum
                                 const array1 = [1, 2, 3, 4];
@@ -1737,7 +1779,7 @@
                                 array1.reduce((previous, match) => (previous + (
                                     element.prop == 'keyword'
                                     ? +1 : 0)), 0);
-                        合計、初期値あり:
+                        合計、初期値あり: #keyword: JavaScript sum
                             サンプル:
                                 アロー関数の場合: |
                                     const array1 = [1, 2, 3, 4];
@@ -1753,7 +1795,7 @@
                                     console.log(sum);  // 20
                             解説:
                                 最初の要素も element 引数に渡されるようにするには、初期値を reduce の第3引数に指定します。
-                        max: | #keyword: JavaScript Math.max  #ref: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/max
+                        max: | #keyword: JavaScript Math.max,  JavaScript Math.min  #ref: https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math/max
                             var arr = [1,2,3];
                             var max = arr.reduce((a, b) => Math.max(a, b), -Infinity);
                 検索: #keyword: JavaScript array search
@@ -2093,10 +2135,18 @@
                     Map は簡単にサイズを取得できます:
                     参考: #ref: https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Keyed_collections
                 オブジェクト, 連想配列:  #keyword: 連想配列  #// {[name: string]: boolean},  object["key1"]
-                    型の例: |
+                    型の例: | #keyword: TypeScript dictionary type
                         Record<string, boolean>
                         {[name: string]: boolean}
                         {[__DummyName__: __IndexType__]: __ItemType__}
+                    keyof: #keyword: TypeScript keyof  #ref: https://typescriptbook.jp/reference/type-reuse/keyof-type-operator
+                        サンプル: |  #focus: keyof
+                            type Book = {
+                                title: string;
+                                price: number;
+                                rating: number;
+                            };
+                            type BookKey = keyof Book;  // type BookKey = "title" | "price" | "rating";
                     オブジェクトのメンバー名:  #keyword: JavaScript Object fields
                         constructor
                     追加:
@@ -2257,6 +2307,16 @@
                     ソート: #search: JavaScript Map sort
                     関連:
                         Map のキーだけ使って重複しない配列を使うことの代わり: #search: JavaScript Set
+                応用:
+                    ヒストグラム, 頻度: |  #keyword: JavaScript simple histogram,  JavaScript frequency
+                        const data = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4];
+
+                        const frequency = {};
+                        for (const n of data) {
+                            frequency[n] = (frequency[n] || 0) + 1;
+                        }
+                        // { '1': 1, '2': 2, '3': 3, '4': 4 }
+                        const maxKey = Object.keys(frequency).reduce((a, b) => frequency[a] > frequency[b] ? a : b);
                 公式:
                     Map: #ref: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
                     TypeScript Index Signatures: #ref: https://www.typescriptlang.org/docs/handbook/2/objects.html#index-signatures
@@ -3034,7 +3094,7 @@
                             destinationObject = Object.assign(new __Class__(), sourceObject);
                 structuredClone: #keyword: structuredClone,  Deep copy  #ref: https://developer.mozilla.org/ja/docs/Web/API/structuredClone
                     関連 >> Python >> public_dict:  #search: public_dict
-                Object.assign: #keyword: Object.assign  #// shallow copy
+                Object.assign: #keyword: Object.assign,  object copy  #// shallow copy
                     注意: ❗スプレッド構文を使うことを推奨します  #search: JavaScript spread operator
                     #snote: %programming%\スクリプト\JavaScrpt\JavaScript.svg#Object_assign
                     書式: reference = Object.assign(changingObject, addingObject);
@@ -3251,15 +3311,17 @@
                             message2: string;
                             stack: string;
                         }
+                        interface IMyError {
+                            onTiming(notification: TimingNotificationData): void;
+                            intervalMinute: number;
+                        }
 
                         import type { Error } from "./____";
                         import type { MyError } from "./____";
 
                         export namespace  hasInterfaceOf {
                             export function  Error(object: any): object is Error {
-                                return (
-                                    object.hasOwnProperty('message')
-                                );
+                                return  object.hasOwnProperty('message')
                             }
                             export function  IMyError(object: any): object is MyError {
                                 return (
@@ -3279,6 +3341,36 @@
                         const  r6 = hasInterfaceOf.IMyError(e);   // false
                         const  r7 = hasInterfaceOf.Error(me);     // false
                         const  r8 = hasInterfaceOf.IMyError(me);  // true
+                    メソッド: |
+                        書きかけ
+                        export function  ExtraError(object: any): object is ExtraError {
+                            console.log("greet" in obj);              // true  ← こちらが正解
+                            console.log(typeof obj.greet === "function"); // true
+                    getter:
+                        hasGetter: |
+                            function hasGetter<T extends object, K extends string>(
+                                obj: T,
+                                key: K
+                            ): obj is T & Record<K, unknown> {
+                                let proto: object | null = obj;
+                                while (proto !== null) {
+                                    const descriptor = Object.getOwnPropertyDescriptor(proto, key);
+                                    if (descriptor) {
+                                        return typeof descriptor.get === "function";
+                                    }
+                                    proto = Object.getPrototypeOf(proto);  // Next chain
+                                }
+                                return false;
+                            }
+                        hasInterfaceOf: |
+                            export namespace  hasInterfaceOf {
+                                export function  Circle(shape: Shape): shape is Circle {
+                                    return hasGetter(shape, "area");
+                                }
+                            }
+                        判定: |
+                            if (hasInterfaceOf.Circle(object)) {
+                            }
                     参考: #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#user_defined_type_guard
             immutable:  #keyword: immutable, イミュータブル  変更不能な  ReadOnly state status  #// ミュータブル = 変更可能な
                 目的:
@@ -3853,7 +3945,7 @@
                     function  bigFunction(arg: BigFunction.Arguments) {
                         funcX({ ...arg,
                             // Optional property defatult values  #keyword: nullish coalescing operator ??
-                            argumentC: arg.argumentC ?? "C"
+                            argumentC: arg.argumentC ?? "C"    // ?? の左が undefined や null など(?) のときは、?? の右側になります
                         });
                     }
 
@@ -4644,7 +4736,7 @@
                         {
                             "type": "module",
                     設定しないと発生するエラー: |
-                        Uncaught TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".ts" for /Users/totadashi/Desktop/try_TypeScript_Node_js/src/app_test.ts
+                        Uncaught TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".ts" for /Users/user1/Desktop/try_TypeScript_Node_js/src/app_test.ts
                         https://stackoverflow.com/questions/62096269/cant-run-my-node-js-typescript-project-typeerror-err-unknown-file-extension
                     エラーが発生するケース:
                         tsconfig.json: |
@@ -4655,8 +4747,27 @@
                 #ref: https://qiita.com/suin/items/32f76c9b88b8daa286c4
             その他の設定:
                 baseUrl: #keyword: tsconfig.json baseUrl  #// インポートするときのルートにするパス
+                    非推奨:  #// baseUrl は非推奨になり、TypeScript 7.0 では使えません
+                        対処:
+                            TypeScript 6.0(?)以上の場合: |
+                                書かなくても "baseUrl": "." の動きになります。
+                                tsconfig.json ファイルがあるフォルダーが baseUrl の相対パスの基準です。
+                            古い TypeScript の場合:
+                                状況: |
+                                    "baseUrl": "." を書かないと
+                                    import ____ from ____ の from で警告されます。
+                                tsconfig.json に ignoreDeprecations を書きます: |
+                                    "compilerOptions": {
+                                        "baseUrl": ".",
+                                        "ignoreDeprecations": "6.0",
+                        ログ: |
+                            Option 'baseUrl' is deprecated and will stop functioning in TypeScript 7.0. Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
+                                Visit https://aka.ms/ts6 for migration information.ts
+                            （baseUrl は非推奨になり、TypeScript 7.0 では使えません。エラーを抑制するには、代わりに、compilerOption '"ignoreDeprecations": "6.0" を書いてください）
+                            Sets a base directory from which to resolve bare specifier module names.
+                        参考 >> TypeScript 6.0 Migration Guide:  #ref: https://github.com/microsoft/TypeScript/issues/62508
                     公式: #ref: https://www.typescriptlang.org/docs/handbook/module-resolution.html#base-url
-                    サンプル: #keyword: baseUrl, from, src/lib
+                    サンプル:  #focus: baseUrl, from, src/lib
                         __Project__/src/example.ts: |
                             import {foo} from 'src/lib';
                             foo();
@@ -4678,7 +4789,7 @@
                 path alias, paths: #keyword: tsconfig.json paths,  TypeScript path alias,  TypeScript import @  #// インポートするときのパスのベースを変更します
                     公式: #ref: https://www.typescriptlang.org/tsconfig/#paths
                     注意: baseUrl の設定は必須です。絶対パス相当を指定するだけなら baseUrl だけでできます。 #search: tsconfig.json baseUrl
-                    サンプル: #keyword: paths, baseUrl, from, @src, lib
+                    サンプル:  #focus: paths, baseUrl, from '@src/lib'
                         __Project__/src/example.ts: |  #focus: @
                             import { foo } from '@src/lib';
                             foo();
@@ -4810,10 +4921,13 @@
         ソース ファイル名: #// Node.js
             注意❗: src フォルダーにある TypeScript ファイルをビルドすると build フォルダーに移動するので、下記のパスは変わります。
                 __dirname は未定義になります。
-            __filename: #keyword:
-                ソース ファイル の フル パス
-            __dirname: #keyword:
-                ソース ファイル を含むフォルダーの フル パス
+            __filename: #keyword:  #// ソース ファイル の フル パス
+            __dirname: #keyword:  #// ソース ファイル を含むフォルダーの フル パス
+                Node.js 16: そのまま使えます
+                ESM: |
+                    import { fileURLToPath } from 'url';
+                    import path from 'path';
+                    const __dirname = path.dirname(fileURLToPath(import.meta.url));
                 #search: ReferenceError __dirname
                 #search: JavaScript project path
             ____.d.ts, 型定義ファイル: #keyword: .d.ts, type definition file
@@ -6390,7 +6504,7 @@ YAML:  #// https://yaml.org  #search: steps.yaml  #keyword:
             サンプル コード:
                 const  text = fs.readFileSync(filename);
                 return yaml.load(text);
-        無いことの扱い: #keyword: YAML default
+        無いことの扱い: #keyword: YAML default  #search: エラーと警告とログ
             undefined や例外を無くします:  #// パーサーのデフォルトの動きから改良します
                 #↓ 両方に対応する必要があります
                 チェックするとき:  #// エラーを発生させたら修正できるとき
@@ -8544,7 +8658,7 @@ Next.js: #keyword: Next.js,  Vercel Next.js HTML React framework
                             }
                         複数のクラス（複合クラス）を指定する場合: #keyword: CSS Modules compound classes
                             button className={`${styles.button} ${styles.buttonPrimary}`}>
-                    CSS-in-JS（Styled JSX）を使う場合: |  #focus: button
+                    CSS-in-JS（Styled JSX）を使う場合: |  #focus: button  #keyword: Next.js JSS
                         export default function Button() {
                             return (
                                 <>
@@ -9003,9 +9117,21 @@ React:
                         Ctrl + C
                         yarn start  または  npm start
                 関数コンポーネントと クラス コンポーネント:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#import_JSX
-                    関数コンポーネント + Hooks:  #keyword: React 関数コンポーネント
+                    関数コンポーネント + Hooks:  #keyword: React 関数コンポーネント,  React function component
                         全体: #keyword: React function component example
                             基本: |
+                                import * as React from 'react';
+
+                                interface Props {
+                                    name: string;
+                                    age: number;
+                                }
+
+                                export function  MyComponent(props: Props) {
+                                    const {name, age} = props;
+                                    return <>{name} is {age} years old</>;
+                                }
+                            アロー関数の場合: |
                                 interface MyComponentProps {
                                     name: string;
                                     age: number;
@@ -9116,6 +9242,8 @@ React:
                             #search: React missing dependency
                             #// useMemoの第1引数に渡す関数の中で呼び出した関数を第2引数に渡し、かつ、関数定義でReact.useCallBackで囲まなければESLintがうるさい。
                         useMemo:  #keyword: React useMemo,  useMemo  #// メモ化。計算プロパティの最適化の仕組み
+                        ダイアログ:
+                            Material-UI:  #search: Material-UI Dialog example
                         React.FC:  #keyword: React.FC, React.FunctionComponent
                             React.FunctionComponent: React.FC のフルネームです
                             サンプル: | #focus: FunctionComponent  #ref: ${GitHub}/MyPrivateCode/react_examples/branch_component_hooks/src/1_FunctionComponent.tsx#React.FC
@@ -9185,7 +9313,7 @@ React:
                                 )
                             参考:
                                 #ref: https://www.ey-office.com/blog_archive/2021/06/30/i-found-out-why-the-component-is-drawn-twice-in-the-react/
-                    クラス コンポーネント:  #keyword: React クラス コンポーネント
+                    クラス コンポーネント:  #keyword: React クラス コンポーネント,  React class component
                         サンプル: |
                             class Form<FormFields> extends React.Component<
                                 Props<FormFields>,
@@ -9606,13 +9734,15 @@ React:
                                 : <></>
                             }
                         </ul>
+                #↓ React 以外
                 ライブラリ >> Material-UI:  #search: Material-UI
+                Atomic Design: #search:
             HTML プロパティ:  #// 組み込み HTML タグ プロパティ
                 （HTML タグ名）:  #keyword: React defined components
                 値を持たない HTML 属性, disable 属性など:
                     React:  #// boolean 値 を指定します
                         <button disabled={!isFormValid}>
-                style 属性: |  #// プロパティ名は camelCase
+                style 属性: | #keyword: React style  #// プロパティ名は camelCase
                     <div style={{ color: 'red', fontSize: '16px' }}>
                         Hello World
                     </div>
@@ -10126,6 +10256,7 @@ React:
             HTML タグ内: |
                 <img  // __Comment__
                 />
+        CSS:
     デバッグ:
         React Developer Tools:  #keyword:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#ReactDeveloperTools
             インストール:
@@ -10523,7 +10654,7 @@ Storybook:  #keyword: Storybook
     Chromatic: #keyword:  #ref: https://www.chromatic.com/docs/setup
         CLI: #keyword: https://www.chromatic.com/docs/cli
 Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com/blog/post/atomic-web-design/
-    #keyword: Atoms, Molecules, Organisms, Templates, Pages  #ref: ${programming}/ユーザインターフェイス/使い勝手.svg#AtomicDesign
+    #keyword: Atoms, Molecules, Organisms, Templates, Pages,  React 分類 部品  #ref: ${programming}/ユーザインターフェイス/使い勝手.svg#AtomicDesign
     Atoms: #// 原子
     #// Atoms: 単独コンポーネント, Molecules: 複数組合せコンポーネント
     Molecules: #// 分子, 「モレキュール」, Atoms を組み合わせて作る部品。ほとんどない
@@ -10545,7 +10676,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
 設定: #settings:
     __Proxy__: http://host:port
     __Project__: try_node_js
-トラブルシューティング:
+トラブルシューティング: #keyword: TypeScript trouble
     VSCode:  #search: TypeScript VSCode debugger
     console.log が表示されない: #keyword: console.log
         Node.js:
@@ -10606,8 +10737,39 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             #serach: exampleReadStream
             #keyword: Node.js file loop exception
     TypeScript の出力先:  #search: TypeScript outDir
+    #// 以下は検索できます
     エラーメッセージ:
-        - #// Property '__Type__' does not exist on type
+        tsconfig.ts に type node:
+            エラー: |
+                Cannot find name 'path'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.ts(2591)
+            対処: |
+                （'path' が見つかりません。npm i --save-dev @types/node を実行して tsconfig.ts に type: [node]）を書きます
+        Element implicitly has an 'any' type because expression of type 'string' can't be used to index type:
+            手順: const key = Object.keys(dict).find(k => dict[k] === "バナナ");
+            エラー: |
+                Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ __Properties__ }'.
+                No index signature with a parameter of type 'string' was found on type '{ __Properties__ }'.
+            対処:  #focus: Record
+                変更前: |
+                    const dict = {
+                        apple: "りんご",
+                        banana: "バナナ",
+                    };
+                変更後: |
+                    const dict: Record<string, string> = {
+                        apple: "りんご",
+                        banana: "バナナ",
+                    };
+        Cannot find name 'describe':
+            手順: エディターで編集時
+                describe('Test', () => {
+            ログ: |
+                Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha` and then add 'jest' or 'mocha' to the types field in your tsconfig.ts(2593)
+            対処:
+                __Project__/tsconfig.json : |
+                    "compilerOptions": {
+                        "types": ["jest"],
+        Property '__Type__' does not exist on type:
             手順: 参照する型を書いたとき
             ログ: | 
                 Property '__Type__' does not exist on type 'typeof import("__From__/index")'.ts(2339)
@@ -10627,13 +10789,13 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     models.__Type__
                 フォルダーの存在を確認します: |
                     "modules" にマウスを合わせると、フル パス が表示されます
-        - #// '____.js' implicitly has an 'any' type.ts(7016)
+        _'____.js' implicitly has an 'any' type.ts(7016):
             手順: JavaScript のファイルを import する TypeScript を書いたとき
             ログ: |  #// from の右に
                 '____.js' implicitly has an 'any' type.ts(7016)
             対処:
                 .d.ts ファイルを JavaScript のファイルの隣に作ります  #search: .d.ts
-        - #// UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block,
+        UnhandledPromiseRejectionWarning:;; Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block,:
             手順: node JavaScript 実行
             ログ: |
                 (node:7664) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). To terminate the node process on unhandled promise rejection, use the CLI flag `--unhandled-rejections=strict` (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 1)
@@ -10641,7 +10803,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 (node:7664) UnhandledPromiseRejectionWarning: UnhandledPromiseRejectionWarning: 未処理のプロミス拒否。このエラーは、catch ブロックのない非同期関数内でスローされたか、.catch() で処理されなかったプロミスを拒否したことで発生しました。未処理のプロミス拒否でノード プロセスを終了するには、CLI フラグ `--unhandled-rejections=strict` を使用します。 (see https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode). (rejection id: 1)
             対処:
                 _____
-        - #// [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated.
+        _[DEP0018] DeprecationWarning:;; Unhandled promise rejections are deprecated.:
             手順: node JavaScript 実行
             ログ: |
                 (node:7664) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
@@ -10649,7 +10811,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 (node:7664) [DEP0018] 処理されない promise の拒否は非推奨です。今後、処理されない promise の拒否は、ゼロ以外の終了コードで Node.js プロセスを終了します。
             対処:
                 _____
-        - #// npm ERR! code ERESOLVE
+        npm ERR! code ERESOLVE:
             手順: npm ci
             ログ: |
                 npm ERR! code ERESOLVE
@@ -10675,9 +10837,9 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 npm ERR! this command with --force, or --legacy-peer-deps
                 npm ERR! to accept an incorrect (and potentially broken) dependency resolution.
                 npm ERR! 
-                npm ERR! See /Users/totadashi/.npm/eresolve-report.txt for a full report.
+                npm ERR! See /Users/user1/.npm/eresolve-report.txt for a full report.
                 npm ERR! A complete log of this run can be found in:
-                npm ERR!     /Users/totadashi/.npm/_logs/2024-07-21T23_53_38_979Z-debug-0.log
+                npm ERR!     /Users/user1/.npm/_logs/2024-07-21T23_53_38_979Z-debug-0.log
             __Project__/package.json: |
                 "devDependencies": {
                     "@types/jest": "^26.0.24",
@@ -10692,7 +10854,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     #// ^ があるので 27.0.0 またはそれより新しいバージョンがインストールされます
                 バージョンを下げる場合: npm install --save-dev ts-jest@^26.5.6
                 警告を無視する場合: npm ci --legacy-peer-deps
-        - #// Cannot write file __Project__/build/____.d.ts' because it would overwrite input file
+        Cannot write file __Project__/build/____.d.ts' because it would overwrite input file:
             手順: VSCode で tsconfig.json に対してエラー
             エラー: |
                 Cannot write file __Project__/build/____.d.ts' because it would overwrite input file
@@ -10701,13 +10863,13 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     tscondif.json: |
                         {
                             "exclude": ["src/test_data", "node_modules", "build"]
-        - #// EPERM: operation not permitted, lstat
+        EPERM:;; operation not permitted, lstat:
             手順: ファイルを操作する Node.js の関数呼び出し
             エラー: |
                 EPERM: operation not permitted, lstat '__FilePath__'
             対処:
                 #search: Node.js remove file error
-        - #// ReferenceError: Cannot access '__Class__' before initialization
+        ReferenceError:;; Cannot access '__Class__' before initialization:
             手順: new 演算子の実行時  #// オブジェクト生成時
             エラー: |
                 ReferenceError: Cannot access '__Class__' before initialization
@@ -10717,7 +10879,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             原因:
                 関数やインターフェースと違って、クラスはクラス定義に処理が通った後でそのオブジェクトを生成できます。
                 関数呼び出しやインターフェースの参照は、コードをロードするときより後、実行前にできます。
-        - #// SyntaxError: Cannot use import statement outside a module
+        SyntaxError:;; Cannot use import statement outside a module:
             手順: node ____.js
             エラー: |
                 SyntaxError: Cannot use import statement outside a module
@@ -10733,7 +10895,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                         ...
                             "type": "module",
                             "dependencies": {
-        - #// SyntaxError: The requested module '__Module__' does not provide an export named 'default'
+        SyntaxError:;; The requested module '__Module__' does not provide an export named 'default':
             手順: node ____.js
             エラー: |
                 SyntaxError: The requested module '__Module__' does not provide an export named 'default'
@@ -10744,7 +10906,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     import { __Symbol__ } from '__Module__';
             原因:
                 __Module__ が デフォルト エクスポート をサポートしていません。
-        - #// CORS エラー
+        CORS エラー:
             エラー: |
                 Access to fetch at '__TargetURL__' from origin '__CallerURL__' has been blocked
                 by CORS policy: No 'Access-Control-Allow-Origin' header is present
@@ -10763,7 +10925,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                                     console.log(text);
                                 });
                             });
-        - #// esModuleInterop
+        esModuleInterop:
             手順: VSCode 静的チェック
             エラー: |
                 Module '"____"' can only be default-imported using the 'esModuleInterop' flagts(1259)
@@ -10772,7 +10934,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     {
                         "compilerOptions": {
                             "esModuleInterop": true,
-        - #// allowSyntheticDefaultImports
+        allowSyntheticDefaultImports:
             手順: VSCode 静的チェック
             エラー: |
                 This module can only be referenced with ECMAScript imports/exports by turning on the
@@ -10782,7 +10944,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     {
                         "compilerOptions": {
                             "allowSyntheticDefaultImports": true,
-        - #// Cannot find module 'node:url'
+        Cannot find module 'node:url':
             手順: ビルド時
             エラー: |
                 import {URL} from 'node:url';
@@ -10790,7 +10952,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             対処:
                 globby の場合:
                     バージョンを 11 に戻します
-        - #// Cannot find module '____.cjs'  #keyword: import .cjs error
+        Cannot find module '____.cjs':  #keyword: import .cjs error
             手順: テキスト エディター で編集しているとき
             エラー: |
                 Cannot find module '____.cjs' or its corresponding type declarations. ts(2307)
@@ -10800,7 +10962,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             (@ts-ignore): #keyword:
                 概要: 次の行の警告を無視します
                 #// tsconfig.json の allowJs を true にしても .cjs はコンパイルされません
-        - #// File '____/lib-cjs.js' not found. Matched by include pattern '**/*'
+        File '____/lib-cjs.js' not found. Matched by include pattern '**/*':
             手順: Node.js のプロセスを起動したとき
             エラー: |
                 File '____/lib-cjs.js' not found.
@@ -10809,7 +10971,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 File not found. The file is in the program because Matched by include pattern '**/*'
             対処:
                 ファイルの拡張子 .cjs を .js に変更します
-        - #// '____.ts' is not a module. ts(2306)
+        _'____.ts' is not a module. ts(2306):
             手順: テキスト エディター で編集しているとき
             エラー: |
                 File '__Project__/src/__snapshots__/main.test.ts.snap.ts' is not a module. ts(2306)
@@ -10817,7 +10979,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 export する関数などを 1つ以上定義します
             対処B:
                 ____.d.ts ファイルを作り、export します  #search: .d.ts
-        - #// Uncaught Error Error [ERR_REQUIRE_ESM]: require() of ES Module
+        Uncaught Error Error [ERR_REQUIRE_ESM]:;; require() of ES Module:
             手順: const __Variable__ = require(__ModuleName__);
             エラー: |
                 Uncaught Error [ERR_REQUIRE_ESM]: require() of ES Module ____/node_modules/__Module__/dist/index.js from __CallerJsPath__ not supported.
@@ -10827,7 +10989,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             対処:
                 ES モジュール に require を使わないようにします  #search: ES modules
                 #search: JavaScript module type
-        - #// ReferenceError: __dirname is not defined in ES module scope  #keyword: ReferenceError __dirname
+        ReferenceError:;; __dirname is not defined in ES module scope:  #keyword: ReferenceError __dirname
             手順: Node.js のプロセスを起動したとき
             エラー: |
                 ReferenceError: __dirname is not defined in ES module scope
@@ -10864,7 +11026,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     import * as path from "path";
                     var  currentFolder: string = path.resolve();
                 #ref: https://stackoverflow.com/questions/64383909/dirname-is-not-defined-in-node-14-version
-        - #// ReferenceError: require is not defined in ES module scope, you can use import instead
+        ReferenceError:;; require is not defined in ES module scope, you can use import instead:
             手順: Node.js のプロセスを起動したとき
             エラー: |
                 ReferenceError: require is not defined in ES module scope, you can use import instead
@@ -10876,7 +11038,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     #search: ES modules
                 - 拡張子を .cjs に変更して CommonJS とし、require をお使いください。
                     #search: import .snap
-        - #// Uncaught Error [ERR_MODULE_NOT_FOUND]: Cannot find module '__TargetPath__' imported from __SourcePath__
+        Uncaught Error [ERR_MODULE_NOT_FOUND]:;; Cannot find module '__TargetPath__' imported from __SourcePath__:
             手順: Node.js のプロセスを起動したとき
             エラー: |
                 Uncaught Error [ERR_MODULE_NOT_FOUND]: Cannot find module '__TargetPath__' imported from __SourcePath__
@@ -10907,20 +11069,20 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                             #ref: https://stackoverflow.com/questions/63459159/omit-the-file-extension-es6-module-nodejs
                             #ref: https://stackoverflow.com/questions/51452743/importing-using-relative-paths-in-node-js-with-es-modules
                         最近のTypeScriptのES Modules対応事情: #ref: https://blog.zelkova.cc/2021/10/typescript-esmodules.html
-        - #// error TS18003: Build:No inputs were found in config file '____/tsconfig.json'. Specified 'include' paths were '["**/*"]' and 'exclude' paths were '____'.
+        error TS18003:;; Build:No inputs were found in config file '____/tsconfig.json'. Specified 'include' paths were '["**/*"]' and 'exclude' paths were '____'.:
             手順: VSCode を開いたとき
             エラー:
                 tsconfig.json ファイルの先頭: |
                     error TS18003: Build:No inputs were found in config file '____/tsconfig.json'. Specified 'include' paths were '["**/*"]' and 'exclude' paths were '____'.
             対処:
                 VSCode を再起動します
-        - #// FATAL ERROR: invalid array length Allocation failed - JavaScript heap out of memory
+        FATAL ERROR:;; invalid array length Allocation failed - JavaScript heap out of memory:
             手順: テキスト エディター で編集しているとき
             エラー: |
                 FATAL ERROR: invalid array length Allocation failed - JavaScript heap out of memory
             対処:
                 無限ループや無限再帰しないようにコーディングします
-        - #// json_parse_exception Invalid UTF-8 start byte
+        json_parse_exception Invalid UTF-8 start byte:
             手順: Java による JSON パース。 Ascii 文字以外の文字を含む JSON データをシェルから指定  #keyword: shell JSON Invalid UTF-8
             エラー: |
                 {"error":{"root_cause":[{"type":"json_parse_exception","reason":"Invalid UTF-8 start byte 0x8d\n
@@ -10938,7 +11100,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     curl -X  GET  http://localhost:9200/museum/_search  -H "Content-Type: application/json" -d '{
                         "query": {"match_phrase": { "name": "国立" } } 
                     }'
-        - #// The 'arguments' object cannot be referenced
+        The 'arguments' object cannot be referenced:
             手順: arguments に対する警告  #search: js arguments
             エラー: |
                 The 'arguments' object cannot be referenced in an arrow function in ES3 and ES5.
@@ -10948,7 +11110,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     () => { argurments }
                 処置後:
                     function () { argurments }
-        - #// ECMAScript 5 and higher.
+        ECMAScript 5 and higher.:
             手順: TypeScript の文法エラー
             エラー: |
                 Accessors are only available when targeting ECMAScript 5 and higher.ts(1056)
@@ -10958,7 +11120,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     {
                         "compilerOptions": {
                             "target": "es5",
-        - #// Must use import to load ES Module
+        Must use import to load ES Module:
             ケース: node のスクリプトを起動
             Error: |
                 Error [ERR_REQUIRE_ESM]: Must use import to load ES Module:
@@ -10976,20 +11138,20 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                             export default function indentString
                         変更後: |
                             module.exports.default = function indentString
-        - #// Error: EISDIR: illegal operation on a directory
+        Error:;; EISDIR:;; illegal operation on a directory:
             ケース: VSCode に Jest 拡張機能を追加
             Error: |
                 Error: EISDIR: illegal operation on a directory, realpath '__Path__'
             対処法: プロジェクトを RAM ディスクの外に移動します
             メモ: RAM ディスク imdisk は使うべきではないらしい
             参考: https://github.com/nodejs/node/issues/6861
-        - #// Jest file 0 matches
+        Jest file 0 matches:
             ケース: VSCode に Jest 拡張機能を追加した環境で、コード中に追加された Debug ボタンを押した
             Error: |
                 testMatch: **/__tests__/**/*.+(ts|tsx|js), **/?(*.)+(spec|test).+(ts|tsx|js) - 0 matches
             対処法: テストのファイル名を *.test.ts などに修正してください。
                 成功したテストの上の Debug ボタンは消えますが、テストに失敗すると Debug ボタンが現れます。
-        - #// TypeScript emitted no output for ____.tsx
+        TypeScript emitted no output for ____.tsx:
             エラー: TypeScript emitted no output for ____.tsx
                 .js ファイルなどを出力できなかった
             原因: |
@@ -11002,7 +11164,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             参考:
                 - https://thomasjs8.hatenablog.com/entry/2019/09/13/010457
                 - https://stackoverflow.com/questions/55304436/webpack-with-typescript-getting-typescript-emitted-no-output-error/55304691
-        - #// can only be directly nested in external modules or ...
+        can only be directly nested in external modules or ...:
             エラー: Augmentations for the global scope can only be directly nested in external modules or ambient module declarations.
             対処: グローバル スコープの拡張は、外部モジュールまたはアンビエント モジュール宣言内でのみ直接入れ子にすることができます。
             修正前: |
@@ -11011,7 +11173,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 export {};
                 declare global {
             参考: https://stackoverflow.com/questions/57132428/augmentations-for-the-global-scope-can-only-be-directly-nested-in-external-modul
-        - #// Type 'Map<number, string>' is not an array type or a string type. Use compiler option '--downlevelIteration' to allow iterating of iterators.ts(2569)
+        Type 'Map<number, string>' is not an array type or a string type. Use compiler option '--downlevelIteration' to allow iterating of iterators.ts(2569):
             手順: |  #// new Map の中の map1, map2 にコーディング時エラー
                 const  map1 = new Map<number, string>([[1, 'A'],  [3, 'B']]);
                 const  map2 = new Map<number, string>([[3, 'BB'], [7, 'C']]);
@@ -11025,7 +11187,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                             "target": "es2015",
                             "module": "es2015",
                             "lib": [ "es2015" ],
-        - #// Warning: Each child in a list should have a unique "key" prop.
+        Warning:;; Each child in a list should have a unique "key" prop.:
             手順: Next.js でレンダリングしたとき
             エラー: |  #// ブラウザーのコンソール
                 Warning: Each child in a list should have a unique "key" prop.
@@ -11033,7 +11195,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 map で繰り返し HTML 要素を並べているときは、map に指定した関数の返り値の中で最も親のタグのプロパティに key を追加します。
                 <li> タグとは限りません。
                 修正箇所は、エラーメッセージに付いています。完全なパスはファイル名をクリックして開いたエディターのタブにマウスを合わせると分かります
-        - #// Fix the upstream dependency conflict, or retry
+        Fix the upstream dependency conflict, or retry:
             手順: npm install
             エラー: |
                 npm ERR! While resolving: ts-jest@27.1.5
@@ -11061,7 +11223,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
             対処:
                 package.json を編集します
                     @types/jest@26.0.24 => @types/jest@27.0.7
-        - #// EPROTO: protocol error, symlink '____' -> '____'
+        EPROTO:;; protocol error, symlink '____' -> '____':
             手順:
             エラー: |
                 npm ERR! code EPROTO
@@ -11074,7 +11236,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 npm を実行した VM のホスト OS が Windows で共有フォルダーで実行している場合
             対処:
                 Linux の 共有フォルダーの外にプロジェクトを移動し、npm を実行します
-        - #// Conversion of type '__Type1__' to type '__Type2__' may be a mistake because neither type sufficiently overlaps with the other.
+        Conversion of type '__Type1__' to type '__Type2__' may be a mistake because neither type sufficiently overlaps with the other.:
             手順: interface に返す、または渡す
             エラー: |
                 Conversion of type '__Type1__' to type '__Type2__' may be a mistake because neither type sufficiently overlaps with the other.
@@ -11085,7 +11247,7 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     タイプ '__Type1__' には、タイプ '__Type2__' の次のプロパティがありません: __Property1__, __Property2__
             対処:
                 __Property1__, __Property2__ を追加します
-        - #// Object is possibly 'undefined'
+        Object is possibly 'undefined':
             手順: process.env.HOME.replace(...)
             エラー: |
                 Object is possibly 'undefined'

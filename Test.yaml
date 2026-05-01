@@ -25,6 +25,141 @@
             "Please check the output file for any errors."
         オプションを付けて:  #// このオプションを付けて再実行するといいことがあるかも
             "Re-running with this option may help."
+テスト環境、テストデータ: #keyword: テスト環境, テストデータ, test design,  test
+    テスト ツール: #search: Test.yaml
+    自動テストの目的:  #keyword: 自動テスト,  回帰テスト regression test
+        基本的なケースや特定のケースで正しい動作をすることを実証することで、ほとんどの機能が使えることが期待できるようになる状態にすること
+        開発と同時に作ることができる。効果が出るのは回帰テストのとき。
+        コーディングのために基本的な内部関数をテストするのではなく、基本的なケースについて結合テストする。
+    手動テストの書き方:  #keyword: 手動テスト  #ref: https://qiita.com/Takakiri/items/a3d900fc2a105ca9f412
+    実施率を上げる:  #// テストの失敗が他のテストの実施に影響しないようにします
+        エラー復帰:
+            テストでエラーが発生しても、次のテストを実施できるように例外処理などを行います。
+        環境のリストア:
+            環境をセットアップする機能のテストが失敗しても、
+            環境を使った本体のテストが実施できるように
+            環境のバックアップをリストアしてからテストを開始します。
+        リストア実行オプション --from:
+            テストスクリプトの構成によっては、
+            VM をリストアして途中から実行する --from __VmName__ オプションを実装します。
+            途中から実行するテストを実行したログが無ければ、
+            --from オプションを付けて再実行します
+    テスト環境の自動判定: #keyword:
+        概要: テスト環境を表すレコードが存在することをチェックすることで、テスト環境であることを自動判定します
+        注意: テスト固有の Web API を追加しないこと。本番環境と違うコードになってしまうため。
+        テスト固有のレコードを使う場合:
+            注意: 正常動作に影響しないレコードが作れる場合のみ
+            ローカルに起動するデータベースの初期状態にテスト固有のデータを入れます:
+                テスト環境であることを確認して、
+                手動、または、テスト固有のスクリプトでテスト固有のデータ this_is_test_environment を入れます。
+            各テスト開始時に、テスト環境を表すレコードが存在することをチェックします:
+                特定のデータを取得する API を使って判定します
+            テストがレコードを消してしまったら、そのテストが終わったときに復帰するようにテストを書きます:
+        テスト固有のテーブルを使う場合:  #// 非推奨
+            注意: テスト固有の API を追加しなければならないため非推奨
+            テスト固有のテーブルを追加します:
+                できれば手動で。スクリプト等で本番環境などに追加されないようにするため
+    テスト環境との切り替え: #keyword:
+        概要: WireMock を使うように URL を設定するなど、テスト環境を切り替える方法
+        設定方法:
+            手動テストの場合:
+                環境変数のファイルや設定ファイルでモックのアタッチを行うかどうかを決定します。
+                test_____ ファイルにアタッチする詳細な手順の関数を書き、その関数を呼び出します。リリース ビルド するときの対象外にするためです。
+                    test_____ ファイルとは、一般に使われる テスト スイート が テスト コード 用 のファイルと判定する名前のファイルです。
+                    呼び出す関数を（モックで）アタッチするか？
+                README に設定方法を書きます。
+            自動テストの場合:
+                手順: beforeEach やフィクスチャ―などでアタッチします
+                補足:
+                    beforeEach: #ref: ${programming}/方法論/テスト.svg#beforeEach
+                    フィクスチャ―:  #search: pytest fixture
+        （補足）DI との関係:  #// Dependency Injection
+            テスト環境との切り替えに DI は使わないこと。テスト以外に使うものだから
+    テスト関数を探す: #keyword: which test  #// あるテスト対象のコードがどのテストで使われているかを調べる
+        ブレークポイントを張ります
+    Humble Object: #keyword:  #ref: http://xunitpatterns.com/Humble%20Object.html  #// xUnit Patterns より
+        #// ロジックを、環境から切り離された、テストしやすい別個のコンポーネントに抽出します。
+        Humble Object:  #// View, ライブラリ
+            Humble = 謙虚な。ここでは、データの処理をしないで、そのまま画面などに表示することを指し、それ単体ではテストが不要であるものとします
+        Testable Object:  #// Presenter
+    正常系, 異常系: #glossary:
+        正常系: normal test。正しい入力での出力チェック
+        異常系: error checking test, abnormal test, irregular test。想定外の異常、その他の例外が発生した際の動作を確認  #search: エラーと警告とログ
+        準正常系: 想定される異常な値の入力での出力チェック  #search: フォールト トレランス
+    バージョン アップ のテスト: #keyword: version up test
+        バージョン アップ の方法:  #search: version up  #search: version up DTO DAO
+        #↓ DTO/DAO/DataSource
+        テスト データ などにアクセスする関数(DAO)のテスト: #keyword: test data
+            テスト データ のファイルを分ける:
+                疎結合:
+                    構成が変わってもレアな機能はすぐに対応しないでメイン機能のみリリースできるようにすべきなので、
+                    アクセス関数の テスト データ と個別機能の テスト データ は疎結合にします。
+                    疎結合にするとは、たとえば、それぞれのファイルを用意して、同期をオフにできるようにします。
+                DAO のデータのソース: DAO がアクセスする古いバージョンの テスト データ はそのまま使い（更新不要）、
+                    新しいバージョンの テスト データ を追加する。
+                    アクセスした後の DAO のリテラルを テスト データ にしてしまうと手間がかかる。
+                    プロパティ名が違うとエラーになるリテラルやデータ形式（strict な json-schema を通す YAML等）を使うこと
+                    #ref: https://qiita.com/dhirabayashi/items/f3707e5fc9d91cb61880#完全な垂直スライドのテストに集中する
+        ビジネス ロジック 関数のテスト(DTO):
+            方法: ビジネス ロジック の関数(DTO)をテストするとき、
+                マスター データ は扱いやすい形式のデータ（YAMLの文字列リテラルなど）とし、
+                テスト プログラム で DAO のアクセス関数を呼び、得られた構造体（のキャッシュ）を ビジネス ロジック の関数に渡す。
+            効果: DAO と DTO の単体テストが十分であれば、
+                フィールドの改名や、不要になったと思われるフィールドを削除して実は不要ではなかったことが、
+                テスト段階で判明する。
+                Python のようにメソッド名のスペルミスを静的解析できない言語でも、テストで対応する。
+                もしスペルミスがあれば期待する出力が得られない
+    リリース当日コマンド: #keyword:  #// 本番相当のテスト環境で同じコマンドを実行すること
+        #// マニュアルに書いてあるコードをテストします
+        test_release.md.sh:
+            コマンドを抽出するコマンド: |  #keyword:
+                #!/bin/bash
+                documentFilePath="$1"
+                cat  "${documentFilePath}"  |  grep -f  [install-A] |  \
+                    sed "s|/prd|/stg|"  | \
+                    >> _test.sh
+        release.md: |  #// マニュアル
+            ## コマンド
+                ./install-A.sh  prd   #[install-A]
+                ./install-B.sh  prd   #[install-B]
+                ./uninstall-A.sh  prd   #[install-A:rollback]
+    本番データを使う:
+        データベースのレプリケーションを使う:
+            #ref: https://www.ashisuto.co.jp/delphix_blog/article/201709-test-data.html
+    ユニットテスト: #keyword: ユニット テスト,  単体テスト
+        負債:
+            単体テストはただの負債だから今すぐ書くのをやめるべき (かもしれない):
+                #ref: https://zenn.dev/miketako3/articles/b6bb71c8d9946e
+                - 内部の実装によって書かれるホワイトボックスのテストはメインコードの修正のたびに変更が必要になる可能性が高いため、何かが間違っている、すなわち書く方がおかしいということである。
+                - ユニットが公開しているAPI  システムの公開APIに対して呼び出しを行うということだ。
+                - 基本的にビジネス価値はより粒度の高いテストで表現すべきである
+                - ビジネス価値のあるテストとは、ビジネス要求に由来するテストだけです。ユニットテストは完成した機能ではなく構成部品を検証するテストに過ぎないため、信頼を得られません。
+        アルゴリズムのテスト:
+            ユニットテストは、テストデータがテーブルの場合にのみ作ります。
+            テスト対象となる処理のうち、アルゴリズム（ビジネス ロジック）に関する入出力だけに絞り込んだ関数（テスト対象）
+            を作りユニットテストをします。
+        受け入れテスト:
+            使うライブラリの破壊的バージョンアップがされたときに検出できるようにします。
+            ライブラリのラッパーを作るときは必須です。
+        基本ケース 1つなら不要:
+            結合テストなど全体のテストで通っているコードに対しては、ユニットテストでそのコードを通す必要はありません。
+            カバレッジで考えると分かりやすい。
+            また、負債になる理由は、開発者しか知らない内部仕様（関数仕様）をテストしているため。
+    結合テスト: #keyword:
+        結合テスト（一般）:
+            メリット: ユニット テスト の対象の外側までテストできる
+            デメリット: 動作が遅い。結合の組み合わせのみ網羅度を上げ、アルゴリズム（ビジネス ロジック）は ユニット テスト で行う
+            #ref: https://products.sint.co.jp/obpm/blog/join-test
+        内部結合テスト: #keyword:  #// 独自用語
+            概要: 外部との接続はモックを使い、内部はモックを使わないテスト
+            メリット: 内部でモックを使わないことで、要求仕様に無い独自仕様（内部 Web APIなど）をテストの正解として用意してしまうことが無くなります
+    プライベート メソッド のテスト: #keyword: test private
+        JavaScript:
+            export されていない関数やクラスを参照します:  #search: JavaScript not exported
+    修正の影響範囲:  #keyword: 再テスト 修正 影響範囲
+        手段: 使用箇所の検索, ブレークポイントを置いて確認する, 自動テスト
+        #ref: https://hiroronn.hatenablog.jp/entry/20180912/1536755089
+        #ref: https://www.google.com/search?q=コード修正+影響範囲
 CI/CD:
     ベストプラクティス:  #keyword:
         一般:
@@ -284,6 +419,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         expect(__Locator__, __ErrorMessage__).toBe___
                         expect(page.getByText('Name'), 'should be logged in').toBeVisible();
             ファイル: #keyword: Playwright file,  Playwright fixture  #// テストで プロジェクト にあるファイルを扱います
+                #↓ テストがファイルの内容を読みます
                 テキスト形式:  #// readFile の返り値は Buffer クラスです  #keyword: JavaScript Buffer
                     const  customers = (await fs.readFile(`tests/fixtures/customers.json`)).toString();
                 JSON 形式をパースしたオブジェクト:  #keyword: Playwright node-fetch  #// JSON ファイルの内容をテストで使います
@@ -297,6 +433,8 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                             return (await fetch(`http://localhost:3000${path}`)).json();
                         }
                     #// node-fetch は、baseURL の設定を使いません
+                #↓ テスト対象がファイルの内容を読みます
+                ファイルのアップロード:  #search: Playwright upload file
             テストごとに blank ページに移らせない:  #search: browser.newPage
         実行します, テスト, デバッグ: #keyword: run Playwright
             全部: #keyword: run all Playwright  #// プロジェクトを開いて、全てのテストを実行します
@@ -330,6 +468,47 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                 WSL2 Windows: #keyword: run WSL2 Playwright  #// Windows 版 Playwright を WSL2 の Linux のフォルダー で実行します
                     できるけど、すごい遅い
             一部:  #// 一部の テスト コード をテストまたはデバッグします
+                Visual Studio Code でデバッグします: #keyword: Playwright debug
+                    基本的な実行ができることを確認します:
+                        #search: run Windows Playwright
+                    設定 Reuse Browser にチェックを入れます: |
+                            VSCode >> 歯車 ボタン（左下）>> Settings >> Playwright: Reuse Browser（と入力）
+                        #// ちなみに Playwright: だけ入力すると Playwright に関する設定を一覧できます
+                    テストを実行します:
+                        VSCode >> Testing（フラスコ ボタン：左）>>（テストにマウスを合わせて）Run Test（デバッガーなし）または Debug Test（デバッガーあり）
+                        #// Debug Test で起動するデバッガーはテストに対してのみデバッグできます
+                    Web アプリケーション にブレークポイントを張ります:
+                        ブラウザーが開いたら、ブラウザーの開発者ツールを開いてブレークポイントを張ります
+                    テストを再実行します:
+                        #// ブラウザーがブレークします
+                    デバッグが終わったら:
+                        設定 Reuse Browser のチェックを外します
+                        #// チェックを外すと Run Test（デバッガーなし）で実行するときにブラウザーが開かないようになり、速くなります
+                    関連:
+                        CLI の場合:  #ref: https://playwright.dev/docs/debug#browser-developer-tools
+                CLI で一部実行します: #keyword: part Playwright CLI  #// デバッガーなし
+                    基本的な実行ができることを確認します:
+                        #search: run all Playwright
+                    テスト名を正規表現で指定する場合:  #// describe
+                        - npx playwright test  --grep "__TestTitle__"
+                            #// または
+                        - npx playwright test  -g "__TestTitle__"
+                    テストを一覧します:  #keyword: Playwright --list
+                        #// --list オプションを付けます
+                        npx playwright test  "tests/1.spec.ts"  --list
+                    ファイル名を指定する場合: |
+                        npx playwright test  tests/my-test.spec.ts
+                        npx playwright test  "example.spec.ts:42"   #// 42 行目にあるテスト
+                        npx playwright test  "example.spec.ts"
+                        npx playwright test  "example.spec.ts"  "folder/"  "folder2/"
+                    タグを指定する場合:
+                        テスト コード: |
+                            test('高速なテストケース', async ({ page }) => {
+                            // テスト内容
+                            }, { tags: ['fast'] });
+                        コマンド:
+                            npx playwright test --grep-tag "fast"
+                #↓ 応用
                 フル テスト と通常テストを分けます: #keyword: Playwright @full test  #// 通常時、@full が付いたテストをスキップさせます
                     #focus: @full,  ALL_TEST
                     準備:
@@ -357,52 +536,17 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                             npx playwright test  __Parameters__  --grep-invert "@initialize"  --list
                         特定の初期化だけ実行するとき:
                             npx playwright test  __Parameters__  --grep "__TestName__ @initialize"  --list
-                Visual Studio Code でデバッグします: #keyword: Playwright debug
-                    基本的な実行ができることを確認します:
-                        #search: run Windows Playwright
-                    設定 Reuse Browser にチェックを入れます: |
-                            VSCode >> 歯車 ボタン（左下）>> Settings >> Playwright: Reuse Browser（と入力）
-                        #// ちなみに Playwright: だけ入力すると Playwright に関する設定を一覧できます
-                    テストを実行します:
-                        VSCode >> Testing（フラスコ ボタン：左）>>（テストにマウスを合わせて）Run Test（デバッガーなし）または Debug Test（デバッガーあり）
-                        #// Debug Test で起動するデバッガーはテストに対してのみデバッグできます
-                    Web アプリケーション にブレークポイントを張ります:
-                        ブラウザーが開いたら、ブラウザーの開発者ツールを開いてブレークポイントを張ります
-                    テストを再実行します:
-                        #// ブラウザーがブレークします
-                    デバッグが終わったら:
-                        設定 Reuse Browser のチェックを外します
-                        #// チェックを外すと Run Test（デバッガーなし）で実行するときにブラウザーが開かないようになり、速くなります
-                    関連:
-                        CLI の場合:  #ref: https://playwright.dev/docs/debug#browser-developer-tools
-                CLI:  #// デバッガーなし
-                    基本的な実行ができることを確認します:
-                        #search: run all Playwright
-                    テスト名を正規表現で指定する場合:  #// describe
-                        - npx playwright test  --grep "__TestTitle__"
-                            #// または
-                        - npx playwright test  -g "__TestTitle__"
-                    テストを一覧します:  #keyword: Playwright --list
-                        #// --list オプションを付けます
-                        npx playwright test  "tests/1.spec.ts"  --list
-                    ファイル名を指定する場合: |
-                        npx playwright test  tests/my-test.spec.ts
-                        npx playwright test  "example.spec.ts:42"   #// 42 行目にあるテスト
-                        npx playwright test  "example.spec.ts"
-                        npx playwright test  "example.spec.ts"  "folder/"  "folder2/"
-                    タグを指定する場合:
-                        テスト コード: |
-                            test('高速なテストケース', async ({ page }) => {
-                            // テスト内容
-                            }, { tags: ['fast'] });
-                        コマンド:
-                            npx playwright test --grep-tag "fast"
-            テストの中から画面操作します: #keyword: Playwright CLI test parts  #// CLI で起動する テスト スクリプト から npx playwright test コマンドを実行します
-                コマンド: |  #// テスト スクリプト などからコマンドを実行します
-                    timeout 30s --foreground  npx playwright test  "./MyOperation.spec.ts"  --config=/dev/null
-                        または
-                    timeout 30s --foreground  ./node_modules/.bin/playwright test  "tests/MyOperation.spec.ts"  --config="../playwright.config.ts"  --grep "Test1Operation"
-                MyOperation.spec.ts: |
+            Playwright 関数: #keyword:  #search: bashlib Playwright
+            テストの中から画面操作します: #keyword: Playwright CLI test parts  #// ランナーを使わず、CLI で起動する テスト スクリプト から npx playwright test コマンドを実行します
+                テスト対象のプロセスを起動します:  #// 画面操作するスクリプトの前に起動します
+                    setsid を使うと安定します  #search: setsid
+                画面操作開始:
+                    Playwright 関数:  #search: bashlib Playwright  #// 環境依存を少なくした上記コマンドと同じ機能
+                    コマンド: |  #// テスト スクリプト などから画面を操作するコマンドを実行します
+                        timeout 30s --foreground  npx playwright test  "./MyOperation.spec.ts"  --config=/dev/null
+                            または
+                        timeout 30s --foreground  ./node_modules/.bin/playwright test  "tests/MyOperation.spec.ts"  --config="../playwright.config.ts"  --grep "Test1Operation"
+                操作内容, MyOperation.spec.ts: |  #// サンプル自動操作。E2E テストとは別の Playwright プロジェクトにすれば、E2E テストに影響しなくなります
                     import { test } from '@playwright/test';
                     test('Test1Operation', async ({ page }) => {
                         await page.goto('https://example.com');
@@ -412,16 +556,12 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         await page.goto('https://example.com');
                         // ...
                     });
-                テスト対象のプロセスを起動します:
-                    #search: setsid
-                    #search: KillProcessGroup
-                    #search: DeferKillProcessGroup
                 デバッグします:
                     playwright.config.ts ファイルがある場合:
                         そのファイルがあるフォルダーを VSCode で開きます
                     playwright.config.ts ファイルがない場合:
                         最小限の playwright.config.ts を作ります  #search: playwright.config.ts
-                設計:
+                方針設計:
                     Q1:
                         画面の操作に Playwright を使い、画面の操作の前後それぞれでチェックスクリプトを実行する場合、
                         Playwright からチェックスクリプトを呼び出すか
@@ -457,13 +597,16 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
         テストを一覧します: #search: Playwright --list
         結果を見る:
             レポート: #keyword: Playwright report
-
-            動画を撮る:  #ref: https://zenn.dev/reflex4qa/articles/b9ce85908a9374
+                デフォルト: レポートを表示する Web サーバー が自動的に起動して表示します
+                カスタマイズ:  #search: --reporter=line
+            動画を撮る: #keyword: Playwright movie,  Playwright video  #ref: https://zenn.dev/reflex4qa/articles/b9ce85908a9374
                 playwright.config.ts : |
                     use: {
                         video: 'on',
-            失敗したときのスクショを取る:
-                _: Playwright のテストが失敗した際に自動でスクリーンショットを取るには、テストの設定で onFailure オプションを利用します。以下のようにテストスクリプトに追加することができます
+            失敗したときのスクショを取る: #keyword: Playwright screen shot
+                _: Playwright のテストが失敗した際に自動でスクリーンショットを取るには、
+                    テストの設定で onFailure オプションを利用します。
+                    以下のようにテストスクリプトに追加することができます
                 playwright.config.js : |
                     import { PlaywrightTestConfig } from '@playwright/test';
                     const config: PlaywrightTestConfig = {
@@ -474,11 +617,17 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     export default config;
     コマンド: #glossary:
         playwright test:  #keyword: npx playwright test
-            サンプル:  #search: Playwright CLI
+            サンプル: #🌟  #search: Playwright CLI  #// 一部を実行するなど
             npx: #search:
             --reporter:  #// 失敗時の動作。デフォルトは、結果を表示する Web サーバー を起動します
                 --reporter=line: #keyword:  #// 失敗時に Web サーバー を起動しません
                 --reporter=html: #keyword:  #// 失敗時に Web サーバー を起動します
+            終了コード:
+                終了コード:
+                    0: 全 Pass または Skip あり  #search: PlaywightHasSkippedTest
+                    1: エラーあり
+                __Project__/test-results/.last-run.json:
+                    Skip 情報なし  #search: PlaywightHasSkippedTest
     概念:
         ブラウザー:  #// 画面  #search: Playwright viewport
             storageState: #keyword: Playwright storageState  #// ブラウザーが現在開いている状態、および、それを保存したファイル
@@ -573,7 +722,17 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     複数のキーを順番に入力:  #search: Playwright type keyboard
                         #// Deprecated
                         await page.keyboard.type('こんにちは世界');
-            絞り込み: |
+                    ファイルのアップロード: #keyword: Playwright upload file
+                        <input> タグが表示されている場合:
+                            await page.locator('input[type="file"]').setInputFiles(path.join(__dirname, '../fixtures/test.pdf'));
+                            await page.locator('input[type="file"]').setInputFiles(['file1.png','file2.png',]);
+                        ファイル選択ダイアログを開く場合:
+                            const fileChooserPromise = page.waitForEvent('filechooser');  // ダイアログが開く前に filechooser イベントをリッスンする（順序が重要）
+                            await page.locator('#upload-button').click();                 // ファイル選択ダイアログを開きます
+                            const fileChooser = await fileChooserPromise;
+
+                            await fileChooser.setFiles(path.join(__dirname, '../fixtures/test.pdf'));
+            絞り込み: | #keyword: Playwright 絞り込み
                 await page.locator('#table2  #input-text').fill('ABC');
                 await page.getByTestId('__Parent__').getByTestId('__Child__').click();
             親 HTML 要素:
@@ -608,6 +767,18 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
             最小限: |
                 import { defineConfig } from '@playwright/test';
                 export default defineConfig({});
+            タイムアウト: |
+                export default defineConfig({
+                    timeout: 30_000,         // テスト全体  デフォルト 30,000ms
+                    globalTimeout: 600_000,  // スイート全体  デフォルト 0（無制限）
+                    expect: {
+                        timeout: 5_000,      // expect() アサーション  デフォルト 5,000ms
+                    },
+                    use: {
+                        actionTimeout: 10_000,      // click, fill などのアクション  デフォルト 0（無制限）
+                        navigationTimeout: 30_000,  // goto, waitForNavigation など  デフォルト 0（無制限）
+                    },
+                });
             動的変更, expect.configure: | #keyword: expect.configure  #// 設定を変更してアサーションする expect
                 const slowExpect = expect.configure({ timeout: 10000 });
                 await slowExpect(locator).toHaveText('Submit');
@@ -679,6 +850,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     #// page.locator(getTextSelector(["有効"])); ではハイライトできません #search: Playwright getTextSelector
                 複数マッチした場合: #keyword: Playwright locator 2nd match
                     page.locator('xpath=(//*[contains(text(), "有効")])[2]');  #// 1つ目にマッチしたものを取得するときは [0] ではなく [1] です。2つ目は [2] です
+                絞り込み:  #search: Playwright 絞り込み
                 兄弟など:  #search: XPath Axes
                 指定のテストの後の最初のテキスト: |
                     page.locator('//*[contains(text(), "暗号化")]/following::*[contains(text(), "有効")][1]');
@@ -2340,7 +2512,7 @@ Jest: #keyword: Jest  #// JavaScript TypeScript test framework
 
                     Details:
 
-                    /Users/totadashi/GitProjects/GitHub/MyPrivateCode/Node_js/tradeBackTest/node_modules/node-fetch/src/index.js:9
+                    /Users/user1/GitProjects/GitHub/MyPrivateCode/Node_js/tradeBackTest/node_modules/node-fetch/src/index.js:9
                     import http from 'node:http';
                     ^^^^^^
 
@@ -3093,4 +3265,3 @@ GoCD: #keyword:  #// Go Continuous Delivery
         アタッチ: #keyword: mock attach  #// モックに置き換えること  #ref: https://docs.python.org/3/library/unittest.mock.html
     テスト ダブル: #search: モック  #// Stub、Fake、Dummy
     テスト代役: #search: テスト ダブル
-テスト環境、テストデータ: #search:

@@ -1521,7 +1521,7 @@ HTTP 通信: #keyword: HTTP
             公式:
                 #ref: https://github.com/curl/curl
                 #ref: https://curl.se/docs/manpage.html
-            Linux版:  #// CentOS7
+            基本, Linux版:  #// CentOS7
                 手順:
                     基本:
                         curl  http://example.com  #// HTTP の GET メソッドを送信します。標準出力に出力します
@@ -1597,6 +1597,43 @@ HTTP 通信: #keyword: HTTP
                             curl ____  &&  break
                             sleep  1s
                         done
+                    ファイル アップロード: #keyword: curl file upload
+                        基本:  #// multipart/form-data
+                            curl -X POST http://localhost:8080/upload \
+                                -F "file=@/path/to/file.txt"
+                            #// @ をファイルパスの前につけるとファイルの内容を送信します
+                            #// サーバー側のフレームワーク（Express、FastAPI、Goなど）によって受け取り方が異なるので、
+                            #// フィールド名（-F "file=..." の file 部分）をサーバー側の実装に合わせる必要があります。
+                        デバッグに便利なオプション: |
+                            curl -X POST http://localhost:8080/upload \
+                                -F "file=@/path/to/file.txt" \
+                                -v          # リクエスト/レスポンス詳細を表示
+                                -o out.json # レスポンスをファイルに保存
+                        複数ファイルの場合:
+                            curl -X POST http://localhost:8080/upload \
+                            -F "file=@/path/to/file1.txt" \
+                            -F "file=@/path/to/file2.txt"
+                        フィールド名を指定したい場合:
+                            curl -X POST http://localhost:8080/upload \
+                            -F "file=@/path/to/file.txt" \
+                            -F "name=myfile" \
+                            -F "description=テストファイル"
+                        Content-Type を明示する場合:
+                            curl -X POST http://localhost:8080/upload \
+                                -F "file=@/path/to/image.png;type=image/png"
+                        バイナリをそのまま送る場合: |  #// application/octet-stream  ファイルをそのままボディに送る（multipartなし）
+                            curl -X POST http://localhost:8080/upload \
+                                -H "Content-Type: application/octet-stream" \
+                                --data-binary @/path/to/file.bin
+                        認証が必要な場合:
+                            Bearer Token: |
+                                curl -X POST http://localhost:8080/upload \
+                                    -H "Authorization: Bearer YOUR_TOKEN" \
+                                    -F "file=@/path/to/file.txt"
+                            Basic 認証: |
+                                curl -X POST http://localhost:8080/upload \
+                                    -u username:password \
+                                    -F "file=@/path/to/file.txt"
                 コマンド: #keyword: curl options
                     基本:
                         curl  http://example.com  #// HTTP の GET メソッドを送信します。標準出力に出力します
@@ -1639,10 +1676,13 @@ HTTP 通信: #keyword: HTTP
                         curl  --unix-socket /run/example/socket http://localhost:0/api/customers
                     -v, --verbose オプション:
                         #ref: https://curl.se/docs/manpage.html#-v
-            PowerShell版:
+            PowerShell版: #keyword: curl PowerShell
                 Invoke-WebRequest:  #// このエイリアスが curl
-                サンプル:
-                    Invoke-WebRequest  https://github.com/Takakiriy/typrm/archive/refs/heads/main.zip -OutFile "typrm.zip"
+                ダウンロードしてファイルに保存します:  #// GET メソッド
+                    Invoke-WebRequest  https://github.com/Takakiriy/typrm/archive/refs/heads/main.zip  -OutFile "typrm.zip"
+                        または
+                    curl  -Method Get  https://github.com/Takakiriy/typrm/archive/refs/heads/main.zip  -OutFile "typrm.zip"
+                POST メソッドを呼び出します:
                     curl  -Method Post  -Body 'param1=value1&param2=value2'  http://httpbin.org/post
                 エラー Use -UseBasicParsing: #keyword: Invoke-WebRequest -UseBasicParsing
                     手順: curl (PowerShell 5.x)
@@ -2832,17 +2872,25 @@ HTTP 通信: #keyword: HTTP
                             公式に対する補足:
                                 #// 公式に書かれたドキュメントができないことの代わり  #search: not supported WireMock scenario
                         応答と同時に状態遷移する場合: |  #// Started 状態で request にマッチしたら response を返し、Cancel_Newspaper 状態に変わります
+                                （ほぼ同じ内容であれば // ToDo:Posted response state request and response are same as Started state のようなコメントを書くとよいでしょう）
                                 "scenarioName": "ToDo",
-                                "requiredScenarioState": "Started",
+                                "requiredScenarioState": "Posted",
                                 "newScenarioState": "Cancel_Newspaper",
                                 "request": {
                                     ...
                                 },
-                                "response": {
+                                "response": {  （同じレスポンスがあれば // Same as Started state のようなコメントを書くとよいでしょう）
                                     ...
                             #ref: ${GitHub}/MyPrivateCode/WireMock/try_WireMockScenarioState/mappings/scenario.json
                         特定の状態のときの応答:
                             上記 requiredScenarioState
+                        状態の共通化:
+                            - State が異なれば、同じリクエストやレスポンスでも、ほぼ全部をコピーする必要があります
+                            - レスポンスをファイルで定義すれば、コピーする量を減らすことができます  #search: WireMock bodyFileName
+                            - 続きが同じときは、同じ State が使えます
+                            - 🌟 途中まで同じでも、途中から変わるものがあれば、最初から別の State にする必要があります
+                            - 途中から変わるときに、HTTP コール を入れることができるのなら、最初は同じ State が使えます
+                            - 途中から変わる直前の HTTP リクエストのパターンが固有であるときは、それまでのリクエストごとに状態遷移する必要はありません
                         複数の状態:  #search: WireMock multi requiredScenarioState
                     参照:  #// 状態の参照
                         特定のシナリオの状態:
@@ -2886,7 +2934,7 @@ HTTP 通信: #keyword: HTTP
                                             ...
                     できない？: #keyword: not supported WireMock scenario
                         複数の状態, 複数の requiredScenarioState: #keyword: WireMock multi requiredScenarioState
-                            _: サポートしていません。
+                            _: 複数の状態変数をマッチさせることはできません。
                                 異なる状態に関する設定は、設定全体を複数書いてください。
                             設定の API と同期の API のケース:  #// それぞれの設定の中から 1つの設定 API を呼び出し、続けて共通の同期 API を呼び出すケース
                                 設定時に状態遷移します。 サービスに実際に設定されるタイミングと、WireMock の状態が遷移するタイミングをずらします。
@@ -2902,6 +2950,9 @@ HTTP 通信: #keyword: HTTP
                         特定のシナリオの状態の参照:  #// 以下は機能しません
                             - curl -X GET  http://localhost:8080/__admin/scenarios/ToDo/state
                             - curl -X GET  http://localhost:8080/__admin/scenarios/ToDo
+                        3回目の呼び出しで内容を変える:
+                            3つの状態値を定義します
+                            1回目と2回目の通信内容が同じでも、同じ内容のコピーを書く必要があります
                 extensions (.jar package): #keyword: WireMock extensions
                     公式: #ref: https://hub.docker.com/r/wiremock/wiremock  >>  Use wiremock extensions
                     ResponseDefinitionTransformer: #keyword: WireMock ResponseDefinitionTransformer
@@ -3465,6 +3516,16 @@ HTTP 通信: #keyword: HTTP
     XML-RPC: #keyword:  #// HTTP/HTTPS + XML の RPC
         エラーを返すとき:
             サンプル: #ref: http://xmlrpc.com/spec.md >> Response example
+            サンプル2, curl: |
+                curl -X POST http://your-server/RPC2 \
+                    -H "Content-Type: text/xml" \
+                    -d @- <<'HERE_DOCUMENT'
+                <?xml version="1.0"?>
+                <methodCall>
+                    <methodName>system.listMethods</methodName>
+                    <params></params>
+                </methodCall>
+                HERE_DOCUMENT
             fault: #keyword: XML-RPC fault  #ref: https://ja.wikipedia.org/wiki/XML-RPC
                 レスポンスに含まれます:
                     <?xml version="1.0"?>

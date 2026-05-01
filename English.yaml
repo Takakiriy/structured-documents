@@ -137,6 +137,7 @@
     explicit: 明示的な
     FYI: just For Your Information  参考まで
     grammar: 文法  #// grammer ではない
+    histogram:  #// histgram ではない
     ibid.: 同じ箇所に
     id.: 同上
     i.e.: すなわち
@@ -170,6 +171,7 @@
         lose: 失う
         loose: ゆるい（物）
         lazy: 怠惰な（人）
+    maintenance: メンテナンス  #// meintenance ではない
     make sure, ensure:  ～という状態にする  #keyword: English ～にする
     metadata: メタデータ  #// meta data ではない
     misbehaving: おかしな動作
@@ -198,7 +200,7 @@
     please:
         遠回しな表現を使うべきです:
             Could you please
-    polling: ポーリング
+    polling: ポーリング  #// pooling ではありません
     portion: 部分、量や割合を重視する「部分」  #keyword: English part
     practice: 練習。 best practice 最も優れている手法
     predictable: 予測可能な
@@ -206,6 +208,9 @@
         A is prioritized. The prioritized person. He has priority.
         in order of priority.
     Raspberry Pi: #// Rasberry ではない
+    recommended:
+        It is recommended to use A.
+        Use A instead.
     reconcile, リコンサイル: 調整する。和解させる。一致させる
     refactoring: リファクタリング。refactering, referctering, refoctoring ではない
     retrieve: #glossary:  #// 見つけ出して取得する
@@ -221,7 +226,7 @@
         #ref: https://michaeluno.sakura.ne.jp/technotes/note/「得る」の英語のニュアンスの違い-acquire-フォーマ/
     reveal: 明らかにする 「レヴィール」（レビューに聞こえる） #// revail や reveil ではない
     reverse: 逆  #// 類義語は opposite
-    senario: scenario のスペルミス
+    senario: scenario のスペルミス。c が足りない
     set up: 準備。終了時の処理は tear down, clean up
     severity: 重大度。「サヴァリティ」
     shallow: 浅い  #// 対義語は deep
@@ -244,6 +249,8 @@
         It's already time: もう時間になっている
         It's been time: しばらく前に時間になっている
         It's past time: 時間を過ぎている
+    time out:
+        Without sleep, the process will time out
     traversal: 横断
     use:
         ～を使って: #keyword: using English
@@ -356,6 +363,9 @@
     冗長構成: redundant configuration
     常駐: resident, The program does not remain resident.
     副作用: side effects
+    復帰, 復元, 復旧:
+        復元: restoration
+        復帰: return
     担当者: staff  #ref: https://eikaiwa.dmm.com/uknow/questions/426/
     管理者: administrator
     監視: monitoring, watch

@@ -25,6 +25,7 @@
                     - Add ____ function.
                     - Support ___ing
                     - Fix typo.
+                    - Resolve ____ degration.
                     - Address reviewers comments. Address feedback.   #keyword: Address reviewers comments
                 違うブランチでファイルを編集した場合: #keyword: Git incorrect branch edit
                     git commit する前の場合:
@@ -439,7 +440,7 @@
     ステージ, インデックス: #keyword: Git stage, Git index
         git add コマンドでファイルをステージに入れると、内部的にはファイルの内容（ハッシュ値等）を git のインデックスに反映します
     ブランチ: #keyword: Git branch,  branch  #// 作成コマンドの例： git checkout -b "__NewBranch__"
-        現在のブランチの表示:  #search: Git current branch
+        現在のブランチの表示:  #search: Git current branch  #search: GetCurrentGitBranch
         ブランチの情報:
             #search: search GitHub branch
         切り替え: #keyword: switch Git branch,  git checkout __Branch__  #// 現在のブランチを切り替えます
@@ -1254,7 +1255,7 @@
                             develop ブランチに develop-wip ブランチを作ります:
                             各種 feature ブランチをリベースします:
                             各種 feature ブランチを develop-wip ブランチにマージしていきます:
-                        更新またはリベースする, コンフリクトが少ない場合:
+                        更新またはリベースする, コンフリクトが少ない場合:  #// コンフリクトが多いか少ないか分からない場合もこちら
                             ブランチを一覧します:  #// 現在の develop-wip ブランチがどのブランチからできているかを一覧します
                                 git log --merges --oneline  develop-wip
                                 （出力内容をメモします）
@@ -1262,36 +1263,6 @@
                             （初回のみ）rerere を有効にします:  #search: git rerere
                                 git config --local  rerere.enabled  true
                                 git config --local  rerere.autoupdate  true
-                            リベースしてリリースします:
-                                develop-wip の中を release する場合:  #// develop → develop-wip の間に「ある」ブランチを、develop/release（または STG 環境）へ移動する場合
-                                    マージ先として develop が正しいか release が正しいかをチェックします:
-                                        - プルリクのページを開きます
-                                        - 変更する場合  #search: change GitHub pull requests target
-                                    リベースします:  #// feature ブランチをマージ先に対してリベースします
-                                        - git rebase します  #// git cherry-pick も使えます  #search: Git rebase cherry-pick
-                                        - git push します  #// feature ブランチを git push します。ローカルでリベースしただけで次に進まないでください
-                                    （プルリクを使って）マージします:
-                                    release ブランチに移動した場合:
-                                        develop ブランチを release ブランチに対してリベースします:
-                                            no-ff マージを含むブランチをリベースする場合: #search: Git rebase no-ff
-                                            それ以外の場合:  #search: git rebase branch
-                                    #// feature ブランチをrelease ブランチに移動する際に develop-wip ブランチの一部をリバートすると、
-                                    #// リバートするコミットが追加されてしまうため、複雑なグラフになってしまいます
-                                develop-wip の外を release する場合:  #// develop → develop-wip の間に「ない」ブランチを、develop/release（または STG 環境）へ追加する場合
-                                    正解の内容として一時的にマージします: #keyword: git rebase reference merge  #// リベース中にコンフリクトが発生したときに正解の内容を明らかにするため
-                                        git checkout  "develop-wip"
-                                        git checkout -b  "develop-wip-next"
-                                        git merge  __FixBranch__
-                                    develop ブランチを release ブランチに対してリベースします:
-                                        develop と release の間にブランチやタグがある場合:
-                                            最も長いブランチから作業する場合:
-                                                develop をリベースしてから、ブランチやタグを張り替え、
-                                                develop を release に張り替え、
-                                                git merge --no-ff します
-                                            最も短いブランチから作業する場合:
-                                                最初はリベースします
-                                                後は、複数のコミットをまとめて cherry-pick します  #search: git cherry-pick range
-                                                #// 一部を共有していたブランチにリベースしてもコンフリクトが大量発生します
                             #// develop-wip ブランチを作り直します
                             develop-wip ブランチをリセットします: |  #// develop ブランチの位置に戻します
                                 cd  ~/__Project__
@@ -1300,7 +1271,6 @@
                                 git checkout -b develop-wip  #// develop から枝分かれ
                             #// ブランチのループ開始
                             ブランチをリベースしてマージ: | #keyword: git merge develop-wip main command  #// feature ブランチを 1つマージします
-                                #// __FeatureBranchA__ が rebase してあること
                                 git checkout  __FeatureBranchA__
                                 git pull
                                 git rebase  develop   #// または git cherry-pick など  #search: Git rebase cherry-pick
@@ -1345,13 +1315,8 @@
                                 （上へ）
                             #// ブランチのループ終了
                             内容をチェックします:
-                                develop-wip の中を release した場合:
-                                    git checkout  "develop-wip"
-                                    git diff  "origin/develop-wip"
-                                develop-wip の外を release した場合:  #search: git rebase reference merge
-                                    git checkout  "develop-wip"
-                                    git diff  "develop-wip-next"
-                                    git branch -D  "develop-wip-next"
+                                git checkout  "develop-wip"
+                                git diff  "origin/develop-wip"
                             git push: |
                                 git checkout  __FeatureBranchA__
                                 git push --force-with-lease  #// rebase した __FeatureBranchA__  #search: git rebase
@@ -1509,6 +1474,55 @@
                                     develop-wip-new-contents-branch
                             DEV 環境へ追加デプロイします: #keyword: fix branch DEV deploy
                                 + R の cherry-pick があった場合、DEV 環境にデプロイします
+                        リベースしてリリースする場合:
+                            ブランチを一覧します:  #// 現在の develop-wip ブランチがどのブランチからできているかを一覧します
+                                git log --merges --oneline  develop-wip
+                                （出力内容をメモします）
+                                #search: git merged branches
+                            develop-wip の中を release する場合:  #// develop → develop-wip の間に「ある」ブランチを、develop/release（または STG 環境）へ移動する場合
+                                マージ先として develop が正しいか release が正しいかをチェックします:
+                                    - プルリクのページを開きます
+                                    - 変更する場合  #search: change GitHub pull requests target
+                                リベースします:  #// feature ブランチをマージ先に対してリベースします
+                                    - git rebase します  #// git cherry-pick も使えます  #search: Git rebase cherry-pick
+                                    - git push します  #// feature ブランチを git push します。ローカルでリベースしただけで次に進まないでください
+                                （プルリクを使って）マージします:
+                                release ブランチに移動した場合:
+                                    develop ブランチを release ブランチに対してリベースします:
+                                        no-ff マージを含むブランチをリベースする場合: #search: Git rebase no-ff
+                                        それ以外の場合:  #search: git rebase branch
+                                #// feature ブランチをrelease ブランチに移動する際に develop-wip ブランチの一部をリバートすると、
+                                #// リバートするコミットが追加されてしまうため、複雑なグラフになってしまいます
+                            develop-wip の外を release する場合:  #// develop → develop-wip の間に「ない」ブランチを、develop/release（または STG 環境）へ追加する場合
+                                正解の内容として一時的にマージします: #keyword: git rebase reference merge  #// リベース中にコンフリクトが発生したときに正解の内容を明らかにするため
+                                    git checkout  "develop-wip"
+                                    git checkout -b  "develop-wip-next"
+                                    git merge  __FixBranch__
+                                develop ブランチを release ブランチに対してリベースします:
+                                    develop と release の間にブランチやタグがある場合:
+                                        最も長いブランチから作業する場合:
+                                            develop をリベースしてから、ブランチやタグを張り替え、
+                                            develop を release に張り替え、
+                                            git merge --no-ff します
+                                        最も短いブランチから作業する場合:
+                                            最初はリベースします
+                                            後は、複数のコミットをまとめて cherry-pick します  #search: git cherry-pick range
+                                            #// 一部を共有していたブランチにリベースしてもコンフリクトが大量発生します
+                            内容をチェックします:
+                                develop-wip の中を release した場合:
+                                    git checkout  "develop-wip"
+                                    git diff  "origin/develop-wip"
+                                develop-wip の外を release した場合:  #search: git rebase reference merge
+                                    git checkout  "develop-wip"
+                                    git diff  "develop-wip-next"
+                                    git branch -D  "develop-wip-next"
+                            git push: |
+                                git checkout  __FeatureBranchA__
+                                git push --force-with-lease  #// rebase した __FeatureBranchA__  #search: git rebase
+                                git checkout  __FeatureBranchB__
+                                git push --force-with-lease  #// rebase した __FeatureBranchB__  #search: git rebase
+                                git checkout  develop-wip
+                                git push --force-with-lease  --set-upstream origin develop-wip  #// 新しい develop-wip
                     develop ブランチ, 共有コード: #keyword: git shared develop branch  #// DEV 環境の共有コード、DEV 環境のベースとなるブランチ
                         develop に共有コードを追加します:  #// STG リリース前の DEV 環境の各種 feature ブランチの共有コードを develop ブランチに追加します
                             共有コードのブランチ（複数のブランチをまとめてもよい）のプルリクを作り、develop ブランチへマージ（git merge --no-ff）
@@ -2659,7 +2673,7 @@ Git: #keyword: git
                         2222222 Merge branch '__Branch2__' into develop-wip
                         4444444 Merge tag '__Tag1__' into develop-wip
                         3333333 (develop) Merge pull request
-                実施:  #// 実施, キャンセル
+                実施:  #// マージの実施, キャンセル
                     基本的なマージの手順:
                         設定: #settings:
                             __RepositoryName__: typrm
@@ -2690,7 +2704,7 @@ Git: #keyword: git
                                 git diff --name-only --diff-filter=U  #// または  git diff --check
                             - git log: |
                                 git log --oneline --decorate --graph --branches --tags --remotes --pretty=format:"%C(auto)%h %d %s %C(cyan)%an %C(green)%ad" --date=iso-local
-                        マージします:
+                        マージします:  #🌟
                             コマンド: |
                                 git merge  "origin/develop"  --no-edit
                                     #template: "origin/__SourceBranchName__"
@@ -2737,6 +2751,7 @@ Git: #keyword: git
                                     #template:  rm -rf "__RepositoryName__"  &&  mv  "_bk-__RepositoryName__"  "__RepositoryName__"  &&  cd  "__RepositoryName__"
                     コンフリクトした場合:  #search: Git conflict
                     違うブランチでファイルを編集した場合:  #search: Git incorrect branch edit
+                    ブランチやコミットで編集済みの一部を手動でコピーする場合:  #search: VSCode git diff branch
                     git push, git pull できないときのマージ:  #// ローカルで一時的なブランチを作ってマージします
                         状況: |  #focus: rebasing
                             git branch
@@ -2819,7 +2834,7 @@ Git: #keyword: git
                                 Your branch is up to date with 'origin/master'.
 
                                 nothing to commit, working tree clean
-                    リポジトリの外のフォルダーを 3way merge します(git_merge):
+                    リポジトリの外のフォルダーを 3way merge します(git_merge):  #// 一時的な Git working を作って、マージする編集を自動的に実施します
                         設定: #settings:
                             __OldFolder__: ${HOME}/Desktop/CRUD_patch/site/back_up  #// commit 1
                             __SourceFolder__: ${HOME}/Desktop/CRUD_patch/site/patch  #// commit 2-A
@@ -3856,6 +3871,7 @@ Git: #keyword: git
             git diff: #keyword:
                 比較対象別:
                     別のブランチと比較:
+                        VSCode を使う場合:  #search: VSCode git diff branch
                         一覧します:  #// 差分があるファイルを一覧します
                             - git diff  __OtherBranch__  --name-only  #// 現在のファイルの内容（コミット前）と別のブランチを比較します
                         ファイルの内容の差分を表示します:
@@ -3864,7 +3880,6 @@ Git: #keyword: git
                                 #// __FilePath__ を省略すると "." を指定したときと同じ動作になります
                                 #search: Git pathspec
                                 #//  赤い表示(- 削除)は __OtherBranch__ にある内容、緑の表示(+ 追加)は現在のブランチにある内容
-                        VSCode を使う場合:  #search: VSCode git diff branch
                     別のホストとの比較:  #// git diff ではできません  #search: Linux file list with CRC
                     別のコミットと比較:
                         内容の差分を表示します:
@@ -7591,6 +7606,8 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         補足:
                             - delete branch されていても revert できます
                     リジェクト:  #search: Git rejected branch
+                    AIスロップへの嫌悪, RFC 406i:  #ref: https://gigazine.net/news/20260401-rfc-406i/
+                        低品質な粗悪品
                 画面:
                     Conversation タブ:
                         最初の会話のテンプレート:  #search: GitHub pull request template
@@ -8369,9 +8386,8 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                     _: プルリクを作って、そのプルリクの対象のブランチ名を検索しても、ヒットしません
                     検索できるようにする:
                         プルリクの本文にブランチ名を書いておきます:
-                            __Name__ ブランチ
+                            ___BranchName__ ブランチ    ←検索用
                         ブランチ名を書くように表示します:
-                            __Name__ ブランチ  （ブランチ名で検索できるようにするため）
                             #search: GitHub pull request template 
                 追加:  #search: GitHub new file
                 ブランチ保護:

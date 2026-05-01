@@ -857,6 +857,19 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                 JOIN など: #keyword: SQL JOIN
                     #ref: ${my_images}/2024/SQLベン図.jpeg
                     OUTER JOIN など:  #ref: ${programming}/検索技術、DB/SQL/SQL講座 pursue.ne.jp.svg#join
+                        SELECT a.列a1, a.列a2, b.列b1, b.列b2
+                            FROM 表a.csv as a LEFT JOIN 表b.csv as b ON a.列a1 = b.列b1
+                サブクエリ (SELECT): #keyword: SQL subquery
+                    サンプル: |  #// FROM または JOIN の次に (SELECT があると、それがサブクエリです
+                        SELECT * FROM items          ← 外側のクエリ
+                        JOIN (
+                            SELECT name, MAX(updated_at)   ← 内側のクエリ
+                            FROM items                     ← 内側のクエリ
+                            GROUP BY name                  ← 内側のクエリ
+                        ) AS subq
+                        ON ...
+                    AS の右:  #// 上記 subq
+                        サブクエリの結果のテーブルを参照するための任意の名前
             INSERT:  #keyword: SQL INSERT
                 ID を自動設定する場合:  #keyword: MySQL insert autoincrement
                     insert  __TableName__  (__Column1__, __Column2__, ...)  select COALESCE(MAX(__ID_Column__),0)+1, __Value2__, ... from __TableName__;
@@ -970,6 +983,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                 MEDIUMBLOB: 最大 16,777,215 バイト  #// BLOB(16,777,215)
                 LONGBLOB: 最大 4,294,967,295 バイト
                 #// BLOBG のサイズを変更するマイグレーションはかなり時間がかかる場合があります
+                #// SQLAlchemy では BLOB のような大きいカラムのリードを遅延させることができます  #search: SQLAlchemy deferred
                 #ref: https://dev.mysql.com/doc/refman/8.0/ja/storage-requirements.html#data-types-storage-reqs-strings
             バイナリ型:
                 BINARY 型: #// 固定長バイナリ
@@ -996,6 +1010,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                             | mysql.session    | localhost   |
                             | mysql.sys        | localhost   |
                             | root             | localhost   |
+                    ユーザーの識別: 「ユーザー名 + ホスト」の組み合わせ。ホストが異なれば別のユーザーになります
                     認証文字列付き一覧: #search: MySQL authentication_string  #// パスワード等のハッシュ
                 作成: #keyword: create MySQL user,  MySQL CREATE USER
                     基本:
@@ -2373,7 +2388,7 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                             | LargeBinary(16777215) | BLOB(16777215) |
                             |                       | or MEDIUMBLOB  |
                         #search: MySQL Blob binary
-            クラシカルな方式:
+            クラシカルな方式:  #// SQLAlchemy 1.x   Classical Mapping（古典的マッピング）
                 SqlAlchemy.Table: #keyword:
                     サンプル: |
                         special_user = SqlAlchemy.Table(
@@ -2436,8 +2451,9 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                             'id': special_user.c.id,
                             'code': special_user.c.code,
                             'server_certificates': SqlAlchemyOrm.relationship(ServerCertificate,
-                SqlAlchemyOrm.relationship: #keyword:
-                    コード: （上記）
+                SqlAlchemyOrm.relationship: #keyword: SqlAlchemyOrm.relationship,  SqlAlchemyOrm 外部キー
+                    コード: （上記 relationship）
+                        子テーブルに書きます
                     ユーザー コード サンプル: |
                         user = session.query(SpecialUser).first()
                         print(user.code)
@@ -2446,6 +2462,27 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                         外部キーがある場合の server_certificates のリード: 関連する適切なレコードになります
                         外部キーが無く、配列の場合: server_certificates 配列は session.commit() で保存できます。
                         relationship が無い場合: session.add(server_certificates); session.commit() で保存できそうです（未確認）
+                    親子:
+                        クラシカルな方式: |
+                            /                |   DB レベル  |   Python レベル
+                            -----------------------------------------------------
+                            子 items_table   │ ForeignKey  │                  │
+                            親 mapper        │             │ relationship     │
+                        Declarative スタイル: |
+                            /                |   DB レベル  |   Python レベル
+                            -----------------------------------------------------
+                            子 items_table   │ ForeignKey  │ relationship     │
+                            親 mapper        │             │ relationship     │
+                        ForeignKey:
+                            SqlAlchemy.ForeignKey('__Table__.__Column__'),
+                    外部キーカラムとリレーションシップ : |
+                        | 項目               | 外部キーカラム category_id | リレーションシップ category |
+                        |--------------------|----------------------------|-----------------------------|
+                        | DB カラム          | あり（INT 型）             | なし                        |
+                        | 値                 | 42（整数の ID）            | <Category object>           |
+                        | SELECT で使える    | ✅ Item.category_id       | ❌ そのままでは使えない    |
+                        | アクセス           | item.category_id → 42     | item.category → Category() |
+                        | ロード             | 常に取得                   | デフォルトは LAZY           |
                 サンプル コード: |  #// Claude AI より   #search: SQLAlchemy query
                     from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
                     from sqlalchemy.orm import mapper, sessionmaker
@@ -2543,6 +2580,20 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                                         del self.__dict__['id']
                                             または
                                         delattr(self, 'id')
+                deferred: #keyword: SQLAlchemy deferred  #// 特定のカラムだけ遅延して（カラムにアクセスするときだけ）アクセスします
+                    クラシカルな方式の場合: |
+                        #// SQLAlchemy.Table とは別に
+                        SqlAlchemyOrm.mapper(Item, items_table, properties={
+                            'id': items_table.c.id,
+                            'blob_column': deferred(items_table.c.blob_column)  # ここで指定
+                        })
+
+                        item = session.query(Item).all()  #// ここでの SELECT は blob_column 以外
+                        bolb = item.blob_column           #// ここでの SELECT は blob_column のみ
+                    Declarative な方式の場合:
+                        from sqlalchemy.orm import deferred
+                        blob_column = deferred(Column(LargeBinary))
+                    動作確認:  #search: SQLAlchemy log
         操作: #keyword: SQLAlchemy CRUD  #// Create Read Update Delete
             テーブルを作ります:  #// スキーマを元に、データベースの中に作ります
                 Base.metadata.create_all(engine)
@@ -2576,9 +2627,16 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                     クラス:
                         コード: session.query(__TableClassName__)
                         対応する SQL: SELECT * ____
-                    属性:
+                    属性:  #// 特定の属性だけ取得します
                         コード: session.query(__TableClassName__.__AttributeName1__, __TableClassName__.__AttributeName2__, __TableClassName__.__AttributeName3__)
                         対応する SQL: SELECT __AttributeName1__, __AttributeName2__, __AttributeName3__  ____
+                        外部キー:
+                            属性を指定すると、（リレーションシップ オブジェクト）からアクセスできなくなります。
+                            JOIN を使えばこの問題を回避できます。
+                    deferred:
+                        BLOB のカラムに deferred を指定すると大量のデータ転送を防げます  #search: SQLAlchemy deferred
+                    除く指定:
+                        指定したカラムだけ除く指定はできません
                 #↓ 基本
                 first:  #// 1つだけレコードを取得します
                     record = session.query(__TableClassName__).first()
@@ -2613,6 +2671,27 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
                 id: | #keyword: SQLAlchemy record ID  #ref: ${GitHub}/MyPrivateCode/try_SQLAlchemy/s4_CRUD.py#filter(User.id == 2)   #ref: https://zenn.dev/myuki/books/02fe236c7bc377/viewer/18c884
                     user2 = session.query(User).filter(User.id == 2).first()
                     print(user2.name, user2.address)
+                #↓ 複合
+                subquery: #keyword: SQLAlchemy subquery  #search: SQL subquery
+                    サンプル:  #focus: .subquery(), subq  #search: SQL subquery
+                        subq = (
+                            session.query(
+                                Item.name,
+                                func.max(Item.updated_at).label('max_updated_at')
+                            )
+                            .group_by(Item.name)
+                            .subquery()
+                        )
+
+                        results = (
+                            session.query(Item)
+                            .join(
+                                subq,
+                                (Item.name == subq.c.name) &
+                                (Item.updated_at == subq.c.max_updated_at)
+                            )
+                            .all()
+                        )
                 #↓ その他
                 refresh: #keyword: SQLAlchemy refresh  #// add した後でも commit する前に同じトランザクションでリードします
                     - 同一トランザクション内での話
@@ -2630,6 +2709,10 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
             SQL 文, execute: | #keyword: SQLAlchemy execute
                 session.execute("SELECT * FROM users WHERE id = :id", {"id": 1})
     トラブルシューティング:
+        ログを表示します: #keyword: SQLAlchemy log
+            sqlalchemy.create_engine メソッド に echo = True を渡すと標準出力にログが表示されます。SQL 文も表示されます。
+        実行する（した）SQL を表示します:
+            str(__ReturnOfQueryMethod__)
         エラー, NoForeignKeysError:
             ログ: |
                 sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between parent/child tables on relationship __ParentTableClass__.__ChildColumnName__ - there are no foreign keys linking these tables.  Ensure that referencing columns are associated with a ForeignKey or ForeignKeyConstraint, or specify a 'primaryjoin' expression.

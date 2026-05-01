@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1100">
+<title>RBAC と ACL の比較図</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #ffffff;
+    color: #1a1a20;
+    min-width: 1100px;
+    padding: 40px 32px 60px;
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-align: center;
+    margin-bottom: 8px;
+    color: #1a1a20;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    font-weight: 400;
+    text-align: center;
+    color: #888880;
+    margin-bottom: 48px;
+    letter-spacing: 0.06em;
+  }
+
+  .diagrams-row {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .diagram-wrap {
+    flex: 1;
+    max-width: 500px;
+  }
+
+  .diagram-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #888880;
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  .diagram-card {
+    background: #f5f5f8;
+    border: 1px solid #dddde5;
+    border-radius: 16px;
+    padding: 28px 24px;
+  }
+
+  .divider-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 80px;
+    gap: 0;
+  }
+
+  .divider-line {
+    width: 1px;
+    height: 120px;
+    background: #dddde5;
+  }
+
+  .divider-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #aaaaб5;
+    writing-mode: vertical-rl;
+    padding: 16px 6px;
+    border: 1px solid #dddde5;
+    border-radius: 20px;
+    color: #aaaaaa;
+  }
+
+  .correspondence-table {
+    margin-top: 48px;
+    background: #f5f5f8;
+    border: 1px solid #dddde5;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .ct-header {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    background: #ebebf0;
+    padding: 16px 28px;
+    border-bottom: 1px solid #dddde5;
+  }
+
+  .ct-header-cell {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #1a1a20;
+  }
+
+  .ct-header-center {
+    text-align: center;
+    color: #aaaaaa;
+  }
+
+  .ct-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    padding: 14px 28px;
+    border-bottom: 1px solid #e5e5ec;
+    align-items: center;
+  }
+
+  .ct-row:last-child { border-bottom: none; }
+
+  .ct-row:hover { background: #efeff4; }
+
+  .ct-cell-rbac {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .ct-cell-acl {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .ct-arrow {
+    text-align: center;
+    font-size: 18px;
+    color: #aaaabc;
+  }
+
+  .ct-note {
+    font-size: 12px;
+    font-weight: 400;
+    color: #888898;
+    margin-top: 2px;
+  }
+
+  /* SVG color classes */
+  .node-purple-bg { fill: #ede8fc; stroke: #9b87d9; }
+  .node-purple-title { fill: #4a3490; font-size: 18px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .node-purple-sub { fill: #7060b0; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-purple-sub2 { fill: #8070c0; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-purple-sm-bg { fill: #e0d8f8; stroke: #8878c8; }
+  .node-purple-sm-text { fill: #3a2880; font-size: 14px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+
+  .node-teal-bg { fill: #d8f5ec; stroke: #2a9a78; }
+  .node-teal-title { fill: #0d5e42; font-size: 18px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .node-teal-sub { fill: #1a7858; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-teal-sub2 { fill: #2a8868; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+
+  .node-coral-bg { fill: #fce8e0; stroke: #c86040; }
+  .node-coral-title { fill: #7a2a10; font-size: 18px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .node-coral-sub { fill: #a04020; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-coral-sub2 { fill: #b05030; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-coral-lg-bg { fill: #fce8e0; stroke: #b85030; }
+
+  .node-amber-bg { fill: #fef3d8; stroke: #c09020; }
+  .node-amber-title { fill: #6a4400; font-size: 16px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .node-amber-sub { fill: #907030; font-size: 12px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-amber-sub2 { fill: #a08040; font-size: 12px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+
+  .node-blue-bg { fill: #ddeeff; stroke: #3070c0; }
+  .node-blue-title { fill: #0a3878; font-size: 18px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .node-blue-sub { fill: #2060a8; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+  .node-blue-title-sm { fill: #0a3878; font-size: 16px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .node-blue-sub-sm { fill: #2060a8; font-size: 12px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+
+  .node-gray-bg { fill: #ebebf0; stroke: #c0c0cc; }
+  .node-gray-title { fill: #1a1a25; font-size: 20px; font-weight: 900; font-family: 'Noto Sans JP', sans-serif; }
+  .node-gray-sub { fill: #707080; font-size: 13px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+
+  .arr-stroke { stroke: #aaaabc; stroke-width: 1.5; fill: none; }
+  .arr-label { fill: #8888a0; font-size: 12px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+  .legend-sub { fill: #8888a0; font-size: 12px; font-weight: 400; font-family: 'Noto Sans JP', sans-serif; }
+
+  /* correspondence table colors */
+  .color-policy { color: #1a1a25; }
+  .color-principal { color: #4a3490; }
+  .color-role { color: #0d5e42; }
+  .color-perm { color: #7a2a10; }
+  .color-res { color: #0a3878; }
+  .color-acl { color: #1a1a25; }
+  .color-subject { color: #4a3490; }
+  .color-entry { color: #7a2a10; }
+  .color-op { color: #6a4400; }
+  .color-obj { color: #0a3878; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">RBAC と ACL の比較</h1>
+<p class="page-subtitle">Role-Based Access Control &nbsp;vs&nbsp; Access Control List</p>
+
+<div class="diagrams-row">
+
+  <!-- RBAC -->
+  <div class="diagram-wrap">
+    <div class="diagram-label">RBAC — Role-Based Access Control</div>
+    <div class="diagram-card">
+      <svg width="100%" viewBox="0 0 452 490" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#505060" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- Policy outer -->
+        <rect x="2" y="2" width="448" height="486" rx="14" class="node-gray-bg" stroke-width="1"/>
+        <text x="224" y="32" text-anchor="middle" class="node-gray-title">ポリシー</text>
+        <text x="224" y="52" text-anchor="middle" class="node-gray-sub">誰が・何に・何をできるかのルール</text>
+
+        <!-- Principal -->
+        <rect x="18" y="76" width="170" height="108" rx="10" class="node-purple-bg" stroke-width="1"/>
+        <text x="103" y="118" text-anchor="middle" class="node-purple-title">プリンシパル</text>
+        <text x="103" y="140" text-anchor="middle" class="node-purple-sub">認可の対象主体</text>
+        <text x="103" y="158" text-anchor="middle" class="node-purple-sub2">ユーザー・サービス等</text>
+
+        <!-- Principal examples -->
+        <rect x="18" y="244" width="78" height="40" rx="8" class="node-purple-sm-bg" stroke-width="1"/>
+        <text x="57" y="269" text-anchor="middle" class="node-purple-sm-text">ユーザーA</text>
+        <rect x="110" y="244" width="78" height="40" rx="8" class="node-purple-sm-bg" stroke-width="1"/>
+        <text x="149" y="269" text-anchor="middle" class="node-purple-sm-text">192.168.x</text>
+
+        <line x1="103" y1="184" x2="103" y2="240" class="arr-stroke" marker-end="url(#arrowR)"/>
+        <text x="110" y="216" class="arr-label">割り当て</text>
+
+        <!-- Role -->
+        <rect x="216" y="76" width="220" height="108" rx="10" class="node-teal-bg" stroke-width="1"/>
+        <text x="326" y="118" text-anchor="middle" class="node-teal-title">ロール</text>
+        <text x="326" y="140" text-anchor="middle" class="node-teal-sub">役割の種別</text>
+        <text x="326" y="158" text-anchor="middle" class="node-teal-sub2">customer / support / admin</text>
+
+        <line x1="188" y1="130" x2="213" y2="130" class="arr-stroke" marker-end="url(#arrowR)"/>
+        <text x="197" y="122" class="arr-label">持つ</text>
+
+        <!-- Permission -->
+        <rect x="216" y="232" width="220" height="108" rx="10" class="node-coral-bg" stroke-width="1"/>
+        <text x="326" y="272" text-anchor="middle" class="node-coral-title">パーミッション</text>
+        <text x="326" y="294" text-anchor="middle" class="node-coral-sub">具体的な操作の許可</text>
+        <text x="326" y="312" text-anchor="middle" class="node-coral-sub2">read / write / delete</text>
+
+        <line x1="326" y1="184" x2="326" y2="229" class="arr-stroke" marker-end="url(#arrowR)"/>
+        <text x="333" y="212" class="arr-label">束ねる</text>
+
+        <!-- Resource -->
+        <rect x="114" y="396" width="224" height="76" rx="10" class="node-blue-bg" stroke-width="1"/>
+        <text x="226" y="430" text-anchor="middle" class="node-blue-title">リソース</text>
+        <text x="226" y="452" text-anchor="middle" class="node-blue-sub">API・データ・ファイル等</text>
+
+        <!-- Permission → Resource -->
+        <line x1="326" y1="340" x2="326" y2="376" class="arr-stroke" stroke-dasharray="4 3"/>
+        <line x1="326" y1="376" x2="326" y2="393" class="arr-stroke" marker-end="url(#arrowR)"/>
+        <text x="333" y="366" class="arr-label">適用</text>
+
+        <!-- Role → Resource -->
+        <line x1="226" y1="340" x2="226" y2="393" class="arr-stroke" marker-end="url(#arrowR)"/>
+        <text x="233" y="374" class="arr-label">制御</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider-col">
+    <div class="divider-line"></div>
+    <div class="divider-badge">対応</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ACL -->
+  <div class="diagram-wrap">
+    <div class="diagram-label">ACL — Access Control List</div>
+    <div class="diagram-card">
+      <svg width="100%" viewBox="0 0 452 490" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#505060" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- ACL outer -->
+        <rect x="2" y="2" width="448" height="486" rx="14" class="node-gray-bg" stroke-width="1"/>
+        <text x="224" y="32" text-anchor="middle" class="node-gray-title">ACL</text>
+        <text x="224" y="52" text-anchor="middle" class="node-gray-sub">誰が・何に・何をできるかを列挙したリスト</text>
+
+        <!-- Subject -->
+        <rect x="18" y="76" width="170" height="108" rx="10" class="node-purple-bg" stroke-width="1"/>
+        <text x="103" y="118" text-anchor="middle" class="node-purple-title">サブジェクト</text>
+        <text x="103" y="140" text-anchor="middle" class="node-purple-sub">アクセスを試みる主体</text>
+        <text x="103" y="158" text-anchor="middle" class="node-purple-sub2">ユーザー・IPアドレス等</text>
+
+        <!-- Subject examples -->
+        <rect x="18" y="244" width="78" height="40" rx="8" class="node-purple-sm-bg" stroke-width="1"/>
+        <text x="57" y="269" text-anchor="middle" class="node-purple-sm-text">ユーザーA</text>
+        <rect x="110" y="244" width="78" height="40" rx="8" class="node-purple-sm-bg" stroke-width="1"/>
+        <text x="149" y="269" text-anchor="middle" class="node-purple-sm-text">192.168.x</text>
+
+        <line x1="103" y1="184" x2="103" y2="240" class="arr-stroke" marker-end="url(#arrowA)"/>
+        <text x="110" y="216" class="arr-label">例えば</text>
+
+        <!-- ACL Entry (large, = Permission) -->
+        <rect x="216" y="76" width="220" height="216" rx="10" class="node-coral-lg-bg" stroke-width="1"/>
+        <text x="326" y="108" text-anchor="middle" class="node-coral-title">ACLエントリー</text>
+        <text x="326" y="128" text-anchor="middle" class="node-coral-sub">パーミッションに対応</text>
+
+        <!-- Operation (inside Entry) -->
+        <rect x="228" y="144" width="196" height="72" rx="8" class="node-amber-bg" stroke-width="1"/>
+        <text x="326" y="172" text-anchor="middle" class="node-amber-title">オペレーション</text>
+        <text x="326" y="190" text-anchor="middle" class="node-amber-sub">許可する操作の種類</text>
+        <text x="326" y="206" text-anchor="middle" class="node-amber-sub2">read / write / execute</text>
+
+        <!-- Object (inside Entry) -->
+        <rect x="228" y="228" width="196" height="52" rx="8" class="node-blue-bg" stroke-width="1"/>
+        <text x="326" y="251" text-anchor="middle" class="node-blue-title-sm">オブジェクト名</text>
+        <text x="326" y="267" text-anchor="middle" class="node-blue-sub-sm">ファイル・ポート・API等</text>
+
+        <!-- Subject → Entry -->
+        <line x1="188" y1="130" x2="213" y2="150" class="arr-stroke" marker-end="url(#arrowA)"/>
+        <text x="188" y="122" class="arr-label">記載</text>
+
+        <!-- Resource (bottom) -->
+        <rect x="114" y="396" width="224" height="76" rx="10" class="node-blue-bg" stroke-width="1"/>
+        <text x="226" y="430" text-anchor="middle" class="node-blue-title">オブジェクト</text>
+        <text x="226" y="452" text-anchor="middle" class="node-blue-sub">ファイル・ポート・API等</text>
+
+        <!-- Entry → Resource -->
+        <line x1="326" y1="292" x2="326" y2="376" class="arr-stroke" stroke-dasharray="4 3"/>
+        <line x1="326" y1="376" x2="326" y2="393" class="arr-stroke" marker-end="url(#arrowA)"/>
+        <text x="333" y="340" class="arr-label">適用</text>
+
+        <!-- Subject → Resource -->
+        <line x1="103" y1="292" x2="170" y2="393" class="arr-stroke" marker-end="url(#arrowA)"/>
+        <text x="108" y="360" class="arr-label">制御</text>
+
+        <!-- Note: Entry includes Operation+Object -->
+        <text x="326" y="316" text-anchor="middle" class="legend-sub">↑ エントリーに内包</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- Correspondence table -->
+<div class="correspondence-table">
+  <div class="ct-header">
+    <div class="ct-header-cell color-principal">RBAC の概念</div>
+    <div class="ct-header-cell ct-header-center">→</div>
+    <div class="ct-header-cell color-entry">ACL の概念</div>
+  </div>
+  <div class="ct-row">
+    <div>
+      <div class="ct-cell-rbac color-policy">ポリシー</div>
+      <div class="ct-note">全体のアクセスルール定義</div>
+    </div>
+    <div class="ct-arrow">→</div>
+    <div>
+      <div class="ct-cell-acl color-acl">ACL 全体</div>
+      <div class="ct-note">エントリーを列挙したリスト</div>
+    </div>
+  </div>
+  <div class="ct-row">
+    <div>
+      <div class="ct-cell-rbac color-principal">プリンシパル</div>
+      <div class="ct-note">認可の対象主体（ユーザー・サービス）</div>
+    </div>
+    <div class="ct-arrow">→</div>
+    <div>
+      <div class="ct-cell-acl color-subject">サブジェクト</div>
+      <div class="ct-note">アクセスを試みる主体（ユーザー・IP）</div>
+    </div>
+  </div>
+  <div class="ct-row">
+    <div>
+      <div class="ct-cell-rbac color-role">ロール</div>
+      <div class="ct-note">パーミッションをまとめた役割</div>
+    </div>
+    <div class="ct-arrow">→</div>
+    <div>
+      <div class="ct-cell-acl" style="color:#888">（なし）</div>
+      <div class="ct-note">ACL にロール抽象層はない</div>
+    </div>
+  </div>
+  <div class="ct-row">
+    <div>
+      <div class="ct-cell-rbac color-perm">パーミッション</div>
+      <div class="ct-note">誰が何をできるかの定義</div>
+    </div>
+    <div class="ct-arrow">→</div>
+    <div>
+      <div class="ct-cell-acl color-entry">ACL エントリー（全体）</div>
+      <div class="ct-note">サブジェクト＋オペレーション＋オブジェクトの1行</div>
+    </div>
+  </div>
+  <div class="ct-row">
+    <div>
+      <div class="ct-cell-rbac color-perm" style="opacity:0.6">パーミッションの内容</div>
+      <div class="ct-note">操作の種類</div>
+    </div>
+    <div class="ct-arrow">→</div>
+    <div>
+      <div class="ct-cell-acl color-op">オペレーション</div>
+      <div class="ct-note">エントリーの中の操作部分（read / write 等）</div>
+    </div>
+  </div>
+  <div class="ct-row">
+    <div>
+      <div class="ct-cell-rbac color-res">リソース</div>
+      <div class="ct-note">アクセスされる対象</div>
+    </div>
+    <div class="ct-arrow">→</div>
+    <div>
+      <div class="ct-cell-acl color-obj">オブジェクト</div>
+      <div class="ct-note">ファイル・ポート・API 等</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
