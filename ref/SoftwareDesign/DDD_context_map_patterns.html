@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=900">
+<title>DDDコンテキストマップの4パターン</title>
+<style>
+body {
+  margin: 0;
+  padding: 24px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.6;
+  width: 880px;
+}
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+.page-lead {
+  font-size: 18px;
+  font-weight: 500;
+  color: #444;
+  margin: 0 0 24px 0;
+}
+.legend {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: #f4f4f0;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.swatch {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+.swatch-included {
+  background: #9FE1CB;
+  border: 1px solid #0F6E56;
+}
+.swatch-excluded {
+  background: #D3D1C7;
+  border: 1px solid #5F5E5A;
+}
+.arrow-sample {
+  display: inline-block;
+  width: 40px;
+  height: 2px;
+  background: #534AB7;
+  position: relative;
+}
+.arrow-sample::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid #534AB7;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+.pattern {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #fafaf7;
+  border: 1px solid #d8d8d2;
+  border-radius: 12px;
+}
+.pattern-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: #1a1a1a;
+}
+.pattern-lead {
+  font-size: 17px;
+  font-weight: 500;
+  color: #444;
+  margin: 0 0 16px 0;
+}
+.svg-wrap {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+}
+.t-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+.t-sub {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+.t-label {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  fill: #0F6E56;
+}
+.t-arrow {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  fill: #3C3489;
+}
+.t-warn {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  fill: #A32D2D;
+}
+.box-included {
+  fill: #9FE1CB;
+  stroke: #0F6E56;
+  stroke-width: 1;
+}
+.box-included-text {
+  fill: #04342C;
+}
+.box-excluded {
+  fill: #D3D1C7;
+  stroke: #5F5E5A;
+  stroke-width: 1;
+}
+.box-excluded-text {
+  fill: #2C2C2A;
+}
+.box-external {
+  fill: #FAC775;
+  stroke: #854F0B;
+  stroke-width: 1;
+}
+.box-external-text {
+  fill: #412402;
+}
+.box-acl {
+  fill: #F5C4B3;
+  stroke: #993C1D;
+  stroke-width: 1;
+}
+.box-acl-text {
+  fill: #4A1B0C;
+}
+.domain-boundary {
+  fill: none;
+  stroke: #0F6E56;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+.dep-arrow {
+  stroke: #534AB7;
+  stroke-width: 2;
+  fill: none;
+}
+.req-arrow {
+  stroke: #0F6E56;
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+  fill: none;
+}
+.summary {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f4f4f0;
+  border-radius: 12px;
+}
+.summary-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
+table.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+table.summary-table th,
+table.summary-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #d8d8d2;
+}
+table.summary-table th {
+  font-weight: 700;
+  background: #e8e8e0;
+}
+table.summary-table td {
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<h1 class="page-title">DDDコンテキストマップの4パターン</h1>
+<p class="page-lead">自アプリのドメイン層に外部サービスのモデルを含めるか、依存方向はどうなるか</p>
+
+<div class="legend">
+  <div class="legend-item">
+    <span class="swatch swatch-included"></span>
+    <span>自ドメイン層に含む</span>
+  </div>
+  <div class="legend-item">
+    <span class="swatch swatch-excluded"></span>
+    <span>含まない（外側）</span>
+  </div>
+  <div class="legend-item">
+    <span class="arrow-sample"></span>
+    <span>依存の方向</span>
+  </div>
+</div>
+
+<!-- ====================== Pattern 1: Shared Kernel ====================== -->
+<div class="pattern">
+  <h2 class="pattern-title">1. Shared Kernel</h2>
+  <p class="pattern-lead">共有モデルは両方のドメイン層に含まれる（相互依存）</p>
+  <div class="svg-wrap">
+    <svg width="820" height="220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#534AB7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect class="domain-boundary" x="20" y="40" width="370" height="140" rx="12"/>
+      <text class="t-label" x="32" y="62">自アプリのドメイン層</text>
+
+      <rect class="box-included" x="40" y="90" width="160" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="120" y="125" text-anchor="middle">自モデル</text>
+      <text class="t-sub box-included-text" x="120" y="145" text-anchor="middle">自分たちの領域</text>
+
+      <rect class="box-included" x="215" y="90" width="160" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="295" y="125" text-anchor="middle">共有モデル</text>
+      <text class="t-sub box-included-text" x="295" y="145" text-anchor="middle">合意のうえ共有</text>
+
+      <rect class="domain-boundary" x="430" y="40" width="370" height="140" rx="12"/>
+      <text class="t-label" x="442" y="62">外部のドメイン層</text>
+
+      <rect class="box-included" x="445" y="90" width="160" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="525" y="125" text-anchor="middle">共有モデル</text>
+      <text class="t-sub box-included-text" x="525" y="145" text-anchor="middle">同じもの</text>
+
+      <rect class="box-included" x="620" y="90" width="160" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="700" y="125" text-anchor="middle">外部モデル</text>
+      <text class="t-sub box-included-text" x="700" y="145" text-anchor="middle">相手の領域</text>
+
+      <line class="dep-arrow" x1="390" y1="125" x2="428" y2="125" marker-end="url(#arr1)" marker-start="url(#arr1)"/>
+      <text class="t-arrow" x="409" y="115" text-anchor="middle">相互</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ====================== Pattern 2: Customer/Supplier ====================== -->
+<div class="pattern">
+  <h2 class="pattern-title">2. Customer / Supplier</h2>
+  <p class="pattern-lead">自（下流）が上流に依存。要望は上流に伝えられる</p>
+  <div class="svg-wrap">
+    <svg width="820" height="220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#534AB7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="arr2-req" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#0F6E56" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect class="domain-boundary" x="20" y="40" width="370" height="140" rx="12"/>
+      <text class="t-label" x="32" y="62">自アプリのドメイン層</text>
+
+      <rect class="box-included" x="40" y="90" width="335" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="207" y="120" text-anchor="middle">自モデル (Customer / 下流)</text>
+      <text class="t-sub box-included-text" x="207" y="143" text-anchor="middle">自分たちの語彙で定義</text>
+
+      <rect class="box-excluded" x="430" y="90" width="370" height="70" rx="8"/>
+      <text class="t-title box-excluded-text" x="615" y="120" text-anchor="middle">上流モデル (Supplier / 上流)</text>
+      <text class="t-sub box-excluded-text" x="615" y="143" text-anchor="middle">別コンテキスト</text>
+
+      <line class="dep-arrow" x1="390" y1="110" x2="428" y2="110" marker-end="url(#arr2)"/>
+      <text class="t-arrow" x="409" y="100" text-anchor="middle">依存</text>
+
+      <line class="req-arrow" x1="390" y1="145" x2="428" y2="145" marker-end="url(#arr2-req)"/>
+      <text class="t-arrow" x="409" y="160" text-anchor="middle" fill="#0F6E56">要望</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ====================== Pattern 3: Conformist ====================== -->
+<div class="pattern">
+  <h2 class="pattern-title">3. Conformist</h2>
+  <p class="pattern-lead">外部のモデルをそのまま取り込む。自ドメイン層が外部に依存</p>
+  <div class="svg-wrap">
+    <svg width="820" height="240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#534AB7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect class="domain-boundary" x="20" y="40" width="370" height="140" rx="12"/>
+      <text class="t-label" x="32" y="62">自アプリのドメイン層</text>
+
+      <rect class="box-included" x="40" y="90" width="335" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="207" y="120" text-anchor="middle">外部モデルをそのまま採用</text>
+      <text class="t-sub box-included-text" x="207" y="143" text-anchor="middle">語彙も構造も上流に合わせる</text>
+
+      <rect class="box-external" x="430" y="90" width="370" height="70" rx="8"/>
+      <text class="t-title box-external-text" x="615" y="120" text-anchor="middle">外部サービスのモデル</text>
+      <text class="t-sub box-external-text" x="615" y="143" text-anchor="middle">Stripe, Salesforce 等</text>
+
+      <line class="dep-arrow" x1="390" y1="125" x2="428" y2="125" marker-end="url(#arr3)"/>
+      <text class="t-arrow" x="409" y="115" text-anchor="middle">依存</text>
+
+      <text class="t-warn" x="40" y="210">⚠ ドメイン層が外側に依存する点で、通常のDDD依存ルールへの妥協がある</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ====================== Pattern 4: ACL ====================== -->
+<div class="pattern">
+  <h2 class="pattern-title">4. Anti-Corruption Layer (ACL)</h2>
+  <p class="pattern-lead">ACLが外部を呼び出し、自ドメイン層へ変換して渡す</p>
+  <div class="svg-wrap">
+    <svg width="820" height="240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#534AB7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect class="domain-boundary" x="20" y="40" width="240" height="140" rx="12"/>
+      <text class="t-label" x="32" y="62">自アプリのドメイン層</text>
+
+      <rect class="box-included" x="40" y="90" width="210" height="70" rx="8"/>
+      <text class="t-title box-included-text" x="145" y="120" text-anchor="middle">自モデル</text>
+      <text class="t-sub box-included-text" x="145" y="143" text-anchor="middle">純粋に保たれる</text>
+
+      <rect class="box-acl" x="310" y="90" width="220" height="70" rx="8"/>
+      <text class="t-title box-acl-text" x="420" y="120" text-anchor="middle">ACL (変換層)</text>
+      <text class="t-sub box-acl-text" x="420" y="143" text-anchor="middle">インフラ層に配置</text>
+
+      <rect class="box-external" x="580" y="90" width="220" height="70" rx="8"/>
+      <text class="t-title box-external-text" x="690" y="120" text-anchor="middle">外部サービスのモデル</text>
+      <text class="t-sub box-external-text" x="690" y="143" text-anchor="middle">他コンテキスト</text>
+
+      <line class="dep-arrow" x1="306" y1="125" x2="266" y2="125" marker-end="url(#arr4)"/>
+      <text class="t-arrow" x="286" y="115" text-anchor="middle">依存</text>
+
+      <line class="dep-arrow" x1="534" y1="125" x2="576" y2="125" marker-end="url(#arr4)"/>
+      <text class="t-arrow" x="555" y="115" text-anchor="middle">依存</text>
+
+      <text class="t-warn" x="40" y="210" fill="#0F6E56">✓ 自ドメイン層は何にも依存しない（DDDの原則を維持）</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ====================== Summary ====================== -->
+<div class="summary">
+  <h2 class="summary-title">まとめ</h2>
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>パターン</th>
+        <th>ドメイン層に含むか</th>
+        <th>依存の方向</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Shared Kernel</td>
+        <td>含む</td>
+        <td>相互依存</td>
+      </tr>
+      <tr>
+        <td>Customer / Supplier</td>
+        <td>含まない</td>
+        <td>自 → 上流</td>
+      </tr>
+      <tr>
+        <td>Conformist</td>
+        <td>含む</td>
+        <td>自ドメイン → 外部</td>
+      </tr>
+      <tr>
+        <td>Anti-Corruption Layer</td>
+        <td>含まない</td>
+        <td>ACL → 外部 / ACL → 自ドメイン</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
