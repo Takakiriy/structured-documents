@@ -1,4 +1,4 @@
-#keyword: Network.yaml, net
+#keyword: Network.yaml, network, net
 監視ツール:
     iftop: #keyword:
         インストール:
@@ -120,6 +120,8 @@ IPアドレス: #keyword:
         VRID: #keyword:  #// Virtual Router IDentifier。マスターとバックアップの関係があるルーターに同じ ID を設定します
             値: 1～255
             keepalived: #search: keepalived  virtual_router_id
+            不要な場合:
+                冗長構成になっていなければ VRID は不要です
         変更時の反映時間:
             VRRP などを使わない場合よりは早いらしい  #search: VIP update time
 firewalld:  #// ファイアー ウォール 機能。CentOS8 Linux の標準。使えるのは CentOS7～。iptables の filter テーブル
@@ -1155,10 +1157,31 @@ NAT: #keyword:  #// Network Address Translation。アドレス変換
         インターネット側からLAN内の機器にアクセスするには、ポートフォワードや仮想サーバー機能が必要です。
         #ref: https://kotobank.jp/word/IPマスカレード-241
         #search: iptables 
+NetworkManager: #keyword: RedHat NetworkManager
+    NetworkManager:
+        概要:
+            内部的に ip コマンド（iproute2）を呼び出します
+    旧 >> network-scripts: #keyword: RedHat network-scripts  #// RHEL 7 まで
+        概要:
+            起動時に /etc/init.d/network（または network.service）が ifcfg-eth0 などのファイルを読んでネットワークを設定します
+        サンプル: |
+            DEVICE=eth0          # インターフェース名
+            TYPE=Ethernet        # 接続タイプ
+            ONBOOT=yes           # 起動時に自動接続するか
+            BOOTPROTO=static     # IPアドレスの取得方法（static / dhcp / none）
+
+            # 静的IPの場合
+            IPADDR=192.168.1.100   # IPアドレス
+            NETMASK=255.255.255.0  # サブネットマスク
+            GATEWAY=192.168.1.1    # デフォルトゲートウェイ
+            DNS1=8.8.8.8           # DNSサーバー
+
+            # DHCPの場合
+            BOOTPROTO=dhcp
 OSI 7階層参照モデル: #keyword: OSI 7階層参照モデル,  ISO 7階層参照モデル ではありません,  L4 L7
     レイヤー7, L7: #keyword:  #// URL, HTTP
     レイヤー4, L4: #keyword:  #// IPアドレス, ポート番号
-    L3: #// ネットワーク層。インターネット接続
+    L3: #// ネットワーク層。インターネット接続  #search: NetworkManager
     L2: #// データリンク層。同一ネットワーク内
     L1: #// 物理層
         アダプター, NIC: #keyword: ネットワーク アダプター,  NIC,  network adapter,  ネットワーク インターフェース カード  #// 物理、または、物理相当のソフト
@@ -1213,6 +1236,40 @@ PBB: #keyword: PBB,  IEEE 802.1ah  #// 広域イーサネット・サービス�
         顧客間の完全な分離: 異なる顧客のトラフィックが混在することを防止
         運用の簡素化: 顧客のネットワーク変更がプロバイダーネットワークに影響しない
 FTP, SFTP: #keyword:  #// ファイル転送プロトコル。最近では主にホームページへ転送するのに使われます
+    WinSCP: #keyword:  #// SCP 等のファイル転送アプリケーション。Linux VM にファイルを転送します
+        ログインします:
+            Windows スタート >> WinSCP（と入力）>> 新しいタブ >>（サイト名：左）>> ログイン
+        インストール:
+            ダウンロードしてインストールします:
+                https://winscp.net/eng/download.php  >> DOWNLOAD WINSCP
+                    WinSCP-6.5.6-Setup.exe
+            サーバーの情報を設定します:
+                ~/.ssh/config がある場合:
+                    メニュー: 新しいタブ
+                    転送プロトコル: SSH
+                    #// ~/.ssh/config を参照してください。 ~/.ssh/config の Host だけ指定すればよいようにはできません
+                    ホスト名:   ~/.ssh/config の HostName
+                    ポート番号: ~/.ssh/config の Port
+                    ユーザ名:   ~/.ssh/config の User
+                    設定 >> SSH >> 認証:
+                        秘密鍵: 秘密鍵のファイルパス  #// OpenSSH の秘密鍵のファイルから PuTTY 形式（ .ppk ファイル）が作られます
+                        （補足）:
+                            パスの / を \ に変える:
+                                エクスプローラーにフォルダーのパスを貼り付けて開き、アドレスバーからコピーします
+                        OK ボタン:
+                    ログイン ボタン:
+            開いている接続情報を保存します:
+                メニュー: （開いたタブを右クリック）>> セッションをサイトとして保存
+                セッションの保存名: ~/.ssh/config の Host  #// サイト名になります
+                OK ボタン:
+            表示します: 「更新」が必要です
+                #// サーバー側でファイルが作られた場合、更新が必要です。表示しているフォルダーを移動しても自動更新されません
+            コピーします:
+                ドラッグ＆ドロップします:
+                バックグランドで実行 ボタン:
+        参考:
+            #ref: https://claude.ai/chat/5a643e3c-6427-47f9-bb37-847e192d2907
+            #ref: https://chatgpt.com/c/69e9ce7e-9a18-83e8-bf47-8319885ba4b3
     FileZilla: #keyword:  #// FTP アプリケーション。Windows, Linux, Mac  #ref: https://filezilla-project.org
         手順:
             インストール:
@@ -1370,7 +1427,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 IDだけ知っている人が新たに個人情報を得る
             ID と個人情報のリストの取得:
                 #ref: https://twitter.com/ts_neko/status/1572081654449176577
-        個人情報保護: #keyword:
+        個人情報保護, 匿名化: #keyword:
             匿名加工情報: #keyword:
                 概要:
                     #ref: https://bengoshi-sakao.com/column/匿名加工情報と統計情報の違いは何か/
@@ -2239,6 +2296,13 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     なんとなく CORS がわかる...はもう終わりにする。: #ref: https://qiita.com/att55/items/2154a8aad8bf1409db2b#具体的な実装
             防御対象外:
                 アカウントを持っている攻撃者による攻撃的な WebAPI リクエストは拒否できない。ban する必要がある
+            Vite:  #// Vite Proxy が CORS を解決する仕組み
+                通常、ブラウザは Same-Origin Policy により、異なるオリジンへのリクエストをブロックします。
+                ブラウザ(localhost:5173) → localhost:3001  ❌ CORS エラー
+                Vite の dev server をプロキシとして間に挟むことで、ブラウザから見ると 同じオリジンへのリクエストになります。
+                ブラウザ → Vite(5173) → バックエンド(3001)
+                            ↑ サーバー間通信なので CORS 制限なし
+                ブラウザは localhost:5173 とだけ通信しているので、CORS エラーが発生しません。
             参考:
                 今日こそ理解するCORS(動画): #ref: https://youtu.be/yBcnonX8Eak
                 Snap Note: #ref: ${programming}/ネットワーク・セキュリティ/!ネットワーク・セキュリティ.svg#CORS
@@ -2440,7 +2504,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 | クライアント側で制御します | サーバー側で制御します |
         X-XSS-Protection: #keyword:  #ref: https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/X-XSS-Protection
             使わないでください
-        バリデーション: #keyword: バリデーション,  入力値のチェック
+        バリデーション: #keyword: validation,  入力値のチェック  #// varidation ではない
             効果:
                 概要: DoS 攻撃, オーバーフロー, リソース枯渇
                 参考:
@@ -2467,7 +2531,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     maxlength属性による入力値の長さ制約
                 HTML4 以前:
                     ブラウザーで JavaScript を無効にされるとチェックできない
-                Material-UI:  #search: Material-UI varidation
+                Material-UI:  #search: Material-UI validation
                 クライアント側入力チェックは安全でない:  #ref: https://www.ipa.go.jp/security/awareness/vendor/programmingv1/pdf/a01_01.pdf
             サーバー側:
                 チェック方法の参考:  #search: Client-side form validation
@@ -2563,6 +2627,10 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     #ref: https://www.youtube.com/watch?v=yXNOJE9kGK8
     攻撃: #keyword: network attack  #// ネットワークを使った悪意のある操作
         ソーシャルエンジニアリング攻撃: #keyword:
+        LPE, ローカル権限昇格, root 権限昇格: #keyword:  #// Local Privilege Escalation
+            - システムに一般ユーザーとしてログインできているユーザーが root 権限を取得できてしまい、システムの破壊などができてしまいます
+            - 外から直接 root を取る攻撃ではありません
+        RCE, リモートコード実行:
         ランサムウェア攻撃: #keyword:  #// 復号するために身代金を要求します
             概要: ランサム（Ransom）は、一般的には身代金という意味。システムに侵入し、大事なデータを暗号化し、復号するために身代金を要求します
             ニコニコ, KADOKAWA (2024-08-11 時点の情報):
@@ -3144,6 +3212,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             活動: 不正侵入の試み, 脆弱性評価
             自動化: BAS(Breach&Attack Simulation)や自動侵害ソリューション（Automated Pentesting tool）など
             #ref: https://www2.deloitte.com/jp/ja/blog/cyber/2023/the-past-and-future-of-red-teaming.html
+        攻撃: #search: network attack
         関連 >> SBOM:  #search: SBOM
     ネットワーク分離: #keyword: ネットワーク分離, network segmentation, ネットワーク ゾーニング
         図: |
@@ -3177,6 +3246,8 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         対策:
             Secret Zero 問題: #search:
             ファイアウォール: iptables
+    VPN: #keyword:
+        IPSec:  #// ネットワーク層で動くVPN用の暗号化技術
     被害の範囲: #keyword:
         任意のコード実行:
             影響範囲を理論的には特定できないので、状況証拠（ログ）からの推測しかできない。
@@ -3287,6 +3358,15 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             nginx: #search: nginx Connection refused
             ElasticSearch: #search: ElasticSearch Connection refused
             Docker: #search: Docker Connection refused
+    curl:;; (35) error:1408F10B:SSL routines:ssl3_get_record:wrong version number:
+        手順: curl --insecure --verbose 'https://__Host__/'
+        ログ: |
+            * TLSv1.3 (OUT), TLS handshake, Client hello (1):
+            * error:1408F10B:SSL routines:ssl3_get_record:wrong version number
+            * Closing connection 0
+            curl: (35) error:1408F10B:SSL routines:ssl3_get_record:wrong version number
+        対処:
+            https を http に変えて実行します
     curl >> (111) Connection refused:  #keyword: curl Connection refused
         操作: curl http://localhost:10080/
         エラー: |
@@ -3577,6 +3657,9 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
     LDAP:  #// エルダップ。ディレクトリサービスに接続するためのプロトコル
         Windows の Active Directory との関係:
             Active Directory は LDAP をサポートしていますが他もサポートしています
+            LDAPポート(389/tcp、636/tcp)
+        OpenLDAP:
+        389-ds-base:
     MAC アドレス: #keyword:
         mac: #keyword: mac MAC アドレス
             りんご >> システム設定 >> ネットワーク >> Wi-Fi（など）>>（ルーター名）詳細 >> ハードウェア >> MAC アドレス
@@ -3636,6 +3719,10 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         #ref: https://www.f5.com/ja_jp/services/resources/glossary/credential
     ゴシップ プロトコル:  #// gossip protocol. 結果整合性。ランダムに選んだ相手と情報を交換し、自身が持つデータの更新を繰り返します。情報の拡散や統計値の計算などに利用されます
         参考: https://ja.wikipedia.org/wiki/ゴシッププロトコル
+    サーバー: #keyword: サーバー, server
+        #// 2つの意味があります
+        インフラ・ハードウェアの文脈: サーバー＝物理マシンやVM（仮想マシン）のことを指します。
+        ソフトウェア・プロセスの文脈: サーバー＝特定のポートで待ち受けているプロセス（サービス）のことを指します。
     スイッチング HUB: #search: L2 スイッチ
     スタック接続: #// 複数のハブが１つのノードになるように、ハブとハブを専用ケーブルまたは専用ラックで接続すること。
         関連:  #search: カスケード接続
@@ -3660,6 +3747,13 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         関連:
             パケット:  #search: packet
     プロキシー: #keyword: proxy
+        手順:
+            設定 >> proxy 環境変数:  #search: Linux HTTP_PROXY
+            プロキシーが必要か不要かを判定します: #keyword: proxy requested
+                (Liuux):
+                    curl -v --noproxy '*' https://example.com
+                    curl -v --proxy http://proxy.example.com:8080 https://example.com
+                    #// どちらが成功するかで判断できます
         機能:
             FQDN 部分を内部向けの IP アドレスと、外部向けの IP アドレスに変えます:
                 #search: docker build proxy IP address
@@ -3711,6 +3805,20 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                                 10.0.0.0/8: プライベートIPアドレス範囲A（10.0.0.0 ～ 10.255.255.255）
                                 172.16.0.0/12: プライベートIPアドレス範囲B（172.16.0.0 ～ 172.31.255.255）
                                 192.168.0.0/16: プライベートIPアドレス範囲C（192.168.0.0 ～ 192.168.255.255）
+                            ドメイン名:
+                                主要ツールの挙動:
+                                    curl / wget:
+                                        example.com → example.com のみマッチ（サブドメイン除外）
+                                        .example.com → foo.example.com などサブドメインもマッチ
+                                    Python（requests / urllib）:
+                                        example.com と指定すると、サブドメイン（sub.example.com）もマッチする（curl と逆）
+                                    Go（net/http）:
+                                        .example.com でサブドメインマッチ、example.com は完全一致のみ
+                                    Node.js:
+                                        標準の http/https モジュールは no_proxy を無視することが多い（ライブラリ依存）
+                                実用的な書き方:
+                                    サブドメインも含めて除外したい場合は、両方書いておくのが安全です:
+                                        bashno_proxy="example.com,.example.com,localhost,127.0.0.1"
                         ワイルドカードが使えないソフト: curl
                         対処法A:  ワイルドカードを使わないで１つずつ設定します
                         対処法B:  ブレース展開を使います  #// ただし環境変数に長大なIPリストができてしまう
@@ -3740,6 +3848,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         ファイル:  #glossary:
             /etc/profile.d/proxy.sh:  #// プロキシの環境変数 https_proxy などを設定する標準的な場所。通常、.bashrc には設定しません
                 #search: /etc/profile.d
+            proxy 環境変数:  #search: Linux HTTP_PROXY
         関連:  #search: リバース プロキシー
         トラブルシューティング:  #search: proxy DNS trouble
     ミチゲーション: #// 直訳は緩和（装置）。DDoS攻撃に該当するパケットのみをドロップし、他のクリーンなパケットは透過する仕組み

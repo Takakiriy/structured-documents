@@ -729,7 +729,7 @@
             バグ報告:
                 VSCode >> 拡張機能ビュー（左）>>（拡張機能）>> Repository（拡張機能のページの右上）
                 #// 報告文は #search: バグ報告文
-    推奨初期設定: #keyword: VSCode recommended initialize
+    推奨初期設定: #keyword: VSCode recommended initialize  #ref: https://code.visualstudio.com/docs/editing/intellisense#_settings
         Ctrl+S をカスタマイズします:  #keyword: VSCode Ctrl+S
             すべてのファイルを保存するように設定します:
                 keybindings.json:
@@ -824,7 +824,19 @@
                     "commands": "off",
                     "arguments": "off",
                     "unknown": "off"
+                },
+                "[yaml]": {
+                    "editor.quickSuggestions": {
+                        "other": false,
+                        "comments": false,
+                        "strings": false
+                    }
                 }
+            #↓ 参考
+            editor:  #ref: https://code.visualstudio.com/docs/editing/intellisense#_settings
+                other, comments, strings についてはマニュアルに書いてありません
+                other はコードのようです
+            terminal:  #ref:
             議論: #ref: https://github.com/microsoft/vscode/issues/282268#issuecomment-3641970672
         Terminal の中の URL などのリンクに「Follow Link」をポップアップ表示させない:  #// よくそれにフォーカスを取られてしまうため
             settings.json : |
@@ -975,6 +987,20 @@
             続けてキーボードを入力したときは、Ctrl + P キー を押したときと同じ動きをします。F1 キーを押したときの動き（Ctrl + Shift + P と同じ Show and Run Commands）ではありません。
     エディター: #keyword: VSCode editor
         キーボード ショートカット:  #search: VSCode keyboard
+        マルチ カーソル: #keyword: VSCode multi cursor
+            - Alt キー を押しながら複数個所をクリックします
+            - fold 状態を超えて Shift + Alt キー を押しながらクリックしたときは、表示されていない部分にカーソルは付きません
+                a
+                    b
+                c
+                    d
+                e
+                を閉じて（foldして）
+                a
+                c
+                e
+                の状態で >> a をクリック >> Shift + Alt + e をクリック すると、
+                a,c,e にカーソルが付き、b,d にカーソルは付きません
         フローティング ウィンドウ:  #ref: https://code.visualstudio.com/docs/editor/custom-layout#_floating-editor-windows
             エディターのタブをウィンドウの外にドラッグ＆ドロップすることで、新しい別のウィンドウを作ります
         Git ブランチ別の配置:  #// 開いているファイル（エディター）やタブの順序をブランチごとに記憶します
@@ -1498,13 +1524,13 @@
                     マージ ベース から比較する場合:  #keyword: VSCode git merge-base,  Git diff common,  Git common commit  #// 枝分かれしてしたコミット（共通の祖先コミット）からの差分を表示します
                         git merge-base コマンドを使う場合:
                             #// GitLens が必要です
-                            マージ ベース ID を表示します:
+                            マージ ベース ID を表示します: #keyword: Git merge base commit ID
                                 - git merge-base HEAD __BaseBranch__  #search: git merge-base  #search: Git base branch
                                 # もし、まだブランチをダウンロードしていないときは
                                 - git merge-base HEAD origin/__BaseBranch__
                                     #// 表示された コミット ID を __BaseCommitID__ とします
                             マージ ベース にブランチを作ります:
-                                git branch  __BaseBranchName__  __BaseCommitID__ 
+                                git branch  __BaseBranchName__  __BaseCommitID__
                             マージ ベース との差分を表示します:
                                 BRANCHES（ビュー）>> __BaseBranchName__（ブランチを右クリック）>> Compare with Working Tree
                             #// GitLens ビューにの最も上比較が追加されます
@@ -1587,6 +1613,7 @@
                                     Ahead >> __Number__ files changed >>（ファイル名）
                                 Behind >> ブランチ以外が追加したコミットごとの内容を見る場合:
                                     Behind >> __Number__ files changed >>（ファイル名）
+                    （CLI の場合）:  #search: git diff
                 WIP ブランチがあるとき:  #// 編集完了したワークと feature ブランチとの差分を表示します  #search: VSCode git diff branch
                 前のコミットが変更した差分を一覧します:  #// 現在の ワーキング フォルダー との比較ではありません
                     VSCode >> Source Control（左）>> COMMITS（ビュー）>>（コミットを展開：紫色のアイコン）
@@ -2188,6 +2215,7 @@
             - code -r __ProjectPath__  #// 現在のウィンドウを再利用します（閉じて開きます）
             - code --remote ssh-remote+__SshConfigName__  __FolderPath__   #search: code --remote
             - code --remote wsl+__DistroName__  __FolderPath__   #search: code --remote
+            #// __FolderPath__ はフルパスですが先頭に / を付けません
             #// ファイルを開くときは、VSCode の上の検索ボックスにパスの一部を入力します
         オプション: #keyword: VSCode code option
             --diff: #keyword: code --diff  #// ファイルを比較します
@@ -2258,10 +2286,15 @@
         #search: SSH port forwarding
 デバッグ: #search: VSCode debug
 Testing: #keyword: VSCode Testing view  #// Visual Studio Codde の Testing ビュー
+    ビューの表示:
+        手順:
+            VSCode >> フラスコ の形のボタン（左）
+        表示されない: #keyword: VSCode testing view trouble,  testing view trouble  #// Testing ビュー ボタン が表示されない
+            JavaScript:  #search: JavaScript testing view trouble
+            Python:  #search: Python testing view trouble  #search: start Python testing view
+    テストの開始:
+        テスト構造のツリーが表示されたビューから、特定のテストを起動したり、デバッガーを起動したりできます（拡張機能の対応状況によります）
     #search: start Python testing view
-    表示されない: #keyword: VSCode testing view trouble,  testing view trouble  #// Testing ビュー ボタン が表示されない
-        JavaScript:  #search: JavaScript testing view trouble
-        Python:  #search: Python testing view trouble  #search: start Python testing view
 ライブラリ:
     Visual C++:
         Microsoft Visual C++ Redistributable Package: #keyword:

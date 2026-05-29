@@ -198,6 +198,7 @@ CI/CD:
 E2E test tools: #keyword:
     ローカル？: Playwright, Testsigma, Selenium, Cypress, Cucumber, Testim
     クラウド？: testRigor, QA Wolf, Autify, Mabl, SmartBear, Selenium WebDriver, Cypress, TestCafe, Endtest
+    マニュアルに入れるスクショ:
     #ref: https://testsigma.com/blog/end-to-end-testing-frameworks/
     #search: React test
 Playwright: #keyword:  #// プレイライト、劇作家。 playright や playwrite ではない  #ref: https://playwright.dev/  ,  https://playwright.dev/docs/intro
@@ -767,6 +768,8 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
             最小限: |
                 import { defineConfig } from '@playwright/test';
                 export default defineConfig({});
+            サーバーの起動:  #// Web サーバー や バックエンド サービス を起動します
+                #search: playwright.config.ts webServer
             タイムアウト: |
                 export default defineConfig({
                     timeout: 30_000,         // テスト全体  デフォルト 30,000ms
@@ -791,7 +794,36 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         export default defineConfig({
                             use: {
                                 viewport: { width: 1280, height: 720 },
-                expect: #glossary: Playwright  
+                expect: #glossary: Playwright
+                webServer: #keyword: playwright.config.ts webServer
+                    起動:  #// webServer に書かれた Web サーバー や バックエンド サービス を起動します
+                        基本:  #// CLI から playwright を起動すると、自動的に webServer に書かれたコマンドを新しいそれぞれのプロセスで実行します
+                            playwright test
+                        VSCode 拡張機能を使う場合:  #// webServer に書かれた Web サーバー や バックエンド サービス を別途起動する必要があり、その手順を以下に示します
+                            #// VSCode 拡張機能からテストを開始した場合、webServer に書かれたコマンドは実行しません
+                            サービスを起動します:  #// webServer に書かれた Web サーバー や バックエンド サービス を起動して、ブレークするので、テストは開始しません
+                                playwright test --debug
+                                    または
+                                npx playwright test --debug
+                                #// サービスを起動したら、ブラウザーと Playwright Inspector（デバッガー）が開き、先頭でブレークします。
+                            テストを開始します:  #// 上記で起動したサービスがテスト対象になります
+                                VSCode 拡張機能 を操作します  #search: VSCode Testing view
+                    設定サンプル: |  #focus: webServer
+                        export default defineConfig({
+                            webServer: [
+                                {
+                                    // DDD バックエンド（ポート 3001）
+                                    command: 'cd .. && npm run dev:ddd:lightweight',
+                                    port: 3001,
+                                    reuseExistingServer: !process.env.CI,
+                                },
+                                {
+                                    // フロントエンド（DDD バックエンドに接続）
+                                    command: 'VITE_BACKEND_URL=http://localhost:3001 npm run dev',
+                                    port: 5173,
+                                    reuseExistingServer: !process.env.CI,
+                                },
+                            ],
         config.json:  #// 開発するテスト独自の設定ファイルによく使われるファイル名。プロジェクトのルートに置きます
         .env:  #// 開発するテスト独自の環境変数
         テスト データ:  #search: Playwright file

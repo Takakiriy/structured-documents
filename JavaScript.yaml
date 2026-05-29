@@ -285,6 +285,9 @@
                 }
             throw:  #// throw の訳は「投げる」
             main 関数で例外をキャッチする:  #search: JavaScript main catch
+            型を判定する: |
+                } catch (e) {  // e: Error はできません。最新では e: any もできません
+                    if (e.name === 'AbortError') {
             メッセージを変える:
                 Error の派生クラスの場合: |  #focus: throw  #search: exampleReadStream
                     function  handleError() {
@@ -305,6 +308,51 @@
                 } catch (exception: any) {
                     if ((programOptions.test  ||  programOptions.verbose))  &&  exception instanceof Error) {
                         console.log(exception.stack); 
+            ValidationError: #keyword: JavaScript ValidationError  #// 汎用バリデーション エラー オブジェクト
+                定義: |
+                    export class ValidationError {
+                        // validationError[value] == message
+                        // validationError._getMessage()
+                        [key: string]: string | ((...args: unknown[]) => unknown);  // Record<string, string | method>
+
+                        static wrap(errors: Record<string, string>, throw_ = true): Readonly<ValidationError> {
+                            const  this_ = new ValidationError(errors);
+                            if (throw_ && this_._hasError()) {
+                                throw this_;
+                            }
+                            return this_;
+                        }
+
+                        private constructor(errors: Record<string, string>) {  // No Readonly
+                            Object.assign(this, errors);
+                            Object.freeze(this);
+                        }
+
+                        _hasError(): boolean {
+                            return this._getCount() !== 0;
+                        }
+
+                        _getCount(): number {
+                            return Object.keys(this).length;
+                        }
+
+                        _getMessage(): string {
+                            // Key1: Value1(LF)
+                            // Key2: Value2(LF)
+                            // Key3: Value3
+                            return Object.entries(this)
+                                .filter(([, v]) => typeof v !== "function")
+                                .map(([k, v]) => `${k}: ${v}`)
+                                .join("\n");
+                        }
+
+                        _getMessages(): string[] {
+                            // ["Key1: Value1", "Key2: Value2", "Key3: Value3"]
+                            return Object.entries(this)
+                                .filter(([, v]) => typeof v !== "function")
+                                .map(([k, v]) => `${k}: ${v}`)
+                        }
+                    }
         Promise:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#Promise
             async, await: #keyword:  #// エイシンク, アウェイト, エイシンクロナス
                 async: 非同期処理が始まるという意味
@@ -708,9 +756,19 @@
                 #↓言語機能
                 変数を埋め込むリテラル, Templare Literal: |  #search: JavaScript テンプレート リテラル
                     `string text ${expression} string text`
-                複数行の文字列, : #search: テンプレート リテラル 型
-                    const  lines = `1
-                    2`;
+                複数行:
+                    リテラル: #search: テンプレート リテラル 型
+                        const  lines = `1
+                        2`;
+                    makeDescriptionPreview: | #keyword:  #search: make_description_preview
+                        function  makeDescriptionPreview(description: string, maxLength: number = 40): string {
+                            const lines = description
+                                .split(/\r?\n/)
+                                .map(line => line.trim())
+                                .filter(line => line.length);  // Cut blank line
+
+                            return lines.join(" ").slice(0, maxLength);
+                        }
                 #↓検索
                 文字列の一部: #keyword: JavaScript part string
                     インデックス指定:
@@ -1090,7 +1148,13 @@
                             const  strCopy = str.split();
                             console.log(strCopy);
                             // Expected output: Array ["The quick brown fox jumps over the lazy dog."]
-                        複数の区切り文字: |  #// , または ; で区切る場合
+                        複数個の区切り文字: |
+                            const  str = 'A,B,,C,';
+                            const  words = str.split(',').filter((s)=> s !== '').map((s)=> s.trim());
+                            console.log(words);  // ["A", "B", "C"]
+                            // filter が無いと空文字が含まれてしまいます
+                            console.log(str.split(','));  // ["A", "B", "", "C", ""]
+                        複数種類の区切り文字: |  #// , または ; で区切る場合
                             const  str = 'A,B;C D';
                             const  words = str.split(/[,;]/);
                             console.log(words);  // ["A", "B", "C D"]
@@ -1263,9 +1327,17 @@
                         UTC: .toISOString()  #// 末尾に Z が付きます
                     YYYYMMDD 形式:
                         JavaScript の標準メソッド: ありません
-                        YYYYMMDD:  // from "YYYY-MM-DD"
-                            isoString.substring(0, 4) + isoString.substr(5, 2) + isoString.substr(8, 2);
-                            #ref: https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
+                        YYYYMMDD:
+                            from Date: |
+                                export function  toYYYYMMDD(date = new Date()) {
+                                    const  year = date.getFullYear();
+                                    const  month = String(date.getMonth() + 1).padStart(2, '0');
+                                    const  day = String(date.getDate()).padStart(2, '0');
+                                    return `${year}${month}${day}`;
+                                }
+                            from "YYYY-MM-DD":
+                                isoString.substring(0, 4) + isoString.substr(5, 2) + isoString.substr(8, 2);
+                                #ref: https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
                         #search: Day.js YYYY
                         #search: formatDate
                     #search: JavaScript formatDate
@@ -2115,6 +2187,9 @@
                         array.join("\n");  // 最終行の末尾に改行はありません
                     文字列 → 配列:
                         ____  （未確認）
+                辞書変換:
+                    配列 → 辞書:
+                        #search: Object.fromEntries
                 継承: #// 配列を継承して、push したとき処理を行うなど
                     サンプル: |
                         export class  OpenPositionArray extends Array<OpenPosition> {
@@ -2651,7 +2726,7 @@
                     説明:
                         算出プロパティ（getter）のインターフェースを上記のように定義できますが、計算は実装できません
                     完全な定義:  #search: TypeScript type with accessor
-            class, new 演算子:  #keyword: JavaScript class
+            class, new 演算子:  #keyword: JavaScript class, TypeScript ts js class
                 constructor あり: |  #keyword: TypeScript constructor
                     class  Staff {
                         name: string;
@@ -2824,7 +2899,7 @@
                         };
 
                         console.log(obj.greet()); // "Hello, world!"
-            object 型:  #// または Object 型 
+            object 型:  #// または Object 型
                 公式 >> Object Types: #ref: https://www.typescriptlang.org/docs/handbook/2/objects.html
                 object 型, Object 型, {}:  #ref: https://typescriptbook.jp/reference/values-types-variables/object/difference-among-object-and-object
                     object 型:  #// TypeScript 2.2 で導入された number などのプリミティブ型を含まない型
@@ -3248,6 +3323,12 @@
                 }
             キャスト: #keyword: TypeScript cast,  JavaScript cast
                 as __Type__  #// 警告されるようなキャストでもキャストします。非推奨
+            Class: #keyword: TypeScript Class value
+                定義: |  #ref: ${GitHub}/MyPrivateCode/Node_js/tradeBackTest/src/utility/utiityTypes.ts
+                    export type  Class<T=any> = (new (...args: any[]) => T);  // JavaScript class is constructor
+                new () => T:  #// コンストラクター型。JavaScript のクラスはコンストラクターです
+                    ES6以前の書き方: function Logger() {}
+                    ES6以降（上と同じ意味）: class Logger {}
             オブジェクトID:  #keyword: object ID, JavaScript getObjectID
                 ライブラリ: #ref: ${GitHub}/typrm/src/lib.ts#getObjectID
                 参考: #ref: https://stackoverflow.com/questions/2020670/javascript-object-id
@@ -3811,6 +3892,18 @@
                 typeof null == "object"
             undefined: #keyword:
                 TypeScript:  #// TypeScript では宣言が必要なので undefined は使われないようです
+            null と undefined の違い:
+                HTTP レスポンス:
+                    undefined の場合:  #// フィールドが消えます。JSONに対応する値がないため、シリアライズ時に存在しなかったものとして扱われます。
+                        return: |
+                            { success: true, data: undefined }
+                        JSON: |
+                            { success: true }
+                    null の場合:  #// 同じ
+                        return: |
+                            { success: true, data: null }
+                        JSON: |
+                            { success: true, data: null }
             null/undefined許容型: | #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#null-_and_undefined-aware_types
                 #snip:
                     let  x: number;
@@ -4314,11 +4407,12 @@
             in typrm: #ref: ${GitHub}/typrm/src/lib.ts  #ref: ${GitHub}/typrm/specifications.yaml#typrm library
             API:
                 ファイルの内容: #search: lib.ts file  #glossary: lib.ts
-                    copyFolderSync:
-                    copyFileSync:
-                    replaceFileSync:
-                    replaceFileAsync:
-                    searchAsTextSub:  #keyword: searchOpen
+                    copyFolderSync:    #ref: ${GitHub}/typrm/src/lib.ts#function  copyFolderSync
+                    copyFileSync:      #ref: ${GitHub}/typrm/src/lib.ts#function  copyFileSync
+                    replaceFileSync:   #ref: ${GitHub}/typrm/src/lib.ts#function  replaceFileSync
+                    replaceFileAsync:  #ref: ${GitHub}/typrm/src/lib.ts#function  replaceFileAsync
+                    searchAsTextSub:   #ref: ${GitHub}/typrm/src/lib.ts#function  searchAsTextSub
+                        #keyword: searchOpen
                     #search: lib.ts string
                 ファイル名: #search: lib.ts file name path  #glossary: lib.ts
                     pathResolve:
@@ -4746,6 +4840,7 @@
             Node.js のバージョンによる設定:
                 #ref: https://qiita.com/suin/items/32f76c9b88b8daa286c4
             その他の設定:
+                rootDir: #keyword: tsconfig.json rootDir
                 baseUrl: #keyword: tsconfig.json baseUrl  #// インポートするときのルートにするパス
                     非推奨:  #// baseUrl は非推奨になり、TypeScript 7.0 では使えません
                         対処:
@@ -5020,6 +5115,8 @@
                             - const  text: string = fs.readFileSync( "sample.txt",  "utf-8" );
                             - const  text: Buffer = fs.readFileSync( "sample.txt" );
                         推奨:  #search: JavaScript read line
+                    パス:
+                        Windows 形式: \ 区切りのパスも使えます
                     LF CR+LF 混合や BOM にも対応したテキストをリードする場合: |  #keyword: JavaScript read line  #focus: readFile
                         import * as fs from 'fs';
 
@@ -5041,6 +5138,12 @@
                             return  lines
                         }
                     関連 >> 1行ずつリードします:  #search: readline.createInterface
+                    トラブルシューティング:
+                        ログ: |
+                            EISDIR: illegal operation on a directory, read
+                        意味:
+                            フォルダーのパスが指定されているのでファイルとしてリードできません
+                            ファイルがあるフォルダーのパーミッションが原因で開けないという意味ではありません
                 HTML5: |
                     const  reader = new FileReader();
                     reader.readAsText(onChangeEvent.target.files[0]);  // #search: JavaScript file drag and drop
@@ -6431,7 +6534,7 @@ JSON:  #keyword: JSON,  JavaScript TypeScript JSON
                 someone.example.com/global1.js が悪意のあるサイトだった場合、
                 my.example.com またはそれを見ている人が被害にあいます。
             #ref: https://gihyo.jp/dev/serial/01/crossbrowser-javascript/0011
-YAML:  #// https://yaml.org  #search: steps.yaml  #keyword:
+YAML: #keyword:  #ref: https://yaml.org  #search: steps.yaml
     文法:  #ref: ${programming}/HTML ブラウザ/Wiki.svg#YAML
         マッピング: #keyword: YAML mapping
             #focus: aa, bb, cc
@@ -6498,6 +6601,23 @@ YAML:  #// https://yaml.org  #search: steps.yaml  #keyword:
             #// >+ などもあります
         anchors: #keyword: YAML anchors
             #ref: https://x.com/__syumai/status/1968976993648578742
+        YAML 1.1: #keyword: YAML 1.1
+            ノルウェー問題, NO: #keyword: YAML 1.1 ノルウェー問題
+                YAML 1.1 まで: |
+                    country: NO   # → False  ← バグ！
+                    country: "NO" # → "NO"   ← クォートで回避
+                YAML 1.2 以降: |
+                    country: NO   # → "NO"
+                    country: "NO" # → "NO"
+            ブール値:
+                推奨:
+                    true, false  #// 小文字に統一
+                YAML 1.1:  #keyword: YAML true yes no
+                    - true,  True,  TRUE,  yes, Yes, YES, on,  On,  ON
+                    - false, False, FALSE, no,  No,  NO,  off, Off, OFF
+            Python PyYAML:
+                YAML 1.2 未対応
+                yamlcore というライブラリを PyYAML の上に重ねることで YAML 1.2 Core Schema を使う方法もあります
     パーサー:  #// YAML パーサー
         Node.js 用パーサー >> js-yaml:
             インストール: npm install js-yaml --save
@@ -6571,20 +6691,27 @@ YAML:  #// https://yaml.org  #search: steps.yaml  #keyword:
                         import msgpack, yaml
                         for message in msgpack.Unpacker(open('_out.pack', 'rb'), raw=False):
                             print(yaml.dump(message, sort_keys=False))"
-    YAML Front Matter, gray-matter: #keyword:  #ref: https://github.com/jonschlinkert/gray-matter
+    YAML Front Matter, gray-matter: #keyword:  #ref: https://docs.github.com/ja/contributing/writing-for-github-docs/using-yaml-frontmatter    #ref: https://github.com/jonschlinkert/gray-matter
         概要: --- から始まるファイルに、YAML 形式でコンテンツのメタデータを書き、
             次の --- の行の下に HTML や　Markdown など任意のコンテンツを書きます。
-        サンプル: |
+            完全な標準はなく、ツールやフレームワークごとに慣習が異なります。
+        サンプル: |  #keyword: メタデータ YAML
             ---
             title: Hello
+            date: 2026-05-07
+            tags: [markdown, web]
+            draft: false
             slug: home
             ---
             <h1>Hello world!</h1>
-        解析後のサンプル:
+        解析後のサンプル: |
             {
                 content: '<h1>Hello world!</h1>',
                 data: { 
                     title: 'Hello', 
+                    date: '2026-05-07',
+                    tags: ['markdown', 'web']
+                    draft: false
                     slug: 'home' 
                 }
             }
@@ -7336,25 +7463,31 @@ npm:  #keyword: npm, Node.js package manager
                     #//     npm ERR! Error: Failed to find Electron v2.0.18 for darwin-arm64 at https://github.com/electron/electron/releases/download/v2.0.18/electron-v2.0.18-darwin-arm64.zip
                     #ref: https://github.com/segment-boneyard/nightmare/issues/1636#issuecomment-1627501572
             scripts: #keyword: package.json scripts  #// よく使うコマンドを package.json に書いておくことができます
-                ファイルの内容:
-                    サンプル:
-                        package.json : |
-                            "scripts": {
-                                "setup": "npm ci",
-                                "test": "jest --watchAll",
+                サンプル package.json : |  #focus: npm ci
+                    "scripts": {
+                        "setup": "npm ci",
+                        "test": "jest --watchAll",
+                ファイル:
                     書式: |
                         "scripts": {
                             "__Name__": "__CommandLine__"
-                手順 >> 実行する:
+                手順 >> 実行する:  #// package.json の scripts の中に書かれたコマンドを 1つ実行します
                     npm run を使う場合:
                         npm run __Name__
-                    npx を使う場合:
+                    npx を使う場合:  #// package.json に書かれているコマンドから少し変えたコマンドを実行するときに便利です
                         npx __CommandLine__
+                    npx が必要な理由:  #// package.json の中に書かれたコマンドをターミナルに直接入力する場合との違い
+                        PATH に node_modules/.bin を追加して実行するため
                     直接呼び出す場合:
                         ./node_modules/.bin/__Command__
-            script:
-                npm-scripts:  #keyword:
-                    OSやシェルの違いを吸収します:  #search: run-script-os
+                トラブルシューティング:
+                    package.json の scripts の中に書かれたコマンドを直接入力するとエラーになる:
+                        手順:
+                            __CommandLine__
+                        対処:
+                            npx を使います（上記）
+            npm-scripts:  #keyword:
+                OSやシェルの違いを吸収します:  #search: run-script-os
         package-lock.json: #// 依存するパッケージも含めた全設定
     コマンド:  #glossary:
         npm init:  #// package.json ファイルを新規作成します
@@ -8658,6 +8791,7 @@ Next.js: #keyword: Next.js,  Vercel Next.js HTML React framework
                             }
                         複数のクラス（複合クラス）を指定する場合: #keyword: CSS Modules compound classes
                             button className={`${styles.button} ${styles.buttonPrimary}`}>
+                            構成が条件によって変わる場合 clsx を使うほうがベターです  #search: clsx
                     CSS-in-JS（Styled JSX）を使う場合: |  #focus: button  #keyword: Next.js JSS
                         export default function Button() {
                             return (
@@ -9763,14 +9897,39 @@ React:
                         const { classes, onChange } = props;
                         <TableCell className={classes.cell}>HTTP</TableCell>
                 Material-UI:  #search: makeStyles
-            コンテキスト, グローバル変数: #keyword: React context,  React global variable
-                #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_context
+            コンテキスト, 子コンポーネントへ伝搬させる: #keyword: React context
+                概要:
+                    - 暗黙的に子コンポーネントにプロパティ相当のコンテキストが渡ります。そのため、孫コンポーネントにも飛んで渡っているように見えます。
+                    - それにより、グローバル変数に近いことができます  #keyword: React global variable
                 React Context: #focus: __Context__,  setValue
-                    コンテキスト:  #// コンテキストの内容を入れる箱のようなもの
+                    コンテキスト:  #// コンテキストの内容を入れる箱のようなもの。親コンポーネントがプロパティに値を入れます
                         __Context__: |
                                 const  __Context__ = React.createContext<__ContextType__>({value: 'default'});
                             #// 他のファイルから参照するときは  #search: JavaScript export
-                    コンシューマー:  #// コンテキストの内容を参照します
+                    プロバイダー:  #// 親コンポーネントがコンテキストの内容を設定します
+                        コンテキストが提供(provide)されるという仕様の意味:
+                            サンプル >> FormControl コンポーネントの仕様: | #keyword: React FormControl context
+                                Provides context such as filled/focused/error/required for form inputs.
+                                Relying on the context provides high flexibility and ensures that the state always stays consistent across the children of the FormControl.
+                                This context is used by the following components:
+                                    FormLabel
+                                    FormHelperText
+                                    Input
+                                    InputLabel
+                            意味: #keyword: React validation FormHelperText
+                                たとえば、FormHelperText コンポーネントの error プロパティ（error=true）を、FormControl コンポーネントに指定できます。
+                                    <FormControl error>
+                                        <FormHelperText>エラー</FormHelperText>
+                                    </FormControl>
+                        関数コンポーネントの場合:
+                            <__Context__.Provider>: |
+                                function App() {
+                                    const [value, setValue] = useState('初期値');
+                                    return (
+                                        <__Context__.Provider value={{ value, setValue }}>
+                                            {children}
+                                        </__Context__.Provider>
+                    コンシューマー:  #// 子・孫コンポーネントがコンテキストの内容を参照します
                         関数コンポーネントの場合:
                             useContext(__Context__): | #keyword: React useContext
                                 const { value, setValue } = useContext(__Context__);
@@ -9793,15 +9952,7 @@ React:
                                     <MyContext.Consumer>
                                         {value => (/* valueを使用 */)}
                                     </MyContext.Consumer>
-                    プロバイダー:  #// コンテキストの内容を設定します
-                        関数コンポーネントの場合:
-                            <__Context__.Provider>: |
-                                function App() {
-                                    const [value, setValue] = useState('初期値');
-                                    return (
-                                        <__Context__.Provider value={{ value, setValue }}>
-                                            {children}
-                                        </__Context__.Provider>
+                #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#React_context
             ESLint を無効にする:  #search: disable ESLint
         ファイル:
             .tsx, .jsx ファイル:  #search: React component
@@ -10723,8 +10874,8 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                     "jest.jestCommandLine": "npm test --",
                     "jest.rootPath": "."
                 }
-    throughCounter:
-        #search: cc
+    throughCounter: #keyword: JavaScript through counter
+        #search: lib.ts cc
     React Developer Tools:  #search: React Developer Tools
     デバッガーがブレークした後、勝手に終了する:
         #search: Node.js child_process.exec timeout
@@ -10739,6 +10890,19 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
     TypeScript の出力先:  #search: TypeScript outDir
     #// 以下は検索できます
     エラーメッセージ:
+        Argument of type import(____)____ is not assignable to parameter of type import(____)____ Types have separate declarations of a private property 'result'. ts(2345):
+            原因:
+                import type に指定したパスが異なる、かつ private があるために、構造的に同一でも代入不可なので、アサインできません
+            対処A:
+                片方が古いバージョンであれば、型チェックが不要として、ファイルの先頭に
+                    // @ts-nocheck
+                を書いて、型チェックを無くし、警告を抑制します。
+                どんな警告を抑制したかは、// @ts-nocheck を無効にすれば確認できます。 #keyword: // @ts-nocheck,  disable TypeScript type check
+            対処B:
+                tsconfig.json に以下を追加します: |  #// パスの一部に _v1 上がる場合
+                    {
+                        "exclude": ["src/**/*_v1/**"]
+                #// ただし、この方法では、ファイルを開いたときに import ができなくなります
         tsconfig.ts に type node:
             エラー: |
                 Cannot find name 'path'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.ts(2591)
@@ -11166,12 +11330,15 @@ Atomic Design:  #keyword:  #glossary: Atomic Design  #ref: https://bradfrost.com
                 - https://stackoverflow.com/questions/55304436/webpack-with-typescript-getting-typescript-emitted-no-output-error/55304691
         can only be directly nested in external modules or ...:
             エラー: Augmentations for the global scope can only be directly nested in external modules or ambient module declarations.
-            対処: グローバル スコープの拡張は、外部モジュールまたはアンビエント モジュール宣言内でのみ直接入れ子にすることができます。
-            修正前: |
-                declare global {
-            修正後: |
-                export {};
-                declare global {
+                #// グローバル スコープの拡張は、外部モジュールまたはアンビエント モジュール宣言内でのみ直接入れ子にすることができます。
+            対処A:
+                公開するクラスなどに export を書きます
+            対処B:  #// 何も公開しない場合
+                修正前: |
+                    declare global {
+                修正後: |
+                    export {};
+                    declare global {
             参考: https://stackoverflow.com/questions/57132428/augmentations-for-the-global-scope-can-only-be-directly-nested-in-external-modul
         Type 'Map<number, string>' is not an array type or a string type. Use compiler option '--downlevelIteration' to allow iterating of iterators.ts(2569):
             手順: |  #// new Map の中の map1, map2 にコーディング時エラー

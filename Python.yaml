@@ -1175,7 +1175,7 @@
                 - python manage.py migrate  #// docker-compose.yml の設定のロードも行います
                 #// 更新したら Docker MySQL 起動時のスキーマを更新すること
             トラブルシューティング:
-                - ケース:
+                - KeyError, LookupError, manage.py Problem installing fixture Invalid model identifier:
                     コマンド: python manage.py loaddata
                     エラーメッセージ: |
                         KeyError: '__Key__'
@@ -1186,21 +1186,21 @@
                         JSON の "model": "__Application__.__Model__" の __Model__ はクラス名にしてください。
                         テーブル名ではありません。例： クラス名＝ UserGroup、テーブル名 user_group なら UserGroup を指定します。
                     補足: __Key__ が外部キーのときは、loaddata に指定する JSON ファイルのキーの末尾に _id を付けないでください
-                - ケース:
+                - django.urls.exceptions.NoReverseMatch Reverse for ... is not a valid view function or pattern name.:
                     コマンド: Django サーバー（非ローカル）にアクセス
                     エラーメッセージ: |
                         django.urls.exceptions.NoReverseMatch: Reverse for '____' not found. '____' is not a valid view function or pattern name.
                     原因: urls.py の path(____, ____, name='__Name__') の __Name__ が重複しています
-                - ケース:
+                - Internal Server Error:
                     コマンド: Django サーバー（非ローカル）にアクセス
                     エラーメッセージ: Internal Server Error
                     原因: 多岐に渡ります。そのため下記の対策では直らない可能性もあります
                     対処A: settings.py の DATABASES に指定したデータベースの種類を正しくします
-                - ケース:
+                - Bad Request (400):
                     コマンド: Django サーバー（非ローカル）にアクセス
                     エラーメッセージ: Bad Request (400)
                     対処: settings.py >> Debug = True に設定すると原因が表示されます
-                - ケース:
+                - because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.:
                     コマンド: Django サーバー（非ローカル）にアクセス
                     エラーメッセージ: because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
                     原因: MIME の問題ではなく、指定したパスにファイルが見つからないのが原因です
@@ -1209,13 +1209,13 @@
                     対処B: Apache の .conf ファイルに /static/ に関する Alias と grant の設定があること
                     対処C: ローカルでサーバーを立ち上げるとき settings_local.py (settings.py) を DEBUG=True にします。
                         DEBUG=False にできない状況については、snote「静的ファイルをローカルでもサーバーでも使えるようにする設定」を検索。
-                - ケース:
+                - The database backend does not accept 0 as a value for AutoField.:
                     コマンド: Model オブジェクトの save() メソッド
                     エラーメッセージ: |
-                        エラーThe database backend does not accept 0 as a value for AutoField.
+                        The database backend does not accept 0 as a value for AutoField.
                     対処:
                         save しようとしている Model の外部キーを設定してください
-                - ケース:
+                - Duplicate entry:
                     コマンド: Model オブジェクトの save() メソッド
                     エラーメッセージ: |
                         エラー(1062, "Duplicate entry '____' for key '____'")
@@ -1223,57 +1223,110 @@
                         エラーメッセージにあるフィールドの値が他のレコードの値と重複しています。
                         もしくは、id フィールドの値が間違っているために更新しようとしているレコードと
                         別のレコードを更新しようとしています。
-                - ケース: #keyword: Python 相互 import,  Python circular import
+                - 循環 import: #keyword: Python 循環 import,  Python 相互 circular import  #// recursive import, circuler import ではない
+                    #search: import 循環参照
                     コマンド: Python のコンパイル時
-                    エラーメッセージ: |
+                    エラーメッセージ: | #keyword: ImportError: cannot import name circular import
                         ImportError: cannot import name '__Class__' from partially initialized module '__Application__.__Folder__' (most likely due to a circular import) 
-                    対処A:  #// from を深くします
-                        from a.b import C を from a.b.c import C に修正する（範囲を狭くします）
-                        from a.b import c as D
-                        #// ただし、a.b にある __init__.py が from ____ import * していると回避できません
-                    対処B:  #// メソッド(def)内で import します
-                        メソッド(def)内で import します
-                        #ref: https://qiita.com/puriketu99/items/a1347bf5200f095e486e
-                    対処C:  #// 循環経路の解析
-                        循環 import
-                        インポートの順番はエラーメッセージに表示されます。コールスタックに似た表示です。
-                        __all__ = ( __Symbol__ ) にたどり着く前に循環するのでエラーになります。
-                        （？）
-                            __Parent__.py
-                                from __Path__ import __FolderName__ as __Symbol__
-                            __FolderName__/__init__.py
-                                from .__RelativePath__ import *
-                            があるため、import C の C より親の位置にある必要があります
-                        B → C （import C を含む B) を新規に作ったとき
-                            C/a → C/b の間に入ろうとすると、
-                                C → B → C という循環になることがあります。
-                            A → B → C → A という循環になることがあります。
-                        #ref: https://stackoverflow.com/questions/59762996/how-to-fix-attributeerror-partially-initialized-module
-                        #search: import 循環参照
-                    対処D, TYPE_CHECKING:  #// 静的型チェッカー用  #keyword: Python typing.TYPE_CHECKING mutual
-                        型だけインポートする場合:
-                            コード: |  #// 実行時は __Class__ = None を実行し、その型を参照するときは、文字列 '__Class__' で参照します
+                    module 'system.services' has no attribute 'Service' のケース:  #// 実際は system.services や Service の部分が置き換わります
+                        手順A: |
+                            import system.services as Services
+                            class Queries:
+                                __service: Services.Service
+                        エラーA: |
+                            Services.Service で以下のエラー
+                            module 'system.services' has no attribute 'Service'
+                        手順B: |
+                            from system.services import Service
+                        エラーB: |
+                            import Service で以下のエラー
+                            cannot import name 'Service' from 'system.services'
+                        対処A:  #// 循環している範囲を検索します:
+                            from に書かれたモジュールからパスを作ります:
+                                from system.queries import
+                                    なら
+                                system/queries
+                            エラー時に表示された コール スタック から パスを検索します:
+                                File "/home/user1/proj/infra/system/queries/abcde.py", line 000, in <module>
+                            #// 見つかった深さから、現在の深さまで循環しています
+                        対処B:  #// TYPE_CHECKING  #keyword: Python typing.TYPE_CHECKING mutual  #// 静的型チェッカー用
+                            概要:
+                                -   依存性逆転の原則に従って「依存の方向を外側から内側へ」の方向に合わせます。
+                                    インターフェースを import するコードを、TYPE_CHECKING の中に入れます。
+                                    #search: The Clean Archtecture 依存性逆転の原則
+                                -   ImportError:;; cannot import name 'Service' from 'system.services'
+                                    というエラーなら、system.services を from に指定している行を TYPE_CHECKING の中に入れます。
+                            型だけインポートする場合:
+                                コード: |  #// 実行時は __Class__ = None を実行し、その型を参照するときは、文字列 '__Class__' で参照します
+                                    from __future__ import annotations    #// 注意: #search: from __future__ import annotations
+                                    from typing import TYPE_CHECKING
+                                    if TYPE_CHECKING:
+                                        import __Class__    #// import type 相当
+                            TYPE_CHECKING:
+                                - VSCode の pylance や mypy や PyCharm などの静的型チェッカーが解析する際には True として扱われます。
+                                - 実行時は型情報が無くても、プロパティにアクセスできます
+                            annotations: |  #keyword: from __future__ import annotations
                                 from __future__ import annotations
-                                from typing import TYPE_CHECKING
-                                if TYPE_CHECKING:
-                                    import __Class__    #// import type 相当
-                        TYPE_CHECKING:
-                            - VSCode の pylance や mypy や PyCharm などの静的型チェッカーが解析する際には True として扱われます。
-                            - 実行時は型情報が無くても、プロパティにアクセスできます
-                        annotations: |
-                            from __future__ import annotations
-                            # これがないと実行時に Order を評価しようとして失敗する
-                            def process(order: Order) -> None: ...  # ← 実行時に Order が未定義
+                                # これがないと実行時に Order を評価しようとして失敗する
+                                def process(order: Order) -> None: ...  # ← 実行時に Order が未定義
 
-                            # これがあると型アノテーションが文字列として扱われる
+                                # これがあると型アノテーションが文字列として扱われる
+                                from __future__ import annotations
+                                def process(order: Order) -> None: ...  # ← 実行時に評価されない
+                            #↓ 関連
+                            TypeScript の場合:  #search: TypeScript import type
+                                #// Python に import type を導入する提案があります  #ref: https://discuss.python.org/t/import-type-statement-to-replace-typing-type-checking-idiom-and-fix-circular-references/69518/6
+                            DDD との関係:  #search: DDD import type
+                        対処C:  #// 依存性逆転の原則(DIP)
+                            依存性逆転の原則(DIP)で言われている対策でありインターフェースを作り、依存注入(DI)します  #search: Python ABC
+                        対処D:  #// その他
+                            循環 import を解決します
+                        原因:
+                            - ロードを開始しただけでロード済み扱いになります（sys.modules に登録されます）
+                            - 再び import 文があると、ロードが完全に行われる前でもロード済みとして途中状態の module オブジェクトを返します
+                            - 循環参照の無限ループを防ぐための仕様らしい
+                        import ツリー: |  #focus: services, queries
+                            A.py: import system.services as Services             ← services.py のロード開始
+                                services.py: from system.queries import Queries  ← queries.py のロード開始
+                                    queries.py: import system.services as Services    ← services オブジェクトを取得
+                                    queries.py: __service: Services.Service           ← この時点で Service はまだ未定義 → エラー
+                    ImportError, cannot import name 'Service' from 'system.services' のケース:  #// 実際は system.services や Service の部分が置き換わります
+                        手順: |
+                            from system.services import Service
+                        エラー: |
+                            Exception has occurred: ImportError
+                            cannot import name 'Service' from 'system.services' (/.../system/services/__init__.py)
+                        対処:
+                            「module 'system.services' has no attribute 'Service'」と同じ対処法
+                    NameError, name 'Service' is not defined のケース:  #// 実際は system.services や Service の部分が置き換わります
+                        手順: |
+                            import system.services as Services
+                            class Queries:
+                                __service: Services.Service
+                        エラー: |
+                            Exception has occurred: NameError
+                            name 'Service' is not defined
+                        原因: NameError は 変数名や識別子 を評価しようとしているが見つからないときに発生します
+                        対処A:  #// Service → 'Service'
+                            Service を参照している部分を 'Service'（文字列）に変えます
+                        対処B:  #// from __future__ import annotations
                             from __future__ import annotations
-                            def process(order: Order) -> None: ...  # ← 実行時に評価されない
-                        #↓ 関連
-                        TypeScript の場合:  #search: TypeScript import type 
-                            #// import type を導入する提案があります  #ref: https://discuss.python.org/t/import-type-statement-to-replace-typing-type-checking-idiom-and-fix-circular-references/69518/6
-                        DDD との関係:  #search: DDD import type
-                    対処E:
-                        Domain は他に依存させないようにします:  #search: Isolating the Domain
+                        対処C:  #// get_type_info, コール スタック に get_type_info がある場合
+                            データ構造上の問題がある場所を特定します:
+                        対処D:  #// get_type_hints で発生する場合
+                            #search: get_type_hints
+                        対処E:  #// 循環しているインポートを関数内に移動します。実行時型情報が付き、get_type_info などが使えるようになります
+                            コード: |
+                                def some_function():
+                                    from system.queries import Queries  # 遅延インポート
+                            クラスの直下にも置けます: |
+                                class Domain:
+                                    from framework import Infra
+                        対処F:  #// ABC から継承したクラスを作り、TYPE_CHECKING の外へ移動します
+                            #search: Python typing.TYPE_CHECKING mutual
+                            #search: Python ABC
+                    その他:
+                        対処F:  #// Domain は他に依存させないようにします  #search: Isolating the Domain
                             #search: DDD import type
                             #↓ 予防策
                             # 非推奨。 推奨は #search: DDD import type
@@ -1289,6 +1342,28 @@
                                 副作用:
                                     循環 import が発生しやすくなります:
                                         value.py に enum
+                        対処B:  #// from を深くします
+                            from a.b import C を from a.b.c import C に修正する（範囲を狭くします）
+                            from a.b import c as D
+                            #// ただし、a.b にある __init__.py が from ____ import * していると回避できません
+                        対処G:  #// 循環経路の解析、古い方法
+                            循環 import
+                            インポートの順番はエラーメッセージに表示されます。コールスタックに似た表示です。
+                            __all__ = ( __Symbol__ ) にたどり着く前に循環するのでエラーになります。
+                            （？）
+                                __Parent__.py
+                                    from __Path__ import __FolderName__ as __Symbol__
+                                __FolderName__/__init__.py
+                                    from .__RelativePath__ import *
+                                があるため、import C の C より親の位置にある必要があります
+                            B → C （import C を含む B) を新規に作ったとき
+                                C/a → C/b の間に入ろうとすると、
+                                    C → B → C という循環になることがあります。
+                                A → B → C → A という循環になることがあります。
+                            #ref: https://stackoverflow.com/questions/59762996/how-to-fix-attributeerror-partially-initialized-module
+                            #search: import 循環参照
+                        #ref: https://claude.ai/chat/3a6e0785-b57e-43bd-88b0-c5975cbe9c18
+                        #ref: https://chatgpt.com/c/69ef4d45-da1c-83e8-b700-f9cca961ab2c
                     長期的に「依存の方向チェック」をCIに組み込む: |  #// 未確認
                             import ast, glob
 
@@ -1308,7 +1383,7 @@
                     コマンド: python manage.py loaddata
                     エラーメッセージ: |
                         RuntimeWarning: DateTimeField User.created_at received a naive datetime (2020-12-14 10:20:39.070000) while time zone support is active.
-                    対処:                        
+                    対処:
                         JSON の datetime 型の値が naive のときにこの警告が表示されます。
                         とりあえず無視してもいいかもしれません。
                         #search: Python タイムゾーン naive aware
@@ -4000,6 +4075,12 @@
                     複数行の文字列⇒配列: | #keyword: Python str split
                         "aaa\nbbb\nccc".split("\n") == ["aaa", "bbb", "ccc"]
                         "aaa\nbbb\nccc\n".split("\n") == ["aaa", "bbb", "ccc", ""]
+                プレビュー:  #// 複数行の文字列を 1行の数十文字にまとめます
+                    make_description_preview: | #keyword:  #search: makeDescriptionPreview
+                        def  make_description_preview(description: str, max_length: int = 40) -> str:
+                            lines = [line.strip() for line in description.splitlines() if line.strip()]
+                            single_line = " ".join(lines)
+                            return  single_line[:max_length]
             Unicode, Ascii: #keyword: Python Unicode,  Python Ascii  #glossary: Python
                 encode:  #// 文字列をバイナリ列に変換します  #keyword: Python encode
                     サンプル:
@@ -5266,7 +5347,7 @@
                     番兵値, NullObject 相当: #keyword: datetime.min,  Python datetime NullObject
                         サンプル:
                             from datetime import datetime
-                            datetime.min
+                            pytz.UTC.localize(datetime.max)  #// UTC の日時にしないと pytz.localize でエラーになります
                         イミュータブル: #keyword: Python datetime immutable
                             datetime オブジェクトの内容を直接変更するメソッドは存在しません
                             replace() は、元のオブジェクトを変更せず新しいオブジェクトを返します。
@@ -5300,7 +5381,7 @@
                                     s = date.today().isoformat()
                         任意書式:
                             YYYY-MM-DD 形式:  #search: Python YYYY-MM-DD
-                            #// 未調査
+                                strftime
                         関数例: |
                             from datetime import datetime, timedelta, timezone
 
@@ -5824,8 +5905,8 @@
                             qux: User
 
                         my_item = MyStruct('foo', 0, ['baz'], User('peter'))
-                バリデーション: #keyword: __post_init__, Python @dataclass varidation  #// データクラスのオブジェクトを生成したときに、指定された属性値をチェックします
-                    #search: Python varidation
+                バリデーション: #keyword: __post_init__, Python @dataclass validation  #// データクラスのオブジェクトを生成したときに、指定された属性値をチェックします
+                    #search: Python validation
                     サンプル: |
                         @dataclass(frozen=True)
                         class UserName:
@@ -5846,7 +5927,7 @@
                     print( dic[ "year" ] )  #// 2000
                 参考: #ref: https://stackoverflow.com/questions/35988/c-like-structures-in-python
             メソッド: #keyword: Python method
-                関数:  #search: Python function
+                （関数と共通なこと）:  #search: Python function
                 静的メソッド: | #keyword: Python static method  #focus: method
                     class TesteeClass:
                         @staticmethod
@@ -5987,17 +6068,29 @@
                 isinstance: #keyword: Python isinstance
                     書式: isinstance(__Instance__, __ClassOrSuperClass__) -> boolean
                     複数のクラスのうちどれか: isinstance(__Instance__, (__ClassA__, __ClassB__)) -> boolean
+                    期待通りの判定にならない場合:
+                        型を比較します: | #keyword: Python type debug  #// モジュールやスーパークラスを表示して確認します
+                            print(f"A: {type(__Instance__).__mro__}")
+                            print(f"B: {__ClassOrSuperClass__.__mro__}")
+                    isinstance(value, Iterable):
                 issubclass: #keyword: Python issubclass
                     書式: issubclass(__SubClass__, __SuperClass__) -> boolean
                     補足: 第1引数にはインスタンスを指定できません
+                    期待通りの判定にならない場合:  #search: Python type debug
                 callable:
-                isinstance(value, Iterable):
                 get_type_hints: #keyword: Python get_type_hints  #// 型ヒント情報を取得します
                     -   typing.get_type_hints(cls, globalns=vars(mod))
                         は cls クラスの型ヒント情報を返します。
-                    -   get_type_hints() を使うには、実行時にも型情報が必要です。
-                        import が相互依存している場合  #search: Python typing.TYPE_CHECKING mutual import  #search: Python 相互 import
+                    -   get_type_hints() を使うには、実行時にも型情報（クラス）が必要です。
+                        import が相互依存している場合  #search: Python typing.TYPE_CHECKING mutual import  #search: Python 循環 import
+                    - |  #// NameError
+                        from __future__ import annotations によってクラスではなく文字列になったとき、NameError になりますが、
+                            get_type_hints(object, localns={"ClassA": ClassA})
+                        のように localns（ローカル名前空間）を書けば、
+                        object = "ClassA"（文字列）のときに object = ClassA（クラス）が渡されたときと同じ結果を返します
+                get_type_info: #keyword: Python get_type_info
                 ForwardRef, self.__forward_code__: #keyword:  #// 前方参照、依存クラス
+                    前方参照とは、後（コードの下側）で定義されるものを先に（上で）参照すること
                     クラスの「前方参照」(typing の ForwardRef クラス？) の型は、
                     内部で、属性の型、メソッドの引数の型、メソッドの返り値の型 のいずれかに少なくとも１つあります。
                 サンプル: |
@@ -6287,88 +6380,7 @@
 
                 def first(l: Sequence[T]) -> T:   # Generic function
                     return l[0]
-        DI, injector:  #ref: ${programming}/スクリプト/Python.svg#injector  #keyword: Python DI injector,  dependency injection
-            注意: DI を使ったコードは、定義にジャンプすることで簡単にクラス構造を調べることができなくなります
-                #search: DI debug
-            概要, DI 一般:
-                DI:  #// = Dependency Injecton  #keyword: DI  #ref: ${programming}/方法論/オブジェクト指向.svg#DependencyInjection
-                    #search: Abstract Factory
-                目的:
-                    - 子オブジェクトのクラスをパラメーター化します。
-                        逆にパラメーターではないオブジェクトは DI にしなくてよい
-                    - シングルトンのインスタンスの生成を遅延させる ファクトリー パターン です
-                    - グローバル変数や TLS (Thread Local Storage) よりも、子オブジェクトの一覧性が上がります。
-                        メソッドの内部を調べなくて済むからです
-                    - 処理部分によって構成を変えるときは、スコープを定義します。
-                        スコープは通常 スレッド ローカル ストレージ、または HTTP などの API リクエスト に関連付けられます
-                    #↓ デメリット
-                    - DIは内部のオブジェクトをインジェクトする（パラメーター化する）ときだけ有意義だから、ライブラリのクラスに使うものと考えている。
-                        普通のクラスは不要。なぜなら静的でも編集できるから。パラメーター化は動的なので柔軟性が増える気がするが、
-                        静的解析できなくなるデメリットのほうが大きい。
-                        #ref: https://x.com/Ts_Neko/status/1768923978033426824
-                    - スーパークラスを引数に取ると何が来るか分からない。
-                        ブレークすればわかる
-                    - 順序がブラックボックスなので期待と違う時にすごい困る
-                デメリットと対策:
-                    - 依存するオブジェクトを渡す処理をユーザーが書く必要があります。 シンプルに実装する場合は、
-                        全インスタンスの KeyValue のパッケージを渡すか、
-                        起動時に呼ぶ専用の 1つの関数がまとめて行います。
-                        前者はデータを構造化できるのでお勧めです。
-                        後者は適切な内部インスタンスまでユーザーが網羅しなければなりません。
-                    - 依存するオブジェクトを渡す処理に DI ライブラリ を使うと、
-                        デバッグが難しくなります
-                    - 内部で完結して置き換える可能性がないオブジェクトまで引数にすると、
-                        細かすぎて複雑になります。
-                        String クラスなどは生成して問題ありません。
-                遅延生成:  #// 性能の観点
-                    DI の遅延生成機能を使うことで、初期化を速くします。
-                    ただし、高速化が必要になってからでよい。（早すぎる最適化）
-                    初期化コスト vs 使用頻度
-                基本 >> コンストラクター:
-                    手順:
-                        - コンストラクターに子オブジェクトや関連するのオブジェクトを渡します。
-                        - コンストラクターでオブジェクトを生成しません
-                    コード: |  #// Python (typeless version)
-                        class  UserService:
-                            def  __init__(self, repository):
-                                self.repository = repository  # 外部から注入
-                    （問題のない違反したコード）:  #search: Safe not DI
-                    メリット:
-                        - テスト時にモックを渡せます
-                    #ref: https://qiita.com/kentosity/items/d8654dad4fbf216f6843#2-依存性の注入dependency-injection-di
-                問題のない違反したコード: | #keyword: Safe not DI  #// Python
-                    // コンストラクターでオブジェクトを生成してはいけないことはありません。
-                    // 渡されたオブジェクトに置き換えられるデフォルトのオブジェクトであれば生成してもテスト時にモックを渡せます
-                    // 依存するグローバル変数が分からなくなることはありません。 import 文に一覧されています。
-                    // Dependent global instances: => というコメントより下に import 文を分けます
-
-                    import  Repository  #// class
-                    // Dependent global instances: =>
-                    import  repository  #// instance
-
-                    class  UserService:
-                        def  __init__(self, dependencies = None):
-                            self.repository = dependencies.repository if dependencies else repository
-                処理順序:
-                    クラス登録:
-                        - クラスを登録する処理が最初に必要ですが、それを自動的に行うライブラリもあります
-                    注入クラス登録:  #// 使わないことが多い
-                        - 注入するサブクラスを設定します。注入するとは、所有の子のオブジェクトを生成して、所有の親のオブジェクトの属性に設定することです。
-                    インスタンス get or create:
-                        - 所有の子のオブジェクトを生成するタイミングは、DI を使わない場合と同じタイミングです（子を共有しない限り）
-                データ構造:
-                    - 所有の子のオブジェクトは特に指定をしないと共有します（共有しない設定もある）
-                デバッグ:
-                    - DI のデバッグの難しさは、注入するインスタンスが条件によって変わるときに、事前に登録しているコードを探すことが難しいことです。
-                        #search: DI debug
-                    - ログ機能の中でブレークさせます
-                        #search: Django logger break point
-            公式:
-                injector:
-                    #ref: https://github.com/alecthomas/injector
-                    #ref: https://injector.readthedocs.io/en/latest/api.html
-                    #ref: https://injector.readthedocs.io/en/latest/index.html
-            サンプル: #ref: ${GitHub}/MyPrivateCode/Python/try_Python_injector
+        DI, injector:  #ref: ${programming}/スクリプト/Python.svg#injector  #keyword: Python DI injector  #search: dependency injection
             injector.get:  #keyword:  #// インスタンスを取得します。インスタンスが無ければボトムアップに生成します。条件によって注入するインスタンスが変わらない場合
                 (@inject):  #// Outer.__init__ に @inject をデコレートします  #keyword: Python DI injector @inject
                     概要: injector.get を呼び出すと、ボトムアップにオブジェクトの構築と __init__ の呼び出しを行います。
@@ -6452,100 +6464,6 @@
                         クラスに対応するメソッドを持つインスタンスがモジュールです。
                         クラスからオブジェクトを返すファクトリー（パターン）をモジュールと呼び、
                         それを Injector のコンストラクターに渡します。
-            DI によるエラーを解析します: #keyword: DI debug,  DI error
-                解析例:
-                    step 1:
-                        ログ: |
-                            ValueError: Error constructing handler for request of type __RequestedClass__
-                        状況:
-                            __RequestedClass__ は、リクエストされたクラスですが、
-                            そのクラスのインスタンスの登録が必要というわけではありません。
-                        対処:
-                            例外が発生する近くでブレークさせ、
-                            次の例外でブレークするようにブレークポイントを張り、
-                            例外メッセージから、何のインスタンスが登録されていないかを推測します。
-                    step 2:
-                        ログ: |
-                            InvalidOperationError: Unable to resolve service for type '__A__' while attempting to activate '__B__'
-                        状況:
-                            __B__ を作成しようとしたが、__B__ のコンストラクターが必要とする __A__ 型（のサービス）のインスタンスが見つけられませんでした。
-                        対処:
-                            __A__ のインスタンスの登録が必要です。
-                子から親を調べる場合:
-                    - 親から辿ると一部は抽象クラスになってしまいますが、子から辿るとインスタンスのクラスが分かります
-                    - インスタンス（子クラス）の初期化 __init__ にブレークポイントを張ります
-                    - コールスタックから親方向に、クラス名を確認します
-                親から子を調べる場合:
-                    - コンストラクター（Go言語なら Provider）を調べます
-                    - 実装クラスを調べます  #search: go navigate implementation
-            内部クラスを複数使ったお試しコードを実行する場合:
-                メインに近い package にお試しコードを書きます:
-                    複数のクラスに共通する親 package を探します
-                クラスが必要な場合:
-                    概要:
-                        メインに近い共通の package からクラスを参照するための import を書きます
-                        インターフェースではなく実装クラスを参照します
-                    Go 言語:
-                        内部: |
-                            import  pack
-                        メイン: |
-                            _ = pack.EventLogClass{}
-                インスタンスが必要な場合:
-                    概要:
-                        使用するオブジェクトを get する公開関数（メソッドではない）またはグローバル変数を作り、
-                        メインに近い共通の package から呼び出します。
-                    Go 言語:
-                        内部: |  #focus: TryClient
-                            import  pack
-                            var TryClient *elastic.Client
-                            func ____() {
-                                TryClient = GetClient()
-                            }
-                        メイン:
-                            _ = pack.TryClient
-            トラブルシューティング(DI, injector):
-                - #// binder.bind に指定したクラスのコンストラクターが呼ばれてしまう
-                    手順: injector.get() を呼び出したとき
-                    エラー: binder.bind に指定したクラスのコンストラクターが呼ばれてしまう
-                    状況:
-                        - injector.get に指定したクラスのスーパークラスを binder.bind で置き換えることはできません。
-                            __init__ から対象のクラスの __init__ を呼び出すときの後者はスーパークラスです。
-                        - モックでも置き換えられません  #search: mock.patch.object
-                    対処:
-                        injector.get に指定したクラスまたはそのスーパークラスの __init__ にある引数を
-                        binder.bind で置き換えることはできます。
-                - #// injector.UnknownProvider: couldn't determine provider for
-                    手順: injector.get() を呼び出したとき
-                    エラー: |
-                        injector.UnknownProvider: couldn't determine provider for __TypeA__ to None
-                        injector.UnknownProvider: couldn't determine provider for __TypeA__ to __InstanceB__
-                        UnknownProvider
-                    対処: |
-                        def configure(binder):
-                            binder.bind(__TypeA__, to=__ClassB__, scope=singleton)
-                        injector = Injector([configure])
-                        ____ = injector.get(____)
-                - #// Can't instantiate abstract class
-                    手順: injector.get
-                    エラー: |
-                        injector.CallError: Call to ABCMeta.__new__() failed: Can't instantiate abstract class __ChildClass__ with abstract methods __Methods__ (injection stack: [<class '__ParentClass__'>])
-                        __FilePath__:__LineNumber__: CallError
-                    対処:
-                        binder.bind(__ChildClass__), to=__NotAbstractClass__, scope=singleton)
-                - #// missing __Number__ required positional arguments
-                    手順: injector.get
-                    エラー: |
-                        injector.CallError: Call to __ChildClass__.__init__() failed: __init__() missing __Number__ required positional arguments: ____ (injection stack: [<class '__ParentClass__'>, ____)
-                        __FilePath__:__LineNumber__: CallError
-                    対処A:
-                        (@injector) デコレーターを指定します。
-                        (@injector) デコレーターが意図的にオーバーライドされて無効化されている可能性もあります。
-                    対処B:
-                        パラメーターを取らない __init__ を持つ __NotAbstractClass__ を定義し
-                        binder.bind(__ChildClass__), to=__NotAbstractClass__, scope=singleton)
-                    対処C: |
-                        with mock.patch.object(__packag__, '__ChildClass__', return_value=__NotAbstractClass__()) as class_mock:
-                        の行を削除します
         None: | #keyword: Python None,  Python null nil ではない
             var = None
             if var is None:
@@ -6720,8 +6638,9 @@
             デフォルト値:  #keyword; Python default parameter values  #// デフォルト パラメーター 値
                 #ref: https://docs.python.org/3.11/reference/compound_stmts.html#function-definitions  >>  default parameter values
                 サンプル: |  #ref: ${GitHub}/MyPrivateCode/Python/try_Python/examples/function/none_default.py
-                    def show_target(target=None):
+                    def show_target(*, target=None):  #// target はオプションですが、キーワード引数で指定することを必須にします  #search: Python keyword-only arguments
                         target = target or ClassA(5)  #// or でオブジェクトのデフォルトを指定できます
+                    def show_target(target=None):     #// 上記 *, を付けるほうが推奨
                 注意:
                     オブジェクトや辞書などをデフォルトに指定する場合: #keyword: Python default parameter object
                         #// None を指定すること
@@ -7001,6 +6920,33 @@
                             super().__init__(detail)
                         def __str__(self) -> str:
                             return f'CustomWrapError: {super().__str__()}'
+                例外の種類:
+                    定義: |  #// 継承させます
+                        class AppError(Exception):
+                            """アプリ共通の基底例外"""
+                            pass
+
+                        class DatabaseError(AppError):
+                            """DB関連エラー"""
+                            pass
+
+                        class NetworkError(AppError):
+                            """ネットワーク関連エラー"""
+                            pass
+
+                        class TimeoutError(NetworkError):
+                            """タイムアウト（NetworkErrorのサブクラス）"""
+                            pass
+                    キャッチ: |  #// スーパークラスほど下に書きます。上に書くほど優先なので
+                        try:
+                            do_something()
+                        except TimeoutError as e:
+                            print("タイムアウト")
+                        except NetworkError as e:
+                            print("ネットワークエラー（上でキャッチした TimeoutError は来ない）")
+                        except AppError as e:
+                            print("その他アプリエラー（DatabaseError も来る）")
+                    種類の判定:
                 #↓構造
                 例外メッセージ:
                     公式:  #search: Python __repr__
@@ -8564,7 +8510,7 @@
                             email = serialized_data['email']
                             content = serialized_data['content']
                             unknown = serialized_data.get('unknown', '??')
-                        バリデーション: | #keyword: Django REST framework varidation  #focus: is_valid  #ref: https://www.django-rest-framework.org/api-guide/serializers/#validation
+                        バリデーション: | #keyword: Django REST framework validation  #focus: is_valid  #ref: https://www.django-rest-framework.org/api-guide/serializers/#validation
                             good_data = {'email': 'leila@example.com',
                                 'content': 'foo4567890', 'created': '2022-12-02T05:38:31.380182Z'}
                             error_data = {'email': 'leila@example.com',
@@ -8930,7 +8876,7 @@
                 }
             #ref: https://docs.python.org/3/library/json.html#module-json.tool
         requests Response:  #search: Python requests Response
-        Pydantic: #keyword: Pydantic,  Python varidation,  Python Marshaller Unmarshaller
+        Pydantic: #keyword: Pydantic,  Python validation,  Python Marshaller Unmarshaller
             基本:  #ref: https://qiita.com/Tadataka_Takahashi/items/8b28f49d67d7e1d65d11
                 parameters = Parameters(**parameters_dict)
             キャメル ケース から スネーク ケース に変換することもできます。:
@@ -8977,7 +8923,7 @@
             関連 >> @dataclass:
                 parameters = Parameters(**parameters_dict)
                 キャメル ケース から スネーク ケース に変換することはできないと思われる
-                #search: Python @dataclass varidation
+                #search: Python @dataclass validation
     YAML: #keyword: Python YAML
         プロジェクトへインストール:
             #// 以下のいずれか
@@ -10033,6 +9979,10 @@
                             #// これだけで Select Interpreter で選んだ仮想環境が選ばれます
                             #// Python Create Terminal も自動的に実行します
                             #// 以後、Visual Studio Code を開きなおすまで、New Terminal メニューなどでターミナルを開くときに、自動的に仮想環境をアクティベートします
+                        固定する場合:
+                            __Project__/.vscode/settings.json : |
+                                {
+                                    "python.defaultInterpreterPath": "'$(which python)'"
                     PYTHONPATH 環境変数:  #keyword: VSCode PYTHONPATH  #// Visual Studio Code が使う仮想環境を選びます
                         __Project__/.env ファイル:  #// 下記 __VENV__ は仮想環境のパスに置き換えてください
                             PYTHONPATH=__VENV__\Lib\site-packages
@@ -10096,7 +10046,7 @@
                             PyPI サーバー を指定する場合:
                                 pip wheel  --no-deps  __Package__==__Version__  --index-url https://__PyPIServer__/  --trusted-host __PyPIServer__
                     URL を指定する場合:
-                        URL を調べます:  #// 使えるバージョン番号を調べます  #keyword: Python package versions
+                        URL を調べます: #keyword: Python package versions  #// 使えるバージョン番号を調べます
                             補足:  #// __Package__==__Version__ 形式URL を調べる方法しかないようです。
                             ホームページ:
                                 最新版:
@@ -10686,7 +10636,7 @@
                     which pip  #// pip2
             pyenv: #keyword: pyenv  #// Linux 用の複数のバージョンの Python を切り替えます
                 公式: #ref: https://github.com/pyenv/pyenv/blob/master/COMMANDS.md
-                インストール:  #search: install pyenv
+                インストール:  #// pyenv 本体  #search: install pyenv
                 Python のバージョン切り替え:
                     バージョン一覧: #// バージョンの一覧と現在のバージョンを表示します
                         コマンド:
@@ -10817,7 +10767,7 @@
                     #ref: https://python-poetry.org/docs/basic-usage/
                     #ref: https://github.com/python-poetry/poetry
                 概要:
-                    Poetry, pipenv, anaconda の違い:  #keywrod: Poetry pipenv,  Poetry pipenv anaconda
+                    Poetry, pipenv, anaconda の違い:  #keyword: Poetry pipenv,  Poetry pipenv anaconda
                         #ref: https://vaaaaaanquish.hatenablog.com/entry/2021/03/29/221715
                         pip:   #// 基本。パッケージのインストールのみ
                         venv:  #// 基本。仮想環境のインストールのみ
@@ -11015,6 +10965,25 @@
                                 #search: Python Select Interpreter
                             デバッガーを接続しながらプロジェクトを起動します:
                                 F5 キーを押します
+                    現在の Python のバージョン, 仮想環境: | #keyword: Poetry Python version  #search: change Poetry Python version
+                        poetry run python --version
+                            Python 3.10.15
+                        poetry --version
+                            Poetry (version 2.4.1)
+                        poetry env info
+                            Virtualenv
+                            Python:         3.10.15
+                            Implementation: CPython
+                            Path:           /home/user1/project/.venv
+                            Executable:     /home/user1/project/.venv/bin/python
+                            Valid:          True
+
+                            Base
+                            Platform:   linux
+                            OS:         posix
+                            Python:     3.10.15
+                            Path:       /home/user1/.pyenv/versions/3.10.15
+                            Executable: /home/user1/.pyenv/versions/3.10.15/bin/python3.10
                     パッケージのインストール:  #search: Poetry commands
                     パッケージの追加など:  #search: poetry add
                     パッケージの更新:  #search: poetry update
@@ -11082,6 +11051,34 @@
                         poetry.lock ファイル:
                             出力:  #// 出力コマンド？
                                 poetry lock
+                    Python:
+                        使っているバージョン:  #search: Poetry Python version
+                        使うバージョンを変える: #keyword: change Poetry Python version  #// Poetry が使う Python のバージョンを更新します
+                            Python と poetry の本体を バージョン アップ します:
+                                Python 3.10.15 をインストールします:  #// すでにインストールされていたら上書きするか聞いてきます
+                                    pyenv install -v 3.10.15
+                                Python 3.10.15 に切り替えます:
+                                    pyenv local 3.10.15
+                                    python3.10 --version
+                                        バージョン番号が表示されればインストール済みなので OK
+                                poetry を バージョン アップ します:  #// Python 3.10 よりかなり古いバージョンから更新する場合のみ
+                                    curl -sSL https://install.python-poetry.org | python3 - --uninstall
+                                    curl -sSL https://install.python-poetry.org | python3.10 -
+                            __Project__/pyproject.toml の内容を バージョン アップ します:
+                                pyproject.toml の中の Python のバージョンを上げます: |
+                                    [tool.poetry]
+                                    package-mode = false
+
+                                    [tool.poetry.dependencies]
+                                    python = "^3.10"
+                            __Project__/.envrc の中の Python のバージョンを上げます:  #// .envrc がある場合のみ
+                                use python 3.10.15
+                            Python パッケージをインストールします:
+                                cd __Project__
+                                poetry env use python3.10
+                                poetry lock
+                                poetry install
+                                #search: poetry update
                     パッケージ, モジュール:
                         追加: #keyword: poetry add  #// モジュールを追加します  #// 以下のいずれか
                             コマンド:
@@ -11110,21 +11107,27 @@
                             関連 >> 再構築:  #search: poetry rebuild
                         更新: #keyword: poetry update  #// モジュールを最新版に更新します
                             モジュールを更新します:  #// または バージョン ダウン します
-                                編集します: pyproject.toml,  .envrc があればそれも  3つ目のバージョン番号まで書くこと。例 3.9.10
-                                コマンド: poetry update
-                                    #search: semantic varsioning caret
-                                動作:
-                                    - pyproject.toml の設定に合わせて バージョン アップ または バージョン ダウン します
-                                    - poetry.lock ファイルも更新します
-                                エラー: #keyword: change python via env use,  is not allowed by the project
-                                    ログ: |
-                                        Current Python version (__CurrentVersion__) is not allowed by the project (__NewVersion__)
-                                        Please change python executable via the "env use" command.
-                                    状況:
-                                        __CurrentVersion__: 仮想環境にある Python のバージョン
-                                        __NewVersion__: pyproject.toml に設定されている Python のバージョン
-                                    対処:
-                                        Python 本体を更新します  #search: poetry update python
+                                poetry add を使う場合:  #// モジュールの追加ではありません
+                                    poetry add "sqlalchemy-utils>=0.38.0"
+                                    poetry add "graphene-django>=3.0" "graphene>=3.0"  #// 複数指定
+                                pyproject.toml を編集して poetry update を使う場合:
+                                    編集します: pyproject.toml,  .envrc があればそれも  3つ目のバージョン番号まで書くこと。例 3.9.10
+                                    コマンド:
+                                        バージョンを更新して、poetry.lock ファイルを作り直します: poetry update
+                                        poetry.lock ファイルを作り直します: poetry lock  #// 主に Python 本体更新時
+                                        #search: semantic varsioning caret
+                                    動作:
+                                        - pyproject.toml の設定に合わせて バージョン アップ または バージョン ダウン します
+                                        - poetry.lock ファイルも更新します
+                                    エラー: #keyword: change python via env use,  is not allowed by the project
+                                        ログ: |
+                                            Current Python version (__CurrentVersion__) is not allowed by the project (__NewVersion__)
+                                            Please change python executable via the "env use" command.
+                                        状況:
+                                            __CurrentVersion__: 仮想環境にある Python のバージョン
+                                            __NewVersion__: pyproject.toml に設定されている Python のバージョン
+                                        対処:
+                                            Python 本体を更新します  #search: poetry update python
                             Python 本体を更新します: #keyword: poetry update python  #// または バージョン ダウン します
                                 コマンド: |  #// Python が 3.7.2、仮想環境が ./.venv にある場合
                                     (.envrc があれば) 
@@ -11134,6 +11137,8 @@
                                     pyenv install -v 3.7.2  #// または  pyenv local 3.7.2
                                     rm -rf .venv
                                     poetry install
+                                    poetry run python --version
+                                        #// インストールされたバージョン
                                 poetry.lock ファイルを更新するなら:
                                     poetry lock
                                 poetry lock: #keyword:
@@ -11146,6 +11151,9 @@
                                 編集後に一度に行う場合:
                                     poetry update  #search: poetry update
                             使えるバージョン番号:  #search: Python package versions
+                        表示:
+                            poetry show | grep -E "zipp"
+                                zipp      3.15.0      Backport of pathlib-compatible object...
                 Poetry config: #keyword:
                     表示: #// 仮想環境の場所や設定を表示します  #keyword: poetry config --list
                         一覧: #keyword: list poetry config  #// config の一覧
@@ -11190,7 +11198,69 @@
                         上記を出力するコマンド:  #keyword: poetry .venv  #// virtualenvs.in-project, virtualenvs.path
                             - poetry config --local virtualenvs.in-project true
                             - poetry config --local virtualenvs.path .venv
+                    ~/.local/share/pypoetry/venv/lib/pythonX.X/:  #// poetry を実行する Python
+                        作られるタイミング:
+                            curl -sSL https://install.python-poetry.org | python3.10 -
                 トラブルシューティング(Poetry): #keyword: Poetry trouble
+                    - バージョン番号 __Package__ >=3.1.1, <4 と __Package__ <3.0.0 の両方を満たす条件はありえない:
+                        #keyword: Poetry version dependency conflict,  Poetry 依存関係の競合
+                        手順: poetry add
+                        ログ1: |
+                            Because graphene-django (3.0.0) depends on graphql-relay (>=3.1.1,<4)
+                            and foo-package (1.2.0) requires graphql-relay (<3.0.0)
+                        ログ2: |
+                            And because graphene-django (>=3.0) requires graphql-relay (>=3.1.1,<4) (1), graphene-django (>=3.0) requires typing-extensions (>=4,<5)
+                            So, because application depends on both typing-extensions (^3.7.4.1) and graphene-django (>=3.0), version solving failed.
+                        ログ3: |
+                            - Installing gevent (1.5.0): Failed
+                        ログの絞り込み1:  #// poetry add のログのうち、依存関係の競合（Dependency Conflict）の情報がある部分に絞り込みます
+                            poetry add "____" 2>&1 | grep -E "requires|depends on|because" | head -30
+                            #// ❗注意 プロジェクト名が含まれることがあるので漏洩に注意してください
+                        ログの絞り込み2:
+                            poetry add "____" 2>&1 | grep "__Other__" | head -30
+                            #// __Other__ は "depends on both A and B" のうち、poetry add に指定していないほう
+                            #// ❗注意 プロジェクト名が含まれることがあるので漏洩に注意してください
+                        ログの意味:
+                            Because ...:
+                                graphene-django 3.0.0  （現在）
+                                    └── graphql-relay >=3.1.1, <4  ← これが必要
+                            and ...:
+                                foo-package 1.2.0  （現在）
+                                    └── graphql-relay <3.0.0  ← これが必要
+                            So, because ...:
+                                application
+                                    └── typing-extensions  4.0 以上に上げられない  ← ^3.7.4.1 は メジャー バージョン を固定しています
+                        原因1:
+                            graphql-relay >=3.1.1, <4 と graphql-relay <3.0.0 の両方を満たす条件はありえない
+                        原因2:  #focus: typing-extensions
+                            typing-extensions ^3.7.4.1 と graphql-relay >=3.0 の両方を満たす条件はありえない。
+                            直接的には typing-extensions ^3.7.4.1 と requires typing-extensions (>=4,<5) の両方を満たす条件はありえない。
+                            （requires __Other__ で検索します）
+                        対処1:  #// バージョンの上限を緩めます
+                            foo-package を graphql-relay 3.x に対応した新しいバージョンにアップグレード
+                        対処2:  #// バージョンの上限を緩めます。ただし、将来に破壊的変更ができる可能性があるため、少なくとも現在の最新のメジャーバージョンを上限にします
+                            typing-extensions = ">=4,<5"
+                        対処3:
+                            gevent も poetry add に指定します
+                    - pyproject.toml changed significantly since poetry.lock was last generated. Run `poetry lock` to fix the lock file.:
+                        手順: poetry install
+                        ログ: |
+                            pyproject.toml changed significantly since poetry.lock was last generated. Run `poetry lock` to fix the lock file.
+                        対処:
+                            poetry lock
+                    - The current project could not be installed:
+                        手順: poetry install
+                        ログ: |
+                            Error: The current project could not be installed: No file/folder found for package __Application__
+                            If you do not want to install the current project use --no-root.
+                            If you want to use Poetry only for dependency management but not for packaging, you can disable package mode by setting package-mode = false in your pyproject.toml file.
+                            If you did intend to install the current project, you may need to set `packages` in your pyproject.toml file.
+                        対処:
+                            #// Poetry 1.2以降で挙動が変わりました。
+                            pyproject.toml: |
+                                [tool.poetry]
+                                name = "__Application__"
+                                package-mode = false   # ← これを追加
                     - raise JSONDecodeError("Expecting value", s, err.value) from None:
                         手順: poetry install
                         ログ: |
@@ -11384,6 +11454,8 @@
                 Python のパッケージの形式の１つ。現在の主流は Wheel
             関連 >> 仮想環境:  #search: Python venv
         概念:
+            バージョン:
+                使えるバージョン番号を調べます:  #search: Python package versions
             バージョン指定子: #keyword: Python version specifiers  #// __Package__~=2.0
                 PEP 440: #keyword: PEP 440 version specifiers  #ref: https://peps.python.org/pep-0440/#version-specifiers
                     パッケージ名の例: pytest, packaging
@@ -11513,7 +11585,7 @@
                         def enable_inspector():
                             import inspector
                             inspector.function()
-                循環参照対策:  #search: Python 相互 import
+                循環参照対策:  #search: Python 循環 import
                 import 文のソート:  #search: isort
                 #↓ ファイル
                 __init__.py: #keyword: Python __init__.py  #// 公開するシンボルがあるファイルを設定するファイル
@@ -11847,28 +11919,28 @@ Microsoft Store からダウンロードする:
                             6 RETURN_VALUE
 トラブルシューティング: #keyword: Python trouble
     デバッグ実行:  #search: Python debug
-    手順:
-    - #// lambda で発生する例外をデバッグする  #search: LambdaDebugTracer for Python
-    - #// self signed certificate
+    #↓ 手順
+    lambda で発生する例外をデバッグする:  #search: LambdaDebugTracer for Python
+    self signed certificate:
         手順: xmlrpc.client.ServerProxy('https://____')
         エラー: |
             ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate (_ssl.c:1056)
         対処:
             #search: _create_unverified_context
-    - #// venv（仮想環境）の中でブレークさせる
+    venv（仮想環境）の中でブレークさせる:
         __Project__/launch.json : |
             {
                 "version": "0.2.0",
                 "configurations": [
                     {
                         "justMyCode": false
-    - #// 属性が表示されない（ウォッチ ビュー）
+    属性が表示されない（ウォッチ ビュー）:
         手順: VSCode の ウォッチ ビュー（左）でオブジェクトを展開したとき
         症状: コードに書かれている属性がウォッチに表示されない
         対処A: 名前マングリング
         対処B: デバッグ コンソール（右下のビューのタブ）で属性を入力して Enter を押すと
             値が表示されますが、この操作によってウォッチにも属性が表示されるようになります
-    - #// 属性が表示されない（インテリセンス）
+    属性が表示されない（インテリセンス）:
         手順: テキスト エディター でオブジェクトの右でピリオドを入力したとき
         症状: コードに書かれている属性がウォッチに表示されない
         対処:
@@ -11876,7 +11948,7 @@ Microsoft Store からダウンロードする:
             import をファイル名にしない
                 修正前 from folder import file.Class
                 修正後 from.file folder import Class
-    - #// エラーメッセージを読む
+    エラーメッセージを読む:
         書式: |
             Traceback (most recent call last):
                 main 側のコードの場所
@@ -11892,8 +11964,8 @@ Microsoft Store からダウンロードする:
             - 下のコール スタックは、呼び出し元側の raise 。
                 main から表示される可能性が高い。
             #ref: ${programming}/スクリプト/Python.svg#error_message
-    - #// pp, ref_debug_out:  #ref: ${GitHub}/MyPrivateCode/Python/pp.py
-    - #// 呼び出し先が期待と違う  #keyword: Python not expected call
+    pp, ref_debug_out:  #ref: ${GitHub}/MyPrivateCode/Python/pp.py:
+    呼び出し先が期待と違う:  #keyword: Python not expected call
         手順: _Example__method を呼び出す
         エラー: |  #// 呼び出しているメソッドではないエラー
             TypeError: __method() missing 1 required positional argument: '__Argument__'
@@ -11906,7 +11978,7 @@ Microsoft Store からダウンロードする:
             _Example__method または __method の引数を編集します
         対処B:
             動的に引数の名前や構成を調べます: #search: watch Python function arguments
-    - #// スルー カウンター:  #keyword: Python through counter
+    スルー カウンター:  #keyword: Python through counter:
         サンプル: |
             ### debug
             cc = 0
@@ -11917,18 +11989,20 @@ Microsoft Store からダウンロードする:
                 global cc
                 cc += 1
             ###
-    - #// HTTP リクエストの関数がコールバックされない
+        ブレークする:
+            カウンターの値を ブレーク ポイント に設定します
+    HTTP リクエストの関数がコールバックされない:
         Django cache にヒットした可能性:  #search: Django's cache framework
-    - #// スレッドのデバッグ  #search: debug Python thread
-    個別エラー:
-    - #// TypeError: __init__() got an unexpected keyword argument '__Keyword__'
+    スレッドのデバッグ:  #search: debug Python thread
+    #↓ 個別エラー
+    TypeError:;; __init__() got an unexpected keyword argument '__Keyword__':
         手順:
             オブジェクト生成時
         ログ: |
             TypeError: __init__() got an unexpected keyword argument '__Keyword__'
         対処:
             書きかけ
-    - #// List object is not subscriptable
+    List object is not subscriptable:
         手順:
             List[____]
         ログ: |
@@ -11939,13 +12013,13 @@ Microsoft Store からダウンロードする:
             from typing import List
         原因:
             List がコレクションではないので [ ] が使えません
-    - #// VSCode で Python のデバッグを起動したとき AttributeError: module 'matplotlib' has no attribute 'rcParams' と表示されてデバッグ対象のプロセスを起動できない
+    VSCode で Python のデバッグを起動したとき AttributeError:;; module 'matplotlib' has no attribute 'rcParams' と表示されてデバッグ対象のプロセスを起動できない:
         手順: VSCode で Python のデバッグを起動
         ログ: |
             AttributeError: module 'matplotlib' has no attribute 'rcParams'
         対処:
             ブレークポイントをすべて削除します
-    - #// TypeError: __new__() missing 2 required positional arguments: '__Argument1__' and '__Argument2__'
+    TypeError:;; __new__() missing 2 required positional arguments:;; '__Argument1__' and '__Argument2__':
         手順: |  #// クラス定義時にエラーになります
             class TemporaryClass(__SuperClass__):
                 ____
@@ -11956,7 +12030,7 @@ Microsoft Store からダウンロードする:
                 class TemporaryClass(__SuperClass__, __Argument1__=__Value1__, __Argument2__=__Value2__):
         補足:
             これらの引数は、__SuperClass__ のクラス type(__SuperClass__) が要求しているようです。
-    - #// cannot load: module '__DotPath__' has no attribute '__FileName__'  #keyword: Python cannot load module has no attribute ModuleNotFoundError: No module named
+    cannot load:;; module '__DotPath__' has no attribute '__FileName__':  #keyword: Python cannot load module has no attribute ModuleNotFoundError: No module named
         手順: python 実行
         エラー: |
             cannot load: module '__DotPath__' has no attribute '__FileName__'
@@ -11968,45 +12042,45 @@ Microsoft Store からダウンロードする:
         対処B:
             path.to.file.Class でエラーになる場合:  #// __PeriodFilePath__.__ClassName__ でエラーになる場合
                 from path.to.file  import Class に変えてください
-    - #// Could not find a version that satisfies the requirement pip<21.0
+    Could not find a version that satisfies the requirement pip<21.0:
         手順: pyenv
         エラー: |
             ERROR: Could not find a version that satisfies the requirement pip<21.0 (from versions: none)
             ERROR: No matching distribution found for pip<21.0
         対処:
-    - #// Could not find config for 'Cache' in settings.CACHES
+    Could not find config for 'Cache' in settings.CACHES:
         #search: Django multi cache
-    - #// ImportError: libmysqlclient.so.21: cannot open shared object file: No such file or directory
+    ImportError:;; libmysqlclient.so.21:;; cannot open shared object file:;; No such file or directory:
         #search: MySQL Python libmysqlclient trouble
         #search: LD_LIBRARY_PATH
-    - #// cannot import name 'soft_unicode' from 'markupsafe'
-        手順: poetry run python manage.py compilemessages -l ja 
+    cannot import name 'soft_unicode' from 'markupsafe':
+        手順: poetry run python manage.py compilemessages -l ja
         エラー: |
             cannot import name 'soft_unicode' from 'markupsafe'
         対処:
             poetry add  markupsafe==2.0.1
             #ref: https://stackoverflow.com/questions/72191560/importerror-cannot-import-name-soft-unicode-from-markupsafe
-    - #// Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?
+    Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?:
         手順: manage.py
         エラー: |
             Couldn't import Django. Are you sure it's installed and available on your PYTHONPATH environment variable? Did you forget to activate a virtual environment?
             ModuleNotFoundError: No module named 'django'
         対処:
             仮想環境を正しく設定します  #search: Python venv
-    - #// rest_framework/api.html TemplateDoesNotExist
+    rest_framework/api.html TemplateDoesNotExist:
         手順: ブラウザーで Django REST framework の view を呼び出そうとしたとき
         エラー: |  #// ブラウザーで開いて
             rest_framework/api.html
             Exception Type: TemplateDoesNotExist
         対処:
             curl を使ってください
-    - #// .accepted_renderer not set on Response
+    .accepted_renderer not set on Response:
         手順: Django REST framework から Django view の関数を呼び出そうとしたとき
         エラー: |  #// ブラウザーで開いて
             .accepted_renderer not set on Response
         対処:
             (@api_view) を関数に付けます  #search: Django view function
-    - #// django.core.exceptions.ImproperlyConfigured: Requested setting REST_FRAMEWORK
+    django.core.exceptions.ImproperlyConfigured:;; Requested setting REST_FRAMEWORK:
         手順: Django REST framework のライブラリのメソッドを呼び出したとき
         エラー: |
             django.core.exceptions.ImproperlyConfigured: Requested setting REST_FRAMEWORK,
@@ -12016,14 +12090,14 @@ Microsoft Store からダウンロードする:
             Django REST framework のライブラリを使うときは、
             Django view から呼ばれる関数などの中からメソッドを呼び出すようにします。
             #ref: ${GitHub}/MyPrivateCode/Python/DjangoREST/try_DjangoREST/examples/serializer/serialize_1.py
-    - #// django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly configured. Please supply the ENGINE value. Check settings documentation for more details.
+    django.core.exceptions.ImproperlyConfigured:;; settings.DATABASES is improperly configured. Please supply the ENGINE value. Check settings documentation for more details.:
         手順:  python manage.py test tutorial/app1/tests
         エラー: |
             django.core.exceptions.ImproperlyConfigured: settings.DATABASES is improperly configured. Please supply the ENGINE value. Check settings documentation for more details.
         対処:
             TestCase クラスから継承したクラスを SimpleTestCase から継承するように変更します
         #ref: https://stackoverflow.com/questions/5917587/django-unit-tests-without-a-db
-    - #// Django configure_logging  Unable to configure handler 'file'
+    Django configure_logging  Unable to configure handler 'file':
         手順: python ./migrate.py  または  django.core.cache の set メソッド  #// Django
         エラー: |
             File "__Project__/.venv/lib/python3.7/site-packages/django/__init__.py", line 19, in setup
@@ -12037,7 +12111,7 @@ Microsoft Store からダウンロードする:
             ValueError: Unable to configure handler 'file'
         対処:
             設定変数 LOGGING の handlers >> file >> filename に書かれたフォルダーを作ります
-    - #// Django sqlite3 django.db.utils.OperationalError: unable to open database file
+    Django sqlite3 django.db.utils.OperationalError:;; unable to open database file:
         手順: python ./migrate.py  または  django.core.cache の set メソッド  #// Django
         エラー: |
             File "__Project__/.venv/lib/python3.7/site-packages/django/db/backends/sqlite3/base.py", line 159, in get_new_connection
@@ -12045,21 +12119,21 @@ Microsoft Store からダウンロードする:
             django.db.utils.OperationalError: unable to open database file
         対処:
             設定変数 DATABASES の NAME に書かれたフォルダーを作ります
-    - #// django.core.cache  unable to open database file
+    django.core.cache  unable to open database file:
         手順: django.core.cache の set メソッド
         エラー: |
             django.db.utils.OperationalError: no such table: persistent_cache_table
         対処:
             poetry run ./manage.py migrate
             poetry run ./manage.py createcachetable
-    - #// Command 'python' not found
+    Command 'python' not found:
         手順: source ".venv/bin/activate"  &&  python
         エラー: |
             Command 'python' not found
         対処:
             echo $PATH で表示される最初のパスが仮想環境のパスではない場合:
                 仮想環境を作りなおします
-    - #// "No module named '____'; '____' is not a package"
+    _"No module named '____'; '____' is not a package":
         手順: import_module を呼び出す
         エラー: |
             "No module named '____'; '____' is not a package"
@@ -12067,25 +12141,25 @@ Microsoft Store からダウンロードする:
             - クラス名ではなくパッケージ（フォルダー）を指定します。
             - フォルダー名を変えます（公開パッケージと衝突しないようにする）
             - __pycache__ を削除します。
-    - #// pyenv: version `3.7.2' is not installed (set by ____)
+    pyenv:;; version `3.7.2' is not installed (set by ____):
         手順: Gradle
         エラー: |
             pyenv: version `3.7.2' is not installed (set by ____)
         対処:
             pyenv 環境に Python 3.7.2 をインストールします  #search: install pyenv
-    - #// A server error occurred.  Please contact the administrator.
+    A server error occurred.  Please contact the administrator.:
         手順: curl で Django にリクエスト
         エラー: |
             A server error occurred.  Please contact the administrator.
         対処:
             サーバーのログを確認してください
-    - #// manage.py runserver: error: unrecognized arguments: --insecure  #keyword: --insecure
+    manage.py runserver:;; error:;; unrecognized arguments:;; --insecure:  #keyword: --insecure
         手順: manage.py --insecure ...
         エラー: |
             manage.py runserver: error: unrecognized arguments: --insecure
         対処:
             #ref: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#cmdoption-runserver-insecure
-    - #// TypeError: 'NoneType' object is not iterable
+    TypeError:;; 'NoneType' object is not iterable:
         手順: items.reverse()
         エラー: |
             TypeError: 'NoneType' object is not iterable
@@ -12094,7 +12168,7 @@ Microsoft Store からダウンロードする:
             #search: Python reverse
         原因:
             len(items) == 0 のとき、items.reverse() は例外  を発生します
-    - #// The "python.pythonPath" setting in your settings.json is no longer used by the Python extension.
+    The "python.pythonPath" setting in your settings.json is no longer used by the Python extension.:
         手順: VSCode の Python 拡張機能をインストールする
         エラー: |
             The "python.pythonPath" setting in your settings.json is no longer used by the Python extension.
@@ -12107,7 +12181,7 @@ Microsoft Store からダウンロードする:
             無視できます。
         python.defaultInterpreterPath: #keyword:
             #ref: https://github.com/microsoft/vscode-python/wiki/Setting-descriptions#pythondefaultinterpreterpath
-    - #// remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+    remove __pycache__ / .pyc files and/or use a unique basename for your test file modules:
         手順: pytest を使う環境での Testing アイコンのリロード
         エラー: |
             import file mismatch:
@@ -12118,7 +12192,7 @@ Microsoft Store からダウンロードする:
             HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
         対処:
             異なるフォルダーにあってもファイル名 __FileBaseName__ が同じにならないようにします。
-    - #// AttributeError: 'Object' object has no attribute '__Attribute__'
+    AttributeError:;; 'Object' object has no attribute '__Attribute__':
         手順: |
             object = Object()
             object.attr = 1
@@ -12129,9 +12203,9 @@ Microsoft Store からダウンロードする:
                 def __init__(self):
                     self.attr = 1
             object = TmpObject()
-    - #// pytest のツリーが表示されない
+    pytest のツリーが表示されない:
         #search: pytest Testing error
-    - #// ModuleNotFoundError No module named  #keyword: No module named,  Python import not found module
+    ModuleNotFoundError No module named: #keyword: No module named,  Python import not found module
         手順: Python を実行します。import 実行時
         エラー: |  #keyword: ModuleNotFoundError,  ModuleNotFoundError:
             ModuleNotFoundError: No module named 'myapp1'
@@ -12176,14 +12250,14 @@ Microsoft Store からダウンロードする:
                 この環境変数とは、バッチファイルやコマンドプロンプトの環境変数のことです。
             PYTHONPATH を設定します:
                 #search: PYTHONPATH
-    - #// Import "__DotPath__" could not be resolved
+    Import "__DotPath__" could not be resolved:
         手順:  from __DotPath__ import __Symbol__
             __DotPath__ に含まれるフォルダー名を変更したとき
         エラー: |  #// VSCode 静的解析で表示されるエラー
             Import "__DotPath__" could not be resolved
         対処:
             VSCode のウィンドウを開きなおします
-    - #// [Errno 2] No such file or directory:
+    _[Errno 2] No such file or directory:
         手順: デバッガーで起動
         エラー: |
             def islink(path):
@@ -12192,7 +12266,7 @@ Microsoft Store からダウンロードする:
                     st = os.lstat(path)
         対処:
             Raised Exceptions のブレークポイントを解除してください
-    - #// pip install >> ModuleNotFoundError: No module named 'request'
+    pip install >> ModuleNotFoundError:;; No module named 'request':
         手順: python -m pip install -r____/requirements.txt -c____/constraints.txt^C
         エラー: |
             Collecting http
@@ -12223,7 +12297,7 @@ Microsoft Store からダウンロードする:
             Collecting に書いてあるパッケージ（上記 http）が正しいかチェックします。
         note: This is an issue with the package mentioned above, not pip.
         hint: See above for details.
-    - #// ERROR: InvocationError for command could not find executable .tox/server/bin/python
+    ERROR:;; InvocationError for command could not find executable .tox/server/bin/python:
         手順: tox -e server
         エラー: |
             ERROR: InvocationError for command could not find executable .tox/server/bin/python
@@ -12240,7 +12314,7 @@ Microsoft Store からダウンロードする:
                 [testenv:server]
                 commands =
                     /__Project__/.tox/server/bin/python ....
-    - #// partially initialized module 'argparse' has no attribute 'ArgumentParser' (most likely due to a circular import)
+    partially initialized module 'argparse' has no attribute 'ArgumentParser' (most likely due to a circular import):
         手順: .py ファイル実行開始時。import 実行時
             import argparse
         エラー: |
@@ -12248,7 +12322,7 @@ Microsoft Store からダウンロードする:
             partially initialized module 'argparse' has no attribute 'ArgumentParser' (most likely due to a circular import)
         対処:
             .py ファイルの名前を import するライブラリ名とは異なる名前に変更します。
-    - #// version solving failed. 最新版ではサポートしていないバージョンがあるエラー
+    version solving failed. 最新版ではサポートしていないバージョンがあるエラー:
         手順: poetry add
         エラー:
             #focus: django-cors-headers, 3.10.1, Django, 2.1.15
@@ -12262,7 +12336,7 @@ Microsoft Store からダウンロードする:
             #search: poetry add
         参考:
             構成のバージョンアップ:  #search: version upgrade debug
-    - #// invalid method signature
+    invalid method signature:
         手順: pytest refresh
         エラー: |
             During handling of the above exception, another exception occurred:
@@ -12270,7 +12344,7 @@ Microsoft Store からダウンロードする:
             invalid method signature
         対処:
             TestWithMock.module1_MyClass メソッドに self 引数を追加します
-    - #// AttributeError: module '__From__' has no attribute '__PublicSymbol__'
+    AttributeError:;; module '__From__' has no attribute '__PublicSymbol__':
         手順: ビルド時。 from . import __sub__ したシンボルから .（ピリオド）でたどる __PublicSymbol__ を参照したとき
             import path.to.module as Module
             Module.__PublicSymbol__
@@ -12278,9 +12352,9 @@ Microsoft Store からダウンロードする:
             AttributeError: module '__From__' has no attribute '__PublicSymbol__'
         対処: |
             __all__ に '__PublicSymbol__' を追加します
-    - #// Pytest Discovery Error. Error discovering pytest tests (see Output > Python)
+    Pytest Discovery Error. Error discovering pytest tests (see Output > Python):
         #search: pytest Testing error
-    - #// ImportError: attempted relative import with no known parent package
+    ImportError:;; attempted relative import with no known parent package:
         手順: from . import __sub__ 実行時
         エラー: |
             ImportError: attempted relative import with no known parent package
@@ -12298,7 +12372,7 @@ Microsoft Store からダウンロードする:
                     -m オプションを追加することで、パッケージの中にします
             import を書くファイルがパッケージの中の場合:
                 相対インポートが使えるので、上記のエラーになりません
-    - #// 相互 import して ImportError: cannot import name '__InterfaceA__' from 'folder.file'
+    相互 import して ImportError:;; cannot import name '__InterfaceA__' from 'folder.file':
         手順: Python 実行時
         エラー: |
             ImportError: cannot import name '__InterfaceA__' from 'folder.file'
@@ -12306,12 +12380,12 @@ Microsoft Store からダウンロードする:
             __all__ に __InterfaceA__ を追加します  #search: Python __all__
         対処B:
             相互 import しないようにします。たとえば、インターフェースを別のファイルに分けます
-        #search: Python 相互 import
-    - #// expected a bytes-like object, str found
+        #search: Python 循環 import
+    expected a bytes-like object, str found:
         手順: regexp sub メソッド  #search: Python regexp sub
         エラー: expected a bytes-like object, str found
         対処: 文字列に .encode() メソッドを呼び出します。 a_string.encode()
-    - #// SyntaxError self.async
+    SyntaxError self.async:
         手順: Python を実行します
         エラー: |
             File "/home/____/.pyenv/versions/3.7.1/lib/python3.7/site-packages/kafka/producer/simple.py", line 54
@@ -12320,7 +12394,7 @@ Microsoft Store からダウンロードする:
         対処:
             pip install kafka kafka-python
         参考:  https://stackoverflow.com/questions/65809459/syntaxerror-on-self-async-when-running-python-kafka-producer
-    - #// makemigrations と migrate したら Duplicate が出る:
+    makemigrations と migrate したら Duplicate が出る:
         エラー: |
             django.db.utils.OperationalError: (1060, "Duplicate column name '__Field__'")
         参考:
@@ -12354,7 +12428,7 @@ Microsoft Store からダウンロードする:
             python manage.py makemigrations
             python manage.py migrate
         git commit する:
-    - #// TypeError: non-default argument '____' follows default argument
+    TypeError:;; non-default argument '____' follows default argument:
         手順: pytest のリロード時など
         エラー: |
             ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='records', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=typing.List[typing.Any], converter=None, kw_only=False)
@@ -12374,7 +12448,7 @@ Microsoft Store からダウンロードする:
 
                 object = SubClass(name='a', price=100)
                 print(object)
-    - #// An error occurred while installing pyyaml!
+    An error occurred while installing pyyaml!:
         手順: pipenv install pyyaml
         エラー: |
             Courtesy Notice: Pipenv found itself running within a virtual environment, so it will automatically use that environment,
@@ -12385,7 +12459,7 @@ Microsoft Store からダウンロードする:
             Error text:
         対処:
             .venv を作り直す(?) #search: pipenv sync
-    - #// AssertionError: assert None
+    AssertionError:;; assert None:
         手順: assert mock_create_host.assert_has_calls([call(
         エラー: |
             E       AssertionError: assert None
@@ -12395,7 +12469,7 @@ Microsoft Store からダウンロードする:
             修正後: mock_create_host.assert_has_calls([call(
         原因:
             assert に None が指定されました
-    - #// Could not find a version that satisfies the requirement
+    Could not find a version that satisfies the requirement:
         手順: pip install
         エラー: |
             Could not find a version that satisfies the requirement __Package__==__Version__
@@ -12418,7 +12492,7 @@ Microsoft Store からダウンロードする:
         対処D:
             pip download コマンドを使って、パッケージが現在のプラットフォームにインストールできることをチェックします  #search: pip download one
         互換性情報:  #search: Python Wheel platform
-    - #// pipenv install request
+    pipenv install request:
         手順: pipenv install request
         エラー: |
             > pipenv install request

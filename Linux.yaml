@@ -304,17 +304,18 @@ for Windows:
             参考:
                 - https://qiita.com/uhooi/items/c1388f8d803641bfb8f3
                 - https://qiita.com/akiakishitai/items/69bb68f4f6fbd6a88016
-        カレント フォルダー:  #keyword: カレント フォルダー, カレント ディレクトリ  #glossary: カレント フォルダー
+        カレント フォルダー:  #keyword: カレント フォルダー, カレント ディレクトリ,  bash current folder  #glossary: カレント フォルダー
             pwd: #// 表示
                 変数への代入:  #// 以下のいずれか
                     - local  currentFolder=${PWD}
                     - local  currentFolder=$(pwd)
-            cd:  スクリプト内では、pushd または サブシェル (cd ) がよいでしょう
+            cd: #keyword: cd  #// Change Directory. カレント フォルダー を移動します
+                スクリプト内では、pushd または サブシェル (cd ) がよいでしょう
                 #search: pushd
                 #search: bash sub shell
             pushd:  pushd __FolderPath__  > /dev/null  ||  Error
             popd:  popd  > /dev/null
-            シェル スクリプト の最初: |  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh  #search: シェバン
+            シェル スクリプト の最初: |  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh  #search: シェバン  #search: cd this file folder
                 #!/bin/bash
                 if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
     PATH, 環境変数, シェル変数: #keyword: Linux PATH, Linux environment variable, Linux 環境変数
@@ -491,18 +492,21 @@ for Windows:
                                 ScriptEnvironment="Windows"
                                 export USER="${USERNAME}"
                                 export USERPROFILE="${HOME}"
+                                export HOME2="${USERPROFILE}"
                                 export ProgramFiles="/c/Program Files"
-                            elif [  -e "/mnt/c/" ] && ! [[ -v USERPROFILE ]]; then  #// if Linux on WSL2  #// "! -v" means that variable is not defined.
+                            elif [  -e "/mnt/c/" ] && [ "${PWD:0:7}" == "/mnt/c/" ]; then  #// if Linux on WSL2
                                 ScriptEnvironment="Linux"
                                 if ! [[ -v USERNAME ]]; then  #// If USERNAME was not defined in parent script  #// "! -v" means that variable is not defined.
                                     export USERNAME="$( /mnt/c/WINDOWS/system32/cmd.exe /c 'echo %USERNAME%'  2> /dev/null )"
                                     export USERNAME="${USERNAME:0:${#USERNAME}-1}"  #// Cut last CR
                                 fi
                                 export USERPROFILE="/mnt/c/Users/${USERNAME}"
+                                export HOME2="${USERPROFILE}"
                                 export ProgramFiles="/mnt/c/Program Files"
                             else  #// if Linux
                                 ScriptEnvironment="Linux"
                                 export USERNAME="${USER}"
+                                export HOME2="${HOME}"
                                 export USERPROFILE=""
                                 export ProgramFiles=""
                             fi
@@ -522,8 +526,8 @@ for Windows:
                             fi
 
                             #// Expand ~
-                            SSHConfigPath="$( echo "${SSHConfigPath}"  |  sed -E "s|^~|${USERPROFILE}|" )"
-                            SSHKnownHostsPath="$( echo "${SSHKnownHostsPath}"  |  sed -E "s|^~|${USERPROFILE}|" )"
+                            SSHConfigPath="$( echo "${SSHConfigPath}"  |  sed -E "s|^~|${HOME2}|" )"
+                            SSHKnownHostsPath="$( echo "${SSHKnownHostsPath}"  |  sed -E "s|^~|${HOME2}|" )"
                             UserBinSourceFolder="$( echo "${UserBinSourceFolder}"  |  sed -E 's|\$\{InstallerProjectLinuxPath\}|'"${InstallerProjectLinuxPath}|" )"
                         }
 
@@ -1195,7 +1199,7 @@ for Windows:
                             -t オプションをつけないと配列要素の末尾に改行文字が入ります。
                 文字列→配列:  #keyword: bash text_to_array  #search: bash readarray  #// 文字列の 1行ずつを要素にした配列を変数に代入します
                     改行区切り:
-                        read:
+                        read を使う場合:
                             改行文字が CR+LF の可能性がある場合:
                                 local  line=""
                                 local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$( echo "$line" | sed -E 's/\r$//' )" ) ;done <<< "__Text__"
@@ -1204,7 +1208,7 @@ for Windows:
                             改行文字が必ず LF の場合:
                                 local  line=""
                                 local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$line" ) ;done <<< "__Text__"
-                        readarray:
+                        readarray を使う場合:
                             ❗注意: mac では使えません
                                 local  __Variable__=( )  &&  readarray -t  __Variable__ <<<  "__Text__"
                     空白区切り:  #// "" で囲まない変数参照を書きます
@@ -1215,10 +1219,17 @@ for Windows:
                             test  "${__Array__[1]}" == "b"  ||  Error
                             test  "${__Array__[2]}" == "c"  ||  Error
                         できないケース: |  #// "" は空文字になりません。"" を空文字としてコマンドに渡すときは #search: bash -c
-                            $ items="a \"\" c"     #// または  'a "" c'                                                                                                                
+                            $ items="a \"\" c"     #// または  'a "" c'
                             $ array=( ${items} )   #// または  read -r -a array <<< "$items"
-                            $ echo "${array[1]}"                                                                                                               
+                            $ echo "${array[1]}"
                             ""
+                    CSV, 文字区切り: #keyword: bash CSV to array
+                        read を使う場合:  #focus: __Array__,  read -ra  #// -ar では正しく動きません。 --array のような長い名前のオプションはありません
+                            local  __StrictCSV__=$( GetStrictCSV  "apple, banana, cherry" )
+                            local  __Array__=( )  &&  IFS=',' read -ra  __Array__  <<< "${__StrictCSV__}"
+                            echo  "${__Array__[0]}"
+                            echo  "${__Array__[1]}"
+                            echo  "${__Array__[2]}"
                 配列→文字列:  #// 配列ではなくします
                     改行区切り:
                         text=$(printf '%s\n' "${__Array__[@]}")
@@ -1673,6 +1684,38 @@ for Windows:
         関連:  #search: process substitution
     リダイレクト: #keyword: Linux redirect,  redirect  #// 標準出力などをファイルに保存する等に変更します
         stdout, 標準出力: #keyword:
+            /dev/stdout:  #// ターミナルに表示します
+                同じ処理:
+                    __Command__
+                    __Command__ > /dev/stdout  #// 通常不要
+                エラー出力も標準出力へ:
+                    __Command__  2>&1
+                    __Command__ > /dev/stdout 2>&1  #// 通常不要
+            出力先を stdout と /dev/null で切り替えます:
+                注意:
+                    /dev/stdout は使えない環境があります
+                サンプル: |
+                    if [ "${Options_Check}" != "" ]; then
+                        local  redirect=/dev/null
+                    else
+                        local  redirect=/dev/stdout
+                    fi
+
+                    echo aaaa  > $redirect 2>&1
+                ボツ）>&3:  #// fd 3 の設定が、グローバル（呼び出し先の関数の変更）に影響するため、非推奨
+                    サンプル: |
+                        if [ "${Options_Check}" != "" ]; then
+                            exec 3>&1  #// Define >&3 as > /dev/stdout. If /dev/stdout is used, error no such device or address
+                        else
+                            exec 3>/dev/null  #// Define >&3 as > /dev/null
+                        fi
+
+                        echo "aaa" >&3
+                        echo "bbb" >&3 2>&1
+
+                        exec 3>&-  #// Close file descriptor 3 (>&3)
+            RunWithEcho にリダイレクトを指定する場合:  #// リダイレクトも表示させるには
+                #search: RunWithEcho
             安全にファイルに更新します:
                 悪いコード:  #// コマンドでエラーが発生すると __OutputFilePath__ の内容が空になるか不完全な内容になり、ファイルの一部を更新しようとするとファイルの内容が失われます
                     __Command__ > "__OutputFilePath__"
@@ -1681,8 +1724,6 @@ for Windows:
                     mv  "__OutputFilePath__.buf"  "__OutputFilePath__"
             TTY の標準出力の有無: #keyword: test -t 1
                 test -t 1  &&  echo "stdout exist"  #ref: https://unix.stackexchange.com/questions/389495/what-does-t-1-check#answer-389652
-            RunWithEcho にリダイレクトを指定する場合:
-                #search: RunWithEcho
             出力をパラメーターに指定する場合:
                 #search: <( )
         stderr, 標準エラー出力: #keyword:
@@ -2235,7 +2276,7 @@ for Windows:
                 サンプル:  #// 分かりにくいので非推奨（エスケープ シーケンス 直書きは非推奨）
                     - echo -e "AB\e[31mCDE\e[0mFG"  #// ABCDEFG のうち CDE が赤くなります。 -e オプションは必須です
                     - echo -e "AB\e[33mCDE\e[0mFG"  #// WSL2 Ubuntu 20.04 では黄色を指定しても白になります
-                色の変数: |  #keyword: bash Red Yellow Green  #// 推奨。変数名を使うことを推奨します
+                色の変数: |  #keyword: bash echo Red Yellow Green  #// 推奨。変数名を使うことを推奨します
                     DefaultColor="\e[0m"
                     Red="\e[91m"
                     Green="\e[92m"
@@ -2415,7 +2456,8 @@ for Windows:
                     Dockerfile の ENV に指定します
 検索、一覧:  #glossary: Linux
     ls: #keyword:
-        相対パスだけ１行ずつ表示します: #search: Linux find
+        相対パスだけ１行ずつ表示します:
+            find . -type f  |  sort  #search: Linux find
         1つのフォルダーの属性を表示します:
             ls -ld  __FolderPath__
         直下のフォルダーだけ一覧します:  #search: ls -d
@@ -2615,9 +2657,9 @@ for Windows:
                 - if [ "$( echo "${__Variable__}"  |  grep -E '^[0-9]+$' )" == "" ]; then
                 - if ! grep -E '^[0-9]+$'  "__FilePath__"  > /dev/null; then
             含まれていないときにエラー:
-                - echo "${__Variable__}"  |  grep -qE '^[0-9]+$' > /dev/null  ||  Error 
+                - echo "${__Variable__}"  |  grep -qE '^[0-9]+$' > /dev/null  ||  Error
             含んでいるときにエラー:
-                - echo "${__Variable__}"  |  grep -qE '^[0-9]+$' > /dev/null  &&  Error 
+                - echo "${__Variable__}"  |  grep -qE '^[0-9]+$' > /dev/null  &&  Error
             含んでいるかどうかを変数に:  #search: exit code variable
         オプション: #keyword: grep options  #glossary: grep  #// grep コマンドのオプション
             （種類別）:
@@ -3208,6 +3250,11 @@ for Windows:
                 GB:  1000 * 1000 * 1000  #// 10の9乗 「ギガバイト」 ハード ディスク の外箱
                 GiB: 1024 * 1024 * 1024  #// 2の30乗 「ギビバイト」 Windows のディスクサイズ
                 #// 490GB = 457GiB
+            ブロック サイズ 4096: #keyword: Linux directory block size
+                4096 は 1ブロック分
+                ファイルやサブディレクトリが増えてブロックをまたぐと、8192、12288… と4096の倍数で増えていきます。
+                ext4以外のファイルシステム（XFS、Btrfs、FAT32など）では異なる値になることがあります
+                ファイルを削除してもディレクトリのサイズは減りません
             関連 >> Windows 用:  #search: Windows folder size
         使用量削減: #keyword: Linux 容量不足,  reduce Linux Windows storage 使用量 使用率  #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#df
             フォルダーのサイズ:  #// 大きいフォルダーを探します
@@ -3590,7 +3637,9 @@ for Windows:
                 対処:
                     echo  "___"  |  ssh ${sshOptions}  'cat > __DestinationPath__"  ||  Error
     rsync: #keyword:
-        注意: Git bash には入っていません。数時間かかる場合、帯域制限したほうがいいかもしれません
+        注意:
+            - Windows Git bash には入っていません  #search: WinSCP
+            - 数時間かかる場合、帯域制限したほうがいいかもしれません
         ポート番号: 22 (SSH)
         手順:
             インストール状態の確認:
@@ -3858,7 +3907,7 @@ for Windows:
             「バックアップ」という英語:  #search: English backup
             バックアップするときのコピー元: マスター, オリジナル  #ref: https://www.google.com/search?q=バックアップ%20ファイル%20反対語
     ファイル分割、結合、ハッシュ値:  #keyword: ファイル分割 結合 div
-        split:  #// ファイルを分割します  #keyword: split
+        split:  #// ファイルを分割します  #keyword: split file
             - cd  __InputFileFolder__
             - 分割する前に圧縮します
             - split -d --bytes 512M  "__InputFileName__"  "__OutputPrefix__"
@@ -3992,13 +4041,15 @@ for Windows:
         入力する: i （入力モードに変更。左下に -- INSERT -- と表示されます）
         ❗注意: クリップボードから貼り付けるときは、# によるコメント行を含めないでください。# がある行以下すべてに#が付いてしまいます
         入力モード終了: Esc
-        カーソルの移動: カーソル キー
+        カーソルの移動:
+            基本: カーソル キー
+            ファイルの先頭: gg  #keyword: vi gg
         検索:
             -   /__Keyword__  #// 下方向
             -   ?__Keyword__  #// 上方向
         強調表示させながら編集:
             vi で検索する場合:
-                / + __Keyword__ + Enter
+                gg + / + __Keyword__ + Enter  #// Enter キー を押すと黄色く強調表示され、編集領域がアクティブになり、編集できます
             VSCode で検索する場合:  #// キーワードにマッチする部分を強調表示しながら vi で編集します
                 - VSCode で vi を起動します
                 - Ctrl + F
@@ -4091,9 +4142,26 @@ for Windows:
             echo "hello!" | tee ./_temporary.txt
         追記, -a オプション:  #// 標準出力を表示しながらファイルに追記します
             echo "hello!" | tee -a ./_temporary.txt
-        変数に格納しながら表示します: | #keyword: tee /dev/tty
-                local  output="$( __Command__ __Parameters__  2>&1  |  tee /dev/tty )"
-            #search: diff test
+        変数に格納しながら表示します: #keyword: tee /dev/tty
+            シンプル版: |  #// ただし、標準出力ではなく /dev/tty に出力するので、リダイレクト等ができません
+                    local  output="$( __Command__ __Parameters__  2>&1  |  tee /dev/tty )"
+                #search: diff test
+            一時ファイルを使う場合:  #// codediff のようなアプリケーションでは workingFolderPath に一時フォルダーがあるので、その中に一時ファイルを作れます
+                local  temporaryFile=____
+                __Command__ __Parameters__  2>&1  |  tee  "${temporaryFile}"
+            ファイルへの FIFO を使う場合: |  #// 未確認
+                fifo="/tmp/fifo_$$"
+                mkfifo "$fifo"
+
+                __Command__ __Parameters__ 2>&1 | tee "$fifo" &
+                output=""
+                while IFS= read -r line; do
+                    output="${output}${line}
+                "
+                done < "$fifo"
+                #// FIFOはパイプと同じ仕組みなので、書き込み側（コマンド）が終了してFIFOをクローズすると、読み込み側の read がEOFを受け取り while を抜けます。
+
+                rm "$fifo"
         root ユーザー: #keyword: sudo tee  #// 管理者権限が編集に必要なファイルに追加します
             置き換え: echo  '__AppendingContents__'  |  sudo tee  __FilePath__
             末尾に追記: echo  '__AppendingContents__'  |  sudo tee -a  __FilePath__
@@ -4822,7 +4890,7 @@ for Windows:
             print $1 "/" $2:  #// 1列目/2列目 と表示します
         オプション:
             -F オプション:  #// 区切り文字
-                - CSV なら , 
+                - CSV なら ,
                 - 複数文字指定したときは、それぞれの文字が区切り文字になります
                 - 省略すると空白またはタブ
             -v オプション:  #// 変数を使ったオプション
@@ -5013,8 +5081,76 @@ for Windows:
                 関連ツール:
                     Ubuntu の JSON:
                         python3 -m json.tool: 整形します
-            JSON を置き換えます: #keyword: jq replace
-                フィルター:  #// 一部のフィールドだけ取り出します  #search: jq filters
+            入力フィルター:  #// 配列の構造体から、一部の構造体だけ取り出します。 jq の機能としてはフィルターに入力も出力もありません
+                #↓ 入力の形
+                配列の構造体:  #// 入力する JSON の全体が「配列の構造体」になっている場合に、特定の条件を満たす構造体だけ出力します
+                    #↓ 値の型
+                    数値型:
+                        入力サンプル: |
+                            [
+                                {
+                                    "id": 21, "data": {"name": "A", "score": 20}
+                                },
+                                {
+                                    "id": 23, "data": {"name": "B", "score": 100}
+                                }
+                            ]
+                        コマンド:
+                            cat ~/_data.json  |  jq '[.[] | select(.id == 21)]'  #// 数値型なので "21" ではなく 21 と書くこと
+                                #template__:  cat ~/_data.json | jq '[.[] | select(.__FieldName__ == "__Value__")]'
+                    文字列型:
+                        入力サンプル: |
+                            [{"id": "21", "data": "A"},{"id": "23", "data": "B"}]
+                        コマンド: | #// 文字列型なので "21" と書くこと
+                            cat ~/_data.json | jq '[.[] | select(.id == "21")]'
+                                [{"id": 21,"data": "A"}]
+                一部が配列の構造体:  #// 入力する JSON の一部が「配列の構造体」になっている場合に、特定の条件を満たす構造体だけ出力します
+                    #↓ 値の型
+                    数値型:
+                        入力サンプル: |
+                            {"items":[{"id": 21, "data": "A"},{"id": 23, "data": "B"}]}
+                        コマンド: |  #// 数値型なので "21" ではなく 21 と書くこと
+                            cat ~/_data.json  |  jq '[.items[] | select(.id == 21)]'
+                                [{"id": 21,"data": "A"}]
+                        #template__:  cat ~/_data.json | jq '[.[] | select(.__FieldName__ == "__Value__")]'
+                #↓ 詳細
+                詳細 >> 基本フィルター:  #search: jq filters
+            出力フィルター: #keyword: jq replace  #// 構造体を置き換えます。 jq の機能としてはフィルターに入力も出力もありません
+                map, 書式指定: #keyword: jq map  #focus: name, color, map, score  #// フィールドをフィルターします
+                    入力する全体が配列の構造体の場合:
+                        #↓ 置き換える前
+                        ~/_data.json:
+                            [{"name":"Name-A", "color":"red", "others":{"name": "A", "score": 20}}, {"name":"Name-B", "color":"blue", "others":{"name": "B", "score": 100}}]
+                        #↓ 置き換えた後
+                        一部のフィールド {name, color}: |
+                            cat ~/_data.json  |  jq 'map({name, color})'
+                                [{"name":"Name-A", "color":"red"}, {"name":"Name-B", "color":"blue"}]
+                        ネスト {score:.others.name}: |
+                            cat ~/_data.json  |  jq 'map({score:.others.score})'
+                                [{"score": 20},{"score": 100}]
+                        書式指定 "name is \(.name)":  #// フォーマットを指定して、JSON の値を、1行の中に埋め込みます。 JSON 文字列値
+                            cat ~/_data.json  |  jq '.[] | "name is \(.name) - score is \(.others.score)"'
+                                "Name-A - score is 20"
+                                "Name-B - score is 100"
+                    入力する一部が配列の構造体の場合:
+                        #focus: items
+                        #↓ 置き換える前
+                        ~/_data.json:
+                            {"items":[{"name":"Name-A", "color":"red", "others":{"name": "A", "score": 20}}, {"name":"Name-B", "color":"blue", "others":{"name": "B", "score": 100}}]}
+                        #↓ 置き換えた後
+                        一部のフィールド: |
+                            cat ~/_data.json  |  jq '.items | map({score:.others.score})'
+                                [{"score": 20},{"score": 100}]
+                        書式指定 "name is \(.name)":  #// フォーマットを指定して、JSON の値を、1行の中に埋め込みます。 JSON 文字列値
+                            cat ~/_data.json  |  jq '.items[] | "name is \(.name) - score is \(.others.score)"'
+                                "Name-A - score is 20"
+                                "Name-B - score is 100"
+                値をフィールド名にします:  #focus: Name-A, red, Name-B, blue
+                        置き換え前: [{"name":"Name-A", "color":"red", "others":""}, {"name":"Name-B", "color":"blue", "others":""}]
+                        置き換え後: {"Name-A": "red", "Name-B": "blue"}
+                        コマンド: |
+                            echo '[{"name":"Name-A", "color":"red", "others":""}, {"name":"Name-B", "color":"blue", "others":""}]' | jq 'map({(.name): .color}) | add'
+                途中が以下の場合:
                     "[]":
                         実行例: |  #// jq  [配列の場所 | [ 抽出するフィールド名の CSV ] | @csv]  #search: Object Identifier-Index
                             cat _output.json | jq '[.hits.hits[] | [._source.pref_id, ._source.city_id] | @csv]'
@@ -5074,22 +5210,9 @@ for Windows:
                             }
                     .__Field__:
                         cat _output.json | jq ".field"
-                    配列要素:
+                    途中の配列要素:
                         特定のフィールドの値を持つ配列要素:
                             cat _output.json | jq '.__ArrayField__[] | select(.__FieldName__ == "__Value__")'
-                    map:  #focus: name, color
-                        置き換え前: [{"name":"Name-A", "color":"red", "others":""}, {"name":"Name-B", "color":"blue", "others":""}]
-                        置き換え後: [{"name":"Name-A", "color":"red"}, {"name":"Name-B", "color":"blue"}]
-                        コマンド: |
-                            echo '[{"name":"Name-A", "color":"red", "others":""}, {"name":"Name-B", "color":"blue", "others":""}]' | jq 'map({name, color})'
-                値をフィールド名にします:  #focus: Name-A, red, Name-B, blue
-                        置き換え前: [{"name":"Name-A", "color":"red", "others":""}, {"name":"Name-B", "color":"blue", "others":""}]
-                        置き換え後: {"Name-A": "red", "Name-B": "blue"}
-                        コマンド: |
-                            echo '[{"name":"Name-A", "color":"red", "others":""}, {"name":"Name-B", "color":"blue", "others":""}]' | jq 'map({(.name): .color}) | add'
-            整形します:
-                - cat _output.json | jq
-                - cat _output.json | jq __Parameters__
             コンパクトにします:
                 - cat _output.json | jq --compact-output
                 - cat _output.json | jq --compact-output __Parameters__
@@ -7513,11 +7636,17 @@ for Windows:
     socat: #keyword:  #// ソケット通信をリレーするように設定をします。 proxy ツール。 #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#socat
     proxy 環境変数, プロキシー:  #search: proxy
     lsof: #// 送信側？の現在のネットワークの使用状況など
-        コマンド例:
-            lsof -i TCP
-        代替手段:
-            if lsof -i :"${port}" > /dev/null; then
-            if ss -ln | grep -q ":${port} "; then
+        一覧:
+            コマンド例:
+                lsof -i TCP
+            代替手段:
+                if lsof -i :"${port}" > /dev/null; then
+                if ss -ln | grep -q ":${port} "; then
+        サービスの終了:
+            lsof -i :3001
+                COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+                node    47176 user1   18u  IPv6 0xb3331648d567d47d      0t0  TCP *:redwood-broker (LISTEN)
+            kill 47176
         関連:
             #search: Linux http strace
             Monitor outgoing web requests as they’re happening: #ref: https://unix.stackexchange.com/questions/141600/monitor-outgoing-web-requests-as-they-re-happening
@@ -7879,6 +8008,14 @@ for Windows:
                 #ref: https://qiita.com/zaki-lknr/items/5c17b53b51eae7b21e2e
                 #ref: https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/7/html/storage_administration_guide/nfs-clientconfig
     SMB: #keyword: SMB,  Linux Windows 共有フォルダー
+        NFS, SMB, AFS の比較: |
+            |              | AFS                  | NFS                  | SMB/CIFS             |
+            |--------------|----------------------|----------------------|----------------------|
+            | 開発元       | カーネギーメロン大学 | Sun Microsystems     | IBM/Microsoft        |
+            | 登場         | 1980年代             | 1980年代             | 1980年代             |
+            | 主な用途     | 大学・研究機関       | Linux/Unix環境全般   | Windows環境全般      |
+            | 認証         | Kerberos統合         | 様々                 | Active Directory等   |
+            | 現在の普及度 | ニッチ               | 広く普及             | 広く普及             |
         ドメインに参加している場合、以下の手順では失敗: |  #// Windows のセッションにおいてドメインを変えることができないため SMB がドメインへの参加が要求されるが失敗
             sudo yum install -y  samba samba-common
             sudo setenforce 0
@@ -7912,6 +8049,8 @@ for Windows:
                 passwd:         compat winbind
                 group:          compat winbind
                 sudo systemctl restart winbind
+    AFS: #keyword:  #// Andrew File System。ネットワーク越しに複数のコンピューターでファイルを共有するための分散ファイルシステム
+        RxRPC: #keyword:  #// AFSのためだけに使われると言っていいプロトコル
     電子メール: #keyword: eメール 電子メール
         ダブル バウンス: #keyword:
             配送エラー通知がさらにエラーになる現象  #ref: ${typrm_files}/ref/Linux/double_bounce.html
@@ -7927,6 +8066,8 @@ for Windows:
                 （メールの内容。スペース キーを押すとスクロールします）
                 & h
                 （メール一覧。既読は行頭の N が無くなります）
+                & z
+                （メール一覧の続き）
                 & quit  #// 状態を保存して終了します。quit または q
                 & exit  #// 状態を保存しないで終了します
             メールの内容を表示します:
@@ -8262,7 +8403,7 @@ for Windows:
                             export  http_proxy="http://__IPAddress__:__Port__"  #search: Docker proxy ENV
                     Docker のキャッシュをクリアします:
                         docker system prune --all
-    RPM:  #// rpm, yum, dnf  #// Red Hat Package Manager  #keyword: RPM
+    RPM: #keyword: RPM  #// rpm, yum, dnf  #// Red Hat Package Manager
         #// https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/security_guide/sect-security_guide-updating_packages-verifying_signed_packages
         手順:
             .rpm ファイルに対する操作:  #// RPM パッケージ, ローカルにある .rpm ファイルに対する操作
@@ -8841,7 +8982,16 @@ for Windows:
                     baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
                     gpgcheck=1
                     gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+                    ;; 最適なミラーを自動選択してくれるURLを指定
+                    ;; ① yum/dnf が metalink URL にアクセス
+                    ;; ② metalink サーバーが XML を返す
+                    ;; （世界中のミラー一覧 + チェックサム情報）
+                    ;; ③ yum/dnf が最も近い・速いミラーを自動選択
+                    ;; ④ 選ばれたミラーからパッケージを取得
+                    metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-38&arch=x86_64
                 手順:
+                    プロキシを設定します:  #search: repodata/repomd.xml trouble
                     疎通確認します:
                         #// インストール先のホストで
                         sudo dnf -v repolist --refresh
@@ -8925,6 +9075,7 @@ for Windows:
                     データベースを再構築します:  #// /etc/yum.repos.d/____.repo ファイルを編集したら、次のコマンドを入力してください
                         -   sudo yum clean all  #keyword: sudo yum clean all
                         -   sudo yum makecache  #keyword: sudo yum makecache   #// yum makecache は実行しなくても構いません。ただし、必要になったときに自動的にダウンロードが10秒ほど行われます
+                                #// すぐ 2回目の yum makecache を実行するときは、キャッシュが効いて早く終わります。デフォルトのキャッシュ TTL は 48時間です
                         #↓ 特定のリポジトリだけクリーンする場合
                         -   sudo dnf makecache  --disablerepo="*"  --enablerepo="__RepositoryName__"  --refresh  #// --refresh があると clean が不要らしい
                         -   sudo yum clean all  --disablerepo="*"  --enablerepo="__RepositoryName__"
@@ -8943,6 +9094,7 @@ for Windows:
                             ln -sf  "yum.repos.d.custom"  "yum.repos.d"
                         テスト:
                             yum install jq  #// シンボリックリンクによってはエラーになる
+                トラブルシューティング:  #search: repodata/repomd.xml trouble
                 関連:  #search: createrepo
             repodata/:  #// Git リポジトリに必要なファイル
                 #search: createrepo
@@ -9210,7 +9362,8 @@ for Windows:
                     repoquery --whatrequires  cockpit-docker-0:195.6-1.el7.centos.x86_64
                         #// 依存関係が無い場合は何も表示されません
             createrepo: #keyword: createrepo
-                概要: リポジトリに必要なフォルダーを作ります
+                概要: リポジトリに必要なフォルダーを作ります。
+                    更新は createrepo --update  "."
                 インストール:
                     CentOS7: sudo yum -y install createrepo
                 コマンド:
@@ -9907,8 +10060,12 @@ for Windows:
                     rpm2cpio  "${RpmFilePath}"  |  (cd "${OutputPath}" && cpio -idm)
                     echo  "Output: ${OutputPath}"
             rpm-revision-to:  #// RPM ファイルのバージョン修飾子を変えます  #search: rpm-revision-to
-        トラブルシューティング:
-            - #// dnf install, repomd.xml parser error: Parse error at line
+        トラブルシューティング: #keyword: RPM trouble shooting
+            問題がありそうな場所:
+                ターゲット ホスト にある yum repo:  #search: /etc/yum.repos.d/____.repo
+                リポジトリの URL とブランチ:
+                RPM ファイルの存在:
+            dnf install, repomd.xml parser error:;; Parse error at line:
                 手順: dnf install __PackageName__
                 ログ: |
                     __RepositoryShortName__ repo                                                                            89 kB/s |  27 kB     00:00    
@@ -9917,9 +10074,9 @@ for Windows:
                     リポジトリを Public にします
                 対処B:
                     リポジトリのミラーを作ります
-            - #// 古い RPM（同じファイル名）がインストールされてしまう  #search: old RPM installed
-            - #// yum history が右端で途切れる: #search: yum history width
-            - #// yum install remove syntax error near unexpected token `fi'
+            古い RPM（同じファイル名）がインストールされてしまう:  #search: old RPM installed
+            yum history が右端で途切れる: #search: yum history width:
+            yum install remove syntax error near unexpected token `fi':
                 手順: yum install または yum remove
                 ログ: |
                     sudo yum remove ____
@@ -9931,7 +10088,7 @@ for Windows:
                     sudo yum remove ____
                 効果なし-B:
                     sudo yum remove ____ --skip-broken
-            - #// CentOS7 でインストールできた RPM ファイルを CentOS8 にインストールする  #keyword: cross RPM CentOS7 CentOS8
+            CentOS7 でインストールできた RPM ファイルを CentOS8 にインストールする:  #keyword: cross RPM CentOS7 CentOS8
                 対処: 非推奨です  #ref: ${typrm_files}/ref/Linux-AI.yaml#label: RPM CentOS7 CentOS8
                 補足:
                     rpm コマンドに "–nodiegest" オプション:
@@ -9944,7 +10101,7 @@ for Windows:
                     RPM install fails on RHEL/Rocky/AlmaLinux >=8 with FIPS enabled:
                         #ref: https://github.com/CrowdStrike/ansible_collection_falcon/issues/297
                         rpm -ivh --nodigest --nofiledigest __RpmFile__
-            - #// Problem: conflicting requests nothing provides
+            Problem:;; conflicting requests nothing provides:
                 手順: sudo dnf install mysql-community-server
                 エラーA: |
                     Error: 
@@ -9964,7 +10121,7 @@ for Windows:
                         エラーA: net-tools, mysql-community-client(x86-64), mysql-community-common(x86-64), mysql-community-icu-data-files
                         エラーB: mysql-community-client-plugins, mysql-community-libs(x86-64)
                     どのリポジトリにあるか:  #search: which yum repository
-            - #// nothing provides libnetsnmp.so.31()(64bit) needed by my-keepalived-1.3.5-8.el7.x86_64
+            nothing provides libnetsnmp.so.31()(64bit) needed by my-keepalived-1.3.5-8.el7.x86_64:
                 手順: sudo dnf install -y my-keepalived
                     CentOS7 で SRPM から作った RPM を Rocky Linux 8 へインストール
                 エラー: |
@@ -9977,43 +10134,66 @@ for Windows:
                 対処:
                     RPM のファイル名の末尾が .el7.x86_64 ではなく .el8.x86_64 のファイルを使ってください
             #keyword: Failed to download metadata for repo 'epel' Cannot download repodata/repomd.xml: All mirrors were tried
-            - #// repodata/repomd.xml
+            repodata/repomd.xml:
                 手順: yum install
                 エラー: |
                     TASK [__Role__ : install a rpm] ************************************************************************************************************
                     fatal: [__Host__]: FAILED! => {"changed": false, "msg": "Failed to download metadata for repo '__Repository__': Cannot download repomd.xml: Cannot download repodata/repomd.xml: All mirrors were tried", "rc": 1, "results": []}
-                #keyword: repodata/repomd.xml trouble
-                対処A:  #// /etc/yum.repos.d/____.repo 変更直後
+                #keyword: repodata/repomd.xml trouble  #search: yum repos
+                対処:
+                    プロキシや URL 関連の問題:
+                        Ansible で実行する場合:
+                        CLI で実験する場合:
+                            https_proxy 環境変数:  #// プロキシ関連の問題、環境変数  #search: Ansible proxy
+                                https_proxy 環境変数（の Ansible vars）の値を正しく設定します
+                            no_proxy 環境変数:
+                                no_proxy 環境変数（の Ansible vars）に ローカル リポジトリ を追加します
+                            /etc/yum.repos.d/____.repo : |  #// 以下を追加します
+                                    baseurl=http://____
+                                    proxy=_none_
+                                #// 上記設定をしないと、/etc/dnf/dnf.conf にあるプロキシの設定が使われている可能性があります
+                            Linux ユーザー:
+                                Linux ユーザー によって上記環境変数の値が異なる場合があります
+                            dnf が使えるか確認するコマンド:
+                                sudo dnf install  ____ --debuglevel=10   #// -y オプションは指定しない
+                                #// --debuglevel は一般的には -v/--verbose オプションと呼ばれるものです。10 は最大  #keyword: dnf --debuglevel
+                                #// キャッシュが使われてネットワークアクセスが発生しないことなどを確認できます
+                            curl で確認するコマンド:  #// __BaseURL__ は /etc/yum.repos.d/____.repo の baseurl
+                                curl -v --noproxy '*' __BaseURL__/repodata/repomd.xml
+                                    が失敗し、
+                                curl -v __BaseURL__/repodata/repomd.xml
+                                    が成功したら、proxy が必要な URL です。
+                    補足:
+                        - 環境やコマンドによっては、プロキシの設定に違いがあるために、パッケージがあるリポジトリ以外のリポジトリへのアクセスに失敗して、全体を止めてしまいます
+                対処B:  #// 問題がある接続先の設定を確認します
+                    grep -rH '^\[__Repository__' /etc/yum.repos.d/
+                    less  /etc/yum.repos.d/____.repo
+                    #// __Repository__ は エラー メッセージ に書いてあります。
+                対処C:  #// --flush-cache オプション, /etc/yum.repos.d/____.repo 変更直後
                     ansible-playbook コマンドに --flush-cache オプションを指定します
-                対処B:  #// Ansible を使わないで試します
-                    Ansible を使わずに実行してエラーが出たら、それに対処します
-                    sudo dnf install  ____   #// -y オプションは指定しない
-                対処C:  #// /etc/yum.repos.d/*.repo にマッチするすべての .repo ファイルが指すリポジトリにアクセスできることを確認します
+                対処D:  #// /etc/yum.repos.d/*.repo にマッチするすべての .repo ファイルが指すリポジトリにアクセスできることを確認します
                     dnf --repo=__Repository__ list available  --verbose --debuglevel=10
-                    でエラーが出たら、それに対処します
+                    でエラーが出たら、それに対処します。
+                    #// __Repository__ は エラー メッセージ に書いてあります。
+                    #// __Repository__ または __Repository__ 以外の一部の ____.repo のリポジトリへのアクセスでもエラーになったら、yum repo 全体を止めてしまいます
                     #search: /etc/yum.repos.d/____.repo
                     #search: 403 Forbidden
-                対処D:  #// プロキシ関連の問題
-                    /etc/yum.repos.d/____.repo : |  #// 以下を追加します
-                        proxy=_none_
-                    補足:
-                        上記設定をしないと、/etc/dnf/dnf.conf にあるプロキシの設定が使われている可能性があります
                 対処E:  #// RPM ミラー が落ちたとき
                     /etc/yum.repos.d/____.repo を一時的に削除（移動）します
-            - #// Failed to download metadata for repo  #keyword: Ansible Failed to download metadata for repo
+            Failed to download metadata for repo:  #keyword: Ansible Failed to download metadata for repo
                 手順: ansible-playbook コマンドで yum モジュールのタスクを実行
                 ログ: |
                     TASK [docker : add docker repository. install yum-utils] *****************************************************
                     fatal: [__Host__]: FAILED! => {"changed": false, "msg": "Failed to download metadata for repo '__RepositoryName__': repomd.xml parser error: Parse error at line: 84 (Opening and ending tag mismatch: link line 0 and head\n)", "rc": 1, "results": []}
                 対処:  #search: repodata/repomd.xml trouble
-            - #// Failed to download packages
+            Failed to download packages:
                 手順: ansible-playbook コマンドで yum モジュールのタスクを実行
                 エラー: |
                     TASK [__Role__ : __Task__] ***************************************************************
                     fatal: [__Host__]: FAILED! => {"changed": false, "msg": "Failed to download packages: example-4.0.0-1.x86_64: Cannot download, all mirrors were already tried without success", "results": []}
                     fatal: [__Host__.vmlocal.com]: FAILED! => {"changed": false, "msg": "Failed to download metadata for repo '__Repository__': Cannot download repomd.xml: Cannot download repodata/repomd.xml: All mirrors were tried", "rc": 1, "results": []}
                 対処:  #search: repodata/repomd.xml trouble
-            - #// Package Requires "glibc-common":
+            Package Requires "glibc-common":
                     ログ: | #focus: Requires
                         --> Finished Dependency Resolution
                         Error: Package: glibc-2.17-317.el7.i686 (base)
@@ -10032,7 +10212,7 @@ for Windows:
                         Available: 代わりにインストールできるバージョンは 2.17-317.el7 や 2.17-322.el7_9
                     対処:
                         実行したコマンド（yum install）に --skip-broken オプションを追加して実行します。 #// 未確認
-            - #// Repodata is over 2 weeks old. Install yum-cron? Or run: yum makecache fast  You don't have access to the history DB.
+            Repodata is over 2 weeks old. Install yum-cron? Or run:;; yum makecache fast  You don't have access to the history DB.:
                 手順: yum history package-list
                 エラー: |
                     Loaded plugins: fastestmirror, langpacks
@@ -10040,14 +10220,14 @@ for Windows:
                     You don't have access to the history DB.
                 対処:
                     sudo を付けて実行してください
-            - #// slow yum install  #keyword: slow yum install, slow apt install
+            slow yum install:  #keyword: slow yum install, slow apt install
                 手順: yum install  #// 社内
                 現象: ものすごく遅い。30分ぐらい
                 対処:
                     修正前: yum install ____
                     修正後: ulimit -n 1024;  yum install ____
                 原因:  #ref: https://github.com/kubernetes/minikube/issues/6018#issuecomment-600768689
-            - #// No package __Package__ available.
+            No package __Package__ available.:
                 手順: sudo yum install __Package__
                 エラー: |
                     No package __Package__ available.
@@ -10071,7 +10251,7 @@ for Windows:
                                 updates/7/x86_64  CentOS-7 - Updates   5,285+2
                 対処C:
                     #search: createrepo
-            - #// curl#5 - "Could not resolve proxy: proxy.____.jp; Unknown error"  #keyword: proxy DNS trouble
+            curl#5 - "Could not resolve proxy:;; proxy.____.jp; Unknown error":  #keyword: proxy DNS trouble
                 手順: Dockerfile の RUN yum -y update 
                 エラー: |
                     curl#5 - "Could not resolve proxy: proxy.____.jp; Unknown error"
@@ -10082,7 +10262,7 @@ for Windows:
                     nslookup で解決できない。一部はキャッシュで動いている or 動かない可能性があります。
                     DNS の設定変更が浸透していない？
                 参考:  #search: docker DNS trouble
-            - #// Multilib version problems found.
+            Multilib version problems found.:
                 手順: yum install （古いバージョンのパッケージ）
                 エラーメッセージを整形する場合:  #search: VSCode replace \n 改行
                 エラー: |
@@ -10148,7 +10328,7 @@ for Windows:
                                     state: present
                                     allow_downgrade: yes
                         #// パッケージを書く順番がどちらが先でも同じ動きになります
-            - #// cannot open Packages index using db5
+            cannot open Packages index using db5:
                 手順: yum install
                 エラー: |
                     fatal: [control]: FAILED! => {"attempts": 3, "changed": false, "module_stderr":
@@ -10164,14 +10344,14 @@ for Windows:
                     Ansible を使っている場合:
                         ssh  vagrant@localhost  -p __PortNum__  -i .vagrant/machines/__Machine__/virtualbox/private_key \
                             'sudo rm -rf /var/lib/rpm/__db.00*  &&  sudo rpm --rebuilddb'
-            - #// Requested Range Not Satisfiable Trying other mirror
+            Requested Range Not Satisfiable Trying other mirror:
                 手順: 社内リポジトリに置いた RPM ファイルをインストール
                 エラー: |
                     [Errno 14] HTTPS Error 416 - Requested Range Not Satisfiable Trying other mirror.
                 対処:
                     インストールするマシンの RPM のキャッシュを削除します:
                         yum clean all
-            - #// .rpm ファイルが開けない
+            .rpm ファイルが開けない:
                 手順: createrepo --update "." や rpm -qlp  __RPM_FilePath__ など
                 エラー: |
                     Worker 0: Error: Could not open local rpm file: __RPM_FilePath__: RPM Error opening Package
@@ -14118,9 +14298,29 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                 "$0"="__FullPath__"
             相対パスで指定したスクリプトの場合: |
                 "$0"="__RelativePath__"
-        カレント フォルダー をスクリプトがあるフォルダーにする:  #keyword: cd $0
+        カレント フォルダー をスクリプトがあるフォルダーにする:  #keyword: cd $0,  cd this file folder
             bash debug 対応版:
-                if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
+                新しい方法:
+                    移動: |  #keyword: bash-debug|systemd  #// カレント フォルダー をスクリプトがあるフォルダーに移動します
+                        if [[ "$0" == *"/"*  &&  "$0" != *"bash-debug"*  &&  "$0" != *"systemd"* ]]; then  cd "${0%/*}"  ;fi  # cd this file folder
+                            または
+                        if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
+                            （後者は遅い）
+                    応用: |  #keyword: ParentProcessCurrentFolder, ThisScriptFullPath, ThisFolderFullPath, ParentFolderName
+                        ParentProcessCurrentFolder="${PWD}"
+                        if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
+                        ThisScriptFullPath="$( readlink -f "${0##*/}" )"
+                        ThisFolderFullPath="${ThisScriptFullPath%/*}"
+                        ParentFolderName="${ThisFolderFullPath##*/}"
+                    WSL2 共有フォルダー:  #search: /mnt/c/ ThisFolderFullPath
+                古い方法: |  #// カレント フォルダー をスクリプトがあるフォルダーに移動します
+                    if [ "${_Dbg_DEBUGGER_LEVEL}" != "" ]; then
+                        ThisScriptFullPath="${HOME}/tasks.sh"  #// Because $0 is not correct
+                    else
+                        ThisScriptFullPath="$( readlink -f "$0" )"
+                    fi
+                    ThisFolderFullPath="${ThisScriptFullPath%/*}"
+                    cd  "${ThisFolderFullPath}"
             簡易不完全版:  #// bash __ScriptFileName__ で起動するときにエラーになってしまいます
                 cd "${0%/*}"  # this file folder
         スクリプトと同じフォルダーにあるスクリプト等を起動: |  #keyword: ScriptFolderPath, ScriptPath
@@ -14436,7 +14636,8 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
         パイプ: #keyword: pipe exit code  #// パイプを含むコマンドの終了コード
             $?: 最も右のコマンドの終了コード
             ${PIPESTATUS[@]}: #keyword: PIPESTATUS  #// zsh は ${pipestatus[@]}  #// 各コマンドの終了コード
-                Command1 | Command2 の場合:
+                PIPESTATUS:
+                    #// Command1 | Command2 の場合:
                     Command1 の終了コード: ${PIPESTATUS[0]}
                     Command2 の終了コード: ${PIPESTATUS[1]}
                     すべて成功したことをチェックします:
@@ -14614,7 +14815,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             timeout --foreground 5s  read -s -p "Enter password: "  PASSWORD
             echo "done"
             exit
-        -k, --kill-after オプション: |  #// 5秒後にSIGTERM、更に 2秒後に SIGKILL
+        -k, --kill-after オプション: |  #// 5秒後にSIGTERM、更に 2秒後に SIGKILL。❗秒数の順番が逆なことに注意
             timeout -k 2s 5s  read -s -p "Enter password: "  PASSWORD
         --foreground オプション:
             _: シェルスクリプトの場合は、付けないとシグナルが届きません
@@ -15450,28 +15651,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                     $0:
                         mac: スクリプトのパス
                         Windows: ？
-                        カレント フォルダー: #keyword: cd this file folder
-                            新しい方法:
-                                移動: |  #keyword: cd this file folder,  bash-debug|systemd  #// カレント フォルダー をスクリプトがあるフォルダーに移動します
-                                    if [[ "$0" == *"/"*  &&  "$0" != *"bash-debug"*  &&  "$0" != *"systemd"* ]]; then  cd "${0%/*}"  ;fi  # cd this file folder
-                                        または
-                                    if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
-                                        （後者は遅い）
-                                応用: |  #keyword: ParentProcessCurrentFolder, ThisScriptFullPath, ThisFolderFullPath, ParentFolderName
-                                    ParentProcessCurrentFolder="${PWD}"
-                                    if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
-                                    ThisScriptFullPath="$( readlink -f "${0##*/}" )"
-                                    ThisFolderFullPath="${ThisScriptFullPath%/*}"
-                                    ParentFolderName="${ThisFolderFullPath##*/}"
-                                WSL2 共有フォルダー:  #search: /mnt/c/ ThisFolderFullPath
-                            古い方法: |  #// カレント フォルダー をスクリプトがあるフォルダーに移動します
-                                if [ "${_Dbg_DEBUGGER_LEVEL}" != "" ]; then            
-                                    ThisScriptFullPath="${HOME}/tasks.sh"  #// Because $0 is not correct
-                                else
-                                    ThisScriptFullPath="$( readlink -f "$0" )"
-                                fi
-                                ThisFolderFullPath="${ThisScriptFullPath%/*}"
-                                cd  "${ThisFolderFullPath}"
+                        カレント フォルダー: #search: cd this file folder  #search: cd $0
                     _Dbg_DEBUGGER_LEVEL 環境変数: 空でなければ、デバッガーに接続しています
                 関連 >> set -x:
                 関連 >> pp: |  #keyword: bashlib pp,  pp  #// デバッグ用表示。複数行の値も表示できます
@@ -15637,6 +15817,7 @@ bash: #keyword: bash  #// Bourne Again Shell
             Windows で実行属性を付ける:
                 上記シェバンを書くと付きます
             "#!/bin/bash": #keyword:
+            （関連）:  #search: cd this file folder
         usr/bin/env: #keyword: PATH shebang
             _: env コマンドが PATH 環境変数に書かれた各フォルダーからコマンドを探します。
                 シェバンにコマンドだけを書くことはできないようです。（未確認）
@@ -16302,7 +16483,8 @@ bash: #keyword: bash  #// Bourne Again Shell
                         -   ./test-cli  #// 全てのテストを実行します
                         -   ./test-cli --test "__TestName__"  #// 1つのテストを実行します。短いオプションは -t
                         -   ./test-cli --list  #// テスト名を一覧します。短いオプションは -l
-                    コード:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh
+                    コード:  #keyword: test-cli.sh  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh
+                    テスト:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/_test-of-test-cli.sh
                 テスト結果の収集:
                     #search: EchoTestResultBreadcrumb
                     #search: EchoEndOfTest
@@ -16808,6 +16990,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                         echo "set -u は有効"
                     fi
                 #search: GetCurrentShellOptions
+        エラー exit 判定:  #search: bashlib Error
     変数: #search: Linux variables
     関数: #keyword: Linux bash function,  bash 関数
         Snap Note: #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#func
@@ -17268,6 +17451,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             フルパスへ: GetFullPath, GetParentFullPath, EvaluateAndGetFullPath
             システムのパス: GetWindowsPath
             WSL2 のパス: USERPROFILE, WslMnt, GetWslPathFromWindowsPath, GetWindowsPathFromWslPath
+            パスの種類判定: IsURL (IsLocalPath は無い)
         文字列: #keyword: bashlib string
             判定: Contains, LastIs, StartsWith, GetBooleanString
             追加: SetLastOf, AppendToNextLine, InsertAfterLastMatchedLine
@@ -17278,7 +17462,9 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         検索: GrepLineNumRange
         辞書: SetToTabDic, GetFromTabDic, TestOfTabDic  #keyword: TabDic
         Git: GetCommitID, GetCurrentGitBranch, ChangeGitBranch, AllFilesAreGitAdd, CheckIfGitResetState, EchoGitLogTree,
-            GitCheckOut, GitStatusShort, CopyGitModifiedFiles, SetGitCommitDate
+            GitCheckOut, GitStatusShort, CopyGitModifiedFiles, SetGitCommitDate,
+            GitInitForTest, GitAddCommitForTest,
+            HasGitBranch, EncryptGitProject, CompressGitProject
         WSL: ShowWslHelp, CheckDebugDistroOfWSL
         Ansible: LoadAnsibleHosts
         Python: CreatePythonVenv
@@ -17327,6 +17513,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         CommonPartLines:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  CommonPartLines
         Compare:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  Compare
             #search: bashlib Compare specification
+        CompressGitProject:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CompressGitProject
         CompleteName:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  CompleteName
         Contains:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  Contains
             -   if Contains "b" in ("a" "b" "c"); then
@@ -17365,6 +17552,8 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             SetBreadcrumb: #search:
             旧: EchoSection, EchoSubTest
         EchoWithIndent:  #search:
+        EncryptGitProject:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EncryptGitProject
+        EndOfTest:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#function  EndOfTest()
         EndsWith: #ref: ${GitHub}/locommit/bin/locommit#function  EndsWith
         Error: #keyword: bashlib Error,  Error  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  Error(
             サンプル:
@@ -17376,9 +17565,10 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             関連 >> 比較:
                 TestError: #ref: ${GitHub}/locommit/test/test-locommit#function  Test_Error
                     exit しないエラー。エラーの数をカウントします。
-                ExitIfMatched:  #search:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  ExitIfMatched
+                ExitIfMatched:  #search:  #// エラー exit も捕まえます  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  ExitIfMatched
                     呼び出す関数の標準出力を変数に代入するコードの場合: 終了コードが 0以外のとき、または、0以外の exit (Error) があったとき、エラーを表す文字列を格納します。
                         呼び出すコマンド（プロセス）の標準出力を変数に代入するコードでは、使う必要はありません。
+                    #search: RunTest
                 ErrorIfLastIs:  #search:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  ErrorIfLastIs
                     呼び出す関数の標準出力を変数に代入するコードの場合: 終了コードが 0以外なら、エラーを表す文字列を格納します。
                         呼び出すコマンド（プロセス）の標準出力を変数に代入するコードにおいて、終了コードが 0以外なら、エラーを表す文字列を格納します。
@@ -17475,9 +17665,12 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         GetWindowsPathFromWslPath:  #ref: ${GitHub}/codediff/codediff#function  GetWindowsPathFromWslPath()
         GetWslPathFromWindowsPath:  #ref: ${GitHub}/codediff/codediff#function  GetWslPathFromWindowsPath()
         GitCheckOut:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GitCheckOut
+        GitAddCommitForTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GitAddCommitForTest()
+        GitInitForTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GitInitForTest()
         GitStatusShort:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GitStatusShort
         Grep:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  Grep
         GrepLineNumRange:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GrepLineNumRange
+        HasGitBranch:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  HasGitBranch
         HasStarted:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  HasStarted
         Input:  #ref: ${GitHub}/patch-o/patch-o#function  Input
         InsertAfterLastMatchedLine:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  InsertAfterLastMatchedLine
@@ -17549,8 +17742,9 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         RunInGitBash:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RunInGitBash
             注意: #search: RunWithEcho
         RunInGitBashSilent:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RunInGitBashSilent
-        RunTest:  #ref: ${GitHub}/MyPrivateCode/bash/replace-in-text/test/test.sh
+        RunTest:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#function  RunTest()
             関連 >> --test オプション:  #search: bash --test
+            古い RunTest:  #ref: ${GitHub}/MyPrivateCode/bash/replace-in-text/test/test.sh
         RunUntil:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RunUntil
         RunWithEcho:  #ref: ${GitHub}/MyPrivateCode/docker/docker_centos7/tasks.sh#function  RunWithEcho
             リダイレクトを含むコマンド:  #focus: >>

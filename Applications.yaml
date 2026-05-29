@@ -766,9 +766,6 @@ Notion: #keyword:  #ref: https://www.notion.so/ja-jp  #// ノーション
                 テーブルビュー（に マウス カーソル を合わせる）>> ハンドル（左）>> フルページに変換
 Outliner:
     バックアップは、iWriterへのコピペ
-Kindle: #keyword:
-    ブックマークからジャンプする: 「ブックマーク・位置00」の2行ぐらい下の空白行をタップします
-    連続ビューとページビューの切り替え: Aa ボタン
 discord: #keyword:
     ログイン: #ref: https://discord.com
     リンク: #search: discord link
@@ -934,7 +931,9 @@ wrike: #keyword: wrike,  wrike ガントチャート
     登録: https://www.wrike.com/ >> Start for free (右上) >> メール アドレス を入力 >> Start for free
 typrm: #keyword:
     インストールします:  #search: install typrm for GPD3
-    画像フォルダー: #keyword: my_images,  typrm images  #ref: ${my_images}
+    画像フォルダー: #keyword: my_images,  typrm images  typrm_images  #ref: ${my_images}
+        シークレット: #keyword: typrm secrets file  #ref: ${my_images_secrets}
     画像にポインターを追加: #keyword: typrm position pointer  #ref: ${my_images}/2022/discord.jpg?name=example&x=39&y=123
-    関連ファイル: #keyword: typrm files  #ref: ${typrm_files}
+    関連ファイル: #keyword: typrm files,  typrm_files  #ref: ${typrm_files}
+        ref: #keyword: ref,  typrm MyPrivate ref  #ref: ${typrm_files}/ref
     開発プロジェクト: #keyword: typrm project

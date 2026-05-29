@@ -111,10 +111,29 @@ CSS プロパティ:  #glossary: CSS
 選択子 (CSS セレクター): #keyword: CSS selector
     基本:
         (div): <div>
-        (.class-1): #// <div class="class-1">
-            - <div class="class-1">
-            - <div class="class-1 class-2">  #// 同じ CSS 属性に関しては、CSSのカスケード（優先順位）ルールに従って、class-2 が優先されます
+        (.class-1): #keyword: CSS class  #// <div class="class-1">
+            サンプル:
+                <div class="class-1">
+            カスケード:  #search: CSS カスケード
+                <div class="class-1 class-2">
         (#id-1): <div id="id-1">
+    複数指定, カスケード:  #keyword: CSS カスケード
+        クラスへの指定:
+            - <div class="class-1 class-2">  #// 同じ CSS 属性に関しては、CSSのカスケード（優先順位）ルールに従って、class-2 が優先されます
+            - clsx あり: | #keyword: clsx  #// falsy な引数は指定なしと同じです。error = false なら error && 'Mui-error' 全体は false です
+                <div className={clsx('MuiFormHelperText-root', error && 'Mui-error')}>
+                    #// className="MuiFormHelperText-root" または
+                    #// className="MuiFormHelperText-root Mui-error"
+            - clsx なし: | #// 2つ目のクラス名の前のスペースに注意
+                <div className={"MuiFormHelperText-root" + (error ? " Mui-error" : "")}>
+        セレクターへの指定:
+            .__ClassA__.__ClassB__:
+                両方のクラスがカスケードされているものにマッチします
+                サンプル .MuiFormHelperText-root.Mui-error
+            .__ClassA__:
+                __ClassA__ だけのものだけでなく、両方のクラスがカスケードされているものにもマッチします
+            .__ClassA__ .__ClassB__:  #// ピリオドの前に空白あり
+                どちらか片方のクラスがカスケードされているものにマッチします
     擬似クラス、擬似要素: #glossary: CSS  #ref: ${programming}/HTML ブラウザ/CSS.svg#pseudo_classes
         （書式）:
             - __TagName__:__Pseudo__  #// 指定した HTML タグのうち、指定の擬似クラス、擬似要素
@@ -271,11 +290,16 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                     フック API:  #search: Material-UI フック API
                     スタイル付きコンポーネント API:  #search: Material-UI スタイル付きコンポーネント API
                     上位コンポーネント API:  #search: Material-UI 上位コンポーネント API
-            バリデーション: #keyword: Material-UI varidation
+            バリデーション: #keyword: Material-UI validation
                 コード: |  #// Material-UI にバリデーションの機能があるわけではありません
                         <Input className={emailError ? "border-red-500" : ""} />
-                        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+                        {emailError && <FormHelperText error>{emailError}</FormHelperText>}
+                            または
+                        <FormControl error>
+                            <FormHelperText>{emailError}</FormHelperText>
+                        </FormControl>
                     #// エラーメッセージの表示と同時に、枠を赤くしています
+                    #search: React validation FormHelperText
                 #keyword: Client-side form validation
             デフォルトのプロパティをまとめる（共通）:  #// HTML 要素の class 相当
                 上書き: | #keyword: Material-UI custom default properties  #search: defaultSelectProps
@@ -352,10 +376,11 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                 （既存のプロジェクトがある場合）:
                     Atomic Design で分類されたフォルダーにある部品を優先して使います  #search: Atomic Design
                 Button:  #//🌟
+                    関連 >> Icon:  #search: @material-ui/icons
                 Button Group:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#buttongroup(core)
                 Checkbox:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#checkbox(core)
                 Floating Action Button (FAB):  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#fab(core)
-                Date / Time:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#date-%2F-time(pickers)
+                Date / Time:  #//🌟  #ref: https://v4.mui.com/components/pickers/  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#date-%2F-time(pickers)
                 Radio:  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#radio(core)
                 Select:  #//🌟  #ref: https://zenn.dev/h_yoshikawa0724/articles/2020-09-24-react-material-ui#select(core)
                     サンプル: |
@@ -757,7 +782,7 @@ Material-UI: #keyword: Material-UI,  MaterialUI  #// マテリアル デザイ�
                 Badge:  #//🌟
                 Chip:  #ref: https://mui.com/material-ui/react-chip/
                 Divider:
-                Icons:
+                Icons:  #search: @material-ui/icons
                 Material Icons:
                 List:
                 Table:  #//🌟  #keyword: Material-UI Table

@@ -4501,7 +4501,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                             Linux 用 Windows サブシステム ディストリビューション:
                             Ubuntu-20.04 (既定)
                             Ubuntu-16.04
-                    電源オフ, アンインストール: #keyword: WSL shutdown,  WSL2 delete terminate
+                    電源オフ, アンインストール: #keyword: WSL shutdown,  WSL2 delete terminate destroy
                         全終了: #keyword: wsl --shutdown,  restart WSL2  #// すべてのディストリビューションと、WSL を終了します
                             (PowerShell>):
                                 wsl --shutdown
@@ -6536,9 +6536,10 @@ Ansible: #keyword: Ansible, an
                 HOST_KEY_CHECKING(____/ansible.cfg) = False
                 INVENTORY_ENABLED(____/ansible.cfg) = [u'host_list', u'script', u'yaml', u'ini', u'constructed']
                 RETRY_FILES_ENABLED(____/ansible.cfg) = False
-        デプロイします: #🌟
+        デプロイします: #🌟  #keyword: deploy, provisioning
             プレイ:  #search: Ansible play
             タスク:  #search: Ansible tasks
+            プロビジョナー:  #search: Ansible プロビジョナー
             構成の設計:  #search: Ansible 設計
             tar.gz を展開してインストールするサンプル:  #keyword: Ansible tar example
                 推奨 >> unarchive:  #search: ansible unarchive
@@ -6663,8 +6664,8 @@ Ansible: #keyword: Ansible, an
                                 failed_when: true
                             （参考）エラーにしたくない場合:
                                 ignore_errors: true
-                        止まる場合: #keyword: Ansible フリーズ
-                            timeout を使う場合:  #// 内部で入力待ちしている可能性があります。タイムアウトれば表示されます（未確認）
+                        止まる場合: #keyword: Ansible フリーズ,  Ansible 止まる
+                            timeout を使う場合:  #// 内部で入力待ちしている可能性があります。タイムアウトすれば表示されます（未確認）
                                 timeout コマンドを shell モジュール を使うタスクの中に指定します。
                                 timeout 10 __Command__
                             exit を使う場合:
@@ -6672,6 +6673,7 @@ Ansible: #keyword: Ansible, an
                             処理時間がかかっている場合:  #// もあります
                             VirtualBox がハングアップしたと思われる場合:
                                 VM を再起動します
+                            入力待ちになっている場合:  #// トークンが無効の場合に入力待ちになることがあります
                         ネットワークエラーになる場合:
                             https_proxy や no_proxy 環境変数を表示させて確認してください。
                             全環境変数を表示してもよいでしょう  #search: printenv
@@ -6982,14 +6984,25 @@ Ansible: #keyword: Ansible, an
                     コマンド:  #// 通常、以下の順番で実行します
                         （必要なら）ヘルプ表示します:  #// 通常のコマンドを実行するとヘルプ表示だけになります
                             ansible-playbook  __Parameters__  #// --diff の有無は問いません
-                        変更内容を確認します:  #// --diff --tags preview --check オプション を指定します
+                        変更内容を確認します: |  #// --diff --tags preview --check オプション を指定します。 --check オプション があるので ターゲット ホスト にデプロイしません
                             ansible-playbook  __Parameters__  --diff --tags preview --check
+                                --- before: __PathInTargetHost__
+                                +++ after: /home/user1/.ansible/tmp/ansible-local-2352688lcyogku8/tmpvqgznem0/__RelativePath__
+                                - __ContentsInTargetHost__
+                                - __ContentsInTargetHost__
+                                + __NewContents__
+                                + __NewContents__
+                                changed: [__Host__]
                         期待した変更内容になるまで ソース ファイル を修正します:
                             vi __FilePath__
                         デプロイします:  #// APPROVED 環境変数を 1 に指定して実行します
                             APPROVED=1 ansible-playbook  __Parameters__  --diff
+                        （通常の実行するとエラーになります）:
+                            ansible-playbook  __Parameters__  --diff
+                                エラー
             トラブルシューティング:
                 止まる場合:  #search: Ansible フリーズ
+                task が skip してしまう場合:  #search: --flush-cache
                 デバッグ:  #search: debug ansible-playbook
         ansible-pull コマンド:  #// git から設定手順のリポジトリーをチェックアウトしてプロビジョニングします
             https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_intro.html#ansible-pull  #template: __DocumentVersion__
@@ -7407,11 +7420,11 @@ Ansible: #keyword: Ansible, an
                         __ModuleName__: ____
             関連 >> モジュール: #search: Ansible モジュール
             一覧: #search: Ansible list tasks
-            ファイル >> tasks in Playbook.yaml:  #search: ansible tasks in Playbook.yaml
+            ファイル >> tasks in Playbook.yaml, 書き方:  #search: ansible tasks in Playbook.yaml
             タスクを階層化します:  #search: ansible block
             必ず実行するタスク: #keyword: Ansible must task  #// どの playbook を実行してもある特定のタスクを実行します
                 できません。
-                pre_tasks または post_tasks を使っても、それが定義されているタスクやロールをインポートする必要があります。
+                pre_tasks または post_tasks を使って、それが定義されているタスクやロールをインポートする必要があります。
                 #ref: ${typrm_files}/ref/VMWare-AI.yaml#label: must task
             タスクの開始時刻と処理時間を表示します: #search: profile_tasks
         ロール:  #search: Ansible roles
@@ -7801,6 +7814,7 @@ Ansible: #keyword: Ansible, an
                         control ノード 内:  #search: Ansible lookup plug in type
                         target ノード 内:  #search: ansible register cat
                     コマンドの実行結果:  #search: ansible register
+                条件判定:  #search: Ansible condition
                 トラブルシューティング >> undefined:
                     group_vars:  #search: undefined Ansible group_vars
             型: #keyword: Ansible vars type  #// 変数の型
@@ -7975,6 +7989,7 @@ Ansible: #keyword: Ansible, an
                     -vvv オプションを付けて実行します:
                         #search: ansible-playbook -vvv
                     関連:
+                        shell モジュールで stdout を確認します:  #search: Ansible task stdout
                         プラグインのデバッグ:  #search: Ansible plug in debug
                         早く動作確認します:  #search: Ansible fast development
                 dnf:         #// dnf コマンド。 CentOS7 で RPM（パッケージの形式）をインストールします  #keyword: ansible dnf
@@ -8738,7 +8753,7 @@ Ansible: #keyword: Ansible, an
                         #// ln コマンドと異なり、すでにリンクが存在していてもリンクのファイルは更新されます
                     ファイルやフォルダーを削除するサンプル.yml:  #keyword: ansible rm,  Ansible file delete remove
                         -   tasks:  #// roles/__RoleName__/tasks/____.yml では tasks の行は不要
-                            -   name: remove sub_folder_or_file  
+                            -   name: remove sub_folder_or_file
                                 become: yes  #// sudo が必要なときのみ
                                 file:
                                     state: absent
@@ -8980,7 +8995,7 @@ Ansible: #keyword: Ansible, an
                             {{ number_variable }}
                             compute: {{ variable | int * 2 }}     #// 246
                             repeat:  {{ variable | string * 2 }}  #// 123123
-                    Jinja2 テンプレート ファイル:  #keyword: Ansible Jinja2 テンプレート ファイル
+                    Jinja2 テンプレート ファイル:  #keyword: Ansible Jinja2 テンプレート ファイル  #search: Jinja2 template
                         - https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_templating.html  #template: __DocumentVersion__
                         - https://jinja.palletsprojects.com/en/3.0.x/templates/
                     フィルター:  #keyword: ansible filter in template
@@ -9966,6 +9981,7 @@ Ansible: #keyword: Ansible, an
                                     no_proxy: "localhost,127.0.0.1,.example.com"
                                     http_proxy: "{{ http_proxy }}"
                                     https_proxy: "{{ https_proxy }}"
+                        #search: repodata/repomd.xml trouble
                     辞書を指定した場合:  #keyword: Ansible dictionary environment in server  #// 辞書を指定すると、辞書の内容が展開されます
                         コード: |  #focus: second_vars,  variable1
                             vars:
@@ -10049,7 +10065,7 @@ Ansible: #keyword: Ansible, an
                             -   name: debug print 2
                                 debug: msg="{{ result.rc }}"
                                 failed_when: true
-                    バリエーション:  #// 終了コードの変更や複合条件
+                    バリエーション: #keyword: Ansible failed_when variation  #// 終了コードの変更や複合条件
                         終了コード: |  #focus: result
                             register: result  #search: Ansible register  #// 同じタスク内でできるか未確認
                             failed_when: result.rc == 2
@@ -10061,18 +10077,19 @@ Ansible: #keyword: Ansible, an
                                 failed_when: "'FAILED' not in __Register__.stdout"
                         演算子:
                             ==, !=
-                        and 条件:
+                        and 条件: |
                             failed_when:
                                 - __Condition1__
                                 - __Condition2__
                         or 条件:
-                            1行に書くとき:
+                            1行に書くとき: |
                                 failed_when: __Condition1__  or  __Condition2__
-                            複数行に書くとき:
+                            複数行に書くとき: |
                                 failed_when: >  #// ( ) いる？
                                     (__Condition1__)  or
                                     (__Condition2__)
-                    バリデーション:  #// 変数の値をバリデーションします:  #search: Ansible variable varidation
+                        変数が定義されているかいないか:  #search: Ansible when is defined
+                    バリデーション:  #// 変数の値をバリデーションします:  #search: Ansible variable validation
                     エラー メッセージ をカスタマイズする場合:  #search: Ansible fail
                     参考: #ref: https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_error_handling.html#controlling-what-defines-failure  #template: __DocumentVersion__
                     関連:  #search: Ansible when
@@ -10253,7 +10270,7 @@ Ansible: #keyword: Ansible, an
                                 listen: template configuration file updated
                                 __ModuleName__: ____
                 tags セクション:  #search: Ansible tags
-                when: #keyword: Ansible when,  Ansible conditions
+                when: #keyword: Ansible when
                     概要: タスクを実行する条件を指定します
                     公式: https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_conditionals.html  #template: __DocumentVersion__
                     基本:
@@ -10263,19 +10280,33 @@ Ansible: #keyword: Ansible, an
                                     shell: __Command__  #// when の条件を満たすときだけ shell モジュールを実行します
                                     when: __VariableName__ == __Value__  #// when は shell の上でも下でも動きは変わりません
                                         #search: Ansible conditions
+                    #↓ 分岐方法
                     起動時に分岐先を指定する場合: #keyword: Ansible when --extra-vars  #// ansible-playbook コマンド起動時に指定した変数の値によって分岐します
                         #focus: target
-                        サンプル コード playbook.yml:
-                            tasks:
-                                -   name: Check target variable specified by ansible-playbook command    #keyword: Ansible variable varidation
-                                    debug: var=target
-                                    failed_when: target != 'local'  and  target != 'server'
+                        値を選ぶ場合:
+                            サンプル コード playbook.yml:
+                                tasks:
+                                    -   name: Check target variable specified by ansible-playbook command    #keyword: Ansible variable validation
+                                        debug: var=target
+                                        failed_when: target != 'local'  and  target != 'server'
 
-                                -   name: ____
-                                    shell: __Command__
-                                    when: target == 'local'  #// target が定義されていないと __Command__ 実行前にエラーになります
-                        コマンド:
-                            - ansible-playbook  __PlayBook__.yml  -i __InventoryFile__  --extra-vars 'target=local'  --check  #// dry run
+                                    -   name: ____
+                                        shell: __Command__
+                                        when: target == 'local'  #// target が定義されていないと __Command__ 実行前にエラーになります
+                            コマンド:
+                                - ansible-playbook  __PlayBook__.yml  -i __InventoryFile__  --extra-vars 'target=local'  --check  #// dry run
+                        変数の定義・未定義の場合:  #keyword: Ansible when is defined
+                            サンプル コード playbook.yml:  #focus: is not
+                                tasks:
+                                    -   name: ____
+                                        shell: __Command__
+                                        when: __Variable__ is defined
+
+                                    -   name: ____
+                                        shell: __Command__
+                                        when: __Variable__ is not defined
+                            コマンド:  #focus: true
+                                - ansible-playbook  __PlayBook__.yml  -i __InventoryFile__  --extra-vars '__Variable__=true'  --check  #// dry run
                         アンインストールする場合: #keyword: Ansible uninstall services
                             ❗注意: 間違えてアンインストールしないように、特殊な環境変数を設定していないと実行できないようにします
                             playbook.yml:
@@ -10298,18 +10329,34 @@ Ansible: #keyword: Ansible, an
                                 -   when: install_check is skipped
                                     command: /bin/still/something_else
                     ファイルまたはフォルダーの有無による分岐:  #search: Ansible stat exists
-                    ループの中の条件: #keyword: Ansible loop conditions
+                    ロールのメソッドごとの分岐: #search: ansible roles design
+                    無条件にスキップします: #keyword: Ansible skip
+                        サンプル コード:
+                            when: false  #// name と同じインデントの深さに書きます
+                        "tags: never との違い":  #keyword: Ansible when false vs tags never
+                            - when: false はスキップ。ログ表示あり  #// ステップ実行オプションを指定したとき、一時停止あり
+                            - tags: never もスキップ。ログ表示無し  #// ステップ実行オプションを指定したとき、一時停止なし
+                                #search: Ansible tags never
+                    #↓ 書き方
+                    条件式: #keyword: Ansible loop conditions, Ansible conditions  #// 実行する条件、ループする条件
+                        注意 >> YAML のバージョン:
+                            _: Ansible が読む YAML のバージョンは 1.1 です。 PyYAML が未対応なため（2026年現在）
+                            YAML 1.1 と最新 YAML の違い:  #search: YAML 1.1
                         条件のサンプル:
-                            - ==, !=, <, >, <=, >=, and, or, in, not in  #// Python (?)
+                            - __VariableName__ == __Value__  #// リテラルは "" で囲んでください
+                            - ==, !=, <, >, <=, >=, and, or, in, not in  #// Python 形式。 and などは短絡評価です
                             - inventory_hostname != 'db1'
                             - ansible_facts['os_family'] == "Debian"
                             - ansible_facts['lsb']['major_release']|int >= 6
-                            - true or "yes"|bool
+                            - true または "yes"|bool
                             - not __VariableName__
                             - __VariableName__ is defined
                             - __VariableName__ is undefined
-                            - ( ansible_facts[‘distribution’] == "CentOS"  and
-                                ansible_facts[‘distribution_major_version’] == "6" ) or (____)
+                            - ( ansible_facts['distribution'] == "CentOS"  and
+                                ansible_facts['distribution_major_version'] == "6" ) or (____)
+                        制限:
+                            include_tasks:
+                                シンプルな変数参照しかできません。変数定義に条件式を書いてください
                         列挙する（配列を指定する）と and 条件になります:
                         条件を満たす item のみ実行します:
                             tasks:
@@ -10334,18 +10381,19 @@ Ansible: #keyword: Ansible, an
                         #ref: https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_conditionals.html#applying-when-to-roles-imports-and-includes  #template: __DocumentVersion__
                         -   when: "'reticulating splines' in output"
                             import_tasks: tasks/sometasks.yml
-                    無条件にスキップします: #keyword: Ansible skip
-                        サンプル コード:
-                            when: false  #// name と同じインデントの深さに書きます
-                        "tags: never との違い":  #keyword: Ansible when false vs tags never
-                            - when: false はスキップ。ログ表示あり  #// ステップ実行オプションを指定したとき、一時停止あり
-                            - tags: never もスキップ。ログ表示無し  #// ステップ実行オプションを指定したとき、一時停止なし
-                                #search: Ansible tags never
+                    #↓ 実行時、予行演習(dry-run)
+                    when の真偽を dry-run で確認します: #keyword: Ansible when dry-run
+                        コマンド:
+                            ansible-playbook  site.yml  -i inventory  --check  -v
+                            #// --check により ターゲット ホスト に変更はされません
+                            #// -v によりスキップしたかどうかが表示されます
+                        一覧のみの場合:
+                            ansible-playbook site.yml -i inventory --list-tasks
+                            #// 実行予定のタスク一覧を表示しますが、when 条件の動的な評価はされません。
                     スキップの警告表示を無くします: #keyword: Ansible disable warning,  don't show hide
                         ANSIBLE_DISPLAY_SKIPPED_HOSTS=False  ansible-playbook  ____
                         #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/run-playbook.sh#ANSIBLE_DISPLAY_SKIPPED_HOSTS
                         #ref: https://stackoverflow.com/questions/39189549/how-can-i-hide-skipped-tasks-output-in-ansible
-                    ロールのメソッドごとの分岐: #search: ansible roles design
                     関連:
                         条件によってエラーにする場合:  #search: Ansible failed_when
                         変数によって値を変える場合:  #search: Ansible vars condition
@@ -10745,6 +10793,10 @@ Ansible: #keyword: Ansible, an
                                     - common
                                     - webservers
                                     - role: '___/roles/__RoleName__'
+                                    -   role: production_only_role
+                                        when: role_profile == "production"
+                                    -   role: db_role
+                                        when: "'database' in group_names"
                         #// rules の子要素に同じ名前のロールがあっても実行するのは１回です
                         #// 2回実行する場合は、ロールの複製および実行 https://docs.ansible.com/ansible/2.9_ja/user_guide/playbooks_reuse_roles.html#id5  #template: __DocumentVersion__
                         #//    異なるパラメーター または allow_duplicates: true

@@ -8,15 +8,15 @@
     複数形:
         0個: #keyword: 0 複数 英語
             0個の場合も、複数形で書きます
-    不定詞と動名詞: #keyword:  
+    不定詞と動名詞: #keyword:
         不定詞:  #// to 未来
         動名詞:  #// 現在過去 ing
         サンプル:
             - He stopped to smoke  #// タバコを吸うために止まった
             - He stopped smoking  #// タバコを吸うことを止めた
-    接続詞: #keyword: 
+    接続詞: #keyword:
         もしくは: Alternatively
-    過去分詞で形容詞: #keyword: 
+    過去分詞で形容詞: #keyword:
         expected pattern   OK
         expecting pattern  NG。進行形 (-ing) の形で形容詞として使うのは一般的ではありません
     that: #keyword:
@@ -101,6 +101,7 @@
     cf.: 参照
     check: または make sure
     coalesce: 融合する。（読み：コーレース）
+    daily: 毎日の  #// dayly ではない
     deep: 深い  #// 対義語は shallow
     delegate: 委譲する  delegate A to B  #ref: https://www.merriam-webster.com/dictionary/delegate
     dependent, dependency:
@@ -130,6 +131,7 @@
     enumerator: 「イニュームレイター」  #ref: https://www.google.com/search?q=enumerator+発音
     et al.: その他
     even if: たとえ〜だとしても
+    except for: 〜以外
     exist:
         - A does not exist.  #// A が存在しません
     experimental: 実験的な
@@ -184,7 +186,7 @@
         a number of __複数形__: いくつかの
         a large number of __複数形__: 多くの
         the number of __複数形__: ～の数  #// 全体は単数形扱い
-    occur, occurred, occurs:  #// occured, occurd, occures ではない
+    occur, occurred, occurs:  #// occured, occurd, ocurred, occures ではない
     omit:
         過去分詞: omitted  #// t が２つ  #keyword: omitted
     one of: one of 複数形
@@ -304,10 +306,21 @@
     入った, 含む: __Parent__ with __Item__
     文字化け: garbled text
     注意: attention 注意, caution 警戒, warning 警告, advice 助言
-    補足: appendix, supplement
+    補足, 備考, 特記事項:  #glossary: English
+        備考: remarks
+        特記事項: special notes
+        補足: appendix, supplement
+        付録: appendix
+        添付: attachment
+        注釈: annotation
+        注記: note
+        脚注: footnote
+        参考, 参照: reference, cf. (confer)
+        追記: postscript (P.S.)
+        付記, 附記:  addendum
     警告: warning
     警告を抑制する: suppress/disable/ignore/skip warning
-    動作確認: operation confirmation 
+    動作確認: operation confirmation
     社内:
         in-house training（社内研修）、in-house system（社内システム）
         internal
@@ -359,11 +372,12 @@
         - #↓ ビジネス、記事
             brief - 概要、簡単な説明(ビジネス)
             executive summary - 要旨(ビジネス文書)
+    再現: reproduce. To reproduce the error, ...
     脆弱性: vulnerability  #// ヴァルネラビリティ
     冗長構成: redundant configuration
     常駐: resident, The program does not remain resident.
     副作用: side effects
-    復帰, 復元, 復旧:
+    復帰, 復元, 復旧, 復活:
         復元: restoration
         復帰: return
     担当者: staff  #ref: https://eikaiwa.dmm.com/uknow/questions/426/
@@ -480,6 +494,23 @@
                 a few seconds: 数秒
         double:
             - a double door  #// 両開きのドア。単数形
+    few many much:
+        可算名詞, 不可算名詞:
+            few, many, a number of, several: 可算名詞に使う（many books, many people）
+            little, much, an amount of: 不可算名詞に使う（much water, much time）
+            a lot of, lots of, plenty of: 可算・不可算どちらもOK
+            length: #keyword: English length
+                the length of the road
+                two lengths of rope
+                the length of the string  文字列がどれだけ続くか
+                the count of characters  文字を1個1個数えた結果
+                The word is short.
+                The password has few characters.
+                The string is not long enough.
+        ほとんどない, 少しある:
+            few, little: ほとんどない（否定的）
+            a few, a little: 少しある（肯定的）
+            #// 例：I have few friends. (ほとんどいない) vs I have a few friends. (少しいる)
     スペル:
         cloud, browser  #// clowd, brouser ではない
     finish, complete:

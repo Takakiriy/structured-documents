@@ -152,9 +152,17 @@ SQL文:  #keyword: SQL, SQL文
                 複数の SELECT などを実行するときに、次の SELECT までの間にデータが変わらないようにして、整合性を保ちます
                 #search: next_transaction
             Unit of Work: #keyword: Unit of Work,  UoW  #// アプリ層の話
+                概要: 1つの業務処理で起きる複数のデータ変更をまとめて扱い、全部成功か全部失敗のどちらかにすることで、データが中途半端な状態になるのを防ぐ仕組みです
+                保存とコミットの違い:
+                	save は「何を保存するか」の指示
+            	    commit は「いつまとめて確定するか」の指示
                 トランザクションと Unit of Work の違い: #keyword: transaction vs Unit of Work
                     アプリ層とデータベース層の違いです
                     図  #ref: ${typrm_files}/ref/Database/Transaction_vs_Unit_of_Work.html
+                リードだけの場合もコミットが必要です:
+                    コネクションプールの空きが無くなり、コネクション待ちになる可能性があります
+                    開いたままのトランザクションが慢性的に残っていないか確認すると検出できます。
+                フラッシュは SQL の発行開始です:
                 #↓ 参考
                 Martin Fowler:  #ref: https://martinfowler.com/eaaCatalog/unitOfWork.html
                 SQLAlchemy:  #ref: https://docs.sqlalchemy.org/en/20/glossary.html#term-unit-of-work
@@ -2355,7 +2363,7 @@ SQLAlchemy: #keyword:  #// Python 用、汎用 SQL DB API。sqlarchemy ではな
 
             if __name__ == '__main__':
                 main()
-        O/R マッピング: #keyword: SqlAlchemy O/R mapping
+        O/R マッピング: #keyword: SqlAlchemy O/R mapping,  object DB mapping
             DBエンジン (create_engine):  #// サーバー名、データベース名などを含みます
                 コード: |
                     from sqlalchemy import create_engine
@@ -6202,6 +6210,7 @@ Elasticsearch 関連:
                 | -      | mdi  | __Host3__            | 10.100.100.13 | eAR- | 1.8.0_191 | 6.8.22  |
 MinIO: #keyword:
     公式: #ref: https://min.io/
+    OSS版終了:   #ref: https://qiita.com/kuma_3838/items/b9073cce25766508485a
     概要: S3クラウド・ストレージ・サービスと互換性のあるオブジェクト・ストレージ・サーバー
         互換性＝AWS CLIや、AWS SDKが使える。
         1台のサーバーに保存、または 3台のサーバーに分散して（クラスターを形成して堅牢で高性能に）保存します。
@@ -6640,13 +6649,45 @@ MessagePack: #keyword: MessagePack,  msgpack
     Go:  #search: Go msgpack
 DTO, DAO:  #keyword:
     DTO:  #// Data Transfer Object
-        #ref: https://ja.wikipedia.org/wiki/Data_Transfer_Object
-        データの集合と、それらをプログラミング言語から読み書きする手段のみからなる１つのオブジェクト。
-        DTO は内部的に持つこと。クライアントには非公開。そうしないと、DTO が謎の中間モデルになってしまうためメンテナンスがほぼ不可能になります。
-        HTTP のクエリーパラメーターや JSON と分けます。
-        DAO をまとめたもの。
-        おそらく、１つのトランザクション処理？に必要なデータを集めたもの？
-        関数処理をフローのクラスで表現する場合のものが DTO なのでは？
+        Wikipedia より:  #ref: https://ja.wikipedia.org/wiki/Data_Transfer_Object
+            - アプリケーションソフトウェアのサブシステム間でデータを転送するのに使う
+        ロジックを持たないこと: #keyword: ダム オブジェクト dumb component smart component 静かな
+        API と DTO: #keyword: API DTO,  Web API
+            DTO と読んでいるもの: |
+                （
+                | 状況                          | 使うべき型                         |
+                | ---------------------------- | ---------------------------------- |
+                | 画面専用API                   | 画面仕様をそのまま型にする         |
+                | 外部公開・複数画面で共用         | ドメインの型をそのまま使う         |
+                | 両者が本当に乖離するとき         | そのときだけ変換層を作る           |
+                ）（
+                | 状況               | DTOとページの関係           |
+                | ----------------- | ------------------------- |
+                | 非公開API・画面専用  | ほぼ一致する                |
+                | 外部公開API         | 意図的にズラす必要がある     |
+                | 1APIを複数画面で共用 | リソース単位に寄っていく      |
+                ）
+                「DTOという層を作る」のではなく、乖離が生じたときに初めて変換を導入する
+                最初からDTOを置く設計は、将来の乖離に備えた先行投資ですが、乖離が来なければただのコストになります。
+            BFF（Backend for Frontend）: #keyword: BFF, Backend for Frontend
+                非公開WebサービスでDTOがページ構成に一致するのは設計として自然
+                GraphQLが「クライアントが必要な形を宣言する」という思想で作られた
+            参考:
+                #ref: https://claude.ai/chat/1a19df29-ac22-447b-bb77-3c6b1c60dbe2
+                    - TodoDTO（レスポンスDTO）
+                    - APIのパラメーター
+                    - DTOという概念が生まれた文脈
+                    - DTOはもともと APIより広い文脈で生まれた言葉です
+                    - それは BFF（Backend for Frontend） という設計パターンが解決しようとしている問題そのものです。
+                #ref: https://claude.ai/chat/b49796e2-e195-442c-b28c-f16ab50498e6
+                    - （プロジェクトを作っただけ）
+        メモ:
+            - データの集合と、それらをプログラミング言語から読み書きする手段のみからなる１つのオブジェクト。
+            - DTO は内部的に持つこと。クライアントには非公開。そうしないと、DTO が謎の中間モデルになってしまうためメンテナンスがほぼ不可能になります。
+            - HTTP のクエリーパラメーターや JSON と分けます。
+            - DAO をまとめたもの。
+            - おそらく、１つのトランザクション処理？に必要なデータを集めたもの？
+            - 関数処理をフローのクラスで表現する場合のものが DTO なのでは？
     DAO:  #// Data Access Object
         データベースのテーブルに対応するオブジェクト。
         ビジネス ロジック から切り離すこと。
@@ -6656,7 +6697,7 @@ DTO, DAO:  #keyword:
     概要図: #ref: ${my_images}/2021/jj_ch04_4.2.2_1.png
     参考:
         バージョンの差分の吸収:  #search: version up DTO DAO
-        DI, Dependency Injecton: #search: 
+        DI, Dependency Injecton: #search:
         #ref: https://kanda-it-school-kensyu.com/java-jdbc-contents/jj_ch04/jj_0402/
 ログの目的: #keyword: ログの目的  #// 傾向分析・予測、監査・実績管理、デバッグ  #ref: ${my_images}/2021/logging_purpose.png
     参考:
