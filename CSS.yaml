@@ -2,9 +2,35 @@
 CSS プロパティ:  #glossary: CSS
     animation-timing-function: #keyword: CSS animation
         CSSのイージング関数を簡単に使えるようにできる「Easing Wizard」:  #ref: https://gigazine.net/news/20251108-easing-wizard/
+    (@font-face): #keyword: @font-face
+        サンプル: #keyword: Google Fonts example
+            <link rel="preconnect" href="https://fonts.googleapis.com">  <!-- CSS を配信するサーバー -->
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  <!-- フォントファイルを配信するサーバー -->
+
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+        preconnect:
+            あとでこのサーバーに接続するので、先にDNS解決やTLS接続を始めておく指示です
+        HTML:
+            コード: |  #// ブラウザーの CSSOM（CSS Object Model）に取り込みます。HTML は変更されません
+                <link href="__URL__" rel="stylesheet">:
+        CSSOM に取り込む CSS: | #keyword: @font-face CSSOM  #// 「シーエスエスオーエム」。 フォント名と太さを フォント ファイル に関連付けします
+            @font-face {
+                font-family: 'Noto Sans JP';
+                font-style: normal;
+                font-weight: 400;
+                src: url(https://fonts.gstatic.com/...) format('woff2');
+            }
+        HTML の CSS: |
+            body {
+                font-family: "Noto Sans JP";
+            }
+        ダウンロード タイミング:  #// ブラウザーにダウンロードするタイミング
+            フォント ファイル をダウンロードするタイミングは、実際に文字を表示するときです
+        #search: Windows font
     font-weight: |  #keyword: CSS 太字
         font-weight: normal;
         font-weight: bold;     /* 太字 */
+        font-weight: 700;      /* 太字 */
     margin:
         #// 外） margin - border - padding - content （内
         親要素の属性としての余白:
@@ -110,13 +136,24 @@ CSS プロパティ:  #glossary: CSS
             white-space: pre;
 選択子 (CSS セレクター): #keyword: CSS selector
     基本:
-        (div): <div>
+        (div):
+            指定:
+                div
+            対象:
+                <div>
         (.class-1): #keyword: CSS class  #// <div class="class-1">
-            サンプル:
-                <div class="class-1">
-            カスケード:  #search: CSS カスケード
-                <div class="class-1 class-2">
-        (#id-1): <div id="id-1">
+            指定:
+                .class-1
+            対象:
+                サンプル:  #// ハイフンは名前の一部としてそのまま指定できます
+                    <div class="class-1">
+                カスケード:  #search: CSS カスケード
+                    <div class="class-1 class-2">
+        (#id-1):
+            指定: |
+                #id-1
+            対象:
+                <div id="id-1">
     複数指定, カスケード:  #keyword: CSS カスケード
         クラスへの指定:
             - <div class="class-1 class-2">  #// 同じ CSS 属性に関しては、CSSのカスケード（優先順位）ルールに従って、class-2 が優先されます

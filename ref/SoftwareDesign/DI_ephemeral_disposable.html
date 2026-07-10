@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ファクトリ注入による短命な破棄可能オブジェクトの生存期間制御</title>
+    <style>
+        body {
+            font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #ffffff;
+            color: #2c2c2a;
+            line-height: 1.7;
+        }
+        h1 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        h2 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 32px;
+        }
+        .description {
+            font-size: 15px;
+            color: #1a1a18;
+            max-width: 720px;
+            margin-bottom: 24px;
+        }
+        .diagram {
+            width: 100%;
+        }
+        .mermaid {
+            width: 100%;
+            margin: 0;
+        }
+        .mermaid svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>ファクトリ注入による短命な破棄可能オブジェクトの生存期間制御</h1>
+    <p class="description">
+        チャネル（破棄可能オブジェクト）は破棄が必要なため、DI のオブジェクトグラフには載せません。代わりにファクトリをグラフに載せてリポジトリ実装に注入し、チャネルはメソッド呼び出しごとにそのファクトリから生成・使用・即破棄します。こうして生成と破棄をメソッド内に閉じ込めます。
+    </p>
+    <div class="diagram">
+        <pre class="mermaid">
+sequenceDiagram
+    participant Repo as リポジトリ実装
+    participant Factory as チャネルファクトリ<br/>（注入・長命）
+    participant Channel as チャネル（破棄可能）
+    participant Service as WCF ウェブサービス
+
+    Note over Repo: DI グラフに追加する
+    Note over Factory: DI グラフに追加する
+    Note over Channel: DI グラフに追加しない<br/>破棄する必要があるため、メソッド内で生成し、その場で破棄する<br/><br/>「チャネル」は WCF 固有の用語<br/>正体はリモートのサーバーのプロキシ<br/>サーバーの身代わりとしてクライアント側に立つ<br/>現在ではこれを「クライアント」と呼ぶことが多い
+    Note over Service: ネットワークの向こうで動くサーバー本体<br/>こちらが破棄する対象ではない
+
+    Note left of Repo: 呼び出し元から削除を要求される
+    activate Repo
+
+    rect rgb(235, 245, 255)
+    Note right of Repo: ① 生成
+    Repo->>Factory: チャネルを生成
+    activate Factory
+    Factory-->>Repo: 新しいチャネルを返す
+    deactivate Factory
+    activate Channel
+
+    Note right of Repo: ② 使用
+    Repo->>Channel: 商品の削除を呼び出し
+    Note over Channel,Service: チャネルがメソッド呼び出しをマーシャリングし<br/>ネットワーク越しにサーバーへ取り次ぐ
+    Channel->>Service: 商品の削除を要求
+    activate Service
+    Service-->>Channel: 結果を返す
+    deactivate Service
+    Channel-->>Repo: 完了
+
+    Note right of Repo: ③ 即破棄（using 句を出る）
+    Repo->>Channel: Dispose で破棄
+    deactivate Channel
+    end
+
+    Note left of Repo: 呼び出し元へ戻る
+    deactivate Repo
+
+    Note over Repo,Service: 次の呼び出しでは①〜③をまた最初から繰り返す
+        </pre>
+    </div>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+        await mermaid.run();
+
+        const fitWidth = () => {
+            document.querySelectorAll('.mermaid svg').forEach((svg) => {
+                svg.removeAttribute('height');
+                svg.setAttribute('width', '100%');
+                svg.style.maxWidth = '100%';
+                svg.style.height = 'auto';
+            });
+        };
+
+        fitWidth();
+        window.addEventListener('resize', fitWidth);
+    </script>
+</body>
+</html>

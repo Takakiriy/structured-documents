@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<title>純粋な依存注入での生存戦略</title>
+<style>
+    body {
+        font-family: -apple-system, "Hiragino Sans", sans-serif;
+        line-height: 1.7;
+        color: #1d1d1f;
+        margin: 0;
+        padding: 24px;
+        background: #f5f5f7;
+    }
+    h1 {
+        font-size: 28px;
+        border-bottom: 3px solid #0071e3;
+        padding-bottom: 8px;
+    }
+    h2 {
+        font-size: 22px;
+        color: #0071e3;
+        margin-top: 40px;
+    }
+    .caption {
+        font-size: 15px;
+        color: #6e6e73;
+        margin-bottom: 12px;
+    }
+    section {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 28px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    pre {
+        background: #1d1d1f;
+        color: #f5f5f7;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: "SF Mono", Menlo, Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.55;
+    }
+    .kw { color: #ff7b72; }
+    .ty { color: #79c0ff; }
+    .cm { color: #8b949e; }
+    .st { color: #a5d6ff; }
+
+    /* 図のレイアウト */
+    .graph {
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+    .graph-svg {
+        min-width: 700px;
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    .boxes rect {
+        fill: #e9e9ec;
+        stroke: #555;
+        stroke-width: 1.4;
+    }
+    .boxes .singleton rect {
+        fill: #ecf9ef;
+        stroke: #34a853;
+    }
+    .boxes .transient rect {
+        fill: #fdecea;
+        stroke: #ea4335;
+    }
+    .boxes text {
+        text-anchor: middle;
+        font-family: "SF Mono", Menlo, Consolas, monospace;
+        font-size: 15px;
+        fill: #1d1d1f;
+    }
+    .legend {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        font-size: 14px;
+    }
+    .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .swatch {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        display: inline-block;
+    }
+    .swatch.s { background: #ecf9ef; border: 2px solid #34a853; }
+    .swatch.t { background: #fdecea; border: 2px solid #ea4335; }
+</style>
+</head>
+<body>
+
+<h1>純粋な依存注入での生存戦略の選択</h1>
+
+<section>
+    <h2>図8.4　オブジェクト・グラフ</h2>
+    <p class="caption">
+        CommerceControllerActivator クラスによって生成されるオブジェクト・グラフ。
+        HomeController クラスと RouteController クラスのオブジェクトが必要な依存と共に生成される。
+    </p>
+    <div class="graph">
+        <svg class="graph-svg" viewBox="0 240 820 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L8,3 L0,6 Z" fill="#555"/>
+                </marker>
+            </defs>
+
+            <!-- edges (lines) drawn first so boxes sit on top -->
+            <g stroke="#555" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+                <!-- 左ツリー -->
+                <path d="M225,300 L225,338"/>            <!-- Home -> Product -->
+                <path d="M225,382 L225,420"/>            <!-- Product -> SqlRepo -->
+                <path d="M200,464 L120,498"/>            <!-- SqlRepo -> AspNet -->
+                <path d="M250,464 L330,498"/>            <!-- SqlRepo -> Commerce -->
+                <path d="M330,542 L330,580"/>            <!-- Commerce -> 接続文字列 -->
+                <!-- 右ツリー -->
+                <path d="M620,300 L620,338"/>            <!-- Route -> Calculator -->
+                <path d="M595,382 L500,420"/>            <!-- Calculator -> Shortest -->
+                <path d="M645,382 L740,420"/>            <!-- Calculator -> Scenic -->
+                <path d="M620,382 L620,498"/>            <!-- Calculator -> Fastest -->
+            </g>
+
+            <!-- 説明文からの入口矢印 -->
+            <g stroke="#555" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+                <path d="M120,248 C150,250 195,250 213,262"/>
+                <path d="M515,248 C545,250 590,250 608,262"/>
+            </g>
+
+            <g class="boxes">
+                <!-- 左 -->
+                <g class="box transient"><rect x="135" y="256" width="180" height="44"/><text x="225" y="283">HomeController</text></g>
+                <g class="box transient"><rect x="135" y="338" width="180" height="44"/><text x="225" y="365">ProductService</text></g>
+                <g class="box transient"><rect x="125" y="420" width="200" height="44"/><text x="225" y="447">SqlProductRepository</text></g>
+                <g class="box singleton"><rect x="30" y="498" width="180" height="48"/><text x="120" y="519">AspNetUserContext-</text><text x="120" y="537">Adapter</text></g>
+                <g class="box transient"><rect x="240" y="498" width="180" height="44"/><text x="330" y="525">CommerceContext</text></g>
+                <g class="box singleton"><rect x="240" y="580" width="180" height="44"/><text x="330" y="607">接続文字列</text></g>
+
+                <!-- 右 -->
+                <g class="box transient"><rect x="530" y="256" width="180" height="44"/><text x="620" y="283">RouteController</text></g>
+                <g class="box singleton"><rect x="530" y="338" width="180" height="44"/><text x="620" y="365">RouteCalculator</text></g>
+                <g class="box singleton"><rect x="410" y="420" width="180" height="48"/><text x="500" y="441">ShortestRoute</text><text x="500" y="459">Algorithm</text></g>
+                <g class="box singleton"><rect x="650" y="420" width="180" height="48"/><text x="740" y="441">ScenicRoute</text><text x="740" y="459">Algorithm</text></g>
+                <g class="box singleton"><rect x="530" y="498" width="180" height="48"/><text x="620" y="519">FastestRoute</text><text x="620" y="537">Algorithm</text></g>
+            </g>
+        </svg>
+    </div>
+    <div class="legend">
+        <span><span class="swatch s"></span>シングルトン（使い回す）</span>
+        <span><span class="swatch t"></span>短命（リクエストごとに新規生成）</span>
+    </div>
+</section>
+
+<section>
+    <h2>リスト8.3　CommerceControllerActivator</h2>
+    <p class="caption">
+        コンストラクタでシングルトン対象を一度だけ生成して readonly フィールドに格納し、
+        Create が呼ばれるたびに短命な依存を新規生成して注入する。
+    </p>
+<pre><span class="kw">public class</span> <span class="ty">CommerceControllerActivator</span> : <span class="ty">IControllerActivator</span>
+{
+    <span class="kw">private readonly</span> <span class="ty">RouteCalculator</span> calculator;
+    <span class="kw">private readonly</span> <span class="ty">AspNetUserContextAdapter</span> userContext;
+    <span class="kw">private readonly string</span> connectionString;
+
+    <span class="kw">public</span> <span class="ty">CommerceControllerActivator</span>(<span class="kw">string</span> connectionString)
+    {
+        <span class="cm">// シングルトン対象は一度だけ生成して保持する</span>
+        <span class="kw">this</span>.calculator = <span class="kw">new</span> <span class="ty">RouteCalculator</span>();
+        <span class="kw">this</span>.userContext = <span class="kw">new</span> <span class="ty">AspNetUserContextAdapter</span>();
+        <span class="kw">this</span>.connectionString = connectionString;
+    }
+
+    <span class="cm">// IControllerActivator が定める「コントローラを生成する係」のフック。</span>
+    <span class="cm">// ASP.NET Core MVC は、コントローラを直接 new せず、登録された</span>
+    <span class="cm">// IControllerActivator にコントローラ生成を委譲する設計になっている。</span>
+    <span class="cm">// そのため Create は、フレームワークがリクエストを受け取り</span>
+    <span class="cm">// コントローラを必要とするたび（＝リクエストごと）に呼び出される。</span>
+    <span class="cm">// 渡される context から対象のコントローラ型を判別し、その型に応じた</span>
+    <span class="cm">// オブジェクト・グラフを組み立てて返す。</span>
+    <span class="kw">public object</span> <span class="ty">Create</span>(<span class="ty">ControllerContext</span> context)
+    {
+        <span class="kw">Type</span> type = context.ActionDescriptor.ControllerTypeInfo.AsType();
+
+        <span class="kw">switch</span> (type.Name)
+        {
+            <span class="kw">case</span> <span class="kw">nameof</span>(<span class="ty">HomeController</span>):
+                <span class="kw">return</span> CreateHomeController();
+            <span class="kw">case</span> <span class="kw">nameof</span>(<span class="ty">RouteController</span>):
+                <span class="kw">return</span> CreateRouteController();
+            <span class="kw">default</span>:
+                <span class="kw">throw new</span> <span class="ty">Exception</span>(<span class="st">"Unknown controller type."</span>);
+        }
+    }
+
+    <span class="kw">private</span> <span class="ty">HomeController</span> <span class="ty">CreateHomeController</span>()
+    {
+        <span class="cm">// 短命な依存は Create が呼ばれるたびに新規生成する</span>
+        <span class="kw">return new</span> <span class="ty">HomeController</span>(
+            <span class="kw">new</span> <span class="ty">ProductService</span>(
+                <span class="kw">new</span> <span class="ty">SqlProductRepository</span>(
+                    <span class="kw">new</span> <span class="ty">CommerceContext</span>(<span class="kw">this</span>.connectionString),
+                    <span class="kw">this</span>.userContext)));
+    }
+
+    <span class="kw">private</span> <span class="ty">RouteController</span> <span class="ty">CreateRouteController</span>()
+    {
+        <span class="cm">// シングルトンの calculator を受け取るだけ</span>
+        <span class="kw">return new</span> <span class="ty">RouteController</span>(<span class="kw">this</span>.calculator);
+    }
+
+    <span class="kw">public void</span> <span class="ty">Release</span>(<span class="ty">ControllerContext</span> context, <span class="kw">object</span> controller)
+    {
+    }
+}</pre>
+</section>
+
+</body>
+</html>

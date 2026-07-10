@@ -1497,9 +1497,13 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
     認証, パスワード: #keyword: Authentication
         パスワード: #keyword: password
             入力:  #keyword: input password  #search: secret
+                起動時にユーザーに入力させます: #keyword: input password at the start
+                    #ref: ${typrm_files}/ref/Network-AI.yaml#label: client password from AI
+                    暗号化ファイルを複合化します:  #search: encrypted passwords file
+                自動入力:  #// .env ファイルなどに保存します  #search: save password
                 シェルの環境変数に設定します:
                     bash の場合: |
-                            read -s -p "Enter password: "  PASSWORD
+                            read -rs -p "Enter password: "  PASSWORD
                                 #// パスワードを入力します。-s オプションによりパスワードは表示されません
                                 #// 上記の場合、環境変数 PASSWORD にパスワードを代入します。
                                 #// 古い Korn シェル（bash シェルではない）では -s オプションは ヒストリー・ファイルに保存してしまうので注意
@@ -1507,24 +1511,39 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                             __CryptCommand__ "${PASSWORD}"
                         #ref: ${typrm_files}/ref/Network-AI.yaml#client password from AI
                     zsh の場合: |
-                            read -s "?Enter password: " PASSWORD
+                            read -rs "?Enter password: " PASSWORD
                                 #// パスワードを入力します。-s オプションによりパスワードは表示されません
                                 #// 古い Korn シェル（bash シェルではない）では -s オプションは ヒストリー・ファイルに保存してしまうので注意
                                 #// ? によりプロンプトを表示します
                             __CryptCommand__ "${PASSWORD}"
-                    注意: スクリプトで環境変数の値を設定してはいけません。たとえば、クラウドの中のパスワードを保存できる環境変数を設定する項目に設定します
+                    read の -r オプション:  #keyword: input password read -r
+                        パスワードのように \ を含みうる任意の文字列を入力したまま正確に受け取りたい場合、-r がないと値が壊れる恐れがあります。
+                        そのため read はほぼ常に -r を付けるのが定石です(ShellCheck も -r なしの read に警告 SC2162 を出します)。
+                    ❗注意:
+                        - 変数を export しないでください
+                        - 上記 read 以外でスクリプトで環境変数の値を代入してはいけません。たとえば、クラウドの中のパスワードを保存できる環境変数を設定する項目に設定します
+                ファイル ディスクリプター 経由で渡します: #keyword: password file descriptor
+                    #// パスワードをプロセスのファイルシステムや環境に残さず渡せます
+                    親スクリプト側: |
+                        #!/bin/bash
+                        read -rs -p "Password: "  MyPassword
+                        echo  ""
+
+                        # FD 3 で渡す
+                        ./child.sh 3<<< "${MyPassword}"
+                    子スクリプト側: |
+                        #!/bin/bash
+                        read -r  MyPassword  <&3
+                        # 使用後
+                        unset  MyPassword
                 ファイルに出力します: #keyword: make password file
                     場所:  #search: password store path
                     bash の場合: |
                         PasswordFile=~/.secret/____
-                        read -s -p "Enter password: "  _x  &&  echo "${_x}" > ${PasswordFile};  unset  _x  #search: make password file
+                        read -rs -p "Enter password: "  _x  &&  echo "${_x}" > ${PasswordFile};  unset  _x  #search: make password file
                         chmod 600  ${PasswordFile}
                         unset  PasswordFile
-                起動時にユーザーに入力させます:
-                    #ref: ${typrm_files}/ref/Network-AI.yaml
-                自動入力:  #// .env ファイルなどに保存します  #search: save password
-                お客様へ初期パスワードを渡すとき:
-                    ふりがなを付ける, 0とOの両方の可能性をなくす（Oは使わない）, 糊付けした折りたたみハガキを使う
+                ユーザーへ初期パスワードを渡すとき:  #search: 初期パスワード発行
                 #search: パスワード漏洩リスク
             環境変数:  #keyword: secret environment
                 クラウドに設定する場合:  #search: cloud secret
@@ -1537,6 +1556,15 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     Linux パスワード:  #search: Linux password
                     パスワードの指定方法:  #search: input password  #search: secret
                 ファイル >> シークレット, .env: #keyword: password store path  #search: bash .env  #// クライアントからサーバーにアクセスするときのパスワードのファイル
+                    暗号化ファイル: #keyword: encrypted passwords file
+                        処理に必要なパスワードや API キー を集めたものを、
+                        7-zip などで暗号化ファイルにまとめて保存したもの。
+                        処理の起動時に暗号化ファイルのパスワードを入力します。
+                        主にローカルに保存します。
+                        #search: input password at the start
+                    特定のユーザーだけアクセスできるフォルダーやファイル:
+                        ログイン パスワード で認証します。
+                        主にサーバーに保存します。
                     環境変数:
                         .env:  #search: bash .env
                         シークレット を扱う WebUI:  #search: cloud secret
@@ -1587,8 +1615,9 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     #ref: https://x.com/oryzae1824/status/1873609032197722462
                 パスワード漏洩リスク:  #search: パスワード漏洩リスク
                 Secret Zero 問題:  #search: Secret Zero Problem
-            パスワードの条件, 初期パスワード発行:  #// ユーザーが設定できるパスワードの条件
+            パスワードの条件, 初期パスワード発行: #keyword:  #// ユーザーが設定できるパスワードの条件
                 #ref: https://www.ipa.go.jp/files/000017316.pdf#page=57
+                ふりがなを付ける, 0とOの両方の可能性をなくす（Oは使わない）, 糊付けした折りたたみハガキを使う
             ワンタイム パスワード: #keyword:  #// 一度認証したら無効になります
             ワンタイム URL:
                 テキストやファイルを一同だけ見せる
@@ -1922,7 +1951,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                                                 gpg-agent[19133]: directory `/home/user1/gpg-work/private-keys-v1.d' created
                                                 GPG_AGENT_INFO=/home/user1/gpg-work/S.gpg-agent:19134:1; export GPG_AGENT_INFO;
                                                 gpg-agent[19134]: gpg-agent (GnuPG) 2.0.22 started
-                                    $ read -s -p "Enter GPG file passphrase: "  GPG_FILE_PASSPHRASE
+                                    $ read -rs -p "Enter GPG file passphrase: "  GPG_FILE_PASSPHRASE
                                             #// 入力したパスワードを安全な場所にメモします。-s オプションによりパスワードは表示されません
 
                                     $ echo "${GPG_FILE_PASSPHRASE}"  |  gpg --homedir "${GPG_WORK}"  --batch --yes --passphrase-fd 0 --symmetric  --output __EncryptedFilePath__  __PlainFilePath__
@@ -2760,7 +2789,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         XSS, クロスサイト スクリプティング: #keyword: XSS,  クロスサイト スクリプティング
             保護対象: HTML のフォーム
             攻撃内容:
-                概要: 攻撃者が公式サイトに悪意のあるスクリプトを間接的に埋め込む。
+                概要: 攻撃者が公式サイトに悪意のあるスクリプトを間接的に埋め込む。入力フォームなどに細工した内容を入力する。
                     公式サイトの訪問者に悪意のあるサイトを表示させ、訪問者の個人情報を盗む
                 埋め込み方の例:
                 コメント欄にスクリプトを埋め込む:
@@ -3103,6 +3132,12 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
             Medium (4.0-6.9)
             High (7.0-8.9)
             Critical (9.0-10.0)
+        CWE:  #glossary:
+            CWE-178 大文字の機密扱いの不適切な取り扱い:
+                エスケープにマッチしない: |  #focus: script  #// Script が安全な内容に置き換えられませｎ
+                    public String preventXSS(String input, String mask) {
+                        return input.replaceAll("script", mask);
+                    }
         検査対象:  #// OS, ミドルウェア など
             OS, フレームワーク, ミドルウェア, 外部から提供されたアプリケーション
         ソーシャル エンジニアリング:

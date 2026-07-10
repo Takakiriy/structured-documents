@@ -33,7 +33,7 @@
     (=~): #search: bash =~
     (<<): #keyword: <<     #// ヒアドキュメント  #search: <<
     (<<<):  #// ヒアドキュメント  #search: <<<
-    (<( )):  #search: プロセス置換  
+    (<( )):  #search: プロセス置換
     (3>&-): #keyword: 3>&-  #// exec コマンドで ファイル ディスクリプター を削除します
     ({ }): #keyword: { }   #// 複数のフォルダー名やファイル名の指定  #search: Linux paths in bracket
     (&): #// バックグラウンド ジョブとしてプロセスを起動します  #search: linux ampersand
@@ -97,6 +97,7 @@ man 検索: #keyword: Linux man
                     - Fedora ディストリビューション以外のディストリビューション用のパッケージも提供しています
                     - sudo yum install -y  epel-release
                 IUS:  #search: Git IUS Community
+        Koji: #keyword: Fedora Koji  #// Fedora のビルドを保管する場所
     CentOS Stream: #// RHELのPublic Beta, Upstream
         追加リポジトリ: #search:
             CentOS Stream 9 CRB:
@@ -220,6 +221,20 @@ for Windows:
                 "/c/Program Files/Git"
                 "/bin/bash"
                 "/c/Program Files/Git/bin/bash.exe"
+        パス, 自動パス変換:  #keyword: Git bash //path
+            有効になる条件:
+                - Windows のプログラムを起動しようとするとき
+                - /（1つ）から始まるパラメーター
+            変換例:
+                呼び出し側のパラメーター:
+                    /mnt/c/Users/user1/data
+                Windows プログラムが受け取るパラメーター:
+                    C:/Program Files/Git/mnt/c/Users/user1/data
+            無効にする方法:
+                //:
+                    / から始まるパラメーターを // から始まるように指定します
+                MSYS_NO_PATHCONV:
+                    MSYS_NO_PATHCONV=1  に続けてコマンドを入力します
         Git 部分:  #search: git
         Linux 部分:
             MinGW: #keyword:  #ref: ${programming}/OS/Cygwin.svg#MinGW
@@ -257,6 +272,20 @@ for Windows:
                 #// Glade のウィンドウが開けば OK です
     WSL: #search:
 シェル, オプションの入力, 変数: #keyword: shell,  command
+    表示:
+        echo: #keyword: Linux echo
+            基本:  #// 標準出力に出力します。デフォルトでは標準出力に出力した内容は表示されます
+                echo  "Hello, world!"
+            変数参照:  #search: Linux variables
+                echo  "Var = ${Var}"
+            変数代入:  #search: Linux variables
+                Var="$( echo "value" )"
+            ファイル出力:
+                リダイレクト:  #search: Linux redirect
+                    echo  "hello!"  >  "./_temporary.txt"
+                tee, 表示とリダイレクト:  #search: tee
+                    echo  "hello!"  |  tee  "./_temporary.txt"
+        printf: #keyword: Linux printf
     使えるか: #keyword: bash command install check,  Linux exists command path  #// コマンドが使えるかどうかを確認します
         which: which __CommandName__   #// PowerShell なら gcm (Get-Command)
         スクリプト内: |
@@ -477,7 +506,7 @@ for Windows:
                             if ! [[ -v http_proxy ]]; then  http_proxy=""  ;fi
                             if ! [[ -v https_proxy ]]; then  https_proxy=""  ;fi
                             if ! [[ -v no_proxy ]]; then  no_proxy=""  ;fi
-                            if ! [[ -v HTTP_PROXY ]]; then  __VariHTTP_PROXYableName__=""  ;fi
+                            if ! [[ -v HTTP_PROXY ]]; then  HTTP_PROXY=""  ;fi
                             if ! [[ -v HTTPS_PROXY ]]; then  HTTPS_PROXY=""  ;fi
                             if ! [[ -v NO_PROXY ]]; then  NO_PROXY=""  ;fi
                             echo  "http_proxy = ${http_proxy}"
@@ -494,7 +523,7 @@ for Windows:
                                 export USERPROFILE="${HOME}"
                                 export HOME2="${USERPROFILE}"
                                 export ProgramFiles="/c/Program Files"
-                            elif [  -e "/mnt/c/" ] && [ "${PWD:0:7}" == "/mnt/c/" ]; then  #// if Linux on WSL2
+                            elif [  -e "/mnt/c/" ] && ! [[ -v USERPROFILE ]]; then  #// if Linux on WSL2  #// "! -v" means that variable is not defined.
                                 ScriptEnvironment="Linux"
                                 if ! [[ -v USERNAME ]]; then  #// If USERNAME was not defined in parent script  #// "! -v" means that variable is not defined.
                                     export USERNAME="$( /mnt/c/WINDOWS/system32/cmd.exe /c 'echo %USERNAME%'  2> /dev/null )"
@@ -548,7 +577,7 @@ for Windows:
             参考 >> Windows と Linux の違い:  #search: Windows Linux
     変数: #keyword: Linux variables,  bash variables
         定義: #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#export
-            環境変数:
+            環境変数:  #// 子プロセスにも渡ります
                 export __VariableName__="__Value__"
             環境変数ではない変数:  #// 子プロセスには引き継がれません
                 __VariableName__="__Value__"
@@ -652,7 +681,7 @@ for Windows:
                     - local  var1="value"
                     - local  var2
                     - local  var3  var4="value"   #// 1行で複数の変数を宣言するときは空白で区切ります
-                    - local --nameref  array="ExampleArray"   #search: local --nameref
+                    - local -n  array="ExampleArray"   #search: local --nameref
                 注意:
                     呼び出し元の同名の変数が変わらなくなりますが、呼び出し先でも参照できてしまいます
             追記, +=:  #keyword: bash +=
@@ -660,6 +689,7 @@ for Windows:
                 line+="def"
                 text="line1"$'\n'
                 text+="line2"$'\n'
+            配列:  #search: bash array
             計算:  #search: bash 計算
             export: #keyword: Linux export  #// 変数を子プロセスにも渡します
                 子プロセスにも渡すようにします:  #// 値が入った export ではない変数を export します
@@ -668,7 +698,7 @@ for Windows:
                     export -n __VariableName__
             unset: #keyword: Linux unset  #// 変数を定義なしに戻します
                 unset  __VariableName__
-            グローバルの初期化, ModifyGlobalVariables: #keyword: initialize Linux global variable,  ModifyGlobalVariables,  ModifyVariables
+            グローバルの初期化, ModifyGlobalVariables: #keyword: bash global,  initialize Linux global variable,  ModifyGlobalVariables,  ModifyVariables
                 - 複雑な処理は ModifyGlobalVariables という名前の関数を作ってその中で行うとデバッグがしやすくなります
                 - ファイル間で共有  #search: DefineGlobalVariablesSafely  #search: SubScriptOptions
                 #search: ModifyGlobalVariables USERPROFILE
@@ -725,11 +755,12 @@ for Windows:
                     関連 >> インスタンス ファイル:  #search: bashlib instance file
                 オプションの継承, SubScriptOptions:  #keyword: SubScriptOptions,  sub child options shell script 継承
                     #// 他の シェルスクリプト ファイル を呼び出すときに常に設定するオプションを集めた変数を定義すると便利です
-                    InstallBaseScriptOptions=()
-                    AddOptionToArray  InstallBaseScriptOptions  "--group"  "${Options_Group}"
-                    AddOptionToArray  InstallBaseScriptOptions  "--test"  "${Options_Test}"  --flag
+                    #// 下記 InstallScriptOptionsInLinux は SubScriptOptions のサンプル的な名前です
+                    InstallScriptOptionsInLinux=()
+                    AddOptionToArray  InstallScriptOptionsInLinux  "--group"  "${Options_Group}"
+                    AddOptionToArray  InstallScriptOptionsInLinux  "--test"  "${Options_Test}"  --flag
 
-                    "${installBaseScript}"  "${InstallBaseScriptOptions[@]}"
+                    "${installBaseScript}"  "${InstallScriptOptionsInLinux[@]}"
             早期設定値チェック, CheckStatus: #keyword: CheckStatus
                 - 処理時間が長いとき、チェック関数を処理の最初で行います
                 - チェックを無視して続行できること  #// チェックがきつすぎる不具合がある可能性を排除するため
@@ -743,22 +774,43 @@ for Windows:
             docker exec 実行時のみ:  #search: docker run --env
                 export __VariableName__="__Value__"
                 docker exec -it --env __VariableName__  __Container__  __Command__  __Parameters__
-        コマンド実行時のみ設定: #search: bash command with variables 
+        コマンド実行時のみ設定: #search: bash command with variables
         全ての引数:  #// "$@"  #keyword: "Linux ""$@""",  Linux $* bash 引数
-            概要:
-                ${__Variable__[@]}: |  #keyword: bash [@]
-                    "${__Variable__[0]}" "${__Variable__[1]}" "${__Variable__[2]}"
-                ${__Variable__[*]}: |  #keyword: bash [*]
-                    "${__Variable__[0]} ${__Variable__[1]} ${__Variable__[2]}"
+            展開:
+                $@: |
+                    "$@"
+                        は
+                    "$0"  "$1"  "$2"
+                        に展開されます
+                ${__Array__[@]}: |  #keyword: bash [@]  #focus: __Array__,  @
+                    "${__Array__[@]}"
+                        は
+                    "${__Array__[0]}"  "${__Array__[1]}"  "${__Array__[2]}"
+                        に展開されます
+                __Header__ ${__Array__[@]} __Footer__: |  #focus: __Header__,  __Footer__,  @
+                    "__Header__  ${__Array__[@]}  __Footer__"
+                        は
+                    "__Header__  ${__Array__[0]}"  "${__Array__[1]}"  "${__Array__[2]}  __Footer__"
+                        に展開されます
+                ${__Array__[*]}: |  #keyword: bash [*]  #// 1つの文字列になります  #focus: __Array__,  *
+                    "${__Array__[*]}"
+                        は
+                    "${__Array__[0]} ${__Array__[1]} ${__Array__[2]}"
+                        に展開されます
+                __Header__ ${__Array__[*]} __Footer__: |  #focus: __Header__,  __Footer__,  *
+                    "__Header__  ${__Array__[*]}  __Footer__"
+                        は
+                    "__Header__  ${__Array__[0]} ${__Array__[1]} ${__Array__[2]}  __Footer__"
+                        に展開されます
+                #// 各要素は空白文字で区切られます。IFS に改行が設定されていても空白で区切られます
             全ての引数をコマンドに渡します:  #// コマンドの全体は配列に入っているケース
-                概要: 必要に応じて shift してから、"$@" を書きます。
+                概要: 必要に応じて shift してから、"$@" や "${__Array__[@]}" を書きます。
                     $* や $@（""なし）は、非推奨です。空白を含む場合に正しく処理されないため。
                     #ref: https://superuser.com/questions/360966/how-do-i-use-a-bash-variable-string-containing-quotes-in-a-command
                     #ref: https://stackoverflow.com/questions/1668649/how-to-keep-quotes-in-bash-arguments#:~:text=When%20you%20want%20to%20pass,(without%20escaping%20your%20quotes).&text=See%20this%20answer%3A%20Difference%20between%20single%20and%20double%20quotes%20in%20Bash.
                 bash サンプル:
-                    this_script.sh: |  #// chmod +x this_script.sh すること
-                        function  print_arguments()
-                        {
+                    this_script.sh: |  #// chmod +x this_script.sh すること  #focus: "$@", "${arguments1[@]}"
+                        function  print_arguments() {
                             echo "    \$1: $1"
                             echo "    \$2: $2"
                             echo "    \$3: $3"
@@ -768,7 +820,7 @@ for Windows:
                         print_arguments "$@"
 
                         echo '"${arguments1[@]}"'
-                        arguments1=("$@")
+                        arguments1=( "$@" )
                         print_arguments "${arguments1[@]}"
                     ケースA:
                         コマンド:
@@ -882,6 +934,7 @@ for Windows:
                 arguments=("$@")
             変数に文字列として代入します:
                 arguments="$@"
+            配列:  #search: Linux bash array
         未定義の判定:
             ${__VariableName__+set}
                 #// __VariableName__ が定義されていたら "set" を返します。
@@ -1091,6 +1144,7 @@ for Windows:
                     #// [ ] ではなく [[ ]] であることに注意
                     #ref: https://stackoverflow.com/questions/229551/how-to-check-if-a-string-contains-a-substring-in-bash
         配列: #keyword: bash array,  Linux bash array  #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#array
+            関連 >> 全ての引数:  #search: Linux "$@"
             サンプル:
                 基本: |  #focus: array
                     function  main_func() {
@@ -1151,6 +1205,8 @@ for Windows:
                     for (( i = 0; i < ${#arr[@]}; i ++ )); do  #// i ++ の代わりに i += 2 もできます
                         echo  "${arr[${i}]}"
                     done
+                リテラル:  #search: Linux bash array loop literal
+                    使えません
                 サンプル:  #search: bash arguments loop
             追加: #keyword: add Linux bash array
                 配列の場合:  #// 以下のいずれか
@@ -1163,7 +1219,7 @@ for Windows:
                 - a=( "${a[@]:1}" )  #// a[@]:0:-1 のような -1 はできません
                 - echo "${a[@]}"  #// b c d e
                 #ref: https://unix.stackexchange.com/questions/413976/how-to-shift-array-value-in-bash
-            関数に配列を渡します, 返します:  #focus: array[@]
+            関数に配列を渡します, 返します: #keyword: bash function array  #focus: array[@]
                 渡す:  #// 関数に配列を渡します
                     呼び出す側:
                         #// すべての配列要素を関数のそれぞれ引数に渡すことならできます。
@@ -1177,8 +1233,10 @@ for Windows:
                             __Command__ "${options[@]}"
                     参照渡し:  #search: RemoveEmptyElement  #search: local --nameref
                 返す:  #// 関数から配列を返します
-                    echo 表示するときだけ配列から文字列に変換します。
-                    配列→文字列→配列  #search: bash array text
+                    echo 出力の場合:
+                        echo 表示するときだけ配列から文字列に変換します。 空白区切りになります（IFS による）
+                        配列→文字列→配列  #search: bash array text  #search: bash text_to_array
+                    参照渡しで返す:  #search: local --nameref
             ファイル、文字列、配列の変換: #keyword: bash array text,  Linux bash array string
                 ファイル→配列:  #// テキスト ファイル の内容の 1行ずつを要素にした配列を変数に代入します
                     read:  #keyword: bash read
@@ -1199,6 +1257,9 @@ for Windows:
                             -t オプションをつけないと配列要素の末尾に改行文字が入ります。
                 文字列→配列:  #keyword: bash text_to_array  #search: bash readarray  #// 文字列の 1行ずつを要素にした配列を変数に代入します
                     改行区切り:
+                        readarray を使う場合:
+                            ❗注意: mac では使えません
+                                local  __Variable__=( )  &&  readarray -t  __Variable__ <<<  "__Text__"
                         read を使う場合:
                             改行文字が CR+LF の可能性がある場合:
                                 local  line=""
@@ -1208,9 +1269,8 @@ for Windows:
                             改行文字が必ず LF の場合:
                                 local  line=""
                                 local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$line" ) ;done <<< "__Text__"
-                        readarray を使う場合:
-                            ❗注意: mac では使えません
-                                local  __Variable__=( )  &&  readarray -t  __Variable__ <<<  "__Text__"
+                            コマンドの出力の場合:
+                                local  __Array__=( )  &&  while IFS= read -r line ;do  __Array__+=( "$( echo "$line" | sed -E 's/\r$//' )" ) ;done <<< "$( __Command__ )"
                     空白区切り:  #// "" で囲まない変数参照を書きます
                         基本:
                             local  items="a b c"
@@ -1233,14 +1293,8 @@ for Windows:
                 配列→文字列:  #// 配列ではなくします
                     改行区切り:
                         text=$(printf '%s\n' "${__Array__[@]}")
-                    空白区切り:
-                        書式:
-                            local  out="${__Array__[@]}"
-                        サンプル:
-                            arr=( "a" "b" )
-                            local  out="${arr[@]}"
-                            test  "${out}" == "a b"  ||  Error
-                        #// 各要素は空白文字で区切られます。IFS に改行が設定されていても空白で区切られます
+                    空白区切り:  #search: bash [*]
+                        #snip: "${__Array__[*]}"
                     コンマ区切り:
                         書式:
                             local  out="$( echo "${__Array__[@]}"  |  sed 's/ /,/g' )"
@@ -1251,6 +1305,7 @@ for Windows:
                 配列→ファイル:
                     printf '%s\n' "${output[@]}"  >  "${outputFile}"
             検索:  #search: Linux bash array loop  #search: strict CSV item match
+            含む, CheckArrayContains:
             演算, 共通, 差分:  #search: Linux comm
             関連 >> strict CSV:  #search: bash strict CSV
         連想配列 (bash): #keyword: Linux bash associative array,  bash dic hash
@@ -1267,10 +1322,38 @@ for Windows:
                         #// -g はグローバル。関数内で宣言したときにグローバルにします
                 関数内ローカル初期化: #keyword: bash local -A
                     local -A  associativeArray  #// associative array
-                引数渡し: #keyword: bash local -n,  bash 名前参照  #// Bash 4.3 以降。関数の引数に配列または連想配列を渡します
-                    local -n  array="ExampleArray"
-                    #// local --nameref  array="ExampleArray" と書けません  #keyword: local --nameref
-                    #search: RemoveEmptyElement
+                引数渡し: #keyword: bash local -n,  bash 名前参照 変数 改名  #// Bash 4.3 以降。関数の引数に配列または連想配列を渡します
+                    （命名規則）:  #// 独自
+                        ____Ref
+                    配列:
+                        しくみ:
+                            local -n  arrayRef="ExampleArray"
+                            arrayRef=("${newArray[@]}")    #// ExampleArray=("${newArray[@]}") と同じ処理をします
+                        実際: |
+                            function  Foo() {
+                                local -n  arrayRef="$1"
+                                arrayRef=("1" "2" "c")
+                            }
+                            Foo  ExampleArray
+                            echo  "${ExampleArray[@]}"
+                        #// local --nameref  array="ExampleArray" と書けません  #keyword: local --nameref
+                        #// 関数の外の ExampleArray 変数の代わりとして、関数の中で array 変数が使えます
+                        #search: RemoveEmptyElement
+                    連想配列:
+                        local -n  dicRef="ExampleDic"
+                    トラブルシューティング:
+                        手順: |
+                            local -n  outputRef=$1  #// nameref (Bash 4.3+)
+                            pp  "$outputRef"  outputRef  ${#outputRef[@]}  "${outputRef[@]}"
+                            function  pp() {
+                                local  variableName="$2"
+                                declare -n  ref="$variableName"                #// Error
+                                declare -n  variableNameRef="${variableName}"  #// Error
+                                declare -p "${!variableNameRef}"   >&2         #// Error
+                        ログ: |
+                            declare: ` outputRef ': invalid variable name for name reference
+                        対処:
+                            pp  "$outputRef"  ${!outputRef}  ${#outputRef[@]}  "${outputRef[@]}"
             サンプル: #// mac では使えません
                 Linux: |
                     declare -A  ObjectA  #// associative array
@@ -1299,8 +1382,8 @@ for Windows:
                 done
             コピー: | #keyword: MergeAssociativeArray
                 function  MergeAssociativeArray() {
-                    local --nameref  destination="$1"
-                    local --nameref  source=$2
+                    local -n  destination="$1"
+                    local -n  source=$2
 
                     for key in "${!source[@]}"; do
                         destination["${key}"]="${source[${key}]}"
@@ -1361,7 +1444,10 @@ for Windows:
             サンプル direnv:
                 echo 'eval "$(direnv hook bash)"'
         IFS: #keyword:  #// bash の for の区切り文字
-            未定義の場合: 空白文字。改行文字ではありません。
+            未定義の場合:  #// 環境によって異なります
+                - 区切らない  #// Rocky 8
+                - 空白文字  #// 改行文字ではありません
+                - 空白、タブ、改行  #// デフォルトと同じ
             空白区切りフィールドの要素を走査する:  #ref: ${programming}/スクリプト/シェルスクリプト/シェルスクリプト.svg#field_loop
             複数行の文字列を１行ずつ繰り返す: #keyword: bash read lines
                 read または readarray を使う場合:
@@ -1477,7 +1563,9 @@ for Windows:
                             #// mnt_c から作らないほうがよいです
                 参考 >> Windows と Linux の違い:  #search: Windows Linux
             bash:
-                GetFullPath: #keyword:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GetFullPath()
+                GetFullPath: #keyword:
+                    フル バージョン:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GetFullPath()
+                    簡易バージョン:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GetFullPath()
                 GetParentFullPath: #keyword:  #ref: ${GitHub}/patch-o/patch-o#function  GetParentFullPath()
                 GetFolderRelativePath: #keyword:  #ref: ${GitHub}/patch-o/patch-o#function  GetFolderRelativePath()
         direnv:  #keyword:  #// 特定の カレント フォルダー に移動したときに環境変数を設定します
@@ -1501,7 +1589,7 @@ for Windows:
                         #// 必要なら ~/.direnvrc を作ります  #search: .direnvrc
                     スクリプトでインストールする場合:
                         #ref: ${GitHub}/MyPrivateCode/bash/Rocky8/install-dev.sh#function  InstallDirEnv
-                環境変数を設定します:  #// 現在のプロセスに環境変数を設定します
+                環境変数を設定します, direnv allow: #keyword: direnv allow  #// 現在のプロセスに環境変数を設定します
                     初めて カレント フォルダー になったとき:
                         cd コマンドの後、direnv allow を実行します:
                             - cd  __TargetFolderPath__
@@ -1678,6 +1766,7 @@ for Windows:
             - $( command \
                 parameters )
                 #ref: https://unix.stackexchange.com/questions/82182/having-multi-lines-in-bash-command-substitution
+            - if [ "$( command )" == "" ]; then  #search: bash 条件式
         エラー処理:  #search: ErrorIfLastIs
         公式:
             #ref: http://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Command-Substitution
@@ -2000,6 +2089,19 @@ for Windows:
                 インデントの位置: 空白文字でインデントさせることはできません。 <<- の場合のみ、タブ文字でインデントすることができます
                 (' ')で囲んだ区切り識別子:  #serach: Linux here document quotation
             変数に代入する場合:  #search: bash str multi line here document
+            ファイルに出力する場合:
+                sudo なし:
+                    cat  "__FilePath__"  <<  _HERE_DOCUMENT  ||  Error
+                    Line 1
+                    Line 2
+                    Line 3
+                    _HERE_DOCUMENT0
+                sudo あり:
+                    cat  <<  _HERE_DOCUMENT  |  sudo tee  "__FilePath__"  >  /dev/null  ||  Error
+                    Line 1
+                    Line 2
+                    Line 3
+                    _HERE_DOCUMENT0
             stdin への入力内容を書く場合:
                 #search: here document stdin
                 #search: grep here document
@@ -2010,9 +2112,11 @@ for Windows:
         パイプの右が関数の場合:  #search: bash function redirect  #// シェルスクリプトの中の関数の場合
         プロセス置換: #search:
     パイプ: #keyword: Linux pipe,  pipe,  bash pipe  ./_exit_1  #// 標準出力を別のコマンドの標準出力に転送します
+        エラー出力もパイプに渡す:  #search: 2>&1
+            command  2>&1  |  tee  "_output.txt"
         n段目の終了コード:  #ref: ${typrm_files}/ref/Linux-AI.yaml#label: pipe 1st status
-            _: #snip: ${PIPESTATUS[0]} など  #search: pipe exit code
-            パイプと同等の処理:  #search: Process Substitution
+            ${PIPESTATUS[0]} など:  #search: pipe exit code
+            代用 >> パイプと同等の処理:  #search: pipe like process substitution
             （試行錯誤）:
                 サンプル:
                     command-1; echo $? > ./_exit_1  |  command-2
@@ -2053,6 +2157,26 @@ for Windows:
                     echo "? $?"   #// 0
                     echo "_tmp: $( cat _tmp )"  #// 1
                 #ref: https://yamadamn.hatenablog.com/entry/20090925/1253903166
+        関数内の変数代入: #keyword: Linux pipe let  #// 関数呼び出しにパイプを使うと、関数内で変数に代入した値は、呼び出し元に反映されませんが、代替方法があります
+            不具合サンプル: |
+                Items=()
+
+                function AddItem() {
+                    Items+=("a")
+                    echo "Inside: ${Items[@]}"  # サブシェル内では追加されている
+                }
+
+                AddItem | tee x
+
+                echo "Outside: ${Items[@]}"    # 親では空のまま
+            代替方法:
+                編集前:
+                    AddItem | tee x
+                編集後: #keyword: > >( )
+                    AddItem > >( tee x )
+                    wait    #// プロセス置換の完了を待つ
+                解説:
+                    tee がサブシェルになり、AddItem は親シェルで実行することで、変数の代入が反映されます
         標準入力を行で分けない:  #// キーボードから入力した内容をコマンドの標準入力へ渡すときに各行ごとに渡さず、最終行まで入力したら渡すようにバッファリングします
             修正前: 
                 $ grep  abc
@@ -2089,8 +2213,6 @@ for Windows:
                             -----  ... Ctrl + D を押した
                             abc   ... 出力
                             abcd  ... 出力
-        エラー出力もパイプに渡す:  #search: 2>&1
-            command  2>&1  |  tee  "_output.txt"
         スクリプト内:
             exit をキャッチする場合:  #search: bash function exit trap
             スクリプトをパイプとパラメーターの両方に対応します:  #search: bash pipe and arguments
@@ -2752,6 +2874,10 @@ for Windows:
             マッチした内容を表示します:  #search: sed multi line
             行番号を表示します:  #search: GrepLineNumRange
         git の過去のコミットを検索します:  #serach: git grep
+        トラブルシューティング（grep）:
+            手順: grep keyword log.log
+            ログ: Binary file log.log matches
+            対処: grep -a keyword log.log
     ag (The Silver Searcher):
         概要: grep の改良版。.git、.svn、.gitignore の内容を検索から除外します
             --ruby と指定すると (.rb .rhtml .rjs .rxml .erb .rake .spec) が対象になる。
@@ -3383,6 +3509,7 @@ for Windows:
                         上書き確認しないようにする, cp overwrite: #keyword: prevent cp overwrite confirmation,  Linux input yes
                             yes | cp -ap  '/local/root/var/'*  '/var' &&  echo ''
                 restore-folders-1:  #// フォルダーを復帰するスクリプト  #search: restore-folders-1
+                圧縮ファイル経由:  #search: .tar.gz compress
             他の方法:
                 古い方法:
                     直下に隠しファイルや隠しフォルダーが無い場合:  #// 隠しファイルは . から始まるファイルです
@@ -3510,8 +3637,8 @@ for Windows:
             スクリプトを削除します:
                 rm ~/_renamer.sh
     scp: #keyword:  #// SSH 接続できるマシンとの間でアップロード・ダウンロードします
-        非推奨: #// scp は非推奨になりました
-            代わり ⇒ rsync  #ref: https://japan.zdnet.com/article/35242719/
+        非推奨: #// SCP/RCP プロトコル は非推奨になりましたが、scp コマンドは非推奨になっていません
+            - 代わり ⇒ rsync  #ref: https://japan.zdnet.com/article/35242719/
         設定: #settings:
             __FileName__: file.zip
             __ServerNameOrIPAddress__: server1
@@ -3520,7 +3647,11 @@ for Windows:
             __SSH_KeyFilePath__: $HOME\.ssh\id_rsa  #// サーバーにアクセスするときに必要な SSH キー
         アップロード: #keyword: scp upload  #// scp でファイルをアップロードします
             #// コピー先への接続に必要な SSH の鍵が用意してあること
-            通常（.ssh/id_rsa を使う場合）:
+            ~/.ssh/config の中にある設定を使う場合:
+                scp  "__LocalPath__"  "__HostInConfig__:__PathInHost__"
+                    #// __HostInConfig__ は ~/.ssh/config の Host です
+                #// scp に ssh -i __HostInConfig__ のような指定はしません  #keyword: scp -i
+            .ssh/id_rsa を使う場合:
                 パスフレーズを入力します:  #search: ssh-agent  #// 以後、現在のプロセスでサーバーとの接続に使う SSH キーのパスフレーズの入力要求がされないようにします
                     #Git bash (@接続元)
                     eval `ssh-agent` && ssh-add
@@ -3532,10 +3663,6 @@ for Windows:
                 ファイルをアップロードします:
                     scp  "file.zip"  "user1@server1:/home/user1"  #template: scp  "__FileName__"  "__ServerAccount__@__ServerNameOrIPAddress__:/home/__ServerAccount__"
                 （リモート実行）:  #search: SSH upload and run script
-            ~/.ssh/config の中にある設定を使う場合:
-                scp  "__LocalPath__"  "__HostInConfig__:__PathInHost__"
-                    #// __HostInConfig__ は ~/.ssh/config の Host です
-                #// scp に ssh -i __HostInConfig__ のような指定はしません  #keyword: scp -i
             SSH config name: __ServerAccount__@__ServerNameOrIPAddress__ の代わりに指定できます  #search: SSH config name
             SSH キーを指定する場合、詳細情報:
                 パスフレーズを入力します:  #// 以後、現在のプロセスでサーバーとの接続に使う SSH キーのパスフレーズの入力要求がされないようにします
@@ -4627,7 +4754,7 @@ for Windows:
                                 スクリプトの場合:
                                     #search: InsertAfterLastMatchedLine
                                 CLI の場合:
-                                    書式: sed -E "$(grep -n '__RegExp__' "__FilePath__"  |  tail -1  |  cut -f1 -d':' )a __NewLine__"  "__FilePath__"
+                                    書式: sed -E "$( grep -n '__RegExp__' "__FilePath__"  |  tail -1  |  cut -f1 -d':' )a __NewLine__"  "__FilePath__"
                                         #// ❗パターンにマッチしないとファイルの内容が壊れます
                                     サンプル:
                                         コマンド:
@@ -4769,7 +4896,13 @@ for Windows:
                 関連:  #search: patch-o
         参考 >> 正規表現:  #search: regular expression
         トラブルシューティング(sed):
-            - #// sed: -e expression #1, char __Num__: invalid reference \1 on `s' command's RHS
+            sed -e expression#1, char __Num__:unknown option to `s': #keyword:
+                エラー: |
+                    sed: -e expression #1, char __Num__: unknown option to `s'
+                対処:
+                    s/__A__/__B__/ の __A__ または __B__ に / がある場合、
+                    s|__A__|__B__| などに変えて、衝突しないようにします。
+            sed -e expression#1, char __Num__:invalid reference \1 on `s' command's RHS: #keyword:
                 sed "s/pattern/x/g" の場合:
                     手順: sed "s/pattern/x/g"
                     エラー: |
@@ -5545,7 +5678,7 @@ for Windows:
                     実行ファイル: 755
                     秘密のファイル: 600  #keyword: chmod 600  #// 特定のサーバーの特定の Linux ユーザー にログインできる人だけがアクセスできます
                         #// 自アカウントと root のみリードとライトができます
-                実行できるようにします: #keyword: Linux 実行属性,  Linux 実行可能モード 実行権限 実行モード  #ref: https://ja.wikipedia.org/wiki/Chmod
+                実行できるようにします: #keyword: Linux 実行属性,  chmod +x,  Linux 実行可能モード 実行権限 実行モード  #ref: https://ja.wikipedia.org/wiki/Chmod
                     Linux: chmod +x __Path__
                         #// 実行属性を設定しないで実行しようとすると Permission denied エラーになります  #keyword: Permission denied
                         #// chmod +x で実行属性をオンにすると実行できるようになります
@@ -8109,6 +8242,10 @@ for Windows:
                 POP: #keyword:  #// メールをダウンロードします
                 SMTP: #keyword:  #// メールを送信します
                     postfix: #search:  #// サーバーの 1つ
+                    ポート番号:
+                        25: サーバー間のメール転送（MTA間通信）に使用。現在は迷惑メール対策でISPによりブロックされることが多い。
+                        587: メールクライアントからサーバーへの送信（サブミッション）に推奨されるポート。STARTTLS暗号化を使用。
+                        465: SMTPS（SSL/TLS暗号化）用。かつては非推奨とされていたが、現在は再び広く使われている。
         ファイル:
             /var/spool/mail/__User__
                 新しいメールが届くと、即座に追加されます。
@@ -8122,6 +8259,9 @@ for Windows:
             quit
             #search: Linux mail command
         virtual_alias_maps: #keyword: postfix virtual_alias_maps,  virtual mail account user  #// 複数のメールアドレスに来たメールを 1つのユーザーが受信できるようにします
+            （__RecieverUserName__ ユーザーが無い場合）:
+                sudo useradd -m  "${MailUserName}"  ||  Error
+                sudo passwd  "${MailUserName}"  < <(echo -e "${password}\n${password}\n")  ||  Error
             設定します:  #focus: __VirtualAccountName__, __RecieverUserName__  #// localhost に複数のメールアドレスを作る場合
                 sudo vi /etc/postfix/virtual
                     __VirtualAccountName__@localhost  __RecieverUserName__
@@ -8284,10 +8424,13 @@ for Windows:
             nginx が使っているポート番号の一覧: nginx -T
             主なポート番号: #glossary: Linux port
                 22: SSH
+                25: SMTP
                 80: HTTP
                 161: SNMP エージェント (UDP)
                 162: SNMP マネージャー (UDP)
                 433: HTTPS
+                465: SMTP
+                587: SMTP
                 3306: MySQL
                 3389: RDP
                 8300: HashiCorp Consul
@@ -8417,6 +8560,10 @@ for Windows:
                 ファイル一覧: #keyword: RPM file list  #// RPM ファイルに入っているファイルのパスを一覧します
                     ハッシュ値なども表示: rpm -qp --dump  __RPM_FilePath__
                     CentOS6, 7: rpm -qlp  __RPM_FilePath__
+                バージョン一覧: #keyword: RPM version list
+                    コマンド:
+                        dnf --showduplicates list  __PackageName__
+                    関連:  #search: versionlock.list
                 ファイルを展開します:  #keyword: RPM extract files,  rpm2cpio
                     ファイル以外もすべて展開する場合:  #search: rpm-open
                     cpio のインストール: #keyword: cpio  #// cpio はアーカイブ形式の 1つです。cpio が選ばれているのは古い設計の名残です。
@@ -8738,6 +8885,11 @@ for Windows:
                     #search: RPM cache
                 ビルドします:  #search: source RPM
             リポジトリに対する操作: #keyword: RPM repository steps
+                リポジトリの一覧: #keyword: RPM reposiroty list,  dnf reposiroty list
+                    dnf repolist all
+                        repo id           repo name                           status
+                        appstream         Rocky Linux 8 - AppStream           enabled
+                        appstream-debug   Rocky Linux 8 - AppStream - Source  disabled
                 ダウンロードします: #keyword: RPM download
                     yum install --downloadonly: #keyword: yum install --downloadonly,  dnf download
                         インストールに必要な RPM のみダウンロードします:  #// 指定した RPM と、現在のホストにインストールされていない依存する RPM がダウンロードされます
@@ -8847,7 +8999,7 @@ for Windows:
                     （関連）古い RPM（同じファイル名）がインストールされてしまう: #keyword: old RPM installed
                         対処A: キャッシュをクリアする  #search: sudo yum clean all
                         対処B: バージョン番号をもっと増やす
-                インストールできるもの: #// インストールできるパッケージのバージョン履歴。ネットワークからとる？
+                インストールできるバージョン: #keyword: yum --showduplicate list  #// インストールできるパッケージのバージョン履歴。ネットワークからとる？
                     #search: yum history
                     または: yum --showduplicate list __ServiceName__  #// インストールできるもの
                 使用可能(available): #// ネットが使えなくてもインストールできるサービス？（未確認）
@@ -8867,7 +9019,7 @@ for Windows:
                     同様に %install セクションによる変更も対応していない可能性も考えられます。
                 #search: rpm --prefix
         構成:
-            RPM: #search: RPM
+            RPM: #keyword: RPM structure  #search: RPM
                 インストール:  #search: RPM install
                 状態:  #search: RPM installed list
                 依存関係:  #search: repoquery
@@ -8876,6 +9028,10 @@ for Windows:
                         zlib-1.2.7
                         ctags-5.8
                         scl-utils-20130529
+                    NEVRA:  #// バージョンの書式の 1つ  #ref: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/packaging_and_distributing_software/packaging-software#package-naming-essentials
+                        書式: bash-0:4.4.20-4.el8_6.x86_64
+                            #template__: __PackageName__-__Epoch__:__Version__-__Release__.__Architecture__
+                        __Epoch__: バージョン比較の優先度を強制的に上げるための番号。普段は 0
                     一覧:
                         リポジトリ: #search: RPM list in repository
                         ローカル:   #search: RPM installed list
@@ -8939,6 +9095,8 @@ for Windows:
                         RPM verification failure on RHEL 8 in FIPS mode:  #ref: https://github.com/grafana/grafana/issues/41036
                         FIPSを有効にした状態でNVIDA CUDAソフトウェアをインストールできないことは許容できません。: #ref: https://forums.developer.nvidia.com/t/cuda-repo-rhel8-select-package-signature-failures/204716/7
                 ビルドします:  #search: source RPM
+            メタパッケージ: #keyword: RPM メタパッケージ,  RPM metapackage
+                epel-release:  #search: EPEL
             SRPM: #keyword: SRPM,  .src.rpm,  source RPM
                 手順:
                     SRPM から RPM をビルドします:  #keywrd: build source RPM  #// ダウンロード、展開、依存パッケージのインストール、ビルド、ダイジェストの確認
@@ -8962,7 +9120,21 @@ for Windows:
                 ファイル:
                     #search: rpmbuild .spec file
             リポジトリ: #keyword: RPM repository,  yum dnf repository
+                構成:
+                    リポジトリ:
+                        モジュール:  #// モジュール名（ソフトウェアの名前）。モジュールが無いパッケージもあります
+                            ストリーム:  #// バージョン
                 #search: /etc/yum.repos.d/____.repo
+                #search: RPM repository steps
+                RPM:  #search: RPM structure
+                モジュール: #keyword: RPM module  #// モジュール名（ソフトウェアの名前）
+                    有効無効:
+                        sudo dnf module enable -y   mysql
+                        sudo dnf module disable -y  mysql
+                            #search: dnf install MySQL
+                ストリーム: #keyword: RPM stream  #// バージョン
+                    一覧:
+                        dnf module list  mysql
                 （参考）:
                     RPM はリポジトリ、
                     Docker, npm は レジストリ、
@@ -8997,13 +9169,21 @@ for Windows:
                         sudo dnf -v repolist --refresh
                         #search: repodata/repomd.xml trouble
                     登録状況を確認します: #keyword: yum repolist,  RPM yum list available in repository   #// 特定のリポジトリの登録状況を表示します
-                        リポジトリの一覧: |
-                            $ yum repolist   #// 1列目が リポジトリ ID です。1行目はヘッダーです。デフォルトでは enabled=0 のリポジトリは含みません
-                                repo id      repo name
-                                appstream    Rocky Linux 8 - AppStream
-                                baseos       Rocky Linux 8 - BaseOS
-                                __RepositoryID__  __RepositoryName__
-                                ...
+                        yum が参照するリポジトリの URL を一覧します:
+                            コマンド: |
+                                (@__YumExecuter__) cat  /etc/yum.repos.d/*.repo  |  grep  baseurl=
+                            baseurl:  #ref: https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/7/html/system_administrators_guide/sec-configuring_yum_and_yum_repositories#sec-Setting_repository_Options
+                            プロキシ: baseurl に書かれた URL にアクセスするのにプロキシの設定が必要な環境もあります。http_proxy, https_proxy 環境変数
+                        yum が参照するリポジトリを調べます:
+                            コマンド: |
+                                (@__YumExecuter__) yum repolist
+                            出力: |  #// 1列目が リポジトリ ID です。1行目はヘッダーです。デフォルトでは enabled=0 のリポジトリは含みません
+                                Loaded plugins: fastestmirror, langpacks
+                                Loading mirror speeds from cached hostfile
+                                repo id           repo name          status
+                                base/7/x86_64     CentOS-7 - Base    10,060+12
+                                extras/7/x86_64   CentOS-7 - Extras        518
+                                updates/7/x86_64  CentOS-7 - Updates   5,285+2
                         パッケージの一覧: | #keyword: dnf --repo list available
                             $ dnf --repo=__RepositoryName__ list available  --verbose --debuglevel=10  #// メタ情報のダウンロードも行われます
                                 Extra Packages for Enterprise Linux 8 - x86_64     370 kB/s | 4.4 kB     00:00    
@@ -9105,6 +9285,25 @@ for Windows:
                         2024-02-22T22:11:22+0900 DEBUG Downgraded: __Package__-1.0.0-1.noarch
                         2024-03-03T18:34:14+0900 DEBUG Upgraded: __Package__-1.1.0-1.noarch
             RPM に入っているファイル:  #search: RPM extract files
+            /etc/dnf/plugins/versionlock.list: #keyword: versionlock.list, /etc/dnf/plugins/versionlock.list
+                概要:  #keyword: RPM version lock
+                    - バージョン番号が書いてあるファイル
+                    - RPM のバージョンを固定するために使います
+                    - DNF versionlock Plugin のファイルです
+                        #ref: https://dnf-plugins-core.readthedocs.io/en/latest/versionlock.html
+                独自 インストール スクリプト:  #// 独自 インストール スクリプト のオプション（推奨）
+                    --lock オプション: #keyword: versionlock.list --lock option  #ref: ${typrm_files}/ref/Linux/versionlock_install.html
+                        値: バージョン固定インストール前の /etc/dnf/plugins/versionlock.list のコピー元
+                        実装例:  #glossary:
+                            SetUpVersionlockList, LockVersionList 関数:  #ref: ${GitHub}/MyPrivateCode/bash/RPM_version_lock/install-packages.sh
+                            LockSourceFilePath 変数: --lock オプション に指定したパスの フル パス、--lock オプションを指定しなかったとき "__unknown"
+                            LockFileBackUp 変数: versionlock.list ファイルの バックアップ ファイル の場所
+                            オプションの継承:  #search: SubScriptOptions
+                                VM ホスト OS から VM で実行するスクリプトに --lock オプションの値を継承するとき
+                #↓ 関連
+                バージョン一覧:  #search: RPM version list
+                ステージング リポジトリ（ミラー）: #search: staging repository
+                コマンドで指定する場合:  #search: yum install old version
         コマンド: #glossary:
             #↓ RedHat 系 インストール
             dnf:  #// CentOS8 のインストール関連コマンド  #keyword: dnf
@@ -9121,6 +9320,7 @@ for Windows:
                     packages="${packages}  iputils"       #// ping command
 
                     RunWithEcho  sudo dnf install -y  ${packages}  ||  Error
+                その他:  #search: yum install
             yum:  #// CentOS7 のインストール関連コマンド。CentOS6 でも使えるようにできます  #keyword: yum
                 公式: https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/6/html/deployment_guide/ch-yum
                 yum install: #keyword:  #// パッケージをインストールします
@@ -9128,6 +9328,7 @@ for Windows:
                         (sudo) yum install __PackageName__
                         (sudo) yum install __PackageName__-__Version__
                     バージョン アップ する場合:  #search: update RPM  #// パッケージのインストールと再起動について
+                    インストールできるバージョン:  #search: yum --showduplicate list
                     追加リポジトリ:
                         カタログ:
                             #search: CentOS7 EPEL
@@ -9163,20 +9364,32 @@ for Windows:
                             One of the configured repositories failed (Unknown),
                             and yum doesn't have enough cached data to continue. At this point the only
                             safe thing yum can do is fail. There are a few ways to work "fix" this:
-                    古いバージョンをインストールします:
+                    古いバージョンをインストールします:  #keyword: yum install old version
                         検索:  #// golang の場合
                             sudo yum --showduplicates search  golang
-                        インストールはファイル名で指定します:
-                            sudo yum install  -y  golang
-                            sudo yum install  -y  golang-1.20.12
-                            sudo yum install  -y  golang-1.20.12-2.module+el8.9.0+1725+0ed4fa7f.x86_64 
-                        #search: yum install old version
+                        コマンドにバージョンを指定する場合:
+                            インストールはファイル名で指定します:
+                                sudo yum install  -y  golang
+                                sudo yum install  -y  golang-1.20.12
+                                sudo yum install  -y  golang-1.20.12-2.module+el8.9.0+1725+0ed4fa7f.x86_64 
+                            #search: yum install old version example
+                        versionlock.list にバージョンを指定する場合:  #search: versionlock.list
                     オフライン インストール:  #search: yum localinstall
                         sudo yum localinstall  -y  docker-packages/*.rpm  #snip:
-                    見つからないとき:
-                        #search: Cannot download repomd.xml
-                        #search: yum repolist
-                    遅いとき:  #search: slow yum install
+                    トラブルシューティング:
+                        Public key for ____.rpm is not installed. Failing package is:
+                            手順:
+                                dnf install
+                            ログ: |
+                                Public key for __Package__.rpm is not installed. Failing package is: __Package__
+                                    GPG Keys are configured as: __NotMatchedKey1__, __NotMatchedKey2__, ____
+                            対処:
+                                GPG キーをインストールします
+                                __NotMatchedKey1__ などにすでにあれば、鍵の値に問題があります
+                        見つからないとき:
+                            #search: Cannot download repomd.xml
+                            #search: yum repolist
+                        遅いとき:  #search: slow yum install
                 yum remove:  #keyword: yum remove,  yum .rpm uninstall  #// パッケージをアンインストールします
                     依存するものもアンインストールする場合:
                         (sudo) yum remove -y __PackageName__
@@ -9362,6 +9575,7 @@ for Windows:
                     repoquery --whatrequires  cockpit-docker-0:195.6-1.el7.centos.x86_64
                         #// 依存関係が無い場合は何も表示されません
             createrepo: #keyword: createrepo
+                createrepo_c: #keyword:  #// createrepo の後継版。高速。今のディストリビューションでは createrepo_c が標準
                 概要: リポジトリに必要なフォルダーを作ります。
                     更新は createrepo --update  "."
                 インストール:
@@ -9378,6 +9592,13 @@ for Windows:
                 関連:
                     リポジトリの URL:  #search: /etc/yum.repos.d/____.repo
                     登録内容:  #search: yum repolist
+                    更新:  #search: update-staging-repository.sh
+            update-staging-repository.sh: #keyword:
+                #ref: ${GitHub}/MyPrivateCode/bash/update-staging-repository.sh
+                承認済みリポジトリに現在ある種類のパッケージを最新へ追従させ、
+                各パッケージ最新 __KeepGenerations__ 世代だけを残して、
+                createrepo_c でメタデータを再構築します
+                （動作未確認）
             rpmbuild: #keyword: rpmbuild  #// RPM パッケージをビルドするためのツール
                 公式, 情報:
                     公式:  #ref: http://ftp.rpm.org/max-rpm/
@@ -10065,6 +10286,11 @@ for Windows:
                 ターゲット ホスト にある yum repo:  #search: /etc/yum.repos.d/____.repo
                 リポジトリの URL とブランチ:
                 RPM ファイルの存在:
+            Error Unable to find a match:
+                手順: sudo dnf install -y  __PackageAndVersion__
+                ログ: |
+                    Error: Unable to find a match: __PackageAndVersion__
+                対処:
             dnf install, repomd.xml parser error:;; Parse error at line:
                 手順: dnf install __PackageName__
                 ログ: |
@@ -10233,22 +10459,7 @@ for Windows:
                     No package __Package__ available.
                 対処A:  #search: /etc/yum.repos.d/____.repo
                 対処B:
-                    リポジトリが登録されていることを確認します: #keyword: yum repolist
-                        yum が参照するリポジトリの URL を一覧します:
-                            コマンド: |
-                                (@__YumExecuter__) cat  /etc/yum.repos.d/*.repo  |  grep  baseurl=
-                            baseurl:  #ref: https://access.redhat.com/documentation/ja-jp/red_hat_enterprise_linux/7/html/system_administrators_guide/sec-configuring_yum_and_yum_repositories#sec-Setting_repository_Options
-                            プロキシ: baseurl に書かれた URL にアクセスするのにプロキシの設定が必要な環境もあります。http_proxy, https_proxy 環境変数
-                        yum が参照するリポジトリを調べます:
-                            コマンド: |
-                                (@__YumExecuter__) yum repolist
-                            出力: |
-                                Loaded plugins: fastestmirror, langpacks
-                                Loading mirror speeds from cached hostfile
-                                repo id           repo name          status
-                                base/7/x86_64     CentOS-7 - Base    10,060+12
-                                extras/7/x86_64   CentOS-7 - Extras        518
-                                updates/7/x86_64  CentOS-7 - Updates   5,285+2
+                    リポジトリが登録されていることを確認します:  #search: yum repolist
                 対処C:
                     #search: createrepo
             curl#5 - "Could not resolve proxy:;; proxy.____.jp; Unknown error":  #keyword: proxy DNS trouble
@@ -10310,7 +10521,7 @@ for Windows:
                             --> Processing Dependency: libmysqlclient.so.18(libmysqlclient_18)(64bit) for package: 2:postfix-2.10.1-9.el7.x86_64
                             ---> Package mysql-community-libs.x86_64 0:8.0.29-1.el7 will be obsoleting
                             ...
-                        サンプルの解説:  #keyword: yum install old version,  yum install old version package
+                        サンプルの解説:  #keyword: yum install old version example,  yum install old version package example
                             リクエスト元: mysql-community-client-8.0.28
                             インストールしようとした依存するパッケージ: mysql-community-libs.x86_64 0:8.0.29
                             エラーの原因: mysql-community-libs のマイナー バージョン が 29 に上がってしまうこと
@@ -10396,8 +10607,9 @@ for Windows:
                         sub/folder/file1   #// 存在
                 --strip-components=1 オプション:
                     .tar.gz に含まれる最も親のフォルダーを作らないで、その中を展開します
+                ライブラリ: gzip, pigz（マルチスレッド対応 gzip）
             .tar.xz: #keyword:  #// 高圧縮
-                7zip でも展開できます
+                コマンド: 7zip でも展開できます
             .zip:  #keyword: Linux unzip
                 インストール:
                     Ubuntu 24: sudo apt install -y  unzip
@@ -10420,11 +10632,17 @@ for Windows:
                             unzip -P __Password__ __Encrypted__.zip
                         作る場合:  #search: zip encrypt
                     -o オプション:  #// 確認しないで上書きします
+                ライブラリ: .zip
+                形式:
+                    - ZIP フォーマット仕様（APPNOTE）  #keywprd: .zip APPNOTE
+                    - Zip64  #keywprd: Zip64
             .gz, gzip 形式:
                 -   less  ____.gz        #// .gz ファイルのパスを指定すると、それを展開してできるファイルの内容を表示します
                 -   gunzip -k ____.gz    #// -k オプション（展開しても .gz を消さない）は、Linux の種類によっては使えません
                 -   gunzip -c ____.gz > _gunzip-____
                 -   gunzip ./____.gz   #// ❗展開前のファイルは削除されます。 ./____ ファイルができます。 
+            .tar.zst:
+                ライブラリ: zstd
             .7z: 7za x -so ____.7z | tar xf -
         圧縮: #keyword: tar compress
             .tar.gz, tar gzip 形式: #keyword: .tar.gz compress
@@ -10530,6 +10748,13 @@ for Windows:
                 -   gzip -k ____    #// Linux の種類によっては使えません
                 -   gzip -c ____ > ____.gz
                 -   gzip ./____   #// ❗圧縮前のファイルは削除されます。 ./____.gz ファイルができます。 
+        マルチスレッド サポート:
+            xz: 展開時マルチスレッドサポート無し (default:; -6 -T1)
+            zstd: 展開時マルチスレッドサポート無し(default:; -3 -T1)
+            gzip: マルチスレッドサポート無し。 (default:; -6)
+            pigz: マルチスレッドサポートを追加した gzip
+            bzip2: マルチスレッドサポート無し。 (default:; -9)
+            pbzip2: マルチスレッドサポートを追加した bzip2
         一覧: #keyword: tar list  #// 圧縮ファイルの中にあるファイルやフォルダーのパスを一覧します
             .tar.gz 形式: #keyword: list in .tar.gz
                 - tar ztfv  "./____.tar.gz"  #// パスと属性
@@ -13966,7 +14191,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                     テストを実行する関数です。この関数の内容を編集してください
                                 ShowDependOn 関数:  #keyword: tasks.sh ShowDependOn --test
                                     -   --start などを依存させないでください
-                                    -   --config All=Default の config 構成 を TASKS_SH_ENV 環境変数 の値に応じて変えます
+                                    -   --config All=Default の config 構成 を TASKS_SH_TEST_ENV 環境変数 の値に応じて変えます
                                     -   テストが対応している環境でなければ、TestOnly 関数が呼ばれないように、依存させないようにします
                         --test all の場合: #keyword: tasks.sh --test all
                             機能:
@@ -13977,10 +14202,10 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                     ./tasks.sh  --test  all  #// --verbose  --dry-run
                                 内部で実行するコマンド:
                                     ./tasks.sh  --stop  all
-                                    TASKS_SH_ENV=__EnvName1__  ./tasks.sh  --initialize  --config All=Default  --start  --test  __ServiceName1__
-                                    TASKS_SH_ENV=__EnvName1__  ./tasks.sh  --stop
-                                    TASKS_SH_ENV=__EnvName2__  ./tasks.sh  --initialize  --config All=Default  --start  --test  __ServiceName2__
-                                    TASKS_SH_ENV=__EnvName2__  ./tasks.sh  --stop
+                                    TASKS_SH_TEST_ENV=__EnvName1__  ./tasks.sh  --initialize  --config All=Default  --start  --test  __ServiceName1__
+                                    TASKS_SH_TEST_ENV=__EnvName1__  ./tasks.sh  --stop
+                                    TASKS_SH_TEST_ENV=__EnvName2__  ./tasks.sh  --initialize  --config All=Default  --start  --test  __ServiceName2__
+                                    TASKS_SH_TEST_ENV=__EnvName2__  ./tasks.sh  --stop
                                     ...
                                     ./tasks.sh  --stop  all
                                     ./tasks.sh  --config All=Default  all
@@ -13993,10 +14218,10 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                                             "__ServiceName3__ __EnvName3__"
                                         )
                                     __ServiceName1__: ServiceName 変数で定義されるサービス名。テスト プロジェクト 名
-                                    __EnvName1__: 環境名。TASKS_SH_ENV 環境変数に設定されます  #keyword: TASKS_SH_ENV
+                                    __EnvName1__: 環境名。TASKS_SH_TEST_ENV 環境変数に設定されます  #keyword: TASKS_SH_TEST_ENV
                                 実行内容:
                                     - tasks.sh --stop all
-                                    - TASKS_SH_ENV 環境変数を設定して、--initialize --config All=Default --start --test --stop
+                                    - TASKS_SH_TEST_ENV 環境変数を設定して、--initialize --config All=Default --start --test --stop
                                     - 次の サービス テスト に対して、上記を実行します
                                     - tasks.sh --stop all
                     --restart: 再起動。パラメーターはサービス名。複数の場合は空白区切り。無効なサービス名は無視されます
@@ -14306,7 +14531,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                             または
                         if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
                             （後者は遅い）
-                    応用: |  #keyword: ParentProcessCurrentFolder, ThisScriptFullPath, ThisFolderFullPath, ParentFolderName
+                    応用: |  #keyword: ParentProcessCurrentFolder, ParentPWD, ThisScriptFullPath, ThisFolderFullPath, ParentFolderName
                         ParentProcessCurrentFolder="${PWD}"
                         if echo "$0" | grep "/" | grep -E -v "bash-debug|systemd" > /dev/null; then  cd "${0%/*}"  ;fi  # cd this file folder
                         ThisScriptFullPath="$( readlink -f "${0##*/}" )"
@@ -14323,6 +14548,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     cd  "${ThisFolderFullPath}"
             簡易不完全版:  #// bash __ScriptFileName__ で起動するときにエラーになってしまいます
                 cd "${0%/*}"  # this file folder
+            起動時の カレント フォルダー:  #search: ParentProcessCurrentFolder
         スクリプトと同じフォルダーにあるスクリプト等を起動: |  #keyword: ScriptFolderPath, ScriptPath
                 ScriptPath="$0"
                 ScriptFolderPath="${ScriptPath%/*}"
@@ -14641,6 +14867,9 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                     Command1 の終了コード: ${PIPESTATUS[0]}
                     Command2 の終了コード: ${PIPESTATUS[1]}
                     すべて成功したことをチェックします:
+                        GetFirstNonZeroValue を使う場合:
+                            return  $( GetFirstNonZeroValue "${PIPESTATUS[@]}" )
+                            #search: GetFirstNonZeroValue
                         サンプル: |
                             local  exitCodes="${PIPESTATUS[@]}"       #// 一度に参照しないと、このコマンドで上書きされてしまいます
                             test "${exitCodes}" == "0 0"  ||  Error   #// パイプの段数に合わせて 0 の数を増やします
@@ -14655,6 +14884,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
                         Command1 | Command2
                         local  exitCode=${PIPESTATUS[0]}${pipestatus[0]}
                             終了コードによって中断します:  #search: set -e
+            関連:  #serach: set -o pipefail
     _polling.sh :  #// バックグラウンド プロセス のテストに適したスクリプト
         エラーにならなくなるまでの場合: |
             while true; do
@@ -14809,14 +15039,14 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
             子プロセス終了時:  #// 子プロセスが終了したので登録を解除します  #search: CancelDeferKillProcessGroup
     timeout:  #// タイムアウトを設定してコマンドを実行します。ただし、シェルスクリプトでは Ctrl+C が効かなくなるようです。
         ターミナルに入力する場合: |
-            timeout 5s  read -s -p "Enter password: "  PASSWORD
+            timeout 5s  read -rs -p "Enter password: "  PASSWORD
         シェルスクリプトの場合: |  #focus: --foreground  #// --foreground はタイムアウトの時間の左に書いてください
             #!/bin/bash
-            timeout --foreground 5s  read -s -p "Enter password: "  PASSWORD
+            timeout --foreground 5s  read -rs -p "Enter password: "  PASSWORD
             echo "done"
             exit
         -k, --kill-after オプション: |  #// 5秒後にSIGTERM、更に 2秒後に SIGKILL。❗秒数の順番が逆なことに注意
-            timeout -k 2s 5s  read -s -p "Enter password: "  PASSWORD
+            timeout -k 2s 5s  read -rs -p "Enter password: "  PASSWORD
         --foreground オプション:
             _: シェルスクリプトの場合は、付けないとシグナルが届きません
             Ctrl+C が届く範囲, PGID:  #keyword: timeout Ctrl+C,  timeout PGID
@@ -15145,6 +15375,7 @@ Linux サービス:  #// デーモン  #glossary:  #keyword: Linux サービス,
     date: #keyword: date,  Linux date  #// 現在の日時
         表示:
             -   date --iso-8601=seconds  #// 2023-10-26T12:34:56+09:00
+            -   date --iso-8601=seconds  |  sed "s/:/_/g"  #// 2023-10-26T12_34_56+09_00
             -   date --iso-8601=date     #// 2023-10-26
             -   date +"%Y-%m-%dT%H"
         設定: sudo date -s "2023-10-26T12:34:56"
@@ -15658,17 +15889,16 @@ bash: #keyword: bash  #// Bourne Again Shell
                     #section: Debug
 
                     function  pp() {
-                        # pp
-                        #     Debug print
-                        # Example:
-                        #     pp "$config"
-                        #     pp "$config" config
-                        #     pp "$array" array  ${#array[@]}  "${array[@]}"
-                        #     pp "123"
-                        #     $( pp "$config" >&2 )
+                        #// pp
+                        #//     Debug print
+                        #// Example:
+                        #//     pp "$config"
+                        #//     pp "$config" config
+                        #//     pp "$array" array  ${#array[@]}  "${array[@]}"
+                        #//     pp "123"
+                        #//     $( pp "$config" >&2 )
                         local  value="${1-""}"  #// "${1-""}" means that "$1" default is "".
                         local  variableName="${2-""}"  #// "${1-""}" means that "$1" default is "".
-                        if [ "${variableName}" != "" ]; then  variableName=" ${variableName} "  ;fi  #// Add spaces
                         local  oldIFS="$IFS"
                         IFS=$'\n'
                         local  valueLines=( ${value} )
@@ -15678,23 +15908,32 @@ bash: #keyword: bash  #// Bourne Again Shell
                         if [ "${variableName}" != "" ]; then
                             if [[ "$(declare -p ${variableName} 2>&1 )" =~ "declare -a" ]]; then
                                 local  type="array"
+                            elif [[ "$(declare -p ${variableName} 2>&1 )" =~ "declare -n" ]]; then
+                                local  type="nameref"  #// array or string
                             fi
                         fi
                         if [ "${type}" == "" ]; then
-                            if [ "${#valueLines[@]}" == 1  -o  "${#valueLines[@]}" == 0 ]; then
+                            if [ "${#valueLines[@]}" == 1 ] || [ "${#valueLines[@]}" == 0 ]; then
                                 local  type="oneLine"
                             else
                                 local  type="multiLine"
                             fi
                         fi
+                        if declare -f GetCodePosition > /dev/null 2>&1; then
+                            local  position=" $( GetCodePosition 1 ) "
+                        else
+                            local  position=" ! Undefined GetCodePosition "
+                        fi
+                        local  variableNameSp=""
+                        if [ "${variableName}" != "" ]; then  variableNameSp=" ${variableName} "  ;fi  #// Add spaces
 
                         if [[ "${type}" == "oneLine" ]]; then
-                            echo  "@@@${variableName}= \"${value}\" -------- $( GetCodePosition 1 ) ---------------------------"  >&2
+                            echo  "@@@${variableNameSp}= \"${value}\" --------${position}---------------------------"  >&2
                         elif [[ "${type}" == "multiLine" ]]; then
-                            echo  "@@@${variableName} -------- $( GetCodePosition 1 ) ---------------------------"  >&2
+                            echo  "@@@${variableNameSp} --------${position}---------------------------"  >&2
                             echo  "\"${value}\"" >&2
                         elif [[ "${type}" == "array" ]]; then
-                            echo  "@@@${variableName} -------- $( GetCodePosition 1 ) ---------------------------"  >&2
+                            echo  "@@@${variableNameSp} --------${position}---------------------------"  >&2
                             local  count="${3-""}"  #// "${1-""}" means that "$1" default is "".
                             if [ "${count}" == "" ]; then
                                 echo  "[0]: \"$4\""  >&2
@@ -15709,7 +15948,18 @@ bash: #keyword: bash  #// Bourne Again Shell
                                 done
                             fi
                         else
-                            echo  "@@@${variableName}? -------- $( GetCodePosition 1 ) ---------------------------"  >&2
+                            echo  "@@@${variableNameSp}? --------${position}---------------------------"  >&2
+                        fi
+                        if [ "${type}" == "nameref" ]; then
+                            echo  "WARNING: Not supported nameref (-n option) target in callee function in bash. Write the command:"  >&2
+                            echo  "    pp  \"\$${variableName}\" \${!${variableName}}  \${#${variableName}[@]}  \"\${${variableName}[@]}\""  >&2
+                        fi
+
+                        if false; then
+                            echo  "od -c:"  >&2
+                            printf '%s' "${value}" | od -c  >&2  #// dump format
+                            echo  "%q:"  >&2
+                            printf "%q\n" "${value}"  >&2  #// escape format
                         fi
                     }
         bashdb: #keyword:
@@ -15847,7 +16097,7 @@ bash: #keyword: bash  #// Bourne Again Shell
         永遠に止まります: #keyword: sleep infinity UI
             (echo  "$ sleep infinity";  sleep infinity)
         パスワードを変数に設定します: |  #keyword: bash input password
-            read -s -p "Enter GPG file passphrase: "  GPG_FILE_PASSPHRASE
+            read -rs -p "Enter GPG file passphrase: "  GPG_FILE_PASSPHRASE
         入力を自動化します:  #search: Linux expect
         リダイレクトされる入力を変数へ:  #search: Linux bash stdin
     パイプとパラメーターの両対応: #keyword: bash pipe and arguments,  bash TargetPaths  #// ファイルのパスなど
@@ -15956,7 +16206,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                         PositionalArgs=()
                         while [[ $# -gt 0 ]]; do
                             case $1 in
-                                -s|--search-path)  Options_SearchPath="$2"; shift; shift;;  #search: bash default values
+                                -s|--search-path)  Options_SearchPath="$2"; shift; shift;;  #search: bash default value
                                 -*) echo "Unknown option $1"; exit 1;;
                                 *) PositionalArgs+=("$1"); shift;;
                             esac
@@ -16205,6 +16455,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                 注意: 長いオプション名が使えません。例 --help は使えません
                 参考: #ref: ${programming}/OS/UNIX-Linux/!Linux.svg#opt
             AddOptionToArray: #search:
+            関数のオプション引数:  #search: bash function option
             参考:
                 Stack overflow: #ref: https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
                 bash によるオプション解析: #ref: https://qiita.com/b4b4r07/items/dcd6be0bb9c9185475bb
@@ -16213,6 +16464,7 @@ bash: #keyword: bash  #// Bourne Again Shell
             local  options=()
             AddOptionToArray  options  "--test"  "${Options_Test}"
             command  "${options[@]}"
+
             SubScriptOptions="${options[@]}"
             sub-script  ${SubScriptOptions}
         サブコマンド: #keyword: bash subCommand  #// ハイフン無し
@@ -16245,7 +16497,7 @@ bash: #keyword: bash  #// Bourne Again Shell
             基本, 判定対象:
                 変数値:
                     if [ "${variable}" == "" ]; then
-                echo 出力:
+                echo 出力:  #search: Command Substitution
                     if [ "$( echo "a" )" == "" ]; then
                 終了コードや return 値:  #keyword: bash return
                     判定:
@@ -16257,6 +16509,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                     終了コードを返します:
                         return:
                             return  $?
+                            return       #// return $? と同じ動き
                         exit:
                             exit  $?
                         test:  #keyword: bash return test
@@ -16325,11 +16578,29 @@ bash: #keyword: bash  #// Bourne Again Shell
                     echo "__String__" | grep -E "__RegularExpression__"  &&  found="${True}"
                     if [[ "${found}" == "${True}" ]];
                 #ref: https://unix.stackexchange.com/questions/340440/bash-test-what-does-do
-            部分マッチ:  #keyword: bash string includes,  bash  string 高速 部分マッチ
-                _: if [[ "${__Variable__}" == *"__Keyword__"* ]]; then  #// string includes
+            部分マッチ, glob パターン:  #keyword: bash string includes,  bash glob ==,  shellcheck disable=SC2053,  bash  string 高速 部分マッチ
+                サンプル: if [[ "${__Variable__}" == *"__Keyword__"* ]]; then  #shellcheck disable=SC2053
                     #// if echo "${__Variable__}" | grep -o -F "__Keyword__"; then より高速です
-                部分マッチしないときに真にする場合:
-                    if [[ "${__Variable__}" != *"__Keyword__"* ]]; then  #// string not includes
+                glob パターン になる部分:
+                    - 2つの大カッコ [[ ]] の中
+                    - 演算子の右側
+                    - ==, =, != 演算子を使っている
+                    - 文字 *, ?, [, ] がクォーテーション "" or '' で囲まれていない
+                変数の中の glob パターン:
+                    if [[ "${__Variable__}" == ${keywordGlobPattern} ]]; then  #shellcheck disable=SC2053
+                    #// keywordPattern="keyword*" の場合でも glob パターンになります
+                Not, 部分マッチしないときに真にする場合:
+                    if [[ "${__Variable__}" != *"__Keyword__"* ]]; then  #shellcheck disable=SC2053
+                shellcheck 対応:  #ref: https://www.shellcheck.net/wiki/SC2053
+                    書く必要性:
+                        shellcheck disable の Wiki に、ルールの例外として glob で解釈されることについて書かれているので、
+                        shellcheck disable のコメントを書くことで glob パターンであることが分かります
+                    適合:
+                        #shellcheck disable=SC2053
+                        # shellcheck disable=SC2053
+                    不適合:
+                        #// glob pattern  #shellcheck disable=SC2053    ... 同じ行に他のコメントを書くことはできません
+                        #shellcheck disable=SC2053  #// glob pattern    ... 同じ行に他のコメントを書くことはできません
             大小比較, 数値の比較: #keyword: bash compare,  bash if number 数値比較  #// == は文字列比較、-eq または (( "010" == "10" )) は数値比較です。(( "010" == "10" )) は真です
                 整数:
                     書式A: if (( ${var} >= 0 )); then   #// ==, != >, <, >=, <=
@@ -16474,11 +16745,11 @@ bash: #keyword: bash  #// Bourne Again Shell
                 テスト スクリプト のログを取ります:  #search: bash test log
                 ログの内容をチェックするテスト:  #search: journalctl log test
                 #↓ テスト スイート
-                テスト コマンド 版, RunTest:  #// １つの テスト ケース を実行するコマンドを呼び出し、エラーの数を集計する場合
+                テスト コマンド 版, RunTest:  #// １つの テスト ケース を実行するコマンドを呼び出し、エラーの数を集計する場合。 exit をキャッチする場合
                     function  RunTest() {
                         RunWithEcho  "$@"  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
                     #search: RunTest
-                テストを選ぶ --test オプション: #keyword: bash --test  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh
+                テストを選ぶ --test オプション: #keyword: bash --test,  test CLI,  bash test CLI  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh
                     コマンド:
                         -   ./test-cli  #// 全てのテストを実行します
                         -   ./test-cli --test "__TestName__"  #// 1つのテストを実行します。短いオプションは -t
@@ -16583,6 +16854,11 @@ bash: #keyword: bash  #// Bourne Again Shell
                 引数:  #search: Linux "$@"
                     local  argument=""
                     for  argument  in  "$@" ;do
+                    done
+                リテラル: #keyword: Linux bash array loop literal
+                    #// エラーになります。syntax error near unexpected token `('
+                    local  element=""
+                    for  element  in  ( "a"  "b c"  "d" ) ;do
                     done
             ループ カウンター:
                 #// {1..<5} (=1,2,3,4) という書き方はできません。
@@ -16763,7 +17039,7 @@ bash: #keyword: bash  #// Bourne Again Shell
                             - set -e による強制終了
                             - スクリプトの末尾まで到達（自然終了）
                             - return によりトップレベルに戻って終了
-                        サンプル:
+                        サンプル: #keyword: AtExit
                             正常終了した場合:  #// イベント コマンド は呼ばれます
                                 コード: |  #focus: AtExit
                                     #!/bin/bash
@@ -16812,9 +17088,11 @@ bash: #keyword: bash  #// Bourne Again Shell
                             set -e が有効なとき: #keyword: set -e trap
                                 未確認  #search: bash trap ERR
                             ( ) があるとき:  #search: bash sub shell exit
+                        関連:  #search: EchoEndOfMain
+                            EXIT をトラップしなくても、Error 関数を呼び出すか、Error 関数から EchoEndOfMain を呼び出すことで、終了時の処理は、ほぼカバーできます
                     ERR:  #// 終了コードが 0 以外のとき
                         発動タイミング:
-                            - コマンドの終了コードが 0 以外のとき
+                            - シェルスクリプトの中で実行するそれぞれのコマンドの終了コードが 0 以外のとき
                                 #// パイプの最後以外でも発動させるには、set -o pipefail が必要です
                         AtError: | #keyword: bashlib AtError
                             #// set  -e  -o pipefail  #// これを実行しなくても AtError は呼ばれます
@@ -16877,6 +17155,8 @@ bash: #keyword: bash  #// Bourne Again Shell
                                     exit code 2: 0
                                     Done.
                             set -e した場合:  #// イベント コマンド は呼ばれます。終了します
+                        関連:  #search: EchoEndOfMain
+                            EXIT をトラップしなくても、Error 関数を呼び出すか、Error 関数から EchoEndOfMain を呼び出すことで、終了時の処理は、ほぼカバーできます
                     DEBUG:  #// 全コマンド実行前
                         サンプル: |  #keyword: AtDebug
                             function  AtDebug() {
@@ -17004,6 +17284,7 @@ bash: #keyword: bash  #// Bourne Again Shell
             }
 
             FuncA  "world!"
+        #↓ 引数
         引数をループします:  #keyword: bash arguments loop,  bash function arguments loop
             #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  GetArgumentsString
             #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/install.sh#function  RunInGitBash
@@ -17059,7 +17340,27 @@ bash: #keyword: bash  #// Bourne Again Shell
             -   local  lastArgument="${!#}"   #// 最後の引数
             -   for argument in "$@"; do
                 done
-        変数の値によっては値を渡しません: #keyword: remove bash array empty element
+        オプション引数: #keyword: bash function option
+            サンプル: |
+                function  Foo() {
+                    local  argument1="$1"
+                    local  optionA="false"
+                    local  optionB=""
+                    shift 1
+                    if [ "$1" == "--option-a" ]; then
+                        optionA="true"
+                        shift
+                    fi
+                    if [ "$1" == "--option-b" ]; then
+                        optionB="$2"
+                        shift 2
+                    fi
+            サンプル, -e オプションあり:  #search: ParseOption  #search: bash set -e
+            注意:
+                上記のようなコードの場合、関数に指定するオプションの順番は、--option-a, --option-b の順番に指定する必要があります。
+            関連:
+                #search: AddOptionToArray
+        変数の値によっては値を渡さない: #keyword: remove bash array empty element
             #// 空白を含む値にも対応できます
             概要:
                 状況:
@@ -17075,6 +17376,21 @@ bash: #keyword: bash  #// Bourne Again Shell
             空文字列を渡さない場合:
                 #search: RemoveEmptyElement
         デフォルト引数:  #search: bash default argument
+        ファイルの内容を渡します:  #search: プロセス置換  #// ファイル名を指定する引数に、ファイルの内容を出力する処理を指定します
+            diff <(echo "${content1}") <(echo "${content2}")
+        #↓ リターン
+        echo 出力:
+            Command Substitution: #search:
+            配列:  #search: bash function array
+        終了コード:
+            返すだけのコマンド, true, false: #keyword: bash true false  #// 終了コードを返すだけのコマンド  #glossary: bash
+                true:  終了コードを 0 にします。return は、しません
+                    __Command__  ||  true
+                    #// 終了コードが 0 以外のときにスクリプトが終了する環境（set -e）において、__Command__ の終了コードが 0 以外でも終了させないようにします
+                false: 終了コードを 1 にします。return は、しません
+        #↓ その他
+        定義の有無: #keyword: Linux bash function exists
+            if declare -f __FunctionName__ > /dev/null 2>&1; then
         section コメント:  #keyword: bash section,  bash class namespace,  section:  #// クラスの粒度で分けます
             書式: |
                 #section: __Name__
@@ -17122,8 +17438,6 @@ bash: #keyword: bash  #// Bourne Again Shell
                 echo  "abc"  |  Filter   #// AAbc
             1行ずつリードする場合:
                 （未調査）
-        ファイルの内容を渡します:  #search: プロセス置換  #// ファイル名を指定する引数に、ファイルの内容を出力する処理を指定します
-            diff <(echo "${content1}") <(echo "${content2}")
         モック:  #keyword: bash mock  #// bash にモックはありません。代わりのサンプル
             呼び出すコードを変えない場合: |
                 function  GetHostName() {
@@ -17161,12 +17475,6 @@ bash: #keyword: bash  #// Bourne Again Shell
 
                 GetHostName="GetHostName"
                 $GetHostName  #// Host name
-        終了コード:
-            返すだけのコマンド:  #// 終了コードを返すだけのコマンド  #glossary: bash
-                true:  終了コードを 0 にします
-                    __Command__  ||  true
-                    #// 終了コードが 0 以外のときにスクリプトが終了する環境（set -e）において、__Command__ の終了コードが 0 以外でも終了させないようにします
-                false: 終了コードを 1 にします
     グループ コマンド: #keyword: bash group commands,  bash { }  #// 括弧で囲まれた部分のコマンドは、現在のシェルで実行します
         書式:
             test  "${TOKEN}" != ""  ||  { echo "❌ TOKEN is not set." >&2  &&  exit 1; }   #// } の左にセミコロンが必要です。{ の右に空白が必要です
@@ -17379,7 +17687,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             コード:  #ref: https://github.com/Takakiriy/shell-script-tutorial  #ref: ${GitHub}/shell-script-tutorial
             記事:  #ref: https://qiita.com/Takakiri/items/e60dd1c163e5e6b0678c
     関数 >> 種類順:
-        エラー: Error, TestError, ExitIfMatched, ErrorIfLastIs, errorCount, CheckPipeStatus
+        エラー: Error, TestError, ExitIfMatched, ErrorIfLastIs, errorCount, CheckPipeStatus, GetFirstNonZeroValue, ShowLinkToRunbook
         デバッグ: pp, PrintCallStack, GetCodePosition
         テスト:
             ランナー: RunTest, ShouldRunTest, TestOptionIsValid, ErrorCount, StartFrom
@@ -17392,11 +17700,11 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         アサーション: AssertExist, AssertNotExist, AssertReadOnly, AssertNotReadOnly, AssertInstalled
         比較: Compare, GetDiffFilePaths, CutTimeStampInDiffOutput, CutFilePathInDiffOutput
         実行: RunInGitBash, RunWithEcho, RunInGitBashSilent, RunAfterPause, RunUntil, SendAndRunViaSSH, AddOptionToArray
-        プロセス: IsProcessExists, RunUntil, AddOptionToArray
+        プロセス: IsProcessExists, RunUntil, AddOptionToArray, GetFirstNonZeroValue
         プロセス起動終了待ち: WaitForUpMySQL, WaitForOpenPortOrProcessExit, WaitForLineInFileOrProcessExit, WaitForProcessFinished
         プロセス グループ: DispatchProcessGroupMethod, KillProcessGroup, DeferKillProcessGroup, AtExitForDeferKillProcessGroup, CancelDeferKillProcessGroup
         環境変数: LoadEnvironmentVariables, DefineGlobalVariablesSafely, LookUpEnvironmentVariable, Evaluate, DefineVariable, UnsetVariables, 
-        シェルの初期化: AddPATHEnvironment, AddToBashrc, GetCurrentShellOptions, SetShellOptions
+        シェルの初期化: AddPATHEnvironment, AddToBashrc, GetCurrentShellOptions, SetShellOptions, UploadFile
         ユーザー アカウント: AllowNoPasswordSudo
         ファイル:
             一般ファイル: CopyFolder, DeleteFolder, RestoreFolder, GetHash, WaitForFileExists, WaitForRemoteFileExists
@@ -17411,7 +17719,8 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             CSV: #keyword: bash CSV
                 簡易 strict CSV 版: #keyword: bash strict CSV
                     #search: strict CSV
-                    #// 以下はコンマを値に含めることができない簡易版です
+                    #// 以下はコンマを値に含めることができない簡易版です。
+                    #// 機械的にコンマで区切ります。空白や改行やダブルクォーテーションを含めることもできます。改行でレコードを分けない単一レコードです
                     サンプル: "Value1,Value2,Value3"
                     書式:
                         - コンマの前後、文字列全体の先頭、末尾に空白を含めることができません
@@ -17425,22 +17734,39 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
                         csv="${csv%,*}"   #// left of last ","
                         #// "__Value1__,__Value2__"
                     有無判定:  #keyword: strict CSV item match
-                        if [[ ",${strictCSV}," == *",__Item__,"* ]]; then  #// strict CSV item match
-                        #// [ ] では動作しません
+                        在るなら true:
+                            if [[ ",${strictCSV}," == *",__Item__,"* ]]; then  #// strict CSV item match
+                            #// [ ] では動作しません。[[ ]] を使ってください
+                        無いなら true:
+                            if [[ ",${strictCSV}," != *",__Item__,"* ]]; then  #// strict CSV item NOT match
+                            #// [ ] では動作しません。[[ ]] を使ってください
                     最初の要素, 最後の要素: |  #search: Linux bash string left of right
                         echo "${csv%%,*}"  #// left of ","
                         echo "${csv##*,}"  #// right of last ","
                     GetStrictCSV: | #keyword:  #// , の前または後に空白がある CSV を strict CSV に変換します
                         function  GetStrictCSV() {
                             #// This version does not support comma-containing values
-                            echo "$1" | sed 's/ *, */,/g'
+                            local  csv="$1"
+                            echo "${csv}" | sed 's/ *, */,/g'  #// Cut spaces around comma
+                        }
+                    GetStrictCSVFromArray: | #keyword:
+                        function  GetStrictCSVFromArray() {
+                            #// Example:  local  csv="$( GetStrictCSVFromArray "${array[@]}" )"
+                            (
+                                IFS=,
+                                printf '%s' "$*"
+                            )
                         }
                     EchoFromStrictCSV: #keyword: EchoFromStrictCSV, GetInitialSpacedCSV  #// strict CSV から , の右に空白がある CSV に変換します
                         echo  "$input" | sed 's/,/, /g'
-                簡易配列版: local  array=( $( echo ${csv}  |  sed 's/,/ /g' ) )
-                    #// コンマの後に空白を入れても配列の内容は変わりません
-                    #// ダブル クオーテーション はカットされません
+                簡易配列版:
                     #// 要素にコンマを含めることはできません
+                    CSV → 配列:
+                        local  array=( $( echo ${csv}  |  sed 's/,/ /g' ) )
+                        #// csv の値に含まれるコンマの後に空白を入れても配列の内容は変わりません
+                        #// ダブル クオーテーション はカットされません
+                    配列 → Strict CSV:
+                        local  array( "a" "b" "c" )
                 厳密版: GetCSVColumn, ShiftCSV, GetCSVNextColumnIndex
             コピー: CreateOrExpected, RsyncToTemporary, RsyncFromTemporary
             存在: ExistsByWildcard, IsEmptyFolder
@@ -17464,7 +17790,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         Git: GetCommitID, GetCurrentGitBranch, ChangeGitBranch, AllFilesAreGitAdd, CheckIfGitResetState, EchoGitLogTree,
             GitCheckOut, GitStatusShort, CopyGitModifiedFiles, SetGitCommitDate,
             GitInitForTest, GitAddCommitForTest,
-            HasGitBranch, EncryptGitProject, CompressGitProject
+            HasGitBranch, GitDownloadBySparseCheckout, EncryptGitProject, CompressGitProject
         WSL: ShowWslHelp, CheckDebugDistroOfWSL
         Ansible: LoadAnsibleHosts
         Python: CreatePythonVenv
@@ -17494,6 +17820,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         CancelDeferKillProcessGroup:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CancelDeferKillProcessGroup
             #search: setsid
         ChangeGitBranch: #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  ChangeGitBranch()
+        CheckArrayContains:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckArrayContains
         CheckLinesInLog:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckLinesInLog
             #search: manage.py without buffer
         CheckLinesInLogFile:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckLinesInLogFile
@@ -17508,6 +17835,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             #search: check file contents Git hooks
         CheckPipeStatus:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  CheckPipeStatus
             #search: Linux pipe
+            #search: GetFirstNonZeroValue
         CheckZipCommandInstalled:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  CheckZipCommandInstalled()
         CommonLines:      #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  CommonLines
         CommonPartLines:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  CommonPartLines
@@ -17544,7 +17872,10 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             推奨: #search: CommonLines
         EchoDebuggerParameters:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EchoDebuggerParameters
             #search: EchoDebuggerParameters example
+        EchoEndOfMain:  #keyword: EchoEndOfMain,  bash finally  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EchoEndOfMain
+            以下はどれも同じ機能です:  #search: EchoEndOfTest  #search: EndOfTest
         EchoEndOfTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EchoEndOfTest
+            #search: EchoEndOfMain
         EchoGitLogTree:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  EchoGitLogTree
         EchoMainMailContents:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/service_example/mail/tasks.sh#EchoMainMailContents()
         EchoTestResultBreadcrumb:  #ref: ${GitHub}/breadcrumb/breadcrumb.sh#function  EchoTestResultBreadcrumb
@@ -17554,6 +17885,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         EchoWithIndent:  #search:
         EncryptGitProject:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  EncryptGitProject
         EndOfTest:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#function  EndOfTest()
+            #search: EchoEndOfMain
         EndsWith: #ref: ${GitHub}/locommit/bin/locommit#function  EndsWith
         Error: #keyword: bashlib Error,  Error  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  Error(
             サンプル:
@@ -17565,7 +17897,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             関連 >> 比較:
                 TestError: #ref: ${GitHub}/locommit/test/test-locommit#function  Test_Error
                     exit しないエラー。エラーの数をカウントします。
-                ExitIfMatched:  #search:  #// エラー exit も捕まえます  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  ExitIfMatched
+                ExitIfMatched:  #search:  #// エラー exit も捕まえます  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  ExitIfMatched
                     呼び出す関数の標準出力を変数に代入するコードの場合: 終了コードが 0以外のとき、または、0以外の exit (Error) があったとき、エラーを表す文字列を格納します。
                         呼び出すコマンド（プロセス）の標準出力を変数に代入するコードでは、使う必要はありません。
                     #search: RunTest
@@ -17573,18 +17905,19 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
                     呼び出す関数の標準出力を変数に代入するコードの場合: 終了コードが 0以外なら、エラーを表す文字列を格納します。
                         呼び出すコマンド（プロセス）の標準出力を変数に代入するコードにおいて、終了コードが 0以外なら、エラーを表す文字列を格納します。
                 TestErrorIfMatched:  #search:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  TestErrorIfMatched
+                EchoEndOfMain: #search:
         ErrorAndLog:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ErrorAndLog
-        ErrorCount:  #keyword: bash 計算,  Linux インクリメント 加算
+        ErrorCount:  #keyword: ErrorCount,  bash 計算,  Linux インクリメント 加算
             基本:
                 command  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
-            bashlib:  #search: TestError
-            標準: |
+                #// TestError 関数 でも同様の処理を行います
+            継続する場合: |
                 ErrorCount=0
                 command  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
                 command  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
                 command  ||  ErrorCount=$(( ${ErrorCount} + 1 ))
-                echo  "ErrorCount = ${ErrorCount}"
-            継続する場合: |  #focus: ErrorCount
+                echo  "ErrorCount = ${ErrorCount}"  #// または EchoEndOfMain または EndOfTest または EchoEndOfTest
+            スキップする場合: |  #focus: ErrorCount
                 ErrorCount=0
                 local  previousErrorCount=${ErrorCount}
 
@@ -17608,6 +17941,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ErrorIfLastIs:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  ErrorIfLastIs
             #// $(  ) の中で発生したエラーを処理します。ただし、exit（を含む Error関数）はキャッチできません（終了する？）。 ExitIfMatched を推奨します
             #search: bashlib Error
+            #search: ExitIfMatched
             #search: LastIs
         Evaluate: #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  Evaluate()
         EvaluateAndGetFullPath: #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  EvaluateAndGetFullPath()
@@ -17627,11 +17961,14 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         GetCSVNextColumnIndex:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GetCSVNextColumnIndex
         GetCurrentGitBranch:
             ワーキング フォルダー の引数あり版:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GetCurrentGitBranch()
-            引数なし版:  #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  GetCurrentGitBranch
+            引数なし版:
+                コマンド（推奨）:  #search: git branch --show-current
+                bashlib:  #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  GetCurrentGitBranch
         GetDockerComposeMajorVersion:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  GetDockerComposeMajorVersion
         GetEpochTimeStamp:  #search: bash compare date time  #ref: ${GitHub}/MyPrivateCode/bash/normalize-iptables/diff-iptables.sh#function  GetEpochTimeStamp()
             if Compare " $(GetEpochTimeStamp "__FilePath__") > $(GetEpochTimeStamp "__FilePath__") "; then
         GetFileSizeIn7z:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#GetFileSizeIn7z()
+        GetFirstNonZeroValue:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#GetFirstNonZeroValue()
         GetFromTabDic:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GetFromTabDic
         GetFullPath:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GetFullPath
             関連:
@@ -17666,6 +18003,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         GetWslPathFromWindowsPath:  #ref: ${GitHub}/codediff/codediff#function  GetWslPathFromWindowsPath()
         GitCheckOut:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GitCheckOut
         GitAddCommitForTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GitAddCommitForTest()
+        GitDownloadBySparseCheckout:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GitDownloadBySparseCheckout()
         GitInitForTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  GitInitForTest()
         GitStatusShort:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  GitStatusShort
         Grep:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  Grep
@@ -17674,7 +18012,9 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         HasStarted:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  HasStarted
         Input:  #ref: ${GitHub}/patch-o/patch-o#function  Input
         InsertAfterLastMatchedLine:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  InsertAfterLastMatchedLine
+        InstallSourceBashrc:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  InstallSourceBashrc
         IsEmptyFolder:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  IsEmptyFolder
+        IsExistIn7z:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  IsExistIn7z
         IsLaterSemanticVersion:  #ref: ${GitHub}/MyPrivateCode/bash/sync-rpms/sync-rpms.sh#function  IsLaterSemanticVersion
             rpmdev-vercmp を使ったバージョンが良いかも  #search: IsSameOrLaterSemanticVersion
         IsSameOrLaterSemanticVersion:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  IsSameOrLaterSemanticVersion
@@ -17717,6 +18057,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         ParseKeyValueValue:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/tasks.sh#function  ParseKeyValueValue
             関連: #search: GetValueFromKeyValueText
         ParseOption:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ParseOption
+            類似実装:  #search: bash function option
         Pause:  #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  Pause
         Playwright:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  Playwright
         PlaywightHasSkippedTest:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  PlaywightHasSkippedTest
@@ -17741,7 +18082,11 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
             注意: #search: RunWithEcho
         RunInGitBash:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RunInGitBash
             注意: #search: RunWithEcho
+            実行部分:  #search: RunInGitBashSilent
         RunInGitBashSilent:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  RunInGitBashSilent
+            Windows Git bash でシェルスクリプトが動作するものとして Bash Debug を動かします。
+            Windows Git bash では WSL2（一般の Linux）と sed のオプションなどが違います。
+            Windows の C:/Program Files/Git/bin/bash.exe の中でコマンドを実行します
         RunTest:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#function  RunTest()
             関連 >> --test オプション:  #search: bash --test
             古い RunTest:  #ref: ${GitHub}/MyPrivateCode/bash/replace-in-text/test/test.sh
@@ -17782,6 +18127,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         SetVariableValue:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  SetVariableValue
         ShiftCSV:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ShiftCSV
         ShouldRunTest:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#ShouldRunTest()
+        ShowLinkToRunbook:  #ref: ${GitHub}/breadcrumb/breadcrumb.sh#function  ShowLinkToRunbook
         ShowWslHelp:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ShowWslHelp
         SkipEcho: #ref: ${GitHub}/Snippets/for-bash/base/bashlib2/bashlib2/bashlib_test.sh#function  SkipEcho()
         StartFrom:  #// インターフェース  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/install.sh#function  StartFrom
@@ -17801,6 +18147,7 @@ bashlib:  #keyword: bashlib  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/singl
         TestOptionIsValid:  #ref: ${GitHub}/MyPrivateCode/bash/test-cli/test-cli.sh#TestOptionIsValid()
         TestStartCommand:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  TestStartCommand()
         UnsetVariables:  #ref: ${GitHub}/back-up-local-settings/bin/back-up-files#function  UnsetVariables
+        UploadFile:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  UploadFile
         ValueFilter:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#function  ValueFilter
         WaitForFileExists:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/others.sh#WaitForFileExists
             #search: WaitForRemoteFileExists sequence

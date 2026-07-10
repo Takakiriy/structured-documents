@@ -2248,8 +2248,17 @@
                     F5 キー:  #// デバッグ開始
             コマンド:
                 サンプル:
-                    tox
+                    tox -r
                 tox: #ref: https://tox.wiki/en/latest/config.html#cli
+                -r オプション: #keyword: tox -r
+                    基本的に付けてください。
+                    -r オプションが無い場合、仮想環境が無いときは tox.ini に基づいて仮想環境を作りますが、
+                    tox.ini を変更しても仮想環境は更新されないというように、状況を把握しにくいためです。（npm install は更新されます）
+                    -r オプションがある場合、仮想環境を作り直しますが、差分インストールではありません。（npm install は差分インストールです）
+                -- オプション:
+                    -- -x を指定した場合、
+                    tox.ini の commands に {posargs} が指定してあれば、-x を渡します。
+                        pytest {posargs}
             設定ファイル: #// tox.ini または pyproject.toml または setup.cfg
                 公式: #ref: https://tox.wiki/en/latest/config.html
                 サンプル: |
@@ -2298,7 +2307,7 @@
                             サンプル (2): |
                                 commands =
                                     echo "DJANGO_ENVIRONMENT = {env:DJANGO_ENVIRONMENT}"
-                                    poetry install --remove-untracked
+                                    poetry install --sync
                                     mkdir -p {toxinidir}/data
                                     poetry run python {toxinidir}/manage.py compilemessages -l ja
                                     poetry run task test
@@ -2340,6 +2349,7 @@
                                 インストールしない場合は allowlist_externals にコマンドを指定します。
                             サンプル: |
                                 deps = pytest
+                                #// 編集したら #search: tox -r
                             サンプル (2):
                                 tox.ini: |
                                     deps =
@@ -2347,8 +2357,10 @@
                                         -c{toxinidir}/tools/constraints.txt
                                 この設定で tox が実行するコマンド:
                                     pip install -r tools/requirements.txt -c tools/constraints.txt
+                                編集したら:  #search: tox -r
                             サンプル (3): |
                                 deps = pytest -r{toxinidir}/requirements.txt
+                            編集したら:  #search: tox -r
                         setenv: #keyword: tox.ini setenv  #// 環境変数  #ref: https://tox.wiki/en/latest/config.html#conf-setenv
                             サンプル: |
                                 setenv =
@@ -2379,7 +2391,35 @@
                 constraints.txt: #keyword: tox constraints.txt  #// 子孫も含んだバージョン。package-lock.json 相当
                     deps の -c オプションにパスを書きます（不要かも） #search: tox.ini deps
             トラブルシューティング:
-                - #// INTERNALERROR>
+                pyenv tox command not found:
+                    手順: tox -- -x
+                    ログ: |
+                        pyenv: tox: command not found
+                    原因:
+                        tox が pyenv 経由で tox 本体を呼び出そうとしましたが、tox が見つかりません
+                            $ command -v tox
+                                ~/.pyenv/shims/tox
+                            $ less  ~/.pyenv/shims/tox
+                                program="${0##*/}"
+                                exec "/home/user1/.pyenv/libexec/pyenv" exec "$program" "$@"
+                    状況確認手順:
+                        ケース1:  #focus: 3.10.15,  3.9.21
+                            正常な環境で: |
+                                $ pyenv which tox
+                                    /home/user1/.pyenv/versions/3.10.15/bin/tox
+                                $ pyenv version
+                                    3.10.15 (set by __ProjectA__/.python-version)
+                            問題の環境で: |
+                                $ pyenv which tox
+                                    pyenv: tox: command not found
+                                $ pyenv version
+                                    3.9.21 (set by __ProjectB__/.python-version)
+                            状況:
+                                選択中の Python のバージョンが違うため、Python の仮想環境が別の環境になっていて、
+                                別の環境（3.9.21）には tox がインストールされていません
+                            対処A:  #\\ 正常な Python のバージョンの仮想環境がある場合
+                                使う Python のバージョンを修正します
+                INTERNALERROR>:
                     手順: tox
                     エラー: |
                         INTERNALERROR> Traceback (most recent call last):
@@ -2394,7 +2434,7 @@
                         - INTERNALERROR> の行全体は、（tox （の設定）が呼び出す）pytest が出力しています
                         - pytest を実行する環境に問題がある可能性が高いです
                         - InvocationError for command は tox が出力しています
-                - #// ERROR:   py37: commands failed
+                ERROR py37 commands failed:
                     手順: tox
                     エラー: |  #focus: msgfmt
                         ...
@@ -2416,7 +2456,7 @@
                     対処:
                         msgfmt コマンドが見つかっていません。
                         sudo dnf install gettext
-                - #// allowlist_externals に登録されていない
+                allowlist_externals に登録されていない:
                     手順: tox
                     エラー: |
                         WARNING: test command found but not installed in testenv
@@ -2427,11 +2467,11 @@
                         deps または allowlist_externals に使うコマンドを登録します
                         ただし、allowlist_externals にはフルパスまたは PATH が通ったパスである必要があります
                         #search: tox.ini allowlist_externals
-                - #// index.rst の内容（左）が更新されない
+                index.rst の内容（左）が更新されない:
                     手順: ブラウザーのリロード
                     問題: index.rst の内容（左）が更新されない
                     対処: tox --recreate または tox -r でリビルドします
-                - #// exception: No module named '__Module__'
+                exception No module named '__Module__':
                     手順: tox
                     エラー: |
                         Extension error:
@@ -3305,6 +3345,7 @@
                         前処理:  #// テスト環境を設定します
                             setup_method: #keyword:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s09_setup/s9_test.py
                                 書式:
+                                    #// クラス内にしか書けません
                                     - def setup_method(self):
                                     - def setup_method(self, method):  #// method 引数が必要な場合
                                 実行順序:
@@ -3319,27 +3360,18 @@
                                             test_1_1
                                             setup_method
                                             test_1_2
-                                    クラスがネストしている場合:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s09_setup/s9_test.py#class TestOfNestedSetUp
-                                        コード: |
-                                            class Test1:
-                                                def setup_method(self, method):
-                                                class Test2:
-                                                    def setup_method(self, method):
-                                                    def test_1_1(self):
-                                        実行順序:
-                                            setup_method (Test1)
-                                            setup_method (Test2)
-                                            test_1_1
+                                    クラスがネストしている場合: #search: pytest nest class problem
                                 注意 >> setup_method の引数にフィクスチャを渡すことはできません:
                                     サンプル: |  #focus: test_fixture
                                         @pytest.fixture(autouse=True)
                                         def test_fixture(self):
-                                            ＿＿＿
+                                            ____
 
                                         def setup_method(self, method, test_fixture):  #// test_fixture is the error
-                                            ＿＿＿
+                                            ____
                                     #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s09_setup/s9_setup_and_fixture_test.py:csv#class TestOfSetUpAndFixture, def setup_method
-                            フィクスチャ:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s05_fixture/s5_test.py
+                            フィクスチャ:
+                                #search: pytest fixture yield
                         後処理（終了処理）:
                             teardown_method: #keyword:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s09_setup/s9_test.py#def teardown_method
                             フィクスチャ:
@@ -3349,6 +3381,10 @@
                         公式:
                             #ref: https://docs.pytest.org/en/latest/explanation/fixtures.html
                             #ref: https://docs.pytest.org/en/latest/how-to/fixtures.html
+                        書式: |  #search: define pytest fixture
+                            @pytest.fixture
+                            def data():
+                                return {'a': 1, 'b': 2}
                         必要性, 注意点:
                             必要性:
                                 - フィクスチャを使う必要性は、「複数のテストのグループで使うデータ」かつ「複数のグループで異なるデータ」に関してのみ
@@ -3362,13 +3398,15 @@
                                 - 処理のフィクスチャ（返り値が無い）が、淡色表示されてしまいます  #ref: https://github.com/microsoft/pylance-release/issues/1059
                                 - conftest.py ファイルにある定義を見つけるのが難しい #ref: https://stackoverflow.com/questions/78256995/any-automated-way-to-view-a-network-of-pytest-fixtures-functions-defined-in-the
                         手順:
-                            定義します:  #search: 
+                            定義します:  #search: define pytest fixture
+                            範囲を設定します:  #search: pytest fixture targets
                             フィクスチャを探します:  #search: pytest test function argument
                             デバッグします:  #search: mock debug
                         機能:
-                            後処理（終了処理）:  #keyword: pytest fixture yield
-                                関連:  #search: teardown_method
-                                サンプル: |  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s10_setup_by_fixture/conftest.py#yield
+                            前処理と後処理（終了処理）: #keyword: pytest fixture yield
+                                関連:  #search: setup_method  #search: teardown_method
+                                サンプル1:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s05_fixture/s5_test.py
+                                サンプル2: |  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s10_setup_by_fixture/conftest.py#yield
                                     import pytest
 
                                     @pytest.fixture
@@ -3378,36 +3416,16 @@
 
                                         #// yield より下がテスト実行後に実行されます。オブジェクトが参照されなくなったタイミング？
                                         print()
-                                例外発生時も実行されます:
-                                addfinalizer を使う方法もあります:
-                            前処理と後処理をするフィクスチャ:
-                                autouse: #keyword: pytest autouse
-                                    サンプル: |  #ref: c:\Users\m-toda\GitProjects\GitHub\MyPrivateCode\Python\try_pytest\s10_setup_by_fixture\s10_test.py#autouse
-                                        class TestEachClass():
-                                            @pytest.fixture(scope='function', autouse=True)
-                                            def before_after_each(self):
-                                                print("(beforeEach)")
-                                                yield
-                                                print("(afterEach)")
-
-                                            def test_method_1(self):
-                                                print("test_method_1")
-
-                                            def test_method_2(self):
-                                                print("test_method_2")
-                                    scope='function' の場合の実行結果:
-                                        (beforeEach)
-                                        test_method_1
-                                        (afterEach)
-                                        (beforeEach)
-                                        test_method_2
-                                        (afterEach)
-                                        #// class TestEachClass(): のサブクラスがあるときも、そのクラスのメソッドが呼ばれるたびに beforeEach afterEach します
-                                    scope='class' の場合の実行結果:
-                                        (beforeEach)
-                                        test_method_1
-                                        test_method_2
-                                        (afterEach)
+                                例外発生時も後処理は実行できます: |
+                                    @pytest.fixture
+                                    def db():
+                                        try:
+                                            yield db
+                                        finally:
+                                            db.close()
+                                #↓ @pytest.fixture の引数
+                                autouse: #search: pytest fixture autouse
+                                scope:  #search: pytest fixture scope
                                 インスタンスを返さないフィクスチャ:
                                     関連:  #search: setup_method
                                     pytest.mark.usefixtures: #keyword: @pytest.mark.usefixtures
@@ -3431,138 +3449,331 @@
                                                         def test_1(self):
 
                                                         def test_2(self):
-                        #↓ 概念, 構成
-                        ユーザー定義のフィクスチャ: #keyword: define pytest fixture
-                            基本サンプル: |  #focus: @pytest.fixture,  data
-                                    import pytest
-
-                                    @pytest.fixture
-                                    def data():
-                                        return {'a': 1, 'b': 2}
-
-                                    def test(data):
-                                        assert data['a'] == 1
-                                        assert data['b'] == 2
-                                #ref: ${GitHub}/MyPrivateCode/Python/try_Python/examples/pytest
-                                #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s05_fixture/s5_test.py
-                            #↓ テストで定義するオブジェクト
-                            インスタンスを返すフィクスチャ:
-                                参考: #ref: https://qiita.com/_akiyama_/items/9ead227227d669b0564e
-                                関連 >> モック: #search: return_value
-                                前処理:
-                                    pytest のフィクスチャはテストの前処理(DBのセットアップ、モックの作成など)をする関数です:
-                                    テスト関数の引数（self以外）は、おそらくフィクスチャです:
-                                    サンプル: |  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s05_fixture/s5_test.py#@pytest.fixture
+                                後処理 addfinalizer:
+                        構成:
+                            ユーザー定義のフィクスチャ: #keyword: define pytest fixture
+                                基本サンプル: |  #focus: @pytest.fixture,  data
                                         import pytest
-                                        class Test_case:
-
-                                            @pytest.fixture
-                                            def db():
-                                                users = Users()
-                                                return users
-
-                                            def test(db):  #// db メソッドの返り値が渡ります。引数名はメソッド名に合わせます
-                                                assert db.get(1)['name'] == 'Bob'
-                                    スコープ内のとき、フィクスチャの返り値は、pytest 内部でメモ化されます:  #search: fixture.スコープ
-                                    スコープ外のとき、フィクスチャが毎回呼び出されます。たとえば返り値のオブジェクトは初期状態になります:
-                            クラスを返すフィクスチャ:  #focus: @pytest.fixture, MySuper
-                                サンプル: |
-                                    import pytest
-
-                                    @pytest.fixture
-                                    def MySuper():
-                                        return MySuper_
-                                    class MySuper_:
-                                        ____
-
-                                    def local(self, MySuper):
-                                        class Local(MySuper):
-                                トラブルシューティング:
-                                    - #// class fixtures not supported
-                                        手順: pytest 実行時
-                                        エラー: |
-                                            ERROR  - ValueError: class fixtures not supported (maybe in the future)
-                                        対処:
-                                            クラスを返す関数をフィクスチャにします（上記）
-                            #↓ モック
-                            関数をモックに置き換えるフィクスチャ:
-                                #search: pytest mock fixture
-                                #search: mock.patch.object pytest fixture
-                            クラスをモックに置き換えるフィクスチャ:
-                                #search: Python class mock
-                            #↓ 補足的に定義するもの
-                            ファクトリ フィクスチャ: #keyword: pytest factory fixture  #// 引数を持つフィクスチャ。関数のフィクスチャ
-                                概要: 引数を持つフィクスチャ。 引数はテストコードが指定します
-                                サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s13_factory_fixture/s13_test.py
-                                関連: #search: Python unittest side_effect
-                            パラメタライズド フィクスチャ:  #keyword: pytest params fixture
-                                パラメーターはフィクスチャが指定します:
-                                サンプル: |  #focus: params
-                                    import pytest
-
-                                    @pytest.fixture(params=[('Tom', 10), ('Bob', 15), ('Alice', 12)])
-                                    def student(request):
-                                        return Student(request.param[0], request.param[1])
-                                関連:
-                                    (@pytest.mark.parametrize):  #search: pytest.mark.parametrize
-                                    parametrize を受け取るフィクスチャ:  #search: pytest parametrize fixture
-                        組み込みフィクスチャ: #keyword: pytest built-in fixtures  #// capfd, tmpdir, patch
-                            request: #keyword: pytest request fixture  #// pytest が定義
-                                config:
-                                    コマンドのオプションを取得します:
-                                        path = request.config.getoption('--rpm-versions')
-                            pytestconfig:
-                            capfd, tmpdir など: https://docs.pytest.org/en/6.2.x/fixture.html#fixtures
-                            patch フィクスチャ:  #keyword: Python pytest patch mock fixture
-                                #search: pytest mock.patch
-                            monkeypatch:
-                            capsys:
-                            tmp_path:
-                        スコープ:  #keyword: fixture.スコープ  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s10_setup_by_fixture/conftest.py#scope
-                            pytest のスコープによって、メモ化される粒度を function, class, module(file), session に設定できます: |
-                                @pytest.fixture(scope='module')  #// デフォルトは function
-                        conftest.py: #search: conftest.py
-                        オーバーライド:  #keyword: pytest fixture override
-                            親フォルダーにあるフィクスチャを少し変更したフィクスチャを定義します:
-                                #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s23_override/1_based_on_parent
-                                #focus: class_A_instance
-                                ../conftest.py: |  #search conftest.py
-                                    import @pytest
-                                    from unittest.mock import create_autospec
-
-                                    @pytest.fixture
-                                    def class_A_instance(self):
-                                        mock_A = create_autospec(ClassA, instance=True, spec_set=True)
-                                        return  mock_A
-                                ./test.py: |
-                                    class Test_A:
 
                                         @pytest.fixture
-                                        def class_A_instance(self, class_A_instance):
-                                            class_A_instance.method.return_value = 1
-                                            return class_A_instance
-                            親フォルダーのフィクスチャの引数に、子フォルダーのフィクスチャを渡します:
-                                #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s23_override/2_replace_child
-                                #focus: my_dish,  my_food
-                                conftest.py: |  #search conftest.py
-                                    import pytest
+                                        def data():
+                                            return {'a': 1, 'b': 2}
 
-                                    @pytest.fixture
-                                    def my_food() -> str:
-                                        return "beaf"
+                                        def test(data):
+                                            assert data['a'] == 1
+                                            assert data['b'] == 2
+                                    #ref: ${GitHub}/MyPrivateCode/Python/try_Python/examples/pytest
+                                    #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s05_fixture/s5_test.py
+                                #↓ テストで定義するオブジェクト
+                                インスタンスを返すフィクスチャ:
+                                    参考: #ref: https://qiita.com/_akiyama_/items/9ead227227d669b0564e
+                                    関連 >> モック: #search: return_value
+                                    前処理:
+                                        pytest のフィクスチャはテストの前処理(DBのセットアップ、モックの作成など)をする関数です:
+                                        テスト関数の引数（self以外）は、おそらくフィクスチャです:
+                                        サンプル: |  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s05_fixture/s5_test.py#@pytest.fixture
+                                            import pytest
+                                            class Test_case:
 
-                                    @pytest.fixture
-                                    def my_dish(my_food) -> str:
-                                        return "roast " + my_food
-                                ./test.py: |
-                                    import pytest
+                                                @pytest.fixture
+                                                def db():
+                                                    users = Users()
+                                                    return users
 
-                                    @pytest.fixture
-                                    def my_food() -> str:
-                                        return "pork"
+                                                def test(db):  #// db メソッドの返り値が渡ります。引数名はメソッド名に合わせます
+                                                    assert db.get(1)['name'] == 'Bob'
+                                        スコープ内のとき、フィクスチャの返り値は、pytest 内部でメモ化されます:  #search: fixture.スコープ
+                                        スコープ外のとき、フィクスチャが毎回呼び出されます。たとえば返り値のオブジェクトは初期状態になります:
+                                クラスを返すフィクスチャ:  #focus: @pytest.fixture, MySuper
+                                    サンプル: |
+                                        import pytest
 
-                                    def test(my_dish: str):
-                                        assert  my_dish == "roast pork"
+                                        @pytest.fixture
+                                        def MySuper():
+                                            return MySuper_
+                                        class MySuper_:
+                                            ____
+
+                                        def local(self, MySuper):
+                                            class Local(MySuper):
+                                    トラブルシューティング:
+                                        - #// class fixtures not supported
+                                            手順: pytest 実行時
+                                            エラー: |
+                                                ERROR  - ValueError: class fixtures not supported (maybe in the future)
+                                            対処:
+                                                クラスを返す関数をフィクスチャにします（上記）
+                                #↓ モック
+                                関数をモックに置き換えるフィクスチャ:
+                                    #search: pytest mock fixture
+                                    #search: mock.patch.object pytest fixture
+                                クラスをモックに置き換えるフィクスチャ:
+                                    #search: Python class mock
+                                #↓ 補足的に定義するもの
+                                ファクトリ フィクスチャ: #keyword: pytest factory fixture  #// 引数を持つフィクスチャ。関数のフィクスチャ
+                                    概要: 引数を持つフィクスチャ。 引数はテストコードが指定します
+                                    サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s13_factory_fixture/s13_test.py
+                                    関連: #search: Python unittest side_effect
+                                パラメタライズド フィクスチャ:  #keyword: pytest params fixture
+                                    パラメーターはフィクスチャが指定します:
+                                    サンプル: |  #focus: params
+                                        import pytest
+
+                                        @pytest.fixture(params=[('Tom', 10), ('Bob', 15), ('Alice', 12)])
+                                        def student(request):
+                                            return Student(request.param[0], request.param[1])
+                                    関連:
+                                        (@pytest.mark.parametrize):  #search: pytest.mark.parametrize
+                                        parametrize を受け取るフィクスチャ:  #search: pytest parametrize fixture
+                            組み込みフィクスチャ: #keyword: pytest built-in fixtures  #// capfd, tmpdir, patch
+                                request: #keyword: pytest request fixture  #// pytest が定義
+                                    config:
+                                        コマンドのオプションを取得します:
+                                            path = request.config.getoption('--rpm-versions')
+                                pytestconfig:
+                                capfd, tmpdir など: https://docs.pytest.org/en/6.2.x/fixture.html#fixtures
+                                patch フィクスチャ:  #keyword: Python pytest patch mock fixture
+                                    #search: pytest mock.patch
+                                monkeypatch:
+                                capsys:
+                                tmp_path:
+                            visibility, 可視範囲: #keyword: pytest fixture visibility  #// pytestが scope という単語を実行頻度の意味で使ってしまっているので、visibility, 可視範囲 と呼ぶことにします
+                                引数: #keyword: pytest fixture argument  #// test メソッドの引数へ指定する fixture
+                                    _: 引数の有無が、fixture の有無を決定する、という考えが基本です（例外もあります）
+                                    基本:  #// デフォルトの動作は、すべての test メソッドの前後で fixture のコードを実行します
+                                        -   test メソッドの引数に fixture 名が指定してある場合、以下の順で実行します。
+                                                1. fixture の中の yield の前
+                                                2. test メソッド
+                                                3. fixture の中の yield の後
+                                        -   引数に指定してある test メソッドの、それぞれで毎回 fixture の中のコードを実行します。 例外→ #search: pytest fixture scope
+                                        -   引数に指定が無ければ fixture の中のコードは実行しません。 例外→ #search: pytest fixture autouse
+                                autouse: #keyword: pytest fixture autouse  #// test メソッドの引数へ指定が無くても実行します。test メソッドのそれぞれで毎回 fixture の中のコードを実行します
+                                    書式: | #search: pytest scope module
+                                        @pytest.fixture(autouse=True)
+                                    サンプル コード: |  #ref: c:\Users\m-toda\GitProjects\GitHub\MyPrivateCode\Python\try_pytest\s10_setup_by_fixture\s10_test.py#autouse
+                                        class TestEachClass:
+                                            @pytest.fixture(scope='function', autouse=True)
+                                            def before_after_each(self):
+                                                print("(beforeEach)")
+                                                yield
+                                                print("(afterEach)")
+
+                                            def test_method_1(self):
+                                                print("test_method_1")
+
+                                            def test_method_2(self):
+                                                print("test_method_2")
+                                    引数に指定の有無:  #// fixture 名を test メソッドの引数に指定するメソッドと、引数に指定しないメソッドの違い
+                                        _: fixture を参照するかどうかの違いなだけで、fixture の中のコードは実行します。 例外→ #search: pytest fixture scope
+                                        サンプル: |  #focus: def,  test_method_1,  test_method_2
+                                            class TestEachClass:
+                                                @pytest.fixture(scope='function', autouse=True)
+                                                def before_after_each(self):
+                                                    print("(beforeEach)")
+                                                    yield
+                                                    print("(afterEach)")
+
+                                                def test_method_1(self):
+                                                    print("test_method_1")
+
+                                                def test_method_2(self, before_after_each):
+                                                    print("test_method_2")
+                                    定義場所での違い: #keyword: pytest autouse class fixture  #// autouse=True の fixrute の定義場所によって visibility の範囲が変わります
+                                        クラスの外に定義した場合:
+                                            .py ファイル全体のそれぞれの test メソッドが対象になります
+                                        クラスの中に定義した場合:
+                                            クラスの中のそれぞれの test メソッドが対象になります
+                                        ネストしたクラスの中に定義した場合:  #// 非推奨
+                                            _: pytest の仕様が不安定です。クラスの中にクラスを定義しないでください
+                                            Jest からの移植: #keyword: pytest beforeAll,  pytest beforeAll beforeEach afterEach afterAll
+                                                概要:
+                                                    -   Jest の beforeAll などは、ネストしたクラスのように describe をネストさせた中に書くことができます
+                                                    -   autouse=True を使うと Jest のネストした beforeAll/beforeEach ～ afterEach/afterAll の範囲に制限できないため、
+                                                        autouse=True を使わず、代わりに明示的に fixture の名前を test メソッドに指定することで、範囲を制限します。
+                                                    -   fixture が定義してあった場所（beforeAll などを書く場所）には、beforeAll などのコメントを書くと、
+                                                        視覚的に共通部分であることが分かります
+                                                autouse=False の場合:  #// autouse のデフォルトの場合  #search: pytest fixture autouse
+                                                    fixture の定義をクラスの外に移動します  #search: move Python fixture
+                                                    #// 使われる場所は、引数に指定されているので、動きは変わりません
+                                                #↓ autouse=True の場合
+                                                ファイルにルートのクラスが 1つしかない場合:
+                                                    fixture の定義をクラスの外に移動します  #search: move Python fixture
+                                                クラス内に定義した fixture がファイル全体よりも狭い場合:
+                                                    まとめた fixture を定義します:  #focus: fixtures
+                                                        サンプル: |
+                                                            @pytest.fixture(autouse=True)
+                                                            def level2_fixture():
+                                                                print("Level2 setup")    #// 呼ばれます
+                                                                yield
+
+                                                            @pytest.fixture
+                                                            def fixtures(level2_fixture):
+                                                                print("Level3 setup")    #// 呼ばれます
+                                                                yield
+
+                                                            class TestGroup111:
+                                                                def test_a(self, fixtures):  #// このテストを実行する前に
+                                                                    pass
+                                                        メモ:
+                                                            引数に、まとめたものと、まとめた中のものを指定した場合:
+                                                                _: scope="function" より細かい単位で何度も fixture のコードが呼ばれることはありません。
+                                                                    1回しか fixture のコードは実行しません。
+                                                                サンプル: |  #focus: level2_fixture
+                                                                    @pytest.fixture
+                                                                    def level2_fixture():
+                                                                        print("Level2 setup")  #// 1回しか実行されない
+                                                                        yield
+
+                                                                    @pytest.fixture
+                                                                    def fixtures(level2_fixture):
+                                                                        print("Level3 setup")
+                                                                        yield
+
+                                                                    class TestGroup111:
+                                                                        def test_a(self, fixtures, level2_fixture):  #// 両方指定しても
+                                                                            pass
+                                                    範囲内のすべての test メソッドの引数に、まとめた fixture を明示的に指定します: |  #focus: fixtures
+                                                        class Test1:
+                                                            __Fixtures__  #// level2_fixture など
+
+                                                            @pytest.fixture
+                                                            def fixtures(level2_fixture):
+                                                                pass
+
+                                                            class Test2:
+                                                                def test_1_2_1(self, fixtures):
+                                                                    ____
+                                                                def test_1_2_2(self, fixtures):
+                                                                    ____
+                                                    autouse=True を削除します:  #focus: autouse
+                                                        編集前: |
+                                                            @pytest.fixture(autouse=True)
+                                                        編集後: |
+                                                            @pytest.fixture
+                                                    （任意）beforeEach などのコメントを書きます: |  #focus: beforeEach  #// scope によっては beforeAll
+                                                        class Test1:
+                                                            __Fixtures__  #// level2_fixture など
+
+                                                            @pytest.fixture
+                                                            def fixtures(level2_fixture):
+                                                                pass
+
+                                                            # beforeEach @pytest.fixture  fixtures
+
+                                                            class Test2:
+                                                                def test_1_2_1(self, fixtures):
+                                                                    ____
+                                                                def test_1_2_2(self, fixtures):
+                                                                    ____
+                                                    fixture の定義をクラスの外に移動します: | #keyword: move Python fixture  #focus: def fixtures
+                                                        @pytest.fixture
+                                                        def level2_fixture():
+                                                            ____
+
+                                                        @pytest.fixture
+                                                        def fixtures(level2_fixture):
+                                                            pass
+
+                                                        class Test1:
+                                                            # beforeEach @pytest.fixture  fixtures
+
+                                                            class Test2:
+                                                                def test_1_2_1(self, fixtures):
+                                                                    ____
+                                                                def test_1_2_2(self, fixtures):
+                                                                    ____
+                                                #search: pytest 以外の選択肢
+                                            問題点: #keyword: pytest nest class problem  #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s09_setup/s9_test.py#class TestOfNestedSetUp
+                                                ❗: 非推奨。Jest と違い pytest はネストしたクラスの扱いの仕様が不安定です（バージョンによって変わります）
+                                                （推奨）:  #search: pytest beforeAll
+                                                コード: |  #// fixture の代わりに setup_method を書いていますが同じく非推奨です
+                                                    class Test1:
+                                                        def setup_method(self, method):
+                                                        class Test2:
+                                                            def setup_method(self, method):
+                                                            def test_1_1(self):
+                                                期待する実行順序:
+                                                    setup_method (Test1)
+                                                    setup_method (Test2)
+                                                    test_1_1
+                                                実際の実行順序（時々）:
+                                                    setup_method (Test1)
+                                                    test_1_1
+                                scope: #keyword: pytest fixture scope,  fixture.スコープ  #// メソッドを呼び出すごとに、毎回 fixture のコードを呼ばなくなります
+                                    #// scope に指定した単位の物が切り替わるときに fixture のコードを呼びます。（呼ぶ回数が減ります）
+                                    （本来の scope の意味の機能）:  #search: pytest autouse class fixture
+                                    #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s10_setup_by_fixture/conftest.py#scope
+                                    scope='function' の場合の実行結果:  #// 関数ごと、メソッドごと（scope のデフォルト値）
+                                        (beforeEach)
+                                        test_method_1
+                                        (afterEach)
+                                        (beforeEach)
+                                        test_method_2
+                                        (afterEach)
+                                        #// class TestEachClass(): のサブクラスがあるときも、そのクラスのメソッドが呼ばれるたびに beforeEach afterEach します
+                                    scope='class' の場合の実行結果:  #// クラスの中のすべてのメソッドが呼ばれる間に 1回だけ
+                                        (beforeEach)
+                                        test_method_1
+                                        test_method_2
+                                        (afterEach)
+                                    scope="module": | #keyword: pytest scope module  #// ファイル単位で1回
+                                        @pytest.fixture(scope='module', autouse=True)
+                                        def before_all():
+                                            print("(beforeAll)")
+                                            yield
+                                            print("(afterAll)")
+
+                                        class Test1Class:
+                                            def test(self):
+                                                print("Test1Class.test")
+
+                                        class Test2Class:
+                                            def test(self):
+                                                print("Test2Class.test")
+                                    #// フォルダーごとの場合  #search: conftest.py
+                                    scope="session":  #// テスト実行全体で1回
+                                conftest.py: #search: conftest.py
+                                オーバーライド:  #keyword: pytest fixture override
+                                    親フォルダーにあるフィクスチャを少し変更したフィクスチャを定義します:
+                                        #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s23_override/1_based_on_parent
+                                        #focus: class_A_instance
+                                        ../conftest.py: |  #search conftest.py
+                                            import @pytest
+                                            from unittest.mock import create_autospec
+
+                                            @pytest.fixture
+                                            def class_A_instance(self):
+                                                mock_A = create_autospec(ClassA, instance=True, spec_set=True)
+                                                return  mock_A
+                                        ./test.py: |
+                                            class Test_A:
+
+                                                @pytest.fixture
+                                                def class_A_instance(self, class_A_instance):
+                                                    class_A_instance.method.return_value = 1
+                                                    return class_A_instance
+                                    親フォルダーのフィクスチャの引数に、子フォルダーのフィクスチャを渡します:
+                                        #ref: ${GitHub}/MyPrivateCode/Python/try_pytest/s23_override/2_replace_child
+                                        #focus: my_dish,  my_food
+                                        conftest.py: |  #search conftest.py
+                                            import pytest
+
+                                            @pytest.fixture
+                                            def my_food() -> str:
+                                                return "beaf"
+
+                                            @pytest.fixture
+                                            def my_dish(my_food) -> str:
+                                                return "roast " + my_food
+                                        ./test.py: |
+                                            import pytest
+
+                                            @pytest.fixture
+                                            def my_food() -> str:
+                                                return "pork"
+
+                                            def test(my_dish: str):
+                                                assert  my_dish == "roast pork"
                     表形式データ:
                         parametrize:  #// パラメトライズ。表形式データを使って複数回テスト関数を呼び出します  #keyword: @pytest.mark.parametrize
                             関連:
@@ -3863,6 +4074,9 @@
                         Python: Debug All Tests が選べない
                     対処: |
                         Python: Debug Test Method を選んでみてください
+        pytest 以外の選択肢: #keyword:
+            mamba, ward:  Jest の beforeEach 相当が使えるが、マイナーでメンテナンスも不活発
+            nose2: コミュニティやユーザーベースがpytestほど大きくない
         testinfra:  #keyword: Python testinfra,  pytest-testinfra,  Python SSH ヘルス チェック  #search: ヘルス チェック
             #// pytestフレームワーク上に構築されていますが、独立したプロジェクトです
             操作:
@@ -7811,6 +8025,18 @@
                     404 エラー: #keyword: Django HTTP 404 error
                         #ref: https://docs.djangoproject.com/en/4.1/ref/views/#the-404-page-not-found-view
                         #ref: https://www.w3schools.com/django/django_404.php
+            クラス:
+                HttpResponse: #keyword: Django HttpResponse
+                    基本: |
+                        def my_view(request):
+                            response = HttpResponse("Hello")
+                            patch_cache_control(response, private=True)  #// "Cache-Control" HTTP ヘッダーを設定します
+                            return response
+                    良くないサンプル: |
+                        def my_view(request):
+                            response = HttpResponse("Hello")
+                            response["Cache-Control"] = "Private, max-age=3600"  #// ← Private のように大文字で書くと脆弱
+                            return response
             構成:
                 Django Middleware: #keyword: Django middleware
                     処理の順: |
@@ -8483,8 +8709,11 @@
                                             #     response = exception_handler(exc, context)
                                             (exception_handler):  #// EXCEPTION_HANDLER に指定した関数
                 Django:  #search: Django settings  #ref: https://docs.djangoproject.com/en/4.1/topics/settings/
-            rest_framework:
+            rest_framework, クラス:
                 Python パッケージ名: djangorestframework
+                Response: #keyword: Django REST framework Response
+                    Django HttpResponse を拡張したもの
+                    #search: Django HttpResponse
                 rest_framework.serializers: #keyword:  #ref: https://note.crohaco.net/2018/django-rest-framework-serializer/
                     サンプル:  #ref: ${GitHub}/MyPrivateCode/Python/DjangoREST/try_DjangoREST/examples/serializer/serialize_1.py
                         シリアライズする前のオブジェクト: |  #focus: Comment
@@ -9477,7 +9706,8 @@
                     "body": b'{"example": "JSON data"}',
                     "more_body": False,
                 }
-        Gunicorn: #keyword:  #// WSGI Web サーバー。gnicorn ではありません。GreenUnicorn の略称。発音は「グニコーン」または「ジーユニコーン」  #ref: https://gunicorn.org/
+            一部だけ ASGI サーバー:  #ref: ${typrm_files}/ref/Python/long_polling_minimum_ASGI.html
+        Gunicorn: #keyword:  #// WSGI Web サーバー。Gnicorn ではありません。GreenUnicorn の略称。発音は「グニコーン」または「ジーユニコーン」  #ref: https://gunicorn.org/
             概要:
                 Django の python manage.py runserver より速い
                     #ref: https://blog.hirokiky.org/entry/2018/10/06/151830
@@ -9596,18 +9826,32 @@
                 サンプル: #search: gunicorn.conf.py example
                 ファイルの指定: #ref: https://docs.gunicorn.org/en/stable/settings.html#config-file
                 構文: #ref: https://docs.gunicorn.org/en/stable/configure.html#configuration-file
+                並列数: #keyword: Gunicorn threads
+                    設定内容:
+                        workers: プロセスの数  #// ワーカープロセスの数  #search: long polling server workers
+                        threads: スレッドの数  #search: long polling server workers
+                    設定方法:
+                        引数指定の場合:
+                            gunicorn --workers=4 --threads=2 myapp.wsgi
+                        ファイル指定の場合:
+                            コマンド:
+                                gunicorn -c /etc/gunicorn_conf.py
+                            gunicorn_conf.py:
+                                workers = 1
+                                threads = 2
         Uvicorn: #keyword:  #// ASGI Web サーバー
             Gunicorn との比較: | #keyword: Gunicorn vs Uvicorn
-                | 項目                 | Gunicorn            | Uvicorn                        |
-                |----------------------|---------------------|--------------------------------|
-                | インターフェース     | WSGI（同期）        | ASGI（非同期）                 |
-                | 対応フレームワーク   | Flask, Django       | FastAPI, Starlette, Django 3   |
-                | 並行処理の仕組み     | プロセス / スレッド | イベントループ（asyncio）      |
-                | 1ワーカーの同時処理  | 1リクエストのみ     | 複数リクエストを await で切替  |
-                | ロングポーリング適性 | △ ワーカー数が上限 | ◎ 少ワーカーで大量接続に対応  |
-                | ORM の扱い           | そのまま使える      | sync_to_async が必要な場合あり |
-                | 設定のシンプルさ     | ◎ シンプル         | △ やや複雑                    |
-                | 向いているケース     | 一般的な Web アプリ | リアルタイム通信・高並行処理   |
+                | 項目                 | Gunicorn            | Uvicorn                             |
+                |----------------------|---------------------|-------------------------------------|
+                | インターフェース     | WSGI（同期）        | ASGI（非同期）                      |
+                | 対応フレームワーク   | Flask, Django       | FastAPI, Starlette, Django Channels |
+                | 並行処理の仕組み     | プロセス / スレッド | イベントループ（asyncio）           |
+                | 1ワーカーの同時処理  | 1リクエストのみ     | 複数リクエストを await で切替       |
+                | ロングポーリング適性 | △ ワーカー数が上限 | ◎ 少ワーカーで大量接続に対応       |
+                | ORM の扱い           | そのまま使える      | sync_to_async が必要な場合あり      |
+                | 設定のシンプルさ     | ◎ シンプル         | △ やや複雑                         |
+                | 向いているケース     | 一般的な Web アプリ | リアルタイム通信・高並行処理        |
+            関連:  #search: Gunicorn threads
     HTTP 通信 >> XML-RPC:  #keyword: Python XML-RPC
         サンプル プロジェクト:  #ref: ${GitHub}/MyPrivateCode/Python/try_Python_XML_RPC
             client: #ref: ${GitHub}/MyPrivateCode/Python/try_Python_XML_RPC/1_XML_RPC/client.py
@@ -9982,6 +10226,8 @@
                         固定する場合:
                             __Project__/.vscode/settings.json : |
                                 {
+                                    "python-envs.defaultEnvManager": "ms-python.python:poetry",
+                                        または
                                     "python.defaultInterpreterPath": "'$(which python)'"
                     PYTHONPATH 環境変数:  #keyword: VSCode PYTHONPATH  #// Visual Studio Code が使う仮想環境を選びます
                         __Project__/.env ファイル:  #// 下記 __VENV__ は仮想環境のパスに置き換えてください
@@ -10671,8 +10917,18 @@
                                 .envrc ファイルが無い場合:
                                     pyenv local 3.7.1 （例）を実行すると、そのフォルダーだけ 3.7.1 を実行します。
                             .python-version ファイル:  #keyword: .python-version
-                                内容:  #// バージョン番号だけが書いてあります
+                                内容:  #// バージョン番号だけが書いてあります。このファイルがあるプロジェクトのローカル設定です
                                     3.7.1
+                                設定変更:
+                                    基本:
+                                        pyenv local 3.7.1
+                                    その他:
+                                        #// .python-version ファイルを自動生成しうる代表的なツールは以下です。
+                                        direnv: .envrc 内で layout pyenv 3.11.4 のような記述を使う設定の中には、.python-version を生成・参照するものがあります(ただし直接生成するのは稀で、多くは既存ファイルを参照する側)。
+                                        asdf: 実際には .python-version ではなく .tool-versions という独自ファイルを使うため、通常は無関係です。
+                                        Poetry: poetry env use 3.11 のようなコマンドを実行すると、プロジェクトによっては .python-version を作成・更新することがあります(バージョンによる)。
+                                        pyenv-virtualenv プラグイン: pyenv virtualenv で作成した仮想環境を pyenv local で割り当てると、当然.python-versionが作成されます。
+                                        VSCode / PyCharm などのIDE: Python拡張機能がインタープリタを選択した際に、裏で pyenv local 相当の処理を行い .python-version を生成するケースがあります。
                                 poetry + direnv を使う プロジェクト フォルダー の場合:
                                     .python-version ファイルを作る:
                                         .python-version ファイルが無い場合:
@@ -11105,11 +11361,12 @@
                             pyproject.toml の [tool.poetry.dev-dependencies] にあるモジュールを削除します:
                                 poetry remove __Module__ -D
                             関連 >> 再構築:  #search: poetry rebuild
-                        更新: #keyword: poetry update  #// モジュールを最新版に更新します
+                        更新: #keyword: poetry update,  poetry upgrade  #// モジュールを最新版に更新します
                             モジュールを更新します:  #// または バージョン ダウン します
                                 poetry add を使う場合:  #// モジュールの追加ではありません
-                                    poetry add "sqlalchemy-utils>=0.38.0"
-                                    poetry add "graphene-django>=3.0" "graphene>=3.0"  #// 複数指定
+                                    -   poetry add "sqlalchemy-utils>=0.38.0"
+                                    -   poetry add "graphene-django>=3.0" "graphene>=3.0"  #// 複数指定
+                                    -   poetry add "minio>=5,<6"  #// 範囲指定
                                 pyproject.toml を編集して poetry update を使う場合:
                                     編集します: pyproject.toml,  .envrc があればそれも  3つ目のバージョン番号まで書くこと。例 3.9.10
                                     コマンド:
@@ -11139,7 +11396,7 @@
                                     poetry install
                                     poetry run python --version
                                         #// インストールされたバージョン
-                                poetry.lock ファイルを更新するなら:
+                                poetry.lock ファイルを更新するなら:  #// pyproject.toml を編集したとき
                                     poetry lock
                                 poetry lock: #keyword:
                                     新しい依存関係がある場合のみ更新します。それ以外はアップグレードしません
@@ -11190,6 +11447,18 @@
                         pyproject.toml の [tool.poetry] が Poetry 独自の部分です。
                         直接編集せずに poetry add などのコマンドを使います
                     poetry.lock: #// 依存するパッケージも含めた全設定
+                        内容のサンプル: |
+                            [[package]]
+                            name = "numpy"
+                            version = "1.26.4"
+                            description = "Fundamental package for array computing in Python"
+                            optional = false
+                            python-versions = ">=3.9"
+                            groups = ["main"]
+                            files = [
+                                {file = "numpy-1.26.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:9ff0f4f29c51e2803569d7a51c2304de5554655a60c5d776e35b4a41413830d0"},
+                                {file = "numpy-1.26.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2e4ee3380d6de9c9ec04745830fd9e2eccb3e6cf790d39d7b98ffd19b0dd754a"},
+                                ...
                     poetry.toml: #// poetry config コマンドによる poetry のローカル設定
                         __Project__/poetry.toml: |
                             [virtualenvs]
@@ -11202,7 +11471,7 @@
                         作られるタイミング:
                             curl -sSL https://install.python-poetry.org | python3.10 -
                 トラブルシューティング(Poetry): #keyword: Poetry trouble
-                    - バージョン番号 __Package__ >=3.1.1, <4 と __Package__ <3.0.0 の両方を満たす条件はありえない:
+                    バージョン番号 __Package__ >=3.1.1, <4 と __Package__ <3.0.0 の両方を満たす条件はありえない:
                         #keyword: Poetry version dependency conflict,  Poetry 依存関係の競合
                         手順: poetry add
                         ログ1: |
@@ -11242,13 +11511,21 @@
                             typing-extensions = ">=4,<5"
                         対処3:
                             gevent も poetry add に指定します
-                    - pyproject.toml changed significantly since poetry.lock was last generated. Run `poetry lock` to fix the lock file.:
+                    InvocationError for command poetry install --remove-untracked:
+                        手順: poetry install --remove-untracked
+                        ログ: |
+                            y310 run-test: commands[0] | poetry install --remove-untracked
+                            The option "--remove-untracked" does not exist
+                            ERROR: InvocationError for command /home/user1/.local/bin/poetry install --remove-untracked (exited with code 1)
+                        対処:
+                            poetry install --sync に変えます
+                    pyproject.toml changed significantly since poetry.lock was last generated. Run `poetry lock` to fix the lock file.:
                         手順: poetry install
                         ログ: |
                             pyproject.toml changed significantly since poetry.lock was last generated. Run `poetry lock` to fix the lock file.
                         対処:
                             poetry lock
-                    - The current project could not be installed:
+                    The current project could not be installed:
                         手順: poetry install
                         ログ: |
                             Error: The current project could not be installed: No file/folder found for package __Application__
@@ -11261,7 +11538,7 @@
                                 [tool.poetry]
                                 name = "__Application__"
                                 package-mode = false   # ← これを追加
-                    - raise JSONDecodeError("Expecting value", s, err.value) from None:
+                    raise JSONDecodeError("Expecting value", s, err.value) from None:
                         手順: poetry install
                         ログ: |
                             The following error occurred when trying to handle this error:
@@ -11287,7 +11564,7 @@
                         対処:
                             POETRY_HTTP_TIMEOUT=60  PIP_DEFAULT_TIMEOUT=60  poetry install
                             #// タイムアウトして JSON が取れないため
-                    - Command not found:;; task:   #keyword: Command not found: task:
+                    Command not found:;; task:   #keyword: Command not found: task:
                         手順:
                             poetry run task test
                         ログ: |
@@ -11296,14 +11573,22 @@
                             仮想環境を作り直します  #search: poetry rebuild
                         対処B:
                             VIRTUAL_ENV の値が正しい、または設定されていないことが正しいことを確認します  #searhc: VIRTUAL_ENV
-                    - The currently activated Python version __OlderVersion__ is not supported by the project (__NewerVersion__).:
+                    The currently activated Python version __OlderVersion__ is not supported by the project (__NewerVersion__).:
                         手順: poetry install や poetry lock
                         ログ: |
                             The currently activated Python version __OlderVersion__ is not supported by the project (__NewerVersion__).
-                            Trying to find and use a compatible version. 
+                            Trying to find and use a compatible version.
                         対処:
                             仮想環境のフォルダーが無い場合:
                                 警告は無視できます
+                            .envrc 設定ファイル がある場合:
+                                .envrc 設定ファイル に以下を追加します:
+                                    use python 3.7.1
+                            .envrc 設定ファイル がなく、仮想環境がある場合:
+                                poetry env use python3.7
+                            .envrc 設定ファイル がなく、仮想環境があり pyenv がある場合:
+                                pyenv local 3.7.1
+                                poetry env use python3.7
                         補足: |
                             仮想環境のフォルダーが無い場合、プロジェクトの外の Python が使われるため、プロジェクトが要求するバージョンと異なるのは問題ありません。
                                 $ poetry env info
@@ -11320,7 +11605,7 @@
                                 Python:     3.7.1
                                 Path:       /home/user1/.pyenv/versions/3.7.1
                                 Executable: /home/user1/.pyenv/versions/3.7.1/bin/python3.7
-                    - No dependencies to install or update と表示されて .venv フォルダーができない :
+                    No dependencies to install or update と表示されて .venv フォルダーができない :
                         手順: poetry install
                         ログ: |
                             Installing dependencies from lock file
@@ -11328,7 +11613,7 @@
                         対処:
                             virtualenvs.in-project と virtualenvs.path を設定します
                             #search: Poetry .venv for VSCode
-                    - poetry install which doesn't match any versions, version solving failed.:
+                    poetry install which doesn't match any versions, version solving failed.:
                         手順: poetry install
                         エラー: |
                             Installing dependencies from lock file
@@ -11336,7 +11621,7 @@
                             Because rep-api depends on pyparsing (3.0.9) which doesn't match any versions, version solving failed.
                         対処:
                             poetry lock --no-update
-                    - entry_points() got an unexpected keyword argument 'group':
+                    entry_points() got an unexpected keyword argument 'group':
                         手順: poetry install
                         エラー: |
                             entry_points() got an unexpected keyword argument 'group'
@@ -11351,7 +11636,7 @@
                                     for ep in metadata.entry_points(group=self._group)
                                 /var/lib/jenkins/.pyenv_ci/versions/3.7.1/lib/python3.7/site-packages/importlib_metadata/__init__.py   importlib-metadata==2.0.0
                                     def entry_points(self):
-                    - _'Link' object has no attribute 'is_absolute':  #keyword: no attribute is_absolute
+                    _'Link' object has no attribute 'is_absolute':  #keyword: no attribute is_absolute
                         手順: poetry install
                         エラー: |  #// 以下のいずれか
                             'Link' object has no attribute 'is_absolute'
@@ -11361,7 +11646,7 @@
                             Poetry が作る仮想環境を再構築します  #search: poetry rebuild
                         対処C:
                             仮想環境を構築したときの poetry のバージョンに戻します  #search: poetry downgrade
-                    - Could not parse version constraint:;; >=2011k:
+                    Could not parse version constraint:;; >=2011k:
                         手順: poetry install
                         エラー: |  #// 以下のいずれか
                             Could not parse version constraint: >=2011k
@@ -11371,13 +11656,13 @@
                             Poetry が作る仮想環境を再構築します  #search: poetry rebuild
                         対処C:
                             仮想環境を構築したときの poetry のバージョンに戻します  #search: poetry downgrade
-                    - Installing markupsafe (1.1.1):;; Failed:  #keyword: markupsafe Failed
+                    Installing markupsafe (1.1.1):;; Failed:  #keyword: markupsafe Failed
                         手順: poetry install
                         エラー: |  #// 以下のいずれか
                             - Installing markupsafe (1.1.1): Failed
                         対処:
                             poetry add  markupsafe==2.0.1
-                    - Installing mysqlclient (______):;; Failed:
+                    Installing mysqlclient (______):;; Failed:
                         手順: poetry install
                         エラー: |
                             Installing mysqlclient (______): Failed
@@ -11386,20 +11671,20 @@
                                 #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/playbooks/mysql_client.yml
                             Poetry が作る仮想環境を再構築します:
                                 #search: poetry rebuild
-                    - ERROR:;; No matching distribution found for poetry==__NewestVersion__:
+                    ERROR:;; No matching distribution found for poetry==__NewestVersion__:
                         手順: curl -sSL https://install.python-poetry.org | python3 -
                         エラー: |
                             ERROR: No matching distribution found for poetry==1.3.2
                         対処:
                             curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.1.5  python3 -
-                    - Warning:;; The lock file is not up to date with the latest changes in pyproject.toml:
+                    Warning:;; The lock file is not up to date with the latest changes in pyproject.toml:
                         手順: poetry install
                         エラー: |
                             Warning: The lock file is not up to date with the latest changes in pyproject.toml. You may be getting outdated dependencies. Run update to update them.
                         対処:
                             poetry lock --no-update
                             #ref: https://stackoverflow.com/questions/62040724/warning-the-lock-file-is-not-up-to-date-with-the-latest-changes-in-pyproject-to
-                    - ModuleNotFoundError:;; No module named '__Module__':
+                    ModuleNotFoundError:;; No module named '__Module__':
                         手順: poetry run ./manage.py
                         エラー: |
                             ModuleNotFoundError: No module named '__Module__'
@@ -11483,9 +11768,15 @@
             requirements.txt: #keyword: pip requirements.txt  #// ポータブルなパッケージに関する設定
                 #ref: https://pip.pypa.io/en/latest/reference/requirements-file-format/
                 基本:
-                    requirements.txt を出力します: #keyword: pip freeze  #// 現在のプロジェクトが使っているパッケージの情報を requirements.txt に出力します
-                        cd  __Project__
-                        pip freeze > requirements.txt
+                    requirements.txt を出力します:
+                        pip の場合:  #keyword: pip freeze  #// 現在のプロジェクトが使っているパッケージの情報を requirements.txt に出力します
+                            cd  __Project__
+                            pip freeze > requirements.txt
+                        poetry の場合:
+                            poetry self add  "poetry-plugin-export"
+                            poetry export  --format requirements.txt  --output "packages/constraints.txt"
+                            poetry export  --format requirements.txt  --output "packages/requirements.txt"  --only "main"
+                            poetry export  --format requirements.txt  --output "packages/test-requires"  --only "dev"
                     パッケージをインストールします:
                         pip の場合:  #search: pip install
                             (sudo) pip install -r ./requirements.txt
@@ -11540,6 +11831,20 @@
                                     source __ActivateVenv__
                                     pip install -r  "${HOME}/bin/__VenvName__.requirements.lock"
                             #ref: https://qiita.com/methane/items/11219ceedb44c0ebcc75
+                    requirements.txt と constraints.txt:  #search: Python constraints.txt
+                    --require-hashes モード: #keyword: requirements.txt --require-hashes
+                        概要:
+                            tools/requirements.txt に --hash=sha256:... が含まれているため、pip は自動的に --require-hashes モードで動作します。
+                            このモードでは、== でバージョンが固定され、かつ --hash が指定されている必要があります。
+                            同じコマンドで指定された他の requirements ファイルにもそれらの必要があります。
+                        サンプル: |  #// --require-hashes モード の requirements.txt
+                            asgiref==3.6.0 ; python_version >= "3.10" and python_version < "4.0" \
+                                --hash=sha256:71e68008da809b957b7ee4b43dbccff33d1b23519fb8344e33f049897077afac \
+                                --hash=sha256:9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506
+                            attrs==18.2.0 ; python_version >= "3.10" and python_version < "4.0" \
+                                --hash=sha256:10cbf6e27dbce8c30807caf056c8eb50917e0eaafe86347671b57254006c3e69 \
+                                --hash=sha256:ca4be454458f9dec299268d472aaa5a11f67a4ff70093396e1ceae9c76cf4bbb
+                            ...
             constraints.txt:  #// パッケージのバージョン指定。複数の requirements.txt で共通のバージョンのパッケージを使うようにします
                 pip install -r requirements.txt -c constraints.txt
                 #ref: https://qiita.com/methane/items/11219ceedb44c0ebcc75

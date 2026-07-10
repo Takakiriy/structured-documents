@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<title>Lazy&lt;T&gt; による漏洩 まとめ</title>
+<style>
+  :root {
+    --ink: #1c2733;
+    --ink-soft: #46535f;
+    --paper: #f3efe6;
+    --panel: #ffffff;
+    --line: #d8d0c0;
+    --bad: #b6432f;
+    --bad-bg: #faece8;
+    --good: #2f6b54;
+    --good-bg: #e7f1ec;
+    --accent: #c8893a;
+    --code-bg: #1f2730;
+    --code-ink: #e8e3d6;
+    --code-dim: #8d9aa6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    line-height: 1.85;
+    font-size: 17px;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* Hero */
+  .hero {
+    border: 2px solid var(--ink);
+    background: var(--panel);
+    padding: 26px 24px;
+    position: relative;
+  }
+  .hero .eyebrow {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  .hero h1 {
+    font-size: 30px;
+    line-height: 1.4;
+    margin: 0 0 12px;
+    letter-spacing: 0.01em;
+  }
+  .hero h1 code { font-size: 26px; }
+  .hero .thesis {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 17px;
+  }
+  .hero .rule {
+    height: 6px;
+    background: repeating-linear-gradient(
+      -45deg, var(--accent) 0 8px, transparent 8px 16px);
+    margin: 18px 0 0;
+  }
+
+  code, pre, .mono {
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  }
+  p code, li code, h2 code, h3 code, td code {
+    background: rgba(28,39,51,0.07);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.86em;
+  }
+
+  h2 {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size: 22px;
+    margin: 46px 0 6px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  h2 .num {
+    font-family: "SF Mono", monospace;
+    font-size: 15px;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 2px 9px;
+    border-radius: 3px;
+    flex: none;
+  }
+  h3 {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size: 18px;
+    margin: 28px 0 8px;
+    color: var(--ink);
+  }
+  p { margin: 12px 0; }
+
+  /* Diagram block */
+  .diagram {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; min-width: 640px; width: 100%; height: auto; }
+  .diagram .cap {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 10px 4px 0;
+  }
+
+  /* Code listings */
+  .listing {
+    margin: 22px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .listing .tag {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size: 14px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+  }
+  .listing.bad .tag { background: var(--bad); }
+  .listing.good .tag { background: var(--good); }
+  .listing .tag .mark {
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.22);
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 16px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    -webkit-overflow-scrolling: touch;
+  }
+  pre .cm { color: var(--code-dim); }
+  pre .bad-line { color: #ff9f8c; }
+  pre .good-line { color: #88d6b4; }
+
+  /* Comparison / verdict cards */
+  .cards {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .card {
+    flex: 1;
+    border-radius: 8px;
+    padding: 16px 16px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .card h4 {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    margin: 0 0 8px;
+    font-size: 16px;
+  }
+  .card.one { border-top: 4px solid var(--good); }
+  .card.many { border-top: 4px solid var(--bad); }
+  .card p { margin: 6px 0; font-size: 15px; }
+
+  /* eval table */
+  .tablebox { overflow-x: auto; margin: 20px 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 560px;
+    background: var(--panel);
+    font-size: 15px;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-weight: 600;
+  }
+  td .weak { color: var(--bad); font-weight: 700; }
+  td .strong { color: var(--good); font-weight: 700; }
+
+  /* callout */
+  .note {
+    background: var(--bad-bg);
+    border-left: 5px solid var(--bad);
+    padding: 14px 16px;
+    margin: 22px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .note.good-note { background: var(--good-bg); border-left-color: var(--good); }
+  .note p { margin: 6px 0; }
+  .note .lead {
+    font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .conclusion {
+    border: 2px solid var(--ink);
+    background: var(--panel);
+    padding: 22px;
+    margin: 36px 0 0;
+  }
+  .conclusion h2 { margin-top: 0; border-bottom-color: var(--accent); }
+
+  @media (max-width: 560px) {
+    .cards { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <p class="eyebrow">8.4.2 — LEAKY ABSTRACTION</p>
+    <h1><code>Lazy&lt;T&gt;</code> による生存戦略の漏洩<br>—— いつ問題になり、どう畳むか</h1>
+    <p class="thesis"><code>Lazy&lt;T&gt;</code> を使うこと自体は悪くない。悪いのは「遅延生成」という合成基点の都合を、利用クラスの型に漏らすこと。漏れの目印は利用側に現れる <code>.Value</code> である。</p>
+    <p class="thesis" style="margin-top:10px;font-size:14px;font-family:'Hiragino Kaku Gothic ProN',sans-serif;">※ 参照したすべてのコードと、コールツリーの対比（YAML）は、この文書のいちばん最後にまとめてある。</p>
+    <div class="rule"></div>
+  </div>
+
+  <h2><span class="num">前提</span>なぜ <code>Lazy&lt;T&gt;</code> が欲しくなるのか</h2>
+  <p><code>IUserContext</code> という抽象そのものは、重いとも軽いとも言っていない。遅延が欲しくなるのは、その実装として <code>AspNetUserContextAdapter</code> のような<strong>生成コストの高い具象を選んだときだけ</strong>。軽い実装を選べば遅延は要らない。</p>
+  <p>つまり <code>Lazy&lt;T&gt;</code> の要否は<strong>実装の選択に従属する話</strong>であって、抽象の性質ではない。実装を選ぶのは合成基点（Composition Root）の責務だから、<code>Lazy&lt;T&gt;</code> の知識も合成基点に留めるのが筋になる。</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="遅延生成の知識の置き場所">
+      <defs>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="#46535f"/>
+        </marker>
+      </defs>
+      <!-- composition root box -->
+      <rect x="14" y="20" width="300" height="200" rx="10" fill="#ffffff" stroke="#2f6b54" stroke-width="2.5"/>
+      <text x="30" y="46" font-family="sans-serif" font-size="15" font-weight="700" fill="#2f6b54">合成基点（Composition Root）</text>
+      <text x="30" y="66" font-family="sans-serif" font-size="12" fill="#46535f">実装の選択と「遅延の都合」を握る場所</text>
+
+      <rect x="36" y="84" width="256" height="48" rx="6" fill="#e7f1ec" stroke="#2f6b54" stroke-width="1.5"/>
+      <text x="48" y="105" font-family="monospace" font-size="13" fill="#1c2733">new Lazy&lt;IUserContext&gt;(</text>
+      <text x="62" y="123" font-family="monospace" font-size="13" fill="#1c2733">() =&gt; new AspNet…Adapter())</text>
+
+      <rect x="36" y="148" width="256" height="44" rx="6" fill="#f3efe6" stroke="#c8893a" stroke-width="1.5"/>
+      <text x="48" y="167" font-family="sans-serif" font-size="12" fill="#46535f">ここに「重い／遅延」の知識を</text>
+      <text x="48" y="184" font-family="sans-serif" font-size="12" fill="#46535f">封じ込める</text>
+
+      <!-- arrow -->
+      <line x1="318" y1="120" x2="386" y2="120" stroke="#46535f" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="324" y="110" font-family="sans-serif" font-size="11" fill="#46535f">IUserContext</text>
+      <text x="330" y="138" font-family="sans-serif" font-size="11" fill="#46535f">として渡す</text>
+
+      <!-- user class box -->
+      <rect x="392" y="56" width="272" height="128" rx="10" fill="#ffffff" stroke="#46535f" stroke-width="2"/>
+      <text x="408" y="84" font-family="sans-serif" font-size="15" font-weight="700" fill="#1c2733">利用クラス（ProductService）</text>
+      <text x="408" y="106" font-family="sans-serif" font-size="12" fill="#46535f">「重いか軽いか」を知らなくてよい</text>
+      <text x="408" y="124" font-family="sans-serif" font-size="12" fill="#46535f">遅延されるかも知らなくてよい</text>
+      <rect x="408" y="138" width="240" height="34" rx="6" fill="#e7f1ec" stroke="#2f6b54" stroke-width="1.2"/>
+      <text x="420" y="160" font-family="monospace" font-size="12" fill="#2f6b54">依存は IUserContext だけ（理想）</text>
+    </svg>
+    <p class="cap">遅延という知識は、実装を選ぶ合成基点に留め、利用クラスには素の <code>IUserContext</code> を渡したい。</p>
+  </div>
+
+  <h2><span class="num">漏洩</span>何が「漏れ」なのか</h2>
+  <p>問題は、<code>Lazy&lt;IUserContext&gt;</code> を<strong>利用クラスのコンストラクタに直接注入する</strong>こと。型シグネチャに <code>Lazy&lt;&gt;</code> が出た瞬間、利用クラスは「この依存は遅延生成される」という合成基点の都合を知らされる。利用側は使うたびに <code>.Value</code> で殻を破る必要があり、この <code>.Value</code> こそが漏洩の目印になる。</p>
+
+  <div class="listing bad">
+    <div class="tag"><span class="mark">悪いコード</span>リスト8.18：<code>Lazy&lt;IUserContext&gt;</code> に依存する ProductService を用いた合成基点</div>
+<pre>
+<span class="cm">// （悪いコード）合成基点側</span>
+Lazy&lt;IUserContext&gt; lazyUserContext =
+    new Lazy&lt;IUserContext&gt;(                     <span class="cm">// ここに書くことは漏洩ではない</span>
+        () =&gt; new AspNetUserContextAdapter());  <span class="cm">// Value が初めて実行されたときだけ実行される</span>
+
+new HomeController(
+    new ProductService(
+        new SqlProductRepository(new CommerceContext(connectionString)),
+        lazyUserContext));    <span class="bad-line">// ProductService に Lazy が漏洩している</span>
+</pre>
+  </div>
+
+  <div class="listing bad">
+    <div class="tag"><span class="mark">悪いコード</span>リスト8.17：漏洩する抽象となる <code>Lazy&lt;T&gt;</code> の利用</div>
+<pre>
+public class ProductService : IProductService {
+    private readonly IProductRepository repository;
+    private readonly Lazy&lt;IUserContext&gt; userContext;
+
+    public ProductService(
+            IProductRepository repository,
+            Lazy&lt;IUserContext&gt; userContext) {   <span class="bad-line">// 漏洩する抽象（悪い）</span>
+        <span class="cm">// 遅延の責務を「依存が注入されるクラス」に押し付けている</span>
+        <span class="cm">// 親（合成基点）から子（外）へ漏洩している</span>
+        this.repository = repository;
+        this.userContext = userContext;
+    }
+
+    public IEnumerable&lt;DiscountedProduct&gt; GetFeaturedProducts() {
+        return
+            from product in this.repository
+                .GetFeaturedProducts()
+            select product.ApplyDiscountFor(
+                this.userContext.Value);
+                <span class="cm">// .Value を実行して初めて値が生成され、</span>
+                <span class="cm">// Lazy が破棄されるまで値は保持され再生成されない。</span>
+                <span class="cm">// これで遅延生成を実現する。</span>
+    }
+}
+</pre>
+  </div>
+
+  <h2><span class="num">分岐</span>問題が深刻になるのはどんなときか</h2>
+  <p>漏洩が問題になるかどうかは、<strong>利用クラスの数</strong>でほぼ決まる。</p>
+
+  <div class="cards">
+    <div class="card one">
+      <h4>利用クラスが一つだけ</h4>
+      <p>実害は小さい。<code>.Value</code> を呼ぶのも、テストで <code>Lazy&lt;&gt;</code> を組み立てるのも一箇所で済む。組み立てはテスト用ヘルパーを一つ作れば流用できる。</p>
+      <p><strong>→ 直接依存で十分。</strong>プロキシを作る方がかえって手間。</p>
+    </div>
+    <div class="card many">
+      <h4>利用クラスが複数・増えうる</h4>
+      <p>同じ抽象を使うクラスが十個あれば、その十個すべてが <code>Lazy&lt;&gt;</code> を受け取り <code>.Value</code> を呼ぶ。<code>.Value</code> の知識がクラス数だけ掛け算で散らばる。</p>
+      <p><strong>→ ここで問題化。</strong>生成戦略の変更が十箇所＋テストに波及する。</p>
+    </div>
+  </div>
+
+  <h2><span class="num">評価</span>本が挙げる三つの問題点を吟味する</h2>
+  <div class="tablebox">
+    <table>
+      <thead>
+        <tr><th>本の主張</th><th>吟味</th><th>判定</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>テストで毎回 <code>Lazy&lt;&gt;</code> を組み立てる手間が増える</td>
+          <td>テスト用ヘルパーを一つ作れば流用でき、組み立てコストはほぼ消える</td>
+          <td><span class="weak">弱い</span></td>
+        </tr>
+        <tr>
+          <td><code>Value</code> が正しいタイミングで呼ばれるか検証するテストが要る</td>
+          <td>普通に必要な箇所で <code>.Value</code> を読むだけなら遅延は <code>Lazy&lt;T&gt;</code> 自身が保証する。早すぎる呼び出しは「コンストラクタにロジックを入れない」一般原則で防げる。検証が要ってもプロキシ側に移るだけ</td>
+          <td><span class="weak">弱い</span></td>
+        </tr>
+        <tr>
+          <td>既存依存を <code>Lazy&lt;&gt;</code> に変えるとアプリ全体に波及する</td>
+          <td>利用クラスが複数あるという前提でのみ成立。<code>.Value</code> の散らばりという本質を突いている</td>
+          <td><span class="strong">本物</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>三つのうち実質的に効くのは三番目だけ。テスト関連の論拠は削ると痩せ、プロキシを正当化する理由は「<strong>利用クラスが複数あるとき <code>.Value</code> の知識が散らばるのを防ぐ</strong>」一点に収束する。</p>
+
+  <h2><span class="num">解決</span>仮想プロキシ＝<code>Lazy</code> を <code>IUserContext</code> に変える装置</h2>
+  <p>解決策のプロキシは、結局 <code>Lazy&lt;IUserContext&gt;</code> を <code>IUserContext</code> に変換するアダプタにすぎない。<code>.Value</code> で殻を剥がす作業を一箇所に集約し、利用クラスには <code>IUserContext</code> の顔だけ見せる。一個書けば複数の利用クラスがすべてきれいになる。</p>
+
+  <div class="listing good">
+    <div class="tag"><span class="mark">良いコード</span>リスト8.19：<code>Lazy&lt;T&gt;</code> を内包する仮想プロキシ（Virtual Proxy）</div>
+<pre>
+public class LazyUserContextProxy : IUserContext
+{
+    private readonly Lazy&lt;IUserContext&gt; userContext;
+
+    public LazyUserContextProxy(Lazy&lt;IUserContext&gt; userContext) {
+        this.userContext = userContext;
+    }
+
+    public bool IsInRole(Role role) {
+        <span class="cm">// .Value を使わずに IUserContext.IsInRole を素直に呼ぶ（利用側から見れば）。</span>
+        <span class="cm">// GetFeaturedProducts に対応する位置のメソッド。</span>
+        IUserContext real = this.userContext.Value;  <span class="good-line">// ここで遅延生成を実現</span>
+        return real.IsInRole(role);
+    }
+}
+
+<span class="cm">// リスト8.19 に続く ProductService のコンストラクタ：</span>
+public ProductService(
+    IProductRepository repository,
+    IUserContext userContext)     <span class="good-line">// Lazy が無いだけの違い</span>
+</pre>
+  </div>
+
+  <div class="listing good">
+    <div class="tag"><span class="mark">良いコード</span>リスト8.20：仮想プロキシを注入するように変更した合成基点</div>
+<pre>
+IUserContext lazyProxy =
+    new LazyUserContextProxy(
+        new Lazy&lt;IUserContext&gt;(
+            () =&gt; new AspNetUserContextAdapter()));
+
+new HomeController(
+    new ProductService(
+        new SqlProductRepository(new CommerceContext(connectionString)),
+        lazyProxy));     <span class="good-line">// Lazy ではなく IUserContext にマッチする値を渡すので良い</span>
+</pre>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="プロキシによる変換">
+      <defs>
+        <marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="#46535f"/>
+        </marker>
+      </defs>
+      <rect x="14" y="64" width="150" height="72" rx="8" fill="#faece8" stroke="#b6432f" stroke-width="2"/>
+      <text x="89" y="92" text-anchor="middle" font-family="monospace" font-size="13" fill="#b6432f">Lazy&lt;</text>
+      <text x="89" y="110" text-anchor="middle" font-family="monospace" font-size="13" fill="#b6432f">IUserContext&gt;</text>
+      <text x="89" y="128" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#46535f">重い・遅延あり</text>
+
+      <line x1="168" y1="100" x2="232" y2="100" stroke="#46535f" stroke-width="2" marker-end="url(#ar2)"/>
+
+      <rect x="236" y="48" width="190" height="104" rx="8" fill="#ffffff" stroke="#2f6b54" stroke-width="2.5"/>
+      <text x="331" y="78" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#2f6b54">LazyUserContextProxy</text>
+      <text x="331" y="100" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#46535f">内部で .Value を剥がす</text>
+      <text x="331" y="120" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#46535f">全メソッドを委譲実装</text>
+      <text x="331" y="140" text-anchor="middle" font-family="monospace" font-size="11" fill="#2f6b54">: IUserContext</text>
+
+      <line x1="430" y1="100" x2="494" y2="100" stroke="#46535f" stroke-width="2" marker-end="url(#ar2)"/>
+
+      <rect x="498" y="64" width="168" height="72" rx="8" fill="#e7f1ec" stroke="#2f6b54" stroke-width="2"/>
+      <text x="582" y="96" text-anchor="middle" font-family="monospace" font-size="13" fill="#1c2733">IUserContext</text>
+      <text x="582" y="116" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#46535f">利用クラスは素直に使う</text>
+      <text x="582" y="132" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#46535f">.Value は見えない</text>
+    </svg>
+    <p class="cap">プロキシは <code>Lazy</code> を <code>IUserContext</code> に変換するアダプタ。<code>.Value</code> を一箇所に閉じ込める。</p>
+  </div>
+
+  <h2><span class="num">代償</span>プロキシは無料ではない</h2>
+  <p>プロキシは <code>IUserContext</code> を実装する以上、<strong>そのインターフェイスの全メソッドを実装する義務</strong>を負う。メソッドが五つあれば五つすべてを書き、それぞれの中で <code>this.userContext.Value.メソッド名(…)</code> という同じ形の委譲を繰り返す。中身はほぼ同一の定型コード（ボイラープレート）で、インターフェイスにメソッドが増えればプロキシも追従して増える。</p>
+
+  <div class="note">
+    <p class="lead">軽減策はある</p>
+    <p>委譲が大変なほどインターフェイスが太いなら、インターフェイス分離の原則の観点で太りすぎを疑う余地がある。小さなインターフェイスならプロキシも小さい。また Castle DynamicProxy のような動的プロキシ生成ライブラリを使えば、定型的な委譲を手書きせずに生成できる。本は教育目的で素朴な手書きプロキシを見せているが、現場ではツールでボイラープレートを消すのが一般的。</p>
+  </div>
+
+  <h2><span class="num">前提</span>そもそも「書き換えられない」ことが条件</h2>
+  <p>本文が釘を刺すのは、仮想プロキシが要るのは「<strong>開発者が直接手を出せないサードパーティ製のコードを扱う場合</strong>」だという点。これは見落とせない。</p>
+
+  <div class="note good-note">
+    <p class="lead">依存が自前のコードなら、プロキシより先に「実装そのものを直す」</p>
+    <p>生成コストが問題なら、その具象クラス自身を作り直して生成を軽くしたり、内部で遅延を抱えるよう設計したりできる。つまり <code>Lazy&lt;&gt;</code> という外付けの仕組みに頼る必要がそもそもない。<code>Lazy&lt;&gt;</code> やプロキシを持ち出さざるを得ないのは、対象が外部ライブラリで<strong>こちらでは書き換えられないから</strong>。書き換え不能なものの生成を外から <code>Lazy&lt;&gt;</code> で包み、その <code>Lazy&lt;&gt;</code> を隠すためにプロキシが要る、という連鎖になる。</p>
+  </div>
+
+  <div class="conclusion">
+    <h2><span class="num">結論</span>いつプロキシを使い、いつ使わないか</h2>
+    <p><code>Lazy&lt;T&gt;</code> の漏洩が本当に問題になるのは、<strong>書き換えられない外部ライブラリの重い実装を遅延させたく、かつ同じ抽象を使う利用クラスが複数あって <code>.Value</code> の知識が散らばってしまう</strong>ケースに絞られる。この条件が揃ったときだけ、全メソッド委譲というプロキシの実装コストを払う価値が出る。</p>
+    <p>利用クラスが一つなら、合成基点で <code>Lazy&lt;&gt;</code> を組み立てて渡し、利用クラス内で <code>.Value</code> を一回呼ぶ方が安く、プロキシは要らない。依存が自前のコードなら、プロキシより先に実装そのものを直せる。</p>
+    <p>本がプロキシを推すのは「書き換え不能なライブラリ・複数クラス・将来の変更」という厄介な前提を基準に書いているからで、その前提が当てはまらない場面では、より単純な手段が正解になる。</p>
+  </div>
+
+  <h2><span class="num">付録</span>整理した全コード</h2>
+  <p>議論で参照したコードを丸ごと載せる。悪いコード（リスト8.17・8.18）と良いコード（リスト8.19・8.20）が対になっている。</p>
+
+  <div class="listing">
+    <div class="tag" style="background:var(--ink)"><span class="mark">全文</span>整理済みコード一式</div>
+<pre>
+<span class="cm">// （悪いコード1）リスト8.18：Lazy&lt;IUserContext&gt; クラスに依存する ProductService クラスを用いた合成基点</span>
+public static class _ { void L() { <span class="cm">// dummy</span>
+
+Lazy&lt;IUserContext&gt; lazyUserContext =
+    new Lazy&lt;IUserContext&gt;(                     <span class="cm">// ここに書くことは漏洩ではない</span>
+        () =&gt; new AspNetUserContextAdapter());  <span class="cm">// Value が初めて実行されたときだけ、ここは実行されます</span>
+
+new HomeController(
+    new ProductService(
+        new SqlProductRepository(new CommerceContext(connectionString)),
+        lazyUserContext));    <span class="cm">// ProductService に Lazy が漏洩している</span>
+}
+} <span class="cm">// dummy</span>
+
+<span class="cm">// （悪いコード1）リスト8.17：漏洩する抽象となる Lazy&lt;T&gt; クラスの利用</span>
+public class ProductService : IProductService {
+    private readonly IProductRepository repository;
+    private readonly Lazy&lt;IUserContext&gt; userContext;
+
+    public ProductService(
+            IProductRepository repository,
+            Lazy&lt;IUserContext&gt; userContext) {   <span class="cm">// これは、漏洩する抽象（悪い）遅延の責務を「依存が注入されるクラス」に押し付けている</span>
+                                                <span class="cm">// 親（合成基点）から子（外）へ漏洩している</span>
+        this.repository = repository;
+        this.userContext = userContext;
+    }
+
+    public IEnumerable&lt;DiscountedProduct&gt; GetFeaturedProducts() {
+        return
+            from product in this.repository
+                .GetFeaturedProducts()
+            select product.ApplyDiscountFor(
+                this.userContext.Value);
+                <span class="cm">// System.Lazy&lt;T&gt;.Value を実行して初めて値が生成され、</span>
+                <span class="cm">// System.Lazy&lt;T&gt; が破棄されるまで、値は保持され、再生成されません。</span>
+                <span class="cm">// これで、遅延生成を実現します。</span>
+    }
+}
+
+<span class="cm">// （良いコード1）リスト8.20： Lazy&lt;IUserContext&gt; を内部に持つことで IUserContext にマッチした「仮想プロキシ」を注入するように変更</span>
+public static class _ { void L() { <span class="cm">// dummy</span>
+
+IUserContext lazyProxy =
+    new LazyUserContextProxy(
+        new Lazy&lt;IUserContext&gt;(
+            () =&gt; new AspNetUserContextAdapter()));
+
+new HomeController(
+    new ProductService(
+        new SqlProductRepository(new CommerceContext(connectionString)),
+        lazyProxy));     <span class="cm">// Lazy&lt;IUserContext&gt; ではなく LazyUserContextProxy にマッチする IUserContext を渡しているので良い</span>
+
+} <span class="cm">// dummy</span>
+
+<span class="cm">// （良いコード1）リスト8.19：Lazy&lt;T&gt; クラスを内包する仮想プロキシ（Virtual Proxy）</span>
+public class LazyUserContextProxy : IUserContext
+{
+    private readonly Lazy&lt;IUserContext&gt; userContext;
+
+    public LazyUserContextProxy(Lazy&lt;IUserContext&gt; userContext) {
+        this.userContext = userContext;
+    }
+
+    public bool IsInRole(Role role) {   <span class="cm">// .Value を使わずに IUserContext.IsInRole を素直に呼び出している（はず）。 GetFeaturedProducts メソッドに対応するメソッド（メソッドを変えるなよ＞筆者）</span>
+        IUserContext real = this.userContext.Value;  <span class="cm">// これで、遅延生成を実現します</span>
+        return real.IsInRole(role);
+    }
+}
+
+<span class="cm">// （良いコード1）リスト8.19 に続く ProductService のコンストラクタ：</span>
+public static class _ { <span class="cm">// dummy</span>
+
+public ProductService(
+    IProductRepository repository,
+    IUserContext userContext)     <span class="cm">// Lazy が無いだけの違い</span>
+
+{}} <span class="cm">// dummy</span>
+</pre>
+  </div>
+
+  <h2><span class="num">付録</span>コールツリーの対比（YAML）</h2>
+  <p>悪いコードと良いコードを、呼び出しの入れ子（コールツリー）として並べたもの。<code>.Value</code> がどの階層で呼ばれるかに注目する。</p>
+
+  <div class="listing">
+    <div class="tag" style="background:var(--ink)"><span class="mark">YAML</span>コールツリーで見る漏洩の有無</div>
+<pre>
+悪いコード:  <span class="cm">#// Lazy&lt;IUserContext&gt; に依存</span>
+    Composition Root:
+        <span class="cm"># Lazy&lt;IUserContext&gt; lazyUserContext =</span>
+        <span class="cm">#     new Lazy&lt;IUserContext&gt;(                     // ここに書くことは漏洩ではない</span>
+        <span class="cm">#         () =&gt; new AspNetUserContextAdapter());  // Value が初めて実行されたときだけ、ここは実行されます</span>
+        lazyUserContext: Lazy&lt;IUserContext&gt;
+        <span class="cm"># new ProductService(</span>
+        <span class="cm">#     lazyUserContext));    // ProductService に Lazy が漏洩している</span>
+        ProductService:
+            <span class="cm"># public ProductService(</span>
+            <span class="cm">#     Lazy&lt;IUserContext&gt; userContext) {   // これは、漏洩する抽象（悪い）遅延の責務を「依存が注入されるクラス」に押し付けている</span>
+        GetFeaturedProducts:
+            _: this.userContext.Value.IsInRole()
+            IsInRole:
+良いコード:  <span class="cm">#// IUserContext に依存すれば、実装に Lazy が必要か不要かを問わなくできる</span>
+    Composition Root:
+        <span class="cm"># IUserContext lazyProxy =</span>
+        <span class="cm">#     new LazyUserContextProxy(</span>
+        <span class="cm">#         new Lazy&lt;IUserContext&gt;(</span>
+        <span class="cm">#             () =&gt; new AspNetUserContextAdapter()));</span>
+        lazyProxy: IUserContext
+        <span class="cm"># new ProductService(</span>
+        <span class="cm">#     lazyProxy));     // Lazy&lt;IUserContext&gt; ではなく LazyUserContextProxy にマッチする IUserContext を渡しているので良い</span>
+        ProductService:
+            <span class="cm"># public ProductService(</span>
+            <span class="cm">#     IUserContext userContext)     // Lazy が無いだけの違い</span>
+        GetFeaturedProducts:
+            _: this.userContext.IsInRole()
+            IsInRole:
+                <span class="cm"># public bool IsInRole(Role role) {   // .Value を使わずに IUserContext.IsInRole を素直に呼び出している（はず）。 GetFeaturedProducts メソッドに対応するメソッド（メソッドを変えるなよ＞筆者）</span>
+                <span class="cm">#     IUserContext real = this.userContext.Value;  // これで、遅延生成を実現します</span>
+                <span class="cm">#     return real.IsInRole(role);</span>
+                IsInRole:
+</pre>
+  </div>
+
+</div>
+</body>
+</html>

@@ -159,10 +159,12 @@ Ease US Back up: #keyword:  #ref: ${programming}/OS/Windows/再セットアッ�
     パスワード付き Zip ファイルを作ります:
         7-Zip:    #keyword: 7-Zip, 7z,  7zip  #ref: https://7-zip.opensource.jp/
             インストール:
+                Windows:  #ref: https://7-zip.opensource.jp/
                 mac:
                     7z2501-mac.tar.xz をダウンロードしてダブルクリック
                     #search: mac 7zz encrypt
                     #search: mac 7zz decrypt
+            #↓ Windows GUI
             圧縮するフォルダーを作ります:
             パスワードを生成します:
             Zip ファイルを作ります:
@@ -170,65 +172,91 @@ Ease US Back up: #keyword:  #ref: ${programming}/OS/Windows/再セットアッ�
                 アーカイブ形式: zip
                 パスワード: 1_UgFiW9
                 OK ボタン:
-            コマンド: #keyword: 7-Zip command
-                圧縮:
-                    #// Windows Git bash の場合
-                    #// 7-Zip をインストールしてからコマンドが使えます
-                    書式: |  #// a コマンドは追加です。.7z ファイルの中にある既存のファイルは .7z の中に残りつつ、.7z ファイルの中に追加されます
-                        "C:\Program Files\7-Zip\7z.exe" a  "__New7zFilePath__"  "__SourceFileOrFolderPath__"
-                    サンプル: |  #focus: SevenZipExe
-                        SevenZipExe="/c/Program Files/7-Zip/7z.exe"
-                        FolderPath="/c/Users/user1/BigFolder"
-                        "${SevenZipExe}" a  "${FolderPath}.7z"  "${FolderPath}"
-                    直下の全フォルダーを圧縮します: |
-                        SevenZipExe="/c/Program Files/7-Zip/7z.exe"
-                        ParentPath="/c/Users/user1/BigFolders"
-                        ls -d *  |  sed 's|/$||'  |  xargs -i  "${SevenZipExe}" a  "${ParentPath}/{}.7z"  "${ParentPath}/{}"
-                    圧縮して暗号化します (mac): | #keyword: mac 7zz encrypt  #// 末尾に .7z が付いたファイルができます
-                        read  "?Unzipped path (quotations are ignored): " UnzippedPath  &&  \
-                        UnzippedPath="$(echo "${UnzippedPath}" | sed "s/^'//" | sed "s/'$//" )"  &&  \
-                        read -s  "?Enter password: " PASSWORD  &&  \
-                        '/Users/user1/Downloads/7z-mac/7zz'  a  "-p${PASSWORD}"  "${UnzippedPath}.7z"  "${UnzippedPath}";  \
-                        unset  PASSWORD
-                展開:
-                    展開: |
-                            "C:\Program Files\7-Zip\7z.exe" x  "__7zFilePath__"  -o"__OutputFolderPath__"
-                        #// __OutputFolderPath__ に指定したフォルダーが存在しなくても、作られます
-                        #// -o の右に空白を入れることはできません
-                        #// .7z ファイルを Windows で開いたときにフォルダーが 1つだけ見えたときは、そのフォルダーが作られます
-                    復号化して解凍します (mac): | #keyword: mac 7zz decrypt  #// mac でダブルクリックしてパスワードを入力しても解凍できません。 末尾に .out が付いたフォルダーができます
-                        read  "?Zipped path (quotations are ignored): " ZippedPath  &&  \
-                        ZippedPath="$(echo "${ZippedPath}" | sed "s/^'//" | sed "s/'$//" )"  &&  \
-                        read -s "?Enter password: " PASSWORD  &&  \
-                        '/Users/user1/Downloads/7z-mac/7zz'  e  "-p${PASSWORD}"  "${ZippedPath}"  -o"${ZippedPath}.out";  \
-                        unset  PASSWORD
-                情報表示:
-                    いろいろ: |
-                        "C:\Program Files\7-Zip\7z.exe" l  "__7zFilePath__"  "__RelativePathIn7z__"
+            #↓ コマンド  #keyword: 7-Zip command
+            圧縮:
+                #// Windows Git bash の場合
+                #// 7-Zip をインストールしてからコマンドが使えます
+                書式: |  #// a コマンドは追加です。.7z ファイルの中にある既存のファイルは .7z の中に残りつつ、.7z ファイルの中に追加されます
+                    "C:\Program Files\7-Zip\7z.exe" a  "__New7zFilePath__"  "__SourceFileOrFolderPath__"
+                サンプル: |  #focus: SevenZipExe
+                    SevenZipExe="/c/Program Files/7-Zip/7z.exe"
+                    FolderPath="/c/Users/user1/BigFolder"
+                    "${SevenZipExe}" a  "${FolderPath}.7z"  "${FolderPath}"
+                直下の全フォルダーを圧縮します: |
+                    SevenZipExe="/c/Program Files/7-Zip/7z.exe"
+                    ParentPath="/c/Users/user1/BigFolders"
+                    ls -d *  |  sed 's|/$||'  |  xargs -i  "${SevenZipExe}" a  "${ParentPath}/{}.7z"  "${ParentPath}/{}"
+                圧縮して暗号化します (mac): | #keyword: mac 7zz encrypt  #// 末尾に .7z が付いたファイルができます
+                    read  "?Unzipped path (quotations are ignored): " UnzippedPath  &&  \
+                    UnzippedPath="$(echo "${UnzippedPath}" | sed "s/^'//" | sed "s/'$//" )"  &&  \
+                    read -rs  "?Enter password: " PASSWORD  &&  \
+                    '/Users/user1/Downloads/7z-mac/7zz'  a  "-p${PASSWORD}"  "${UnzippedPath}.7z"  "${UnzippedPath}";  \
+                    unset  PASSWORD
+            展開:
+                展開 (Windows): |
+                        "C:\Program Files\7-Zip\7z.exe" x  "__7zFilePath__"  -o"__OutputFolderPath__"
+                    #// __OutputFolderPath__ に指定したフォルダーが存在しなくても、作られます
+                    #// -o の右に空白を入れることはできません
+                    #// .7z ファイルを Windows で開いたときにフォルダーが 1つだけ見えたときは、そのフォルダーが作られます
+                復号化して解凍します (mac): | #keyword: mac 7zz decrypt  #// mac でダブルクリックしてパスワードを入力しても解凍できません。 末尾に .out が付いたフォルダーができます
+                    read  "?Zipped path (quotations are ignored): " ZippedPath  &&  \
+                    ZippedPath="$(echo "${ZippedPath}" | sed "s/^'//" | sed "s/'$//" )"  &&  \
+                    read -rs "?Enter password: " PASSWORD  &&  \
+                    '/Users/user1/Downloads/7z-mac/7zz'  e  "-p${PASSWORD}"  "${ZippedPath}"  -o"${ZippedPath}.out";  \
+                    unset  PASSWORD
+            情報表示:
+                いろいろ: |
+                    "C:\Program Files\7-Zip\7z.exe" l  "__7zFilePath__"  "__RelativePathIn7z__"
 
-                        7-Zip 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
+                    7-Zip 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
 
-                        Scanning the drive for archives:
-                        1 file, 2399538374 bytes (2289 MiB)
+                    Scanning the drive for archives:
+                    1 file, 2399538374 bytes (2289 MiB)
 
-                        Listing archive: __7zFilePath__
+                    Listing archive: __7zFilePath__
 
-                        --
-                        Path = __7zFilePath__
-                        Type = 7z
-                        Physical Size = 2399151574
-                        Headers Size = 154
-                        Method = LZMA2:24
-                        Solid = -
-                        Blocks = 1
+                    --
+                    Path = __7zFilePath__
+                    Type = 7z
+                    Physical Size = 2399151574
+                    Headers Size = 154
+                    Method = LZMA2:24
+                    Solid = -
+                    Blocks = 1
 
-                        Date      Time    Attr         Size   Compressed  Name
-                        ------------------- ----- ------------ ------------  ------------------------
-                        2024-10-15 18:05:03 ....A   8245340160   2399538220  __RelativePathIn7z__
-                        ------------------- ----- ------------ ------------  ------------------------
-                        2024-10-15 18:05:03         8245340160   2399538220  1 files
-                    展開後のファイルサイズ: #keyword: 7-Zip file size
-                        #search: GetFileSizeIn7z
+                    Date      Time    Attr         Size   Compressed  Name
+                    ------------------- ----- ------------ ------------  ------------------------
+                    2024-10-15 18:05:03 ....A   8245340160   2399538220  __RelativePathIn7z__
+                    ------------------- ----- ------------ ------------  ------------------------
+                    2024-10-15 18:05:03         8245340160   2399538220  1 files
+                展開後のファイルサイズ: #keyword: 7-Zip file size
+                    #search: GetFileSizeIn7z
+            内容表示: | #keyword: 7-Zip cat  #// アーカイブの中の テキスト ファイル の内容を表示します
+                (Windows Git bash)
+                SevenZipExe="/c/Program Files/7-Zip/7z.exe"
+                TokenPackFilePath="${HOME}/WSL_back_up/install-dev_token_pack.7z"
+                TokenPackFileName="${TokenPackFilePath##*/}"  #// right of last "/"
+                TokenPackFileBase="${TokenPackFileName%.*}"   #// left of last "."
+                local  tokenPackPassphrase=""
+                read -rs -p "Enter ${TokenPackFileName} file passphrase: "  tokenPackPassphrase    #keyword: tokenPackPassphrase
+
+                echo  "${tokenPackPassphrase}"  |  "${SevenZipExe}"  e -so  "${TokenPackFilePath}"  "${TokenPackFileBase}/git_read_repository"
+                unset  tokenPackPassphrase
+            ファイルの存在の有無: |
+                #search: 7-Zip cat
+                "${SevenZipExe}" l -slt  "${TokenPackFilePath}"  |  sed 's|\\|/|g'  |  grep -E "^Path = ${TokenPackFileBase}/git_read_repository$" > /dev/null;  echo $?
+            パスワードチェック: #keyword: check 7-Zip password passphrase
+                書式:
+                    7z  t  -p"パスワード"  archive.7z
+                サンプル: |
+                    read -rs -p "Enter ${TokenPackFileName} file passphrase: "  tokenPackPassphrase  #// This variable can be referenced in sub functions.
+                    if ! "${SevenZipExe}" t -p"${tokenPackPassphrase}" "${TokenPackFilePath}" > /dev/null; then
+                        echo -e "${Yellow}WARNING: The passphrase is incorrect.${DefaultColor}"
+                        sleep 1s
+                    fi
+            #↓ スクリプト
+            GetFileSizeIn7z:
+            IsExistIn7z:
         Lhaplus:  #keyword: Lhaplus
             パスワードのオートコンプリートを削除します:
                 メニュー: Windows スタート >> Lhaplus（と入力して選択）>> 詳細設定（右下）>> 解凍設定2 タブ
@@ -894,7 +922,7 @@ Confluence: #keyword:
             タイトルを決めます:
                 類似ページを確認
             既存のページからコピーします:
-                新しいページと同じ深さの別のページ >> …（右上）>> コピー >> コピー ボタン >> 保存
+                （既存のページ。新しいページと同じ深さでなければ別のページ）>> …（右上）>> コピー >> コピー ボタン >> 保存
         並べ替え:
             CF ページ >> …（右上）>> 移動 >> 並び替え（下）>> 移動 ボタン >>（移動先をクリック）>> 並び替え ボタン
                                                                 #// ドラッグ＆ドロップではありません

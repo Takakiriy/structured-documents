@@ -541,6 +541,7 @@
                         .vscode-server は 含まれない
                     ssh vagrant@GoCD_51_centos7_51  '$HOME/.vscode-server/bin/ee2b180d582a7f601fa6ecfdad8d9fd269ab1884/bin/remote-cli/code' --install-extension  rogalmic.bash-debug
                         Command is only available in WSL or inside a Visual Studio Code terminal.
+        MySQL VSCode 拡張機能:  #search: MySQL VSCode extension
         Preview (Haixin Chen): #keyword: Haixin Chen Preview  #// Shift + Ctrl + V  #// .rst, mermaid in .md
             reStructuredText:  #search: reStructuredText
                 .rst ファイルを開き、Shift + Ctrl + V キーを押します
@@ -643,27 +644,38 @@
                             # ? Which package manager to use? npm
                             # ? Do you want to open the new folder with Visual Studio Code? Open with `code`
                     起動します:
-                        プログラムの起動:  #// 拡張機能が組み込まれた VSCode を新しく開きます
+                        プログラムを起動します:  #// 拡張機能が組み込まれた VSCode を新しく開きます
                             VSCode:  #// 開発に使っている VSCode から
                                 F5 キー >>（初回のみ）VS Code Extension Development
-                        コマンドの起動:  #search: VSCode F1
+                        コマンドを起動します:  #search: VSCode F1
                             拡張機能が組み込まれた VSCode:
-                                F1 キー >> Hello World (Enter)
+                                コマンド名を入力する場合:
+                                    F1 キー >> Hello World (Enter)
+                                ショートカット キー に登録済みの場合:
+                                    対象のビューにフォーカスを移して、
+                                    その ショートカット キー
                         拡張機能によってデバッグ表示されます:  #// 下記のメッセージが拡張機能にハードコーディングされているものとします
                             プロジェクトの VSCode >> DEBUG CONSOLE:
                                 Congratulations, your extension "helloworld" is now active!
+                        #// コマンドを起動して、ブレークさせることもできます
                         メッセージを変えます:
                             __Project__/src/extension.ts :  #// このファイルを編集して、拡張機能が組み込まれた VSCode を再起動します
                                 console.log(____);
                     #// 書きかけ
                 リリース: #keyword: release VSCode extension
+                    リリースするバージョン番号を編集します:
+                        __Projevt__/package.json: |
+                            "version": "0.0.1",
                     パッケージを作ります:
+                        Node.js のバージョンを選びます:  #// 16.20.1 では vsce が動きません
+                            nvm use  20.18.1
                         vsce をインストールします:
-                            npm install -g vsce
+                            npm install -g  vsce
                         パッケージ (.vsix) を作ります:
                             (Connect your PC to internet.)
                             cd  __Project__
                             vsce package
+                        #// __Project__/____.vsix ファイルができます
                     ローカルにインストールします:
                         code --install-extension  ____.vsix
                         #search: VSCode extension install command
@@ -680,21 +692,23 @@
                         拡張機能の公開:
                 インストール:
                     #search: VSCode extension install command
-            概念:
+            構成:
                 プロジェクト:
                     新規作成:  #search: VSCode extension development example
                     サンプル:
                         typrm VSCode 拡張機能:  #search: typrm VSCode extension
-                コマンド名:  #focus: typrm.paste,  typrm: Paste Search Tag
-                    package.json : |
-                        {
-                            "contributes": {
-                                "commands": [
-                                    {
-                                        "command": "typrm.paste",             // コマンド名
-                                        "title": "typrm: Paste Search Tag"    // VSCode >> F1 に入力する・表示されるタイトル
-                    src/extension.ts : |
-                        vscode.commands.registerCommand('typrm.paste'         // コマンド名。package.json に書かれたコマンド名に合わせること
+                            typrm.paste: #search:
+                コマンド名:
+                    コード:  #focus: typrm.paste,  typrm: Paste Search Tag
+                        package.json :
+                            # {
+                            #     "contributes": {
+                            #         "commands": [
+                            #             {
+                            #                 "command": "typrm.paste",             // コマンド名
+                            #                 "title": "typrm: Paste Search Tag"    // VSCode >> F1 に入力する・表示されるタイトル
+                        src/extension.ts :
+                            # vscode.commands.registerCommand('typrm.paste'         // コマンド名。package.json に書かれたコマンド名に合わせること
                 操作対象:
                     ユーザー インターフェイス >> 通知:  #// 右下に表示されます
                         vscode.window.showInformationMessage("OK!");
@@ -938,6 +952,10 @@
                 #search: settings.json
         workbench.editor.showTabs:
             デフォルト
+        C#を開いたときの n references を消します:
+            settings.json: |
+                "csharp.referencesCodeLens.enabled": false,
+                "dotnet.codeLens.enableReferencesCodeLens": false,
     オプション初期設定:
         VSCode の検索バーの幅:  #keyword: VSCode search bar width
             以下は非推奨になった様子: |  #ref: https://stackoverflow.com/questions/58896453/change-the-width-of-the-search-bar-in-vscode
@@ -958,18 +976,79 @@
         開くファイルの文字コード: |  #keyword: VSCode character code  #// デフォルトで開く文字コード（プロジェクト内）
             VSCode >> 歯車アイコン（左下）>> Settings >> Files: Encoding（を検索）>>
             Workspace タブ >> Japanese (EUC-JP)（など）
-        フォント: #keyword: VSCode font,  VSCode 等幅フォント
-            #// mac の等幅フォントは見つかっていません
-            インストール:
-                メニュー: VSCode >> 歯車ボタン（左下）>> Settings
-                Editor Font Family:
-                    __NewFontName__, __DefaultFontNames__
-            フォント:
-                -   BIZ UDゴシック  #// BIZ UDゴシック は Windows 10 にプリインストールされています
-            サンプル:
-                font:     1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ あいうえお
-                依頼内容: バグ改修
-                状況:     バグ改修
+        フォント: #keyword: VSCode font,  VSCode 等幅フォント  #search: フォント
+            インストールと設定:
+                インストール: #keyword: Install font
+                    Windows:  #keyword: install font to Windows
+                        ダウンロードします:
+                            Google Fonts からの場合:
+                                https://fonts.google.com/ >>（フォントのページ）>> Get font（右上）>> Download All（右上）
+                        Windows にインストールします:
+                            ____-VariableFont______.ttf（をダブルクリック）>> インストール
+                    mac:
+                        brew install --cask __BrewName__
+                設定:
+                    GUI:
+                        メニュー: VSCode >> 歯車ボタン（左下）>> Settings
+                        Editor Font Family:
+                            __NewFontName__, __DefaultFontNames__
+                    settings.json:
+                        Windows: |
+                            "editor.fontFamily": "'BIZ UDGothic'",
+                            "editor.lineHeight": 1.3,
+                            "terminal.integrated.lineHeight": 1.3,
+                            "editor.fontSize": 14,
+                            "terminal.integrated.fontSize": 14,
+                        mac: |  #ref: https://forest.watch.impress.co.jp/docs/news/1596755.html
+                            "editor.fontFamily": "Inconsolata, 'BIZ UDGothic'",
+                            "editor.lineHeight": 1.4,
+                            "terminal.integrated.lineHeight": 1.4,
+                            "editor.fontSize": 14,
+                            "terminal.integrated.fontSize": 14,
+                        #// fontFamily には、対応文字が狭いもの（英文字→日本語）の順に指定してください
+                        #// 空白を含む設定名は '' で囲むこと
+            重要な文字:
+                i j 1 l O 0
+                全角文字の幅
+                123456789012 半角の幅
+                記号や矢印の幅 → ↓ ⇒ ⬭
+                絵文字の色 🌟🟥🟡🔲🔘
+                全角カッコ（の位置）
+                1234567890 abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ あいうえお
+            カタログ:  #ref: https://www.programmingfonts.org/
+                #// （'設定名'）: （brew に指定する名前）  空白を含む設定名は '' で囲むこと
+                推奨英語:
+                    Iosevka: font-iosevka  #// Iosevka は問題ありません。 Iosevka Term は、記号や矢印の幅が半角です
+                        #ref: https://levien.com/type/myfonts/inconsolata.html
+                        #ref: https://fonts.google.com/specimen/Inconsolata
+                    Inconsolata: font-inconsolata  #// やや小さめ
+                    Lekton: font-lekton  #// やや小さめ、やや細い
+                推奨絵文字:  #// 色付きの絵文字に色がつかないときは、英語フォントの次に設定してください
+                    Apple Color Emoji:  （プリインストール済み）
+                推奨日本語:
+                    BIZ UDGothic:  #// 文字がやや大きい。Windows 10 にプリインストールされています
+                    Menlo: （プリインストール済み）
+                    Noto Sans Mono CJK JP: font-noto-sans-mono-cjk-jp
+                非推奨:
+                    Cica: font-cica  #// Hack + Noto Sans CJK Japanese。 Lekton に合うが
+                    CMU Typewriter Text: font-computer-modern  #// 等幅が崩れる。やや小さめ
+                    Cousine: font-cousine  #// 等幅が崩れる
+                    Courier Prime Code: font-courier-prime-code  #// 等幅が崩れる
+                    Courier Prime: font-courier-prime  #// 等幅が崩れる
+                    Cutive Mono: font-cutive-mono  #// やや小さめ。薄い
+                    D2Coding: font-d2coding  #// 日本語がおかしい
+                    DejaVu Sans Mono: font-dejavu  #// 等幅が崩れる
+                    DM Mono: font-dm-mono  #// 等幅が崩れる
+                    HackGen Console: font-hackgen  #// 白源 #// 気持ち悪い  #ref: https://github.com/yuru7/HackGen
+                    Iosevka Term: font-iosevka-term  #// 記号や矢印の幅が違う
+                    JetBrains Mono: font-jetbrains-mono  #// 等幅が崩れる
+                    Hack:  #// 空白が全角になる
+                    Monoid: font-monoid  #// 等幅が崩れる。大きい
+                    monospace: （プリインストール済み）  #// i や l が気持ち悪い
+                    Osaka-等幅: （プリインストール済み）  #// 少し文字が太い
+                    Roboto Mono: font-roboto-mono  #// 等幅が崩れる
+                    Source Code Pro: font-source-code-pro  #// 等幅が崩れる
+                    YuGothic: （プリインストール済み）  #// 等幅が崩れる
     リリース ノート 日本語版: #keyword: VSCode Japanese release note
         リリース ノート のページにある Update をクリックしてブラウザーで表示させ、ブラウザーの機能で日本語にします
 画面:  #ref: https://code.visualstudio.com/docs/getstarted/userinterface
@@ -1638,6 +1717,8 @@
                     ...:
                 #ref: https://code.visualstudio.com/docs/editor/versioncontrol#_vs-code-as-git-diff-tool
         表示方法の変更:
+            ¶ Show Reading/Traling Whitespace Difference: 通常、オン。 行頭・行末の空白の違いを強調するだけならまだしも、適用すると（コピーすると）インデントがズレます
+            ▱ Toggle Collapse Unchanged Regions: 通常、オフ。 違いが無い行を折りたたみます
             Inline view, 左右分割表示と行分割表示を切り替えます: #keyword: VSCode compare inline view
                 メニュー: …（右上）>> Inline View
                 ショートカット: |  #search: customize VSCode shortcuts
@@ -1755,7 +1836,7 @@
                     Unable to load schema from 'https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks': Request vscode/content failed unexpectedly without providing any details.
                 対処:
                     #search: settings.json yaml.schemas
-    launch.json:  #keyword: launch.json
+    launch.json: #keyword:
         場所: __Project__/.vscode/launch.json
         手順:
             タスクを連携させます: #keyword: tasks.json preLaunchTask dependsOn
@@ -1915,6 +1996,10 @@
                     （関連）:  #search: pytest debug
             Go:
                 基本:  #search: Go VSCode debugger
+        トラブルシューティング(launch.json):
+            launch.json があるのにデバッガーのビューにならない:  #// Run and Debug ボタン が大きく表示される
+                手順: プロジェクトのフォルダーを開く
+                対処: Run and Debug ボタン を押すと、デバッガーのビューになります
     tasks.json: #keyword: tasks.json
         場所: __Project__/.vscode/tasks.json
         概要: 1行のコマンドを実行します。1行に複数のコマンドを書くこともできます
@@ -2439,6 +2524,13 @@ Testing: #keyword: VSCode Testing view  #// Visual Studio Codde の Testing ビ�
                     LogLevel FATAL をコメントアウトしないと接続できない場合があった
     デバッグ, テスト:  #keyword: VSCode debug,  VSCode debugger
         launch.json ファイル: #search:
+        Run and Debug view: #keyword: VSCode Run and Debug view
+            configuration を選びます:
+                Run and Debug view の上側にあるプルダウンから選びます。
+                選んだ項目の内容を表示するには、Open 'launch.json'（歯車ボタン）を押します。
+            プログラムを起動します:
+                F5 キー
+            launch.json があるのにデバッガーのビューにならない:  #search: launch.json
         Testing view:  #search: VSCode Testing view
         ブレーク ポイント:  #keyword: VSCode break point
             全ブレークポイント:

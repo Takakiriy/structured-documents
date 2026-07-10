@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<title>Simple Injector と自動登録ページの読み解き</title>
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5c6b7a;
+    --line: #d9e0e6;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --accent: #2f6f6a;
+    --accent-soft: #e3efed;
+    --warn: #8a5a1f;
+    --warn-soft: #f6ecdc;
+    --code-bg: #1e2530;
+    --code-ink: #e8edf2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.85;
+    -webkit-text-size-adjust: 100%;
+  }
+  header {
+    background: linear-gradient(135deg, #2f6f6a, #244e58);
+    color: #fff;
+    padding: 36px 28px 30px;
+  }
+  header h1 {
+    margin: 0 0 10px;
+    font-size: 26px;
+    letter-spacing: .02em;
+  }
+  header p {
+    margin: 0;
+    color: #cfe4e1;
+    font-size: 15px;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 18px 60px;
+  }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 22px;
+    margin: 22px 0;
+    box-shadow: 0 1px 3px rgba(20,40,60,.05);
+  }
+  h2 {
+    font-size: 20px;
+    margin: 0 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent-soft);
+    color: var(--accent);
+  }
+  h3 {
+    font-size: 16px;
+    margin: 22px 0 8px;
+    color: var(--ink);
+  }
+  p { margin: 10px 0; }
+  .lead {
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .twocol {
+    display: flex;
+    gap: 18px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .twocol > div {
+    flex: 1 1 0;
+    min-width: 300px;
+  }
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 16px 6px;
+    background: #fbfcfd;
+  }
+  .panel.accent { background: var(--accent-soft); border-color: #bcd9d4; }
+  .panel.warn { background: var(--warn-soft); border-color: #e6d2ad; }
+  .panel h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14px;
+    overflow-x: auto;
+    display: block;
+  }
+  table thead { background: var(--accent-soft); }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    min-width: 120px;
+  }
+  th { color: var(--accent); font-weight: 600; }
+  .tag {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-right: 6px;
+  }
+  .ok { color: var(--accent); font-weight: 600; }
+  .no { color: #b04a3a; font-weight: 600; }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    margin: 12px 0;
+  }
+  .filemeta {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 4px 0 2px;
+  }
+  .note {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    margin: 14px 0;
+  }
+  ul { margin: 10px 0; padding-left: 22px; }
+  li { margin: 6px 0; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Simple Injector と「自動登録」ページの読み解き</h1>
+  <p>機能の実情 ／ ページの主張 ／ サンプルコード</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>前提となる事実</h2>
+    <p class="lead">この本『Dependency Injection Principles, Practices, and Patterns』の著者の一人 Steven van Deursen は、Simple Injector というDIライブラリの作者本人です。したがって本のコードとライブラリの設計思想は、別々の存在ではなく同一人物による一貫した思想です。</p>
+    <div class="note">
+      「本に書かれてからライブラリが後追いで対応した」という関係ではなく、もともとSimple Injectorは「規約ベース登録の専用APIをあえて持たず、LINQで書かせる」という哲学のもとに設計されています。
+    </div>
+  </section>
+
+  <section>
+    <h2>Simple Injector の機能の状況</h2>
+    <div class="twocol">
+      <div>
+        <div class="panel accent">
+          <h4>(1) 一括登録の専用メソッド</h4>
+          <p><code>container.Register(typeof(IFoo&lt;&gt;), assembly)</code> 系。<strong>同じ一つのオープンジェネリックインターフェースを共有する実装群</strong>を一度に登録する用途。</p>
+          <p>各リポジトリが <em>異なる</em> インターフェースを一つずつ持つ今回のケースは、この想定形に合わないため、このメソッド単体では扱えません。</p>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h4>(2) LINQ + Register ループ</h4>
+          <p>アセンブリをスキャンして規約に合う型を自分で集め、<code>container.Register()</code> を一つずつ呼ぶ方式。</p>
+          <p>公式ドキュメントが「制約的な専用APIより書きやすく、理解しやすく、柔軟」と<strong>明確に推奨している正攻法</strong>です。本のサンプルはこちらに該当します。</p>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>観点</th><th>(1) 一括登録専用メソッド</th><th>(2) LINQ + Register</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>想定する型の形</td><td>一つのIFを複数実装が共有</td><td>各実装が異なるIFを一つ持つ</td></tr>
+        <tr><td>今回のリポジトリ群</td><td class="no">合わない</td><td class="ok">合う</td></tr>
+        <tr><td>条件の決め方</td><td>ライブラリ既定のパターン</td><td>開発者がLINQで自由に記述</td></tr>
+        <tr><td>位置づけ</td><td>特定用途向けの便利メソッド</td><td>公式推奨の汎用手法</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">補足：両方とも内部でアセンブリをスキャンするためリフレクションは使います。「リフレクションを使うかどうか」は両者を分ける軸ではありません。違いは「マッチング条件を誰が決めるか」です。</p>
+  </section>
+
+  <section>
+    <h2>ページが本当に言いたいこと</h2>
+    <p>著者がライブラリ作者であることを踏まえると、このページは「自社製品の不足の告白」ではなく、<strong>普遍的な設計思想の表明</strong>です。主張は次の三点に集約されます。</p>
+
+    <h3>主張その一：規約を見つける思考を身につける</h3>
+    <p>繰り返されるコードに規則性（同じアセンブリにある／名前がRepositoryで終わる／インターフェースを一つだけ実装）を見出し、それを登録の規約として形式化する。この「繰り返しから規約を抽出する思考」が中心テーマです。</p>
+
+    <h3>主張その二：専用APIは想定が狭いことがある</h3>
+    <p>ライブラリの一括登録メソッドは、想定したパターン（同じIFを共有する型グループ）にしか当てはまりません。万能ではない、という注意喚起です。</p>
+
+    <h3>主張その三：汎用スキルで解決する</h3>
+    <p>LINQとリフレクションという汎用技術があれば、特定ライブラリのAPIに縛られず柔軟に登録を書ける。他のAPIを個別に覚える必要もなくなる。これはSimple Injectorが掲げる「ベンダーロックインを避ける」という設計原則と一致します。</p>
+
+    <table>
+      <thead>
+        <tr><th>表面的な記述</th><th>本当に伝えたいこと</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>「専用APIでは対応できない」</td><td>専用APIは想定パターンが狭い。万能と思うな</td></tr>
+        <tr><td>「LINQとリフレクションで実現する」</td><td>これが本来推奨される普遍的な方法だ</td></tr>
+        <tr><td>「他のAPIを学ぶ必要がなくなる」</td><td>固有APIより汎用知識のほうが価値がある</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>サンプルコード</h2>
+
+    <h3>本のリスト（規約をLINQで表現し、自作コンテナに登録）</h3>
+    <p class="filemeta"><span class="tag">リスト</span>対象アセンブリをスキャンし、名前がRepositoryで終わる実装クラスを抽出して登録</p>
+<pre>var assembly =
+    typeof(SqlProductRepository).Assembly;
+
+var repositoryTypes =
+    from type in assembly.GetTypes()
+    where !type.Abstract
+    where type.Name.EndsWith("Repository")
+    select type;
+
+foreach (Type type in repositoryTypes)
+{
+    container.Register(
+        type.GetInterfaces().Single(), type);
+}</pre>
+
+    <h3>Service の規約に書き換えた例</h3>
+    <p class="filemeta"><span class="tag">応用</span>名前がServiceで終わる実装を、その抽象とともにすべて登録</p>
+<pre>var assembly = typeof(ProductService).Assembly;
+
+var serviceTypes =
+    from type in assembly.GetTypes()
+    where !type.Abstract
+    where type.Name.EndsWith("Service")
+    select type;
+
+foreach (Type type in serviceTypes)
+{
+    container.Register(type.GetInterfaces().Single(), type);
+}</pre>
+
+    <h3>Simple Injector 公式ドキュメントの書き方</h3>
+    <p class="filemeta"><span class="tag">公式</span>名前空間で範囲を絞り、各型の各インターフェースに対して登録</p>
+<pre>var repositoryAssembly = typeof(SqlUserRepository).Assembly;
+
+var registrations =
+    from type in repositoryAssembly.GetExportedTypes()
+    where type.Namespace.StartsWith("MyComp.MyProd.DAL")
+    from service in type.GetInterfaces()
+    select new { service, implementation = type };
+
+foreach (var reg in registrations)
+{
+    container.Register(reg.service, reg.implementation, Lifestyle.Transient);
+}</pre>
+
+    <h3>一括登録専用メソッド（想定が合う場合）</h3>
+    <p class="filemeta"><span class="tag">専用API</span>一つのオープンジェネリックインターフェースを共有する実装群向け</p>
+<pre>// IValidator&lt;T&gt; を実装する型をまとめて登録する用途
+container.Register(typeof(IValidator&lt;&gt;),
+                   typeof(IValidator&lt;&gt;).Assembly);</pre>
+
+    <div class="note">
+      四つのサンプルのうち、上の三つは構造がほぼ同じです。違いは <code>foreach</code> の中身、つまりコンテナ固有の登録呼び出し部分だけ。これがページの言う「自動登録のコードはどのライブラリでもほぼ共通になる」という指摘の実例です。
+    </div>
+  </section>
+
+  <section>
+    <h2>「自動登録」か「一括登録」か</h2>
+    <p class="lead">本やSimple Injectorが使う「auto-registration（自動登録）」という語は、語感ほど自動ではありません。実態は「一括登録（batch registration）」と呼ぶほうが正確です。</p>
+
+    <h3>何が自動で、何が自動でないか</h3>
+    <p>この方式が省いているのは、登録文を一つずつ手書きすることだけです。</p>
+<pre>// これを書かずに済む、という限定的な意味での「自動」
+container.Register&lt;IProductRepository, SqlProductRepository&gt;();
+container.Register&lt;IOrderRepository,   SqlOrderRepository&gt;();
+container.Register&lt;IUserRepository,    SqlUserRepository&gt;();</pre>
+    <p>一方で、登録という行為そのものは起動時に明示的にコードを走らせて行います。各クラスが「自分は登録対象だ」と表明しているわけではなく、スキャンする側が能動的に取りに行く構造です。</p>
+
+    <h3>Python のデコレーターとの対比</h3>
+    <div class="twocol">
+      <div>
+        <div class="panel">
+          <h4>デコレーター（宣言的・静的寄り）</h4>
+          <p><code>@register</code> のように対象の定義側に印が付く。型を見れば登録されると分かる。結びつきの向きは「対象自身が表明する」。</p>
+        </div>
+      </div>
+      <div>
+        <div class="panel accent">
+          <h4>LINQ 方式（走査的・動的）</h4>
+          <p>登録側が実行時にアセンブリを走査し、条件で拾う。型を見ても登録されるか分からず、規約を知らないと挙動が読めない。</p>
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>観点</th><th>Python デコレーター</th><th>このLINQ方式</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>宣言の場所</td><td>クラス／関数の定義側</td><td>登録側（外部）が走査</td></tr>
+        <tr><td>結びつきの向き</td><td>対象自身が表明</td><td>収集側が条件で拾う</td></tr>
+        <tr><td>確定のタイミング</td><td>定義箇所で明示</td><td>実行時に走査して確定</td></tr>
+        <tr><td>規約への依存</td><td>印の有無で明示的</td><td>命名やnamespaceという暗黙の規約</td></tr>
+      </tbody>
+    </table>
+
+    <h3>用語としての裏づけ</h3>
+    <p>Simple Injector 公式ドキュメントの見出しは <code>Batch-Registration / Auto-Registration</code> となっており、<strong>batch（一括）の語を併記</strong>しています。実態を踏まえると次のように整理できます。</p>
+    <div class="note">
+      この方式は、コンパイル時に確定する「静的」でもなく、対象に印が付く「宣言的」でもありません。実行時に <code>GetTypes()</code> でリフレクションし、条件でフィルタしてまとめて登録する処理です。「自動」という語は「手書きの繰り返しを省く」という限定的な意味にすぎず、デコレーターのような定義箇所での静的な宣言とは性質が異なります。実態としては<strong>一括登録（batch registration）</strong>という呼び方のほうが、何をしているかを正確に表しています。
+    </div>
+  </section>
+
+  <section>
+    <h2>結論</h2>
+    <ul>
+      <li>Simple Injector で今回のリポジトリ群が「登録できない」わけではない。<strong>一括登録専用メソッドの想定形に合わない</strong>だけ。</li>
+      <li>本のLINQ方式は、Simple Injector と対立する別物ではなく、<strong>Simple Injector 公式が推奨する自動登録の正攻法そのもの</strong>。</li>
+      <li>著者＝ライブラリ作者なので、ページは宣伝でも不足の告白でもなく、<strong>固有APIへの依存を避け、汎用技術で解決せよという設計思想の表明</strong>として読むのが正確。</li>
+      <li>「自動登録」という語は実態を表しきれていない。デコレーターのような静的・宣言的な仕組みではなく、実行時に走査してまとめて登録する<strong>一括登録（batch registration）</strong>と呼ぶほうが正確。</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  まとめ資料 ／ DI コンテナと規約ベース自動登録
+</footer>
+</body>
+</html>

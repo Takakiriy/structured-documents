@@ -462,6 +462,8 @@ mac:  #keyword: mac  #ref: ${programming}/ユーザインターフェイス/iPho
             アプリを終了して開き直します。frameset タグの内容が更新されます
         PDF: #keyword: mac Safari PDF
             プレビュー表示:  #search: mac preview PDF
+            保存:  #search: mac print to PDF
+                （ページのどこかを右クリック）>> ページをプリント >> PDF（下）>> 場所＝デスクトップ
         開発: #keyword: mac Safari development,  Safari debug
             開発メニューを表示します:
                 Safari >> Safari メニュー >> 環境設定 >> 詳細（右上）>>

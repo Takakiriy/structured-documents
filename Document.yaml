@@ -1,6 +1,6 @@
 #Character Encoding: "WHITE SQUARE" U+25A1 is □.
     #keyword: white square
-#keyword: Document.yaml, doc, document
+#keyword: Document.yaml, doc, document, documents
 YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメンテーション,  YAML document writing
     公開記事:  #ref: ${typrm_files}/Qiita下書き/20_typrmDocument/20_typrmDocument.md
         20_typrmDocument.md
@@ -108,17 +108,74 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
         設定: #settings:
             __Variable__: data
             __Command__: command
-        英語: step-by-step guide  #ref: https://learn.microsoft.com/en-us/windows-hardware/test/wpt/wpa-step-by-step-guide
+        手順書, runbook: #keyword: runbook,  run step document
+            runbook と playbook:  #ref: https://toumasblog.org/sre-runbook-playbook-writing-guide/
+                runbook: 手順書。特定の操作・タスクを実行するための、具体的なコマンドやステップをまとめたドキュメント。
+                    もともとはインフラ・SRE（Site Reliability Engineering）の世界で使われてきた言葉です。
+                    すべての操作を Runbook にする必要はありません。
+                playbook: 対応ガイド。特定のアラートや障害シナリオに対して、「何を確認し・どう判断し・誰に連絡するか」の判断フローをまとめたドキュメントです。
+            テスト失敗時の runbook: #keyword: test failed runbook
+                E2E テスト 失敗時:
+                    画面のドキュメントにある（はず）の runbook へのリンクから、デバッグを開始する手順や障害への対処法を参照します
+                ユニット テスト 失敗時:
+                    機能仕様書やチケットへのリンク、または、機能仕様書やチケットにある runbook へのリンクから、デバッグを開始する手順や障害への対処法を参照します
+                Ansible 失敗時:
+                    タスクのコード(YAML)にある（はず）の runbook へのリンクから、デバッグを開始する手順や障害への対処法を参照します
+                （コード）:
+                    エラー発生時に、状況に応じて、runbook へのリンクをエラー表示します  #search: ShowLinkToRunbook
+            runbook コメント:  テスト コード ファイルの先頭、またはクラス等に「ハブへのリンク」をコメントに書きます。  #keyword: runbook comment
+                #// Debug Runbook: https://github.com/__Account__/__Repository__/issues/__Num__#issuecomment-__CommentID__
+                #// Debug Runbook: #search: __Keyword__
+            runbook ハブ:  #// GitHub Issue を runbook のハブとし、そこへの URL を書くルールにするとよいでしょう
+                テスト失敗時の表示: テスト失敗時に「ハブへのリンク」が表示されるようにします。 ハブの例：GitHub Issue
+                    コール スタック が表示されてコードが特定できるときは、そのコードに以下の runbook コメントを書いてもよい
+            合意形成: チームや組織全体で、テストのエラーメッセージなどに runbook へのリンクを書くように決めましょう
+            参考:
+                The No-Nonsense Guide to Runbook Best Practices: #keyword: runbook incidenthub blog  #ref: https://blog.incidenthub.cloud/The-No-Nonsense-Guide-to-Runbook-Best-Practices
+                    1. ランブック構造:
+                        チームや組織全体で使われる標準的なフォーマットを確立しましょう
+                    2. ランブックコンテンツ:
+                        ランブックは明確で簡潔であるべきです。ランブックから言葉遣いや不要な説明を削除しましょう。
+                    3. ランブックの更新と保守:
+                    4. ランブックのテスト:
+                    5. ランブックの位置づけ:
+                        全員がアクセスできる中央の場所に保管すべきです。
+                        Prometheusのアラートでは、説明の一部としてrunbookを追加できます。
+                    6. ランブック所有権:
+                        「自分で作って、自分で動かす」「You build it, you run it」の哲学
+                    7. やってはいけないこと:
+                        ランブックをあまりにも汎用化しすぎないでください。
+                        ランブックに認証情報を保存しないでください。
+                    8. 予期せぬ事態への対処:
+            英語: runbook, step-by-step guide  #ref: https://learn.microsoft.com/en-us/windows-hardware/test/wpt/wpa-step-by-step-guide
     チケット一覧の書き方:
-        今日:
-            __Working1__: #search: __Ticket__
-                __SubWorking__: #search: __Ticket__ now
-            今日済）__Working2__: #     今日の分が終わったら 今日済）を付けます
-        近日:
-            YYYY-MM-DD 曜 今日:
-            YYYY-MM-DD 曜 ____:
-        明日:
-            __Working3__: #
+        シンプル版:
+            #↓ 時期
+                #↓ チケット
+            今日:
+                __Working1__: #search: __Ticket__
+                    __SubWorking__: #search: __Ticket__ now
+                今日済）__Working2__: #     今日の分が終わったら 今日済）を付けます
+            近日:
+                YYYY-MM-DD 曜 今日:
+                YYYY-MM-DD 曜 ____:
+            明日:
+                __Working3__: #
+        分類版:
+            #↓ 時期
+                #↓ プロジェクト名
+                    #↓ チケット
+            今日:
+                __Project1__:
+                    __Working1__: #search: __Ticket__
+                今日済）__Project2__:
+            近日:
+                YYYY-MM-DD 曜 今日:
+                YYYY-MM-DD 曜 ____:
+            後日:
+                __Project1__:
+                    __Working1__: #search: __Ticket__
+                __Project2__:
     チケットのメモの書き方:  #keyword: ticket memo document
         #// 依頼内容, 要求, 対応, 状況, now { __Working__, リファレンス, 書きかけ, memo }, スタック, 完了 の順です
         #// 複数の依頼については以下をまとめます。以下の中にそれぞれの依頼を入れません。サブチケットが同じ内容なら共通へリンクします
@@ -173,7 +230,7 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
             ログ:
             memo:
         __SubWorking__: # << __Category__ #keyword: ticket  #// 現在の作業
-                #snip: #keyword__: __Ticket__ now  #↓ now  #↓ 参考  #↓ 近日  #↓ スタック  #↓ 作業候補  #↓ 完了  未🏷️🔥, 済✅, 質問🔔, 停止⏸️
+                #snip: #keyword__: __Ticket__ now  #↓ now  #↓ 参考  #↓ 近日  #↓ スタック  #↓ 作業候補  #↓ 完了  未🏷️⏳🔥, 済✅, 質問🔔, 停止⏸️
                 #ref: https://qiita.com/Takakiri/items/8cd44ea80b2217a0ec68
                 #// 補足  #search: ticket 補足
             #↓ now  #// now などをフィールドにすると一覧性が損なわれることと、階層が分かりにくくなるため、コメントで書く
@@ -240,16 +297,17 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
         （参考）:
             サブ ID: #keyword: ticket sub ID,  チケット サブ番号 サブID,  ticket sub number  #// 概要や依頼内容からサブ番号へリンクする __Type__@__Number__/__TicketID__
                 概要:
-                    サンプル: req@003/ticket/102, test@003/ticket/102, work@003/ticket/102, issue@004/ticket/102
+                    サンプル: req@003/ticket/102, test@003/ticket/102, work@003/ticket/102, issue@004/ticket/102, code@004/ticket/102
                     効果:
                         対応漏れを防ぐ
                         謎の開発者仕様のテストを作らなくする
                 手順:
                     開始時:  #// 要求-対応 関係を typrm タグで文章化します
-                        - サブ ID（req, test, work）に該当する場所にタグを付けます。 サンプル → #keyword: req@001/ticket/102
+                        - サブ ID（req, test, work, code）に該当する場所にタグを付けます。 サンプル → #keyword: req@001/ticket/102
                         - 種類の間の関連を付けます。 サンプル → #keyword: test@001/ticket/102  #search: req@001/ticket/102
                     追加時:  #// 新しい番号を取得します。番号は req@001 の 001 の部分です
                         #search: not used sub ID list-ticket-sub-id
+                    一覧:  #search: 進捗管理 構造化ドキュメンテーション
                     グルーピング:  #// 複数のチケットをまとめる親チケット
                         2つ目の issue を追加します: |
                             | 子チケット            | 親チケット            |
@@ -302,19 +360,20 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                         サブ番号: __SubNum__
                             サブ番号を構造化して親子関係を 1-3 のように複数の番号やアルファベット等を並べることは管理が大変になるため禁止。
                             たとえば、親 004, 子1 002, 子2 003 のように、親子関係とは独立した番号が良い
-                    タイプ: #keyword: req@, test@, work@, issue@
+                    タイプ: #keyword: req@, test@, work@, issue@, code@
                         req, request: 要求  #// req@001/ticket/102 。暗黙の要求にも ID を付けても構いません
                         test: 対処・開始手順・テスト項目  #// test@001/ticket/102  #// 要求に無いテストは サブ ID で管理しませんが、テスト コード で分かるようにします
                         work, working-sub-ticket: 作業（サブチケット）  #// work@001/ticket/102
                         issue: 不具合
+                        code: コードの中の対応箇所
                         #// 対象が違えば、同じ __SubNum__ でも全く別物です。
                         #// req@001 に対応するテストは test@001 だけとは限りませんが、test@001 は必須です。req@ に欠番を入れて数字をそろえます。
                         #// 網羅性が必要であれば、サブ要求として req@ を増やすか、test@ に テスト パターン を一覧します
                     進捗状況:
                         #// 未🔥, 済✅  #search: 依頼内容
                 ツール: #keyword: ticket sub ID tools
-                    __Project__-now: #keyword:  #// 未完了を表示します
-                        準備: |  #// __Project__-now（__Project__ はプロジェクト名など）という名前の スクリプト ファイル を作ります
+                    __Project__-now: #keyword: __Project__-now,  sub ID now  #// 未完了を表示します
+                        準備: | #keyword: __Project__-now code  #// __Project__-now（__Project__ はプロジェクト名など）という名前の スクリプト ファイル を作ります
                             code  ~/bin/__Project__-now
                                 #!/bin/bash
 
@@ -332,9 +391,18 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                                 done
 
                                 echo  ""
-                                echo  "Not completed tickets:"
+                                echo  "Not completed tickets:  (To show full set, run with --full option)"
+                                fire='\x{1F525}'  #// 🔥
+                                hourglass='\x{23F3}'  #// ⏳
+                                if [ "${option}" == "--full" ]; then
+                                    marks="${fire}|${hourglass}"
+                                else
+                                    marks="${fire}"
+                                fi
                                 for  ticketLabel  in  "${ticketLabels[@]}" ;do
-                                    grep -nP '\x{1F525}.*keyword: (req|issue)@[0-9]*/'"${ticketLabel}"  "${ticketFile}"  |  sed  "s|^|${tildeTicketFile}:|"
+
+                                    fires="$( grep -nP "${marks}"  "${ticketFile}"  |  sed  "s|^|${tildeTicketFile}:|" )"
+                                    echo  "${fires}"  |  grep -P '(req|issue)@[0-9]*/'"${ticketLabel}"
                                 done
 
                                 echo  ""
@@ -343,18 +411,51 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                                     list-ticket-sub-id  "${ticketLabel}"  "${ticketFile}"  --test
                                 done
                             chmod +x  ~/bin/__Project__-now
-                        実行: |
+                        実行例: |
                             $ __Project__-now
+
+                            List up sub IDs:
                             @__Number__/__TicketID__
                             @__Number__/__TicketID__
                             @__Number__/__TicketID__
+
+                            Not completed tickets:
                             __LineNum__ __MatchedLine__🔥 ＃keyword: __Type__@__Number__/__TicketID__
                             __LineNum__ __MatchedLine__🔥 ＃keyword: __Type__@__Number__/__TicketID__
                             __LineNum__ __MatchedLine__🔥 ＃keyword: __Type__@__Number__/__TicketID__
-                    list-ticket-sub-id: #search:
-                        #snip:
-                        -   list-ticket-sub-id  __TicketID__  __TicketFilePath__
-                        -   list-ticket-sub-id  __TicketID__  __TicketFilePath__  --test  #// req@ に対応する test@
+
+                            List up test IDs:
+                            @__Number__/__TicketID__: ?
+                            req@__Number__/__TicketID__: test@__Number__/__TicketID__
+                        表示条件:  #// __Project__-now コマンドに一覧されるもの
+                            List up sub IDs:
+                                表示条件:
+                                    grep -o -E  "[ @][0-9A-Za-z]+/${ticketID}"  "${ticketFilePath}"  |  sort  |  uniq
+                                コード:
+                                    list-ticket-sub-id コマンド の Main 関数の最後  #search: list-ticket-sub-id
+                            Not completed tickets:
+                                表示条件:
+                                    grep -P '(req|issue)@[0-9]*/'"${ticketLabel}"
+                                        と
+                                    🔥
+                                        の両方がある行
+                                コード:
+                                    __Project__-now の echo  "Not completed tickets:"  #search: __Project__-now code
+                            List up test IDs:
+                                表示内容:
+                                    req のみある場合: |  #// test タグ を追加してください
+                                        @__Number__/__TicketID__: ?
+                                    req と test がある場合: |
+                                        req@__Number__/__TicketID__: test@__Number__/__TicketID__
+                                    req に keyword タグが無い場合:
+                                        表示されません
+                                条件の詳細:
+                                    req があるとする条件: |
+                                        grep -o -E  "keyword: +req@[0-9A-Za-z]+/${ticketID}"   "${ticketFilePath}"  |  sed  "s/^keyword: //"  |  sort  |  uniq
+                                    test があるとする条件: |
+                                        grep -o -E  "keyword: +test@[0-9A-Za-z]+/${ticketID}(, *test@[0-9A-Za-z]+/${ticketID})*"  "${ticketFilePath}"
+                                コード:
+                                    list-ticket-sub-id コマンド の CheckTestID 関数  #search: list-ticket-sub-id
             チケット全体が完了したら:
                 - 依頼内容に対応へのリンクを書きます
                 - リファレンス, now を無くします
@@ -394,7 +495,7 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                         チケットのサブIDを一覧します:
                             list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"
                         空いているサブIDを調べます: #keyword: not used sub ID list-ticket-sub-id
-                            list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"  #// 一覧と同じコマンド
+                            list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"  #// 一覧と同じコマンド。表示されないサブID が空いています
                         req@ に対応する test@ を表示します:
                             list-ticket-sub-id  "__TicketID__"  "__TicketFilePath__"  --test
                     コード: |
@@ -662,6 +763,13 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
 手順書作成支援:  #keyword: 手順書作成支援, マニュアル作り
     操作したら文書生成:
         Tango:  #ref: https://note.com/jousys_force/n/n46ebbf08a76a
+本読み: #keyword: 本読み, book reading, book
+    既読マーク:
+        何ページまで読んだとメモするより、目次をダウンロードして、読んだ章の行末に既読マークを付けるとよい
+        サンプル → #search: DI book
+    意見マーク: #keyword: book 意見,  book 反論
+        メモの書き始めに「（意見）」を書く
+    スクショ画像:  #search: screen shot memo
 Snap Note: #keyword:
     programming: #keyword:  #// ${env:TYPRM_programming} = "C:/home/mem_cache/MyDoc/programming"
 Wikipedia: #keyword:
@@ -738,6 +846,107 @@ Markdown:  #keyword: Markdown, md
                 -   <pre>タグ
             日本語を含む場合:
                 完全に等幅で揃えるのは技術的に困難
+            ambiguous width characters 問題: #keyword:  #// strictly monospace
+                Unicode >> 東アジアの幅:  #ref: https://www.unicode.org/reports/tr11/
+                Iosevka フォントと Iosevka Term フォント:
+                    Iosevka Term 公式の説明として "optimized for terminal emulators" や "every glyph is strictly 1-cell wide" があります
+                Windows terminal:  #ref: https://github.com/microsoft/terminal/issues/6738
+                kitty:  #// ターミナル
+                    incorrect handling of CJK ambiguous width characters: closed  #ref: https://github.com/kovidgoyal/kitty/issues/6560
+                    Issue 案: |
+                        Title: AI-generated text diagrams reveal the Ambiguous-width terminal default as a CJK compatibility issue
+
+                        Background
+                        I arrived at this issue while investigating why AI-generated text diagrams — trees, tables, and box-drawing figures — are misaligned in CJK terminal environments. AI systems trained predominantly on English data have learned to generate these diagrams assuming narrow width, because that is what the terminal ecosystem has taught them. The bias is no longer contained within terminal configuration: it is now embedded in text content generated for and consumed beyond the terminal itself.
+                        The narrow default has no valid justification
+                        The sole basis is Markus Kuhn's wcwidth.c (2007), which the author described as "a first attempt" with "no established formal standards." The comment "not otherwise recommended for general use" on the CJK variant reflects the view of a British researcher — for CJK users, double-width is general use. The implementation has not been updated since 2007, while Unicode has advanced 11 versions.
+                        UAX #11 Recommendations explicitly states:
+
+                        "Ambiguous Unicode characters always map to fullwidth characters"
+
+                        when mapping to East Asian legacy encodings. Defaulting to narrow regardless of context is not Unicode conformance, but a unilateral Western choice presented as a neutral default.
+                        The "wait for consensus" cycle must be broken
+                        In freedesktop.org Terminal WG Issue #9, kitty's position was that changing the default requires agreement from other terminal implementations. But each implementation says the same thing — and the Terminal WG has produced zero accepted proposals in five years of discussion.
+                        This is not a technical deadlock. It is a structural one: no participant in that discussion ever questioned whether narrow as the default is itself the bias. The assumption was never examined.
+                        Meanwhile, Windows Terminal already provides a user-facing setting to treat Ambiguous-width characters as wide. The open-source terminal ecosystem has been outpaced by a commercial product on this specific issue.
+                        Context-switching does not solve the problem
+                        If width depends on locale or environment, the same file breaks across environments, creating multiple versions and conditional branches — exactly the complexity Unicode unification was designed to eliminate.
+                        The correct direction
+                        Box-drawing characters and symbols were originally implemented as double-width in East Asian encodings such as JIS X 0208. Unicode preserved this as the Ambiguous class. Western implementations that arrived later overrode existing practice.
+                        Defaulting to double-width would mean one version of files, no conditional branching, and consistent behavior across the ecosystem — including AI-generated text diagrams. This follows the same logic as Python moving from ASCII-default to Unicode-default in Python 3: correctness over backward compatibility.
+                        Someone has to move first. kitty is in a position to do so.
+                        Related issues
+
+                        jquast/wcwidth: (URL を後で追加)
+                        freedesktop.org Terminal WG Issue #9: https://gitlab.freedesktop.org/terminal-wg/specifications/-/issues/9
+                jquast/wcwidth:  #ref: https://github.com/jquast/wcwidth
+                    派生:
+                        samboy/wcwidth:  #ref: https://github.com/samboy/wcwidth
+                            Markus Kuhn が2007年に書いた オリジナルの C 実装をそのまま保存しているリポジトリ
+                    Issue 案: |
+                        Title: AI-generated text diagrams reveal the Ambiguous-width terminal default as a CJK compatibility issue
+
+                        Background
+                        I arrived at this issue while investigating why AI-generated text diagrams — trees, tables, and box-drawing figures — are misaligned in CJK terminal environments. AI systems trained predominantly on English data have learned to generate these diagrams assuming narrow width, because that is what the terminal ecosystem has taught them. The bias is no longer contained within terminal configuration: it is now embedded in text content generated for and consumed beyond the terminal itself.
+                        The narrow default has no valid justification
+                        The sole basis is Markus Kuhn's wcwidth.c (2007), which the author described as "a first attempt" with "no established formal standards." The comment "not otherwise recommended for general use" on the CJK variant reflects the view of a British researcher — for CJK users, double-width is general use. The implementation has not been updated since 2007, while Unicode has advanced 11 versions.
+                        UAX #11 Recommendations explicitly states:
+
+                        "Ambiguous Unicode characters always map to fullwidth characters"
+
+                        when mapping to East Asian legacy encodings. wcwidth ignores this and defaults to narrow regardless of context — which is not Unicode conformance, but a unilateral Western choice presented as a neutral default.
+                        Notably, this library's own documentation states:
+
+                        "These characters display as 1 cell by default, matching Western terminal contexts."
+
+                        This is an accurate description — but it is a description of a bias, not a justification for it.
+                        Context-switching does not solve the problem
+                        If width depends on locale or environment, the same file breaks across environments, creating multiple versions and conditional branches — exactly the complexity Unicode unification was designed to eliminate.
+                        The correct direction
+                        Box-drawing characters and symbols were originally implemented as double-width in East Asian encodings such as JIS X 0208. Unicode preserved this as the Ambiguous class. Western implementations that arrived later overrode existing practice.
+                        Defaulting to double-width would mean one version of files, no conditional branching, and consistent behavior across the ecosystem — including AI-generated text diagrams. This follows the same logic as Python moving from ASCII-default to Unicode-default in Python 3: correctness over backward compatibility.
+                        Request
+
+                        Change the default from ambiguous_width=1 to ambiguous_width=2
+                        Or at minimum, remove the documentation framing that narrow is the correct default
+                freedesktop:  #ref: https://gitlab.freedesktop.org/terminal-wg/specifications/-/work_items/9
+                    主な対立軸:
+                        Kovid Goyal（kitty 作者）の主張:
+                            システムの wcwidth() は信頼できない。SSH 越しに動作しない
+                            Unicode 標準ベースの wcswidth() を一つ作り、全員が使えばよい
+                            文字幅は95%以上変わらないので安定している
+                            クエリは遅く非効率。やるべきでない
+                        Egmont Koblinger（VTE 開発者）の主張:
+                            デフォルトを変えると現状に合わせている多数の実装が壊れる
+                            変更はオプトインでなければならない
+                            Unicode に追従することと安定性はトレードオフ
+                            合意できても ncurses などは従わないので効果が薄い
+                        Martin Hostettler の主張:
+                            フォントや環境によって幅は変わる。一つの実装では解決しない
+                            ターミナルから アプリへのデータチャネルが必要
+                        特に重要な発言:
+                            Koichi Murase（日本語ネイティブ）が明確に述べています：
+                            「CJK文字が2セルになった歴史的理由は、バイト数と一致させたからではなく、正方形のグリフを表示するためだった。
+                            これは最初から設計上の意図だった」
+                            これは Markus Kuhn の「歴史的実装の単純さ」という主張への直接の反論です。
+                        結論:
+                            合意は一切得られなかった。
+                            理由は技術的な難しさではなく、構造的な問題です：
+                                誰も「英語圏基準が間違っている」とは言わない
+                                「現状を変えると壊れるものがある」を理由に現状維持
+                                「他の実装が従わないから意味がない」という循環
+                                Issue は2024年まで続いているが、accepted フォルダは今も空
+                        Issue に使える論点:
+                            この議論には「全角を基準にすべき」という根本的な問いかけをした人が一人もいないことが重要です。
+                            全員が「どう折り合いをつけるか」だけを議論しており、英語圏の半角基準を疑った参加者がいない——
+                            これ自体がバイアスの証拠として使えます。
+                    返信案: |
+                        I arrived here while investigating why AI-generated text diagrams are misaligned in CJK terminal environments — a problem that has now escaped the terminal itself.
+                        This discussion has focused on how to reach consensus on width calculation. The two issues below approach the question from a different angle: whether narrow as the default was the right starting point.
+                        Related issues filed:
+
+                        jquast/wcwidth: (URL)
+                        kovidgoyal/kitty: (URL)
     サンプル:
         タスク表:
             サンプル: |  #keyword: Markdown task list
@@ -1201,9 +1410,20 @@ TeX: #keyword:
         生活保護者ほど「勘違い」するんだけどさ
         ホームページ https://mypg.jp
     法則:
-        特定の個人や肩書きの場合の話
-        起承転結の転から
-    ツイート: #keyword: buzz tweet
+        特定の個人や肩書きの場合の話:
+        起承転結の転から:
+        被害者側に招待する: #keyword:
+            いいねが伸びる
+            ↑読んだ人が気持ちよくなる
+            ↑共感できる
+            ↑被害者側に招待される（共感の具体的な形の一つ）
+            ↑正当な理由が与えられる
+            #// 論点ズラしは気にしなくていい
+            #// 正論は、読んだ人を裁かれる側に置くリスクがある
+            #search: PAS
+    依頼:
+        仕様は、道徳的な訴えより、仕様への不準拠として議論する方が動いてもらいやすい
+    ツイート: #keyword: buzz tweet,  バズる ツイート SNS ポスト
         サンプル:
             #ref: https://x.com/japantank/status/1782434284432982065
             #ref: https://twitter.com/poly_soft/status/1511480544068268033
@@ -1212,6 +1432,7 @@ TeX: #keyword:
             お題となる流行っている一般用語
         いいね:
             感情、苦労
+        資料・地図:
         良くない:
             解説
         3段落ち:
@@ -1286,6 +1507,11 @@ TeX: #keyword:
             よく聞かれる質問から: 質問には人の興味が詰まっている
             持論から: 持論が生まれた経験
         作り方:
+            良い感想文は「感情の変化」を描く:  #ref: ${typrm_files}/ref/Change/感想文の書き方.html
+                感想文は「感情の変化」を描く
+                1 何を感じたか
+                2 なぜそう感じたか
+                3 その自分をどう見るか
             共感できる主人公を置く: 平凡
             本音の感情を見せる: 葛藤と苦悩
             ディティールを描く: シーン（感じるもの）、キャラ（好き、弱点、親しみやすく）
@@ -1313,7 +1539,7 @@ TeX: #keyword:
             https://www.colorfulbox.jp/media/blog-kakikata-kiji-kotu/
         ヒント: 機能名、観点
         ubersuggest:
-    タイトル:
+    タイトル: #keyword:
         効果と手段: 〜したいことや効果 〜 手段
         ポジティブ: 〜まとめ、〜入門、カスタマイズ、〜ベストプラクティス、一番分かりやすい〜の説明、シンプル
         ベストX: 〜すごい〜オススメ〜5選、〜編
@@ -1321,7 +1547,7 @@ TeX: #keyword:
         評価: 〜やすい人の傾向とは？
         煽り: 意外と知らない？おすすめPCライフハック8選！
         比較: 〜が最も大事！
-    タイトルの構成:
+    タイトルの構成: #keyword:
         概要図: |
             eyebrow      （上・小）   どの分類か        例:「設定の渡し方」
               ↓
@@ -1333,7 +1559,7 @@ TeX: #keyword:
             （divider）
               ↓
             リード文     （本文・通常）導入の段落        例:現在の長い説明文
-
+        #search: YAML Front Matter
     タイミング:
         宣伝の直後に契約開始、情報解禁
     2段構え:
@@ -1378,7 +1604,7 @@ TeX: #keyword:
 MyDoc:  #glossary:  #// steps リポジトリの補足資料や画像
     my images:  #ref: ${my_images}  #keyword: my image folder
     typrm files:  #ref: ${typrm_files}
-様式:  #keyword: 様式, 書類 用紙 帳票 伝票 書式 フォーム 帳簿 台帳
+様式:  #keyword: 様式, 帳票 次葉 用紙 書類 形式 伝票 書式 フォーム 帳簿 台帳
 依頼, 相談:  #keyword: 依頼, 相談, 要望, リクエスト, フィードバック
     背景: #keyword:
         依頼元, 経緯, 現状, 問題点, 理由, モチベーション, 優先度, 期限  #ref: ${programming}/方法論/ドキュメント.svg#background
@@ -1710,31 +1936,25 @@ Unicode: #keyword: Unicode
                 iPhone: 😀（左下）
             本書の一覧から選びます:  #search: Unicode signs
             Webページにある一覧から選びます:  #search: List of Unicode characters
+        文字コード判定: #keyword:
+            文字コードを自動判定できるファイルにします:  #keyword: white square
+                先頭行に下記を書きます: |
+                    Character Encoding: "WHITE SQUARE" U+25A1 is □.
+                #// 上記の行頭にコメントを表す // や # を追加しても構いません
+            バイナリーから文字コードを判定します:
+                文字: 漢字 （…という文字）
+                Shift JIS: 8A BF 8E 9A  #keyword: Shift JIS
+                EUC: B4 C1 BB FA        #keyword: EUC JP
+                Unicode UTF-16: (FF FE) 22 6F 57 5B  #// FF FE は BOM     #keyword: UTF-16
+                UTF-8: (EF BB BF) E6 BC A2 E5 AD 97  #// EF BB BF は BOM  #keyword: UTF-8
+                ISO-2022-JP: (1B 24 42) 34 33 3B 7A (1B 28 42)  #// 漢 の JIS コードは 3433
+                PowerShell でリダイレクト: 8D 8C 62 FF C4 87 ?? ??  #// ?? は不定
+                    #// おそらく UTF-8 のデータを Shift-JIS でデコードした結果
+                    #search: PowerShell Console OutputEncoding
     一覧: #keyword: List of Unicode characters
         #ref: https://en.wikipedia.org/wiki/List_of_Unicode_characters
         #search: Unicode search
-    書式:
-        文書: U+0000  #// 16進数
-        HTML:
-            16進数: &#x0000;
-            10進数: &#0000;
-        正規表現: \u{3000}  #// 16進数
-    ファイル:
-        文字コードを自動判定できるファイルにします:  #keyword:white square
-            先頭行に下記を書きます: |
-                Character Encoding: "WHITE SQUARE" U+25A1 is □.
-            #// 上記の行頭にコメントを表す // や # を追加しても構いません
-        バイナリーから文字コードを判定します:
-            文字: 漢字 （…という文字）
-            Shift JIS: 8A BF 8E 9A  #keyword: Shift JIS
-            EUC: B4 C1 BB FA        #keyword: EUC JP
-            Unicode UTF-16: (FF FE) 22 6F 57 5B  #// FF FE は BOM     #keyword: UTF-16
-            UTF-8: (EF BB BF) E6 BC A2 E5 AD 97  #// EF BB BF は BOM  #keyword: UTF-8
-            ISO-2022-JP: (1B 24 42) 34 33 3B 7A (1B 28 42)  #// 漢 の JIS コードは 3433
-            PowerShell でリダイレクト: 8D 8C 62 FF C4 87 ?? ??  #// ?? は不定
-                #// おそらく UTF-8 のデータを Shift-JIS でデコードした結果
-                #search: PowerShell Console OutputEncoding
-    文字, サンプル:
+    文字, サンプル:  #// 文字自体に何があるかについて
         （検索）: #keyword: Unicode search
             文字を貼り付けて検索: #// 文字コードを調べる
                 Web: #ref: https://graphemica.com/
@@ -1869,7 +2089,14 @@ Unicode: #keyword: Unicode
             ・u+1d179 音楽記号「開始フレーズ」
             ・u+1d17a 音楽記号「終了フレーズ」
             #ref: https://gigazine.net/news/20221208-invisible-characters/
-    コード:  #// 仕様, ライブラリ
+        合成済み文字: #search:
+    書式:  #// 文字コードの書き方
+        文書: U+0000  #// 16進数
+        HTML:
+            16進数: &#x0000;
+            10進数: &#0000;
+        正規表現: \u{3000}  #// 16進数
+    コード:  #// 仕様, ライブラリ, 文字コード
         BON:  #ref: ${programming}/文字/Unicode.svg#BOM
         Code point, 合成済み文字: #keyword:  #// 1つの U+____。1文字ではない。U+000000 ~ U+10FFFF
             仕様: #keyword: Unicode specifications
@@ -1947,9 +2174,21 @@ Unicode: #keyword: Unicode
         正規表現:
             JavaScript: |
                 "(あ)".replace(/\u{3042}/ug,'A')  #// '(A)'
-フォント変換:
+        エンコード: #keyword: Unicode escape
+            #search: URL %
+            #search: Git Unicode path
+    ファイル:  #// ファイル形式
+        UTF-8: #search:
+        BOM: #search:  #// ファイルの先頭
+        文字コード判定: #search:
+    フォント: #keyword:
+        Windows font: #search:
+        VSCode font: #search:
+        フォント変換: #search:
+        リガチャ:
+フォント変換: #keyword:
     顔文字: |  #keyword: 顔文字, AA
-        ⁽ ´꒳`⁾ 
+        ⁽ ´꒳`⁾
         ŧ‹"ŧ‹"🍴(*´༥` *)🍖ŧ‹"ŧ‹"
         (   ｰ̀֊ｰ́ )
         (ง ˆ̑ ‵̮ˆ̑)ว゛

@@ -37,6 +37,7 @@ HTML タグ:  #keyword: HTML tag  #ref: ${programming}/HTML ブラウザ/H
                     return (
                         <button className={styles.submit} type="button" value="#search:"
                             onClick={(e) => {handleButtonClick(e)}}>OK</button>
+            OK ボタン: #keyword: OK ボタン,  submit (送信) confirm button
         <div>: #keyword: div  #// ブロック要素  #ref: ${programming}/HTML ブラウザ/CSS.svg#div
             概要: 1行全体を占有します
             手順:
@@ -111,6 +112,7 @@ HTML タグ:  #keyword: HTML tag  #ref: ${programming}/HTML ブラウザ/H
                 zoom:  #// 元の画像から拡大縮小
         <input>: #keyword:
             値: #search: HTML value
+        <link rel="stylesheet">:  #search: 
         <table>:
             表の縦結合:  #ref: ${typrm_files}/ref/JavaScript-AI.yaml#label: React rowspan   #// rawspan ではない
     プロパティ:  #// 属性、イベント
@@ -130,6 +132,8 @@ HTML タグ:  #keyword: HTML tag  #ref: ${programming}/HTML ブラウザ/H
                         document のプロパティを使う場合:
                             const  value = document.form1.result1.value;
         data-____: #// カスタム データ 属性  #keyword: HTML custom data attribute  #ref: ${programming}/HTML ブラウザ/HTML文法.svg#data_
+            .jsx の場合:
+                data-____ を Camel ケース にする必要がないので、HTML と同じ書き方（data-____="____"）ができます
         イベント: #keyword: HTML event,  JavaScript event  #glossary: HTML
             onchange:  #// 文字列を入力してフォーカスを失ったとき
             oninput:  #// 1文字入力し・削除したとき
@@ -262,7 +266,7 @@ HTML タグ:  #keyword: HTML tag  #ref: ${programming}/HTML ブラウザ/H
                 - firebase ではフロント側でフィルターできなくもないですがあまりよくないという意見がある
                     #ref: https://stackoverflow.com/questions/58598948/filter-web-notifications-by-client-side
             aws:
-                Amazon SNS + Lambda  #search: aws SNS 
+                Amazon SNS + Lambda  #search: aws SNS
         about:blank: #keyword: about:blank  #// 空白ページ
         パスワード: #keyword: browser password
             -   ドメインが同じ場合、同じアカウントであるとしてパスワードを自動入力します
@@ -272,10 +276,19 @@ HTML タグ:  #keyword: HTML tag  #ref: ${programming}/HTML ブラウザ/H
     開発者ツール: #keyword: Chrome developer tools,  debug MS Edge  #// F12 キー
         手順:
             エラー時にブレークします: #keyword: browser error break point
-                ブラウザーの開発者ツール >> ソース タブ >> 例外の検出時に一時停止
+                - ブラウザーの開発者ツール >> ソース タブ >> 例外の検出時に一時停止
+                - リロードを開始した瞬間に一瞬だけ エラー ダイアログ が表示される場合  #search: browser reload error dialog
             ログを取ります: #search: browser network log
-            フォントのサイズを変更します:
+                リロード時にログをクリアしないようにします:  #search: browser preserve log
+            フォントのサイズを変更します:  #// 開発者ツールに表示される文字の大きさを変えます
                 Ctrl + -, Ctrl + +
+            リロード時のデバッグ:
+                ログをクリアしないようにします: #keyword: browser preserve log
+                    Edge >> Console タブ >> Console Settings（右上）>> Preserve log = オン
+                一瞬だけ エラー ダイアログ が表示される場合: #keyword: browser reload error dialog
+                    FireFox でリロードを開始した瞬間に一瞬だけ エラー ダイアログ が表示される場合、
+                    たとえば、ロング ポーリング などで API 呼び出し がキャンセルされた可能性があります。
+                    Edge ではきちんと エラー ダイアログ が表示されます。
         タブ, 画面:
             要素:
                 編集:
@@ -568,6 +581,8 @@ Web サーバー: #keyword: HTTP server,  Web server
                     実行時データ: /var/run/nginx/, /run/nginx/, /var/cache/nginx/, /tmp/nginx/
                     システム関連: /proc/, /sys/
         機能:
+            並列数: #keyword: nginx threads
+                #search: long polling server workers
             リバース プロキシ 機能:
                 構成: client → nginx → server → server2
                 サーバーが https_proxy が必要なクライアントになる場合:
@@ -1318,6 +1333,7 @@ HTTP 通信: #keyword: HTTP
             サンプル HTTP ヘッダー:  #// 本章は以下の設定の実装方法が書かれています
                 Content-Security-Policy: default-src 'self'; script-src 'self' 'https://trusted.cdn.com'; style-src 'self' 'https://trusted.cdn.com';
                 #template__: _
+                参考 >> 大文字小文字の区別:  #search: HTTP header case sensitive
             Web サーバー サービス に設定する場合:
                 Apache:
                     <IfModule mod_headers.c>
@@ -1387,6 +1403,11 @@ HTTP 通信: #keyword: HTTP
                                 response['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'https://trusted.cdn.com'; style-src 'self' 'https://trusted.cdn.com';"
                                 return response
         構成:
+            大文字小文字の区別: #keyword: HTTP header case sensitive
+                ヘッダー名: 区別しない
+                値:  #// 種類による
+                    原則: 区別する
+                    Cache-Control の値: 区別しない
             リクエスト HTTP ヘッダー:  #glossary: HTTP request header
                 Authorization:  #// 認証情報を送信
                 Content-Type:  #// 送信するデータの形式を指定
@@ -1488,6 +1509,7 @@ HTTP 通信: #keyword: HTTP
                     参考:
                         ブラウザでリロードしながらキャッシュの挙動を確認してる全ての開発者へ:
                             #ref: https://blog.jxck.io/entries/2023-11-05/reload-and-cache.html
+                Vary: #keyword: Vary HTTP header  #// このレスポンスはリクエストごとに異なるため、キャッシュしてはならない
                 X-Forwarded-For: #keyword: X-Forwarded-For, XFF  #// プロキシ（ロード バランサー）が追加するクライアントの IP アドレスと、プロキシの IP アドレス
                     書式: |
                         - X-Forwarded-For: __Client1__, __Proxy1__
@@ -1547,8 +1569,13 @@ HTTP 通信: #keyword: HTTP
                             curl  --insecure  --user "__User__:__Password__"  https://____
                         curl 実行時にパスワードを入力する場合:  #// 未確認
                             curl  -k  -u ":"  https://____
-                    ACL 疎通確認 (cURL): #keyword:  #// 指定した IP アドレスのサーバーが存在するか、またはサーバーまでの経路の途中で拒否されていないかを確認します
+                    ACL 疎通確認 (cURL): #keyword: ACL 疎通確認 (cURL),  curl 疎通確認  #// 指定した IP アドレスのサーバーが存在するか、またはサーバーまでの経路の途中で拒否されていないかを確認します
                         注意: 必要なら ミラー サーバー も確認してください
+                        実行するコマンド:
+                            curl --verbose 'http://__IP_Address__/api'
+                            curl --insecure --verbose 'https://__IP_Address__/api'
+                            #// など。
+                            #// 診断結果は以下を参照
                         # ↓状況と動き
                         サーバー到達済み:
                             ポート open:
@@ -3583,7 +3610,10 @@ HTTP 通信: #keyword: HTTP
                 接続断やエラー時に、即再試行させる無限ループを起きないようにする。
                 ロングポーリング専用のスレッド/Executorを分離する
         手順:
-            サーバー:
+            クライアント:  #// ロング ポーリング のクライアント側の実装
+                #search: runLongPollingLoop
+            サーバー:  #// ロング ポーリング のサーバー側の実装
+                Python:  #search: Python long polling
                 DB ポーリング:  #search: DB polling
                 サーバー内部でPub/Subにする: |  #// ポーリングをなくす
                     // EventEmitterで「イベント来たら即レスポンス」
@@ -3599,7 +3629,7 @@ HTTP 通信: #keyword: HTTP
                         }, 30_000);
                     });
                 タイムアウト: #keyword: Web API time out
-                    大小関係: |  #// クライアントに近いほど長く設定します
+                    大小関係: |  #// クライアントに近いほど長く設定します  React (fetch) > Nginx proxy_read_timeout > Gunicorn --timeout > Django 待機時間
                         | レイヤー    | 設定項目                  | 推奨値   |
                         |-------------|---------------------------|----------|
                         | Django      | `q.get(timeout=...)`      | 30秒     |
@@ -3615,17 +3645,19 @@ HTTP 通信: #keyword: HTTP
                             location /poll/ {
                                 proxy_pass http://django_backend;
                                 proxy_read_timeout 90s;    # Django側タイムアウト(30s)より長くする
-                スレッド数、同時接続数:
-                    nginx: |
+                スレッド数、同時接続数: #keyword: long polling server workers
+                    nginx: |  #search: nginx threads
                         events {
                             worker_processes auto;
                             worker_connections 2048;   # デフォルト1024から増やす
                             use epoll;                 # Linux では epoll が効率的
                             multi_accept on;
-                    Gunicorn (WSGI): |
-                        bashgunicorn myproject.wsgi:application \
+                    Gunicorn (WSGI): |  #search: Gunicorn threads
+                        gunicorn myproject.wsgi:application \
                             --workers 4 \
                             --threads 50 \        # スレッド数を増やして同時接続に対応
+                    関連 >> タイムアウト:  #search: Web API time out
+                #ref: ${typrm_files}/ref/Python/long_polling_minimum_ASGI.html
         コード:
             React:
                 useLongPolling 関数コンポーネント: #keyword: useLongPolling
@@ -3651,7 +3683,7 @@ HTTP 通信: #keyword: HTTP
                                             const json: T = await res.json();
                                             if (active) setData(json);
                                         } catch (err) {
-                                            if (err instanceof Error && err.name === "AbortError") break;
+                                            if (err instanceof DOMException && err.name === "AbortError") break;
                                             if (active) setError(err instanceof Error ? err : new Error(String(err)));
                                         }
                                     }
@@ -3852,6 +3884,10 @@ HTTP 通信: #keyword: HTTP
                                         this.stopLongPolling();
                                     }
                                 } catch (err) {
+                                    if (err instanceof TypeError || (err instanceof DOMException && err.name === 'AbortError')) {
+                                        // リロードしたとき、TypeError になります
+                                        // abort したとき、AbortError になります  #ref: https://developer.mozilla.org/ja/docs/Web/API/AbortController/abort
+                                    }
                                     this.stopLongPolling();
                                 }
                             }
@@ -4002,6 +4038,7 @@ URL: #keyword:
                 }
 
                 urlencode  "$1"
+        関連:  #search: Unicode escape
     Scroll to Text Fragment:  #keyword: URL Scroll to Text Fragment,  (#:~:text=),  ブラウザー ジャンプ 強調表示 highlight URL Chrome text search link
         #// ❗ - は %2d に変えてください
         #// URL にページ内を検索するキーワードを指定して、キーワードを強調表示します。必要ならスクロールもします。ブラウザーの機能です

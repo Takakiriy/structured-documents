@@ -95,12 +95,16 @@
     by:
         ～を使って:  #search: using English
     ca.: 約
+    caller, callee:
+        caller: 呼び出し元
+        callee: 呼び出し先、カリー
     cannot:  #// 一般に can not より cannot が使われます
         cannot: 物理的または規則上不可能であること
         can not: 他に選択肢がある場合
     cf.: 参照
     check: または make sure
     coalesce: 融合する。（読み：コーレース）
+    credit:  #// cresit ではない
     daily: 毎日の  #// dayly ではない
     deep: 深い  #// 対義語は shallow
     delegate: 委譲する  delegate A to B  #ref: https://www.merriam-webster.com/dictionary/delegate
@@ -177,6 +181,12 @@
     make sure, ensure:  ～という状態にする  #keyword: English ～にする
     metadata: メタデータ  #// meta data ではない
     misbehaving: おかしな動作
+    needle in a haystack:
+        意味: 探しても見つからない
+        直訳: 干し草の山の中に落ちた1本の針を見つける
+        プログラミングでの注意:
+            線形検索などのコードに needle を使うと、見つからないほど大変なニュアンスが付いてしまうため、非推奨。
+            searchValue array が良い
     next:
         next A: 次の A  #// 1-A, 2-A の順序における 2-A  #ref: https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1123610871
             #// 対義語は previous

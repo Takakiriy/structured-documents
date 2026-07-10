@@ -357,6 +357,29 @@
             async, await: #keyword:  #// エイシンク, アウェイト, エイシンクロナス
                 async: 非同期処理が始まるという意味
                 読み: #ref: https://twitter.com/chomado/status/1101647873307897856
+                サンプル:  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#async_await
+                    通常: |  #focus: async, await
+                        async function  asyncFunctionHasAwait() {
+
+                            result = await asyncFunction();
+                            console.log(result);
+                        }
+                    await を使わない場合: |
+                        async function  asyncFunction() {
+                            if ( true ) {
+                                return  'resolve!!'
+                            } else {
+                                throw new Error('reject!!');
+                            }
+                        }
+
+                        primise1 = asyncFunction()
+                        primise1.then(  returnValue => {
+                            console.log( returnValue )  // "resolve!!"
+                        })
+                        primise1.catch(  thrownException => {
+                            console.log( thrownException )
+                        })
                 constructor の async:  #// ができないので、その代わり
                     静的 ファクトリー メソッド: |  #search: JavaScript static method
                         static async create(): Promise<MyClass> {
@@ -1916,7 +1939,7 @@
                             #// [... ] は、逆順になる配列のコピーを作るためです
                     find:  #search: JavaScript find
                 ソート:  #keyword: JavaScript sort,  JavaScript toSorted,  JavaScript sort comparator compare function
-                    : JavaScriptの sort() は破壊的メソッドで、元の配列を直接並び替えます。 元の配列を変えない場合、以下
+                    _: JavaScriptの sort() は破壊的メソッドで、元の配列を直接並び替えます。 元の配列を変えない場合、以下
                         // ES2023
                         const sorted = users.toSorted(getSortComparator(users, 'age'));
 
@@ -6536,7 +6559,7 @@ JSON:  #keyword: JSON,  JavaScript TypeScript JSON
             #ref: https://gihyo.jp/dev/serial/01/crossbrowser-javascript/0011
 YAML: #keyword:  #ref: https://yaml.org  #search: steps.yaml
     文法:  #ref: ${programming}/HTML ブラウザ/Wiki.svg#YAML
-        マッピング: #keyword: YAML mapping
+        マッピング: #keyword: YAML mapping, YAML dictionary
             #focus: aa, bb, cc
             コード:
                 aa.bb = 12
@@ -6551,7 +6574,7 @@ YAML: #keyword:  #ref: https://yaml.org  #search: steps.yaml
                 aa がマッピング（構造体）の場合、
                     aa の中にフィールド名（bb:）を書きます。もしくは、
                     aa の右に { } を書きます
-        シーケンス: #keyword: YAML sequence  #ref: https://yaml.org/spec/1.2.2/#21-collections
+        シーケンス: #keyword: YAML sequence, YAML array  #ref: https://yaml.org/spec/1.2.2/#21-collections
             #focus: aa
             コード:
                 aa[0] = 12
@@ -6562,6 +6585,19 @@ YAML: #keyword:  #ref: https://yaml.org  #search: steps.yaml
                 aa:
                     - 12
                     - 34
+            パーサーによる違い:
+                子要素が無い場合: #keyword: YAML empty sequence parser  #// 上記 [ ] も - 12 と - 34 の行も無い場合
+                    Go 言語: Go 言語のコードに配列型で書いてあれば、要素数 0 の配列になります。
+                        親要素（上記 aa）が無くても、要素数 0 の配列になります。
+                    Ansible Jinja2 for:  #search: Jinja2 for
+                        _: |
+                            {% for item in items %} で NoneType エラーになります
+                        対処A:
+                            aa: []
+                        #// または
+                        対処B:
+                            aa:
+                                []
         マッピングのシーケンス: #keyword: YAML 多重度=多
             #focus: bb, cc, dd
             コード:
@@ -6915,6 +6951,14 @@ node:  #keyword: Node.js  #ref: https://nodejs.org/en
                 nvm なし: /opt/node/bin/node  #// ただし /opt/node は /opt/node-v18.14.1-linux-x64 などへの シンボリック リンク です
                 nvm あり: ~/.nvm/versions/node/v12.16.1/bin/node  #// Node.js のバージョンによります
         バージョン:  #search: Node.js version
+    機能:
+        非同期とスレッド:
+            非同期だがスレッドは1本しかない:
+                スレッドを移動することでコンテキストが切り替わることはありません
+            AsyncLocalStorage: #keyword: Node.js AsyncLocalStorage
+                スレッドは変わらないが、非同期で時分割でリクエストが変わることに対応するために AsyncLocalStorage
+                クロージャー（関数内で定義したアロー関数）は、同じスタック変数を使うが、それ以外には AsyncLocalStorage がいる
+            関連:  #search: DI book thread
     コマンド:
         node: #keyword:
             警告を出ないようにする方法:  #// typrm で検証したもの  #search: JavaScript import extension
@@ -7396,6 +7440,7 @@ npm:  #keyword: npm, Node.js package manager
                     .nvmrc ファイルがある場合:  #search: .nvmrc
                         nvm use
             新規プロジェクト:  #search: new Node.js project
+            コマンドをインストールします:  #search: install npm application command  #// npm でインストールできる Node.js で作られたコマンドをインストールします
             古い Node.js の URL:
                 Linux:
                     https://nodejs.org/dist/v14.18.0/node-v14.18.0-linux-x64.tar.xz
@@ -7412,7 +7457,7 @@ npm:  #keyword: npm, Node.js package manager
                     npm audit
         更新:
             node_modules と package-lock.json を削除して npm install
-        パッケージの操作:
+        パッケージの操作, 追加, 削除:
             追加:  #search: npm install
             削除:  #search: npm uninstall
         package.json scripts に書かれたコマンドを実行します:  #search: package.json scripts
@@ -7508,10 +7553,16 @@ npm:  #keyword: npm, Node.js package manager
                     npm install --save-dev __PackageName__  @types/__PackageName__
                 バージョン指定:
                     npm install __PackageName__@__Version__
+            package.json の変更を node_modules に反映します:
+            コマンドをインストールします: #keyword: install npm application command  #// npm でインストールできる Node.js で作られたコマンドをインストールします
+                Node.js のバージョンを選びます:
+                    nvm use  __NodeJsVersion__
+                コマンドをインストールします:
+                    npm install -g  __Command__
         npm uninstall: #keyword: npm uninstall,  npm delete remove  #// パッケージを除外します
             npm uninstall __PackageName__  @types/__PackageName__
         npm ci:
-            node_modules フォルダーを復活します:  #keyword: node_modules
+            node_modules フォルダーを復活します:  #keyword: node_modules  #// node_modules/ は公開されているライブラリを入れる場所です
                 npm ci
                     #// __Project__/node_modules フォルダーが作られます
             yarn の場合: #search: yarn node_modules
@@ -7614,7 +7665,7 @@ nvm:  #keyword:  #// Node.js 本体のバージョン管理をします  #glossa
             Linux:  #search: install NVM for Linux
             mac:  #search: install NVM for mac
         Node.js のバージョン: #keyword: Node.js version,  node --version  #// nvm のバージョンではありません
-            最新バージョン >> 公式: #keyword: Node.js latest version
+            最新バージョンを調べます >> 公式: #keyword: Node.js latest version
                 https://nodejs.org/en/download/package-manager  または  https://nodejs.org/en >> Download タブ
             インストール, ダウンロード:
                 nvm のインストール:  #search: install NVM
@@ -7626,6 +7677,8 @@ nvm:  #keyword:  #// Node.js 本体のバージョン管理をします  #glossa
                     -   node --version
                         #// v16.20.1
                     -   nvm alias default
+                一覧:  #// nvm が管理している Node.js のバージョンを一覧します
+                    nvm ls  #search: nvm ls
                 切り替え: #keyword: nvm change Node.js version
                     切り替えます:
                         今後の全プロセス: #keyword: nvm alias default
@@ -7671,8 +7724,6 @@ nvm:  #keyword:  #// Node.js 本体のバージョン管理をします  #glossa
                     スクリプトで使う場合:  #search: nvm script
                     サンプル:  #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/GoCD/service_example/playwright_example/test.sh
                     #// NVM for Windows では nvm exec を公式にサポートしないようです  #ref: https://github.com/coreybutler/nvm-windows/wiki/Per-Script-Shell-Versions
-                一覧:  #// nvm が管理している Node.js のバージョンを一覧します
-                    nvm ls  #search: nvm ls
             プロジェクトが使うバージョン:  #search: project Node.js version
             バージョンチェック:  #search: CheckNodeJsVersion
         スクリプト内で実行します:
@@ -7680,7 +7731,8 @@ nvm:  #keyword:  #// Node.js 本体のバージョン管理をします  #glossa
             source "$NVM_DIR/nvm.sh" --no-use
 
             nvm use 16.20.1  ||  exit 2
-    構成 >> 環境別:
+    構成:
+        #↓ 環境別
         NVM for Windows:  #ref: https://github.com/coreybutler/nvm-windows
             インストール: #keyword: install NVM for Windows
                 既に Node.js や npm がインストールされている場合:
@@ -10393,9 +10445,32 @@ React:
 
                     export default  connect(mapStateToProps, mapDispatchToProps)(MyComponent);
             Subscription:  #// Store の状態を監視します
-        Redux logger:  #// redux middleware の 1つ
-            ブラウザーのコンソールで値の変化の様子を確認できます
-            #ref: https://qiita.com/tatapopo/items/3bdf2f3132948e3d75e3
+        ツール:
+            機能別分類: |
+                | 機能カテゴリ               | 機能                      | ツール                   |
+                |----------------------------|---------------------------|--------------------------|
+                | デバッグ                   | タイムトラベル            | Redux DevTools Extension |
+                |                            | アクション履歴の再生      | Redux DevTools Extension |
+                |                            | 状態の差分ビュー          | Redux DevTools Extension |
+                | 状態管理の簡略化           | reducer / action 自動生成 | createSlice (RTK)        |
+                |                            | ストア設定の自動化        | configureStore (RTK)     |
+                |                            | ミュータブル記法          | Immer 内蔵 (RTK)         |
+                | 非同期処理                 | シンプルな非同期処理      | Thunk / createAsyncThunk |
+                |                            | 複雑なフロー制御          | Redux Saga               |
+                |                            | リアクティブなストリーム  | Redux Observable         |
+                | データフェッチ・キャッシュ | 自動キャッシュ・無効化    | RTK Query                |
+                |                            | loading / error 状態管理  | RTK Query                |
+                |                            | 楽観的更新                | RTK Query                |
+                | テスト                     | ミドルウェアのモック      | redux-mock-store         |
+                |                            | コンポーネント結合テスト  | Jest + Testing Library   |
+                |                            | reducer 単体テスト        | Jest                     |
+                | 型サポート                 | RootState / AppDispatch   | RTK + TypeScript         |
+                |                            | slice の型推論            | RTK + TypeScript         |
+                |                            | API レスポンス型定義      | RTK Query + TypeScript   |
+            Redux DevTools Extension:  #// Chrome FireFox 拡張機能
+            Redux logger:  #// redux middleware の 1つ
+                ブラウザーのコンソールで値の変化の様子を確認できます
+                #ref: https://qiita.com/tatapopo/items/3bdf2f3132948e3d75e3
     JSX, TSX:  #keyword: #// JavsScript と HTML を融合したソース  #ref: ${programming}/スクリプト/JavaScrpt/JavaScript.svg#JSX
         コメント:  #keyword: JSX comment
             JavaScript 部分:
@@ -10500,12 +10575,12 @@ React:
                         // カスタムフック側
                         function useGroupData() {
                             const [groups, setGroups] = useState([]);
-                            
+
                             const fetchGroup = useCallback(async () => {
                                 const data = await api.getGroup();
                                 setGroups(data);
                             }, []); // メモ化
-                            
+
                             return { fetchGroup, groups };
                         }
 
@@ -10575,7 +10650,7 @@ React:
             補足:
                 このエラーメッセージからどの React コンポーネント に問題があるかは分かりません。
         ほとんどのコンポーネントが Anonymous と表示される:
-            手順: 
+            手順:
             エラー: ほとんどのコンポーネントが Anonymous と表示される
             対処:
                 ビルドした React プロジェクトでは Anonymous と表示されるようです。

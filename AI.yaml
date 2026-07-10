@@ -69,12 +69,13 @@
         HTML+SVG 形式: #keyword: AI HTML SVG  #// 表示が簡単です。多少の編集もできます。Mermaid より遅いです。
             描かせます:
                 新プロンプト: |
-                    iPhoneのファイルアプリで表示するHTMLを作成してください。2カラムなどの横並びレイアウトが含まれる場合、初期表示で全体が画面に収まるよう initial-scale=0.5 を設定し、はみ出る可能性があるセクションには overflow-x: auto を追加してください。
+                    iPhoneのファイルアプリで表示するHTML+SVGを作成してください。2カラムなどの横並びレイアウトが含まれる場合、初期表示で全体が画面に収まるよう initial-scale=0.5 を設定し、はみ出る可能性があるセクションには overflow-x: auto を追加してください。
                     コードは pre で囲んでください。
                     大文字だけに変えた単語の表示や、それをするCSSの text-transform: uppercase; は禁止です。
                     01など0から始まる数字の表現は禁止。0章から始めるのも禁止。
+                    背景を明るくして、イメージの全体をブラウザーの幅に合わせるようにしてください。CSS は class で指定してください。@media は使わないでください。文字を大きく太くしてください。
                 プロンプト:
-                    ____ のイメージを HTML+SVG で描いてください。ただし、背景を白くして、デスクトップPC で普通に表示できるようレスポンシブではなくしつつ、iPhone の Safari でも viewport の問題が出ないようにしてください。CSS は class で指定してください。@media は使わないでください。文字を大きく太くしてください。
+                    ____ のイメージを HTML+SVG で描いてください。ただし、背景を明るくして、イメージの全体をブラウザーの幅に合わせるようにしてください。CSS は class で指定してください。@media は使わないでください。文字を大きく太くしてください。
                 追加プロンプト:
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     回答は、body部分だけでいいです。
@@ -443,9 +444,12 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
                 files.txt: #keyword: vibe coding files.txt,  vibe coding find
                     AI にファイルの位置を知らせます。
                     prompts.txt に作り方が書いてあります。
-            bash スクリプト の書式指定: #keyword: my bash AI coding rule,   bash bashlib prompt style  #// 以下を AI に指定します  #ref: ${GitHub}/MyPrivateCode/bash/git-rebase-develop-wip/ai-prompt/bash_coding_rule_for_AI.md
-                #ref: ${GitHub}/MyPrivateCode/bash/git-rebase-develop-wip/ai-prompt/bash_coding_rule_for_AI.md
-                #ref: ${GitHub}/MyPrivateCode/bash/option/option_template.sh  #keyword: option_tepmlate.sh
+            bash スクリプト の書式指定: #keyword: my bash AI coding rule,  coding rule,  bash bashlib prompt style  #// 以下を AI に指定します  #ref: ${GitHub}/MyPrivateCode/bash/git-rebase-develop-wip/ai-prompt/bash_coding_rule_for_AI.md
+                メニュー: Claude >>（アカウント アイコン：左下）>> 設定 >> 一般（左）>> Claudeへの指示
+                    #// 入力したらすぐ閉じることができ、次の質問から指示に従います。新しい会話を始める必要はありません
+                指示内容:
+                    #ref: ${GitHub}/MyPrivateCode/bash/git-rebase-develop-wip/ai-prompt/bash_coding_rule_for_AI.md
+                    #ref: ${GitHub}/MyPrivateCode/bash/option/option_template.sh  #keyword: option_tepmlate.sh
     AIを使って効果的にプログラミングを行う方法とは？:  #ref: https://gigazine.net/news/20250110-programming-with-llms/
         検索
         自動入力
@@ -519,7 +523,10 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
     Anthropic: #keyword:  #// アンスロピック
         Claude: #keyword:  #// クロード、ブラウザー版  #ref: https://claude.ai/  #// cloude ではない
             モデル:
-                #keyword: Claude Sonnet Opus Haiku
+                Fable, Sonnet, Opus, Haiku: #keyword: Claude Fable Sonnet Opus Haiku
+                使用量（工数）:
+                    現在の残り:
+                        Claude >>（アカウント アイコン：左下）>> 設定 >> 使用量
             過去の会話を検索します: #keyword: search AI chat log,  AI 会話 履歴 history
                 内容の検索:
                     #// 以下のような質問をします
@@ -538,6 +545,9 @@ image-to-image:  #// 画像から画像を生成する。絵柄を変える
                 ダウンロード >> Claude.dmg ファイル（をダブルクリック）>> Claude を Application にドラッグ＆ドロップ
                 #search: install MCP
         MCP: #search:
+        料金:
+            Claude の請求が高い！？: 下記
+            クレジット: #keyword: Claude credit  #// サブスクの料金で使える使用料を超えても、無料・有料のクレジットを追加すれば、継続して使うことができます
         トラブルシューティング:
             We're experiencing high demand:
                 ログ:

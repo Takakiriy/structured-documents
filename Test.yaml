@@ -25,6 +25,8 @@
             "Please check the output file for any errors."
         オプションを付けて:  #// このオプションを付けて再実行するといいことがあるかも
             "Re-running with this option may help."
+    UAT, ユーザー受け入れテスト: #keyword:  #// User Acceptance Testing
+        情報システムの開発を外部に委託した場合に、その最終段階で発注元（ユーザー企業）側が納品を受け付けるか否かを判定するための試験
 テスト環境、テストデータ: #keyword: テスト環境, テストデータ, test design,  test
     テスト ツール: #search: Test.yaml
     自動テストの目的:  #keyword: 自動テスト,  回帰テスト regression test
@@ -79,8 +81,11 @@
         ブレークポイントを張ります
     Humble Object: #keyword:  #ref: http://xunitpatterns.com/Humble%20Object.html  #// xUnit Patterns より
         #// ロジックを、環境から切り離された、テストしやすい別個のコンポーネントに抽出します。
+        #search: CA book 第23章
         Humble Object:  #// View, ライブラリ
             Humble = 謙虚な。ここでは、データの処理をしないで、そのまま画面などに表示することを指し、それ単体ではテストが不要であるものとします
+        Presenter:
+            View に渡すデータをフォーマットする責務
         Testable Object:  #// Presenter
     正常系, 異常系: #glossary:
         正常系: normal test。正しい入力での出力チェック
@@ -845,7 +850,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         - xpath= から始めます
                         - // から始めます  #// "//" から始まるときは xpath= を書かなくても XPath として解釈されます 
                     CSSセレクター:
-                        - xpath= や // 以外
+                        - xpath= や // 以外  #search: CSS selector
                 マウスを合わせて、書くべきコードを表示する:  #// ブラウザー内の GUI 部品にマウスを合わて page.getByText('OK') のようなコードを表示します
                     一度テストを実行します:  #// Playwright と接続したブラウザーを開きます
                     Lacator モードにします: #keyword: VSCode PLAYWRIGHT タブ

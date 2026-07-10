@@ -52,7 +52,8 @@ SaaS:  #glossary:
     PaaS: プラットフォーム。aws, Azure, GCE
     IaaS: インフラ。EC2, GCE  「アイアース」
     IaC: #// Infrastructure as Code
-        #search: HCL
+        HCL: #search:
+        Ansible: #search:
 Azure: #keyword:  #// https://portal.azure.com/  #ref: ${MyDoc}/programming/ネットワーク・セキュリティ/Cloud/Cloud.svg#Azure
     Invoice を保存します: #keyword: Azure invoice,  Azure 請求書
         https://portal.azure.com/ >>（サブスクリプション名） >> (Billnig) Billing profile invoices（左）>>

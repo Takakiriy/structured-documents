@@ -592,7 +592,7 @@ Docker: #keyword:  #ref: ${programming}/OS/VMWare.svg#Docker
                         #// docker images コマンドで表示されたタグを貼り付けます
                         #// __Host__ は GitLab なら Container Registory の Web ページにあります
                 登録を確認します:
-                    プロジェクト URL: https://gitlab.com/takakiriy1/first  #template: __GitLabUser__/__Reposiroty__
+                    プロジェクト URL: https://gitlab.com/takakiriy1/first  #template: __GitLabUser__/__Repository__
                     メニュー: プロジェクト >> Deploy >> Container Repository
                         または  プロジェクト >> Packages & Registories >> Container Repository
                 ログアウトします:
@@ -4367,7 +4367,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                                         Defaults        env_reset
                                     編集後:
                                         Defaults        env_reset
-                                        Defaults        env_keep = "http_proxy ftp_proxy ftp_proxy DISPLAY XAUTHORITY"
+                                        Defaults        env_keep = "http_proxy ftp_proxy no_proxy ftp_proxy DISPLAY XAUTHORITY"
                                     #// Ctrl + X キーと Y Enter で保存して終了します
                                 プロキシの URL を設定します:
                                     sudo nano /etc/apt/apt.conf : |  #search: __Company__ Ubuntu
@@ -4722,6 +4722,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
             PowerShell の場合:  #keyword: start WSL
                 既定:  #// 既定のディストリビューションとユーザー:
                     wsl
+                コマンド実行:  #search: WSL2 command
                 選んで開きます:
                     （必要なら）既定のディストリビューションをメモします:
                         (PowerShell) wsl -l
@@ -4784,6 +4785,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                     - wsl  echo '@@@ $USER, $OTHER, $http_proxy, $https_proxy, $no_proxy'  #// ~/.bashrc は読み込まれません  #search: WSL2 command ~/.bashrc
                     - wsl -d __Distribution__  -- __Command1__  "&&"  __Command2__
                     - wsl -d __Distribution__  -- cd //home/user1  "&&"  ls -l
+                    - wsl -d __Distribution__  --cd //home/user1  "&&"  ls -l
                 ~/.bashrc の設定: #keyword: WSL2 command ~/.bashrc  #// ❗注意 >> そのまま実行すると ~/.bashrc は読み込まれません
                     状況:
                         Distribution="Rocky9"
@@ -4794,7 +4796,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                             source ~/.bashrc
                             "$@"
                         サンプル:  #focus: no_proxy
-                            作るコマンド:
+                            作るコマンド:  #search: InstallSourceBashrc
                                 echo  "source ~/.bashrc"  >  ~/source_bashrc
                                 echo  '"$@"'             >>  ~/source_bashrc
                                 chmod +x                     ~/source_bashrc
@@ -4842,7 +4844,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                     fi
                 }
             #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/single_vm_ansible/centos7/install.sh#function  RunInGitBash
-    概念:
+    構成:
         WSL2:
             WSL1との違い:
                 #ref: https://www.virtualizationhowto.com/2021/01/wsl2-backup-and-restore-images-using-import-and-export/
@@ -4870,7 +4872,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                         サンプル:
                             (Windows Git bash): |
                                 ThisScriptFullPath="$( readlink -f "${0##*/}" )"    #// "/c/Users/user1/project"
-                                wsl -d __DistroName__  bash  "//mnt${ThisScriptFullPath}"
+                                wsl -d __DistroName__  bash  "//mnt${ThisScriptFullPath}"    #search: Git bash //path
                             (Linux): |
                                 ThisScriptFullPath="$( readlink -f "${0##*/}" )"    #// "//mnt/c/Users/user1/project"
                 #ref: https://qiita.com/Takakiri/items/41d0d1ed67e9505598a1#windows-と-wsl2-と-git-bash-のパスの関係
@@ -4928,6 +4930,18 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                             .7z ファイル（を右クリック）>> すべて展開 >>（パスを親フォルダーに編集します）>> 展開 ボタン
                         双方の .7z ファイルを削除します:  #// コピー先の .7z ファイルと、コピー元の .7z ファイルを削除します:
                             .7z ファイル（を右クリック）>> 削除  #// コピー先とコピー元
+        ディストロ:
+            独立した VM ではなく、1つの Linux カーネル(1つの軽量 VM)を全ディストロで共有するコンテナ。userland
+        軽量 VM, カーネル:  #// 軽量ユーティリティ仮想マシン(lightweight utility virtual machine、ユーティリティ VM)
+            概要:
+                Hyper-V の技術で作られる仮想マシン。通常の VM と違い、起動が速く、メモリを Windows と動的に融通し合うので
+                「軽量(lightweight utility VM)」と呼ばれます。これがシステム全体で1つです。
+                VM が1つなのでカーネルも1つです
+                binfmt_misc の登録テーブルはカーネルが持っている情報です。
+            類似用語:
+                ユーティリティ, VM(utility VM: WSL2 や Windows Sandbox などが使う、特定用途向けに最適化された Hyper-V ベースの VM の総称。ユーザーが Hyper-V マネージャーで見たり管理したりする通常の VM とは別扱いで、Windows 側のサービス(Host Compute Service)が自動管理します
+                仮想マシン プラットフォーム, Virtual Machine Platform: WSL2 を使うために有効化する Windows のオプション機能の名前。フル機能の Hyper-V を入れなくても、このユーティリティ VM を動かすための最小限の仮想化基盤を提供します。Windows Home でも WSL2 が使えるのはこの機能のおかげです
+                WSL2 VM: ドキュメントや issue で慣用的に使われる呼び方で、正式名称ではありませんが同じものを指します
         VHDX ファイル, ストレージ: #keyword:  #// VM が使うストレージの内容が書かれたファイル
             場所の例: '%userprofile%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu16.04onWindows_79rhkp1fndgsc\LocalState\ext4.vhdx'
             （関連）:
@@ -4992,7 +5006,80 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                 WSL2 の localhostForwarding 機能がうまくうごかない:  #ref: https://mrk21.hatenablog.com/entry/2022/01/30/183331
     ファイル, 場所:
         共有フォルダー: #search: WSL2 shared folder
-    トラブルシューティング（WSL）:
+    トラブルシューティング（WSL）: #keyword: WSL2 trouble shooting
+        エラー, /mnt/c/WINDOWS/system32/cmd.exe cannot execute binary file Exec format error:  #keyword: cannot execute binary file Exec format error
+            手順:
+                WSL2 内から Windows の実行ファイルを実行します
+            ログ: |
+                wsl -d __Distro__
+                # /mnt/c/WINDOWS/system32/cmd.exe /c 'echo %USERNAME%'
+                    -bash: /mnt/c/WINDOWS/system32/cmd.exe: cannot execute binary file: Exec format error
+                # cat /proc/sys/fs/binfmt_misc/WSLInterop
+                    cat: /proc/sys/fs/binfmt_misc/WSLInterop: No such file or directory
+                $ "/mnt/c/Program Files/Git/bin/bash.exe"
+                    /mnt/c/Program Files/Git/bin/bash.exe: cannot execute binary file: Exec format error
+            対処A:
+                WSL を更新します:
+                    wsl --update
+                    wsl --shutdown
+            対処B:
+                WSL を再起動します:
+                    wsl --shutdown
+            原因: #keyword: WSLInterop
+                _: 上記ログにある WSLInterop が存在しないことが原因
+                問題ないとき:
+                    ls  /proc/sys/fs/binfmt_misc/
+                        WSLInterop  ...
+                問題があるときの対処法:
+                    wsl --shutdown
+                WSLInterop が消える原因: |
+                    systemd 有効ディストロが wsl --unregister されたときや 終了(terminate)するときに、
+                    binfmt エントリがグローバルに消える問題が確認されています(issue #13885)。
+                    WSL はアイドル状態のディストロを約30秒〜(設定による)で自動 terminate するため、ユーザーが何も操作していなくても裏で発生します
+                    binfmt エントリは、軽量 VM がディストロごとではなく WSL2 全体で1つしかないことです
+                WSLInterop の作り直し:  #// wsl --shutdown を不要にします
+                    #// 未確認
+                    sudo  mkdir  -p  /usr/lib/binfmt.d
+                    sudo  sh  -c  'echo  ":WSLInterop:M::MZ::/init:PF"  >  /usr/lib/binfmt.d/WSLInterop.conf'
+        エラー, WSL2 更新の後 Error connect ENOENT /run/user/1000/vscode-ipc-4dd76ca5-6ac4-4c7f-8286-1a4472c1eac0.sock:
+            手順: (WSL2内で） code ____
+            ログ: |
+                $ code services
+                Unable to connect to VS Code server: Error in request.
+                Error: connect ENOENT /run/user/1000/vscode-ipc-4dd76ca5-6ac4-4c7f-8286-1a4472c1eac0.sock
+                    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+                errno: -2,
+                code: 'ENOENT',
+                syscall: 'connect',
+                address: '/run/user/1000/vscode-ipc-4dd76ca5-6ac4-4c7f-8286-1a4472c1eac0.sock'
+            状況:
+                ls -la /run/user
+                    空
+            対処:
+                - sudo systemctl unmask systemd-logind
+                    #// 再起動してもこの設定は保存されます
+                - WSL VM 再起動
+            対処後の状況:
+                ls -la /run/user
+                    1000/
+        エラー, WSL2 更新の後 Error connect ENOENT /run/user/1000/vscode-git-03e7181fb1.sock:
+            手順: git push
+            ログ: |
+                $ git push
+                git: 'credential-manager' is not a git command. See 'git --help'.
+                Missing or invalid credentials.
+                Error: connect ENOENT /run/user/1000/vscode-git-03e7181fb1.sock
+                    at PipeConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+                errno: -2,
+                code: 'ENOENT',
+                syscall: 'connect',
+                address: '/run/user/1000/vscode-git-03e7181fb1.sock'
+                }
+                Missing or invalid credentials.
+                remote: No anonymous write access.
+                fatal: Authentication failed for 'https://github.com/...'
+            対処:
+                VSCode 本体を更新します（更新できるなら）
         エラー, address already in use 0.0.0.0:2181:172.19.0.11:2181/tcp:
             手順:
                 docker-compose up
@@ -6952,7 +7039,7 @@ Ansible: #keyword: Ansible, an
                         --key-file ____.id_rsa :  become-user ユーザーの秘密鍵を指定します
                         -K : 実行中に become-user ユーザーのログイン パスワードを入力できるようにするとき
                     Playbook ファイルに設定する場合: #search: ansible become
-                上書きチェック: #keyword: Ansible APPROVED,  Ansible preview  #// Ansible が上書きするファイルの内容を目視で確認させてからデプロイします
+                上書きチェック: #keyword: Ansible APPROVED,  APPROVED=1,  Ansible preview  #// Ansible が上書きするファイルの内容を目視で確認させてからデプロイします
                     コード: #keyword: ansible_approved
                         #focus: ansible_approved,  preview
                         group_vars: |  #search: Ansible group_vars YAML  #// 環境変数の値を変数に代入します
@@ -6984,17 +7071,20 @@ Ansible: #keyword: Ansible, an
                     コマンド:  #// 通常、以下の順番で実行します
                         （必要なら）ヘルプ表示します:  #// 通常のコマンドを実行するとヘルプ表示だけになります
                             ansible-playbook  __Parameters__  #// --diff の有無は問いません
-                        変更内容を確認します: |  #// --diff --tags preview --check オプション を指定します。 --check オプション があるので ターゲット ホスト にデプロイしません
-                            ansible-playbook  __Parameters__  --diff --tags preview --check
-                                --- before: __PathInTargetHost__
-                                +++ after: /home/user1/.ansible/tmp/ansible-local-2352688lcyogku8/tmpvqgznem0/__RelativePath__
-                                - __ContentsInTargetHost__
-                                - __ContentsInTargetHost__
-                                + __NewContents__
-                                + __NewContents__
-                                changed: [__Host__]
-                        期待した変更内容になるまで ソース ファイル を修正します:
-                            vi __FilePath__
+                        （未確定なら）変化する内容を調整します:  #// DEV 環境 で修正後の内容が確認済みの内容と一致していて、その設定にすることが合意済みなら、デプロイ（APPROVED=1）へスキップできます
+                            変更内容を確認します: |  #// --diff --tags preview --check オプション を指定します。 --check オプション があるので ターゲット ホスト にデプロイしません
+                                ansible-playbook  __Parameters__  --diff --tags preview --check
+                                    --- before: __PathInTargetHost__
+                                    +++ after: /home/user1/.ansible/tmp/ansible-local-2352688lcyogku8/tmpvqgznem0/__RelativePath__
+                                    - __ContentsInTargetHost__
+                                    - __ContentsInTargetHost__
+                                    + __NewContents__
+                                    + __NewContents__
+                                    changed: [__Host__]
+                            （変更前が予想と違った場合）:
+                                その内容をバックアップするか関係者に確認します
+                            期待した変更内容になるまで ソース ファイル を修正します:
+                                vi __FilePath__  #// ansible の template ファイル や変数値などを調整します
                         デプロイします:  #// APPROVED 環境変数を 1 に指定して実行します
                             APPROVED=1 ansible-playbook  __Parameters__  --diff
                         （通常の実行するとエラーになります）:
@@ -13252,7 +13342,7 @@ Vault, OpenBao: #keyword: HashiCorp Vault,  Vault,  OpenBao  #// シークレッ
                     vault operator unseal  __UnsealKey3__
                 実践的なコマンド: |
                     less  __UnsealKeyMemoFile__  #// アンシールキーは複数の信頼できる人に分散して保管
-                    read -s -p "Enter one of unseal key: "  UnsealKey;  vault operator unseal "${UnsealKey}"
+                    read -rs -p "Enter one of unseal key: "  UnsealKey;  vault operator unseal "${UnsealKey}"
             Web UI を開いてみます: |  #ref: https://developer.hashicorp.com/vault/tutorials/get-started/learn-ui
                 http://localhost:8200/ui/
                     Sign in to Vault
@@ -16088,6 +16178,6 @@ Prometheus, Node Exporter: #keyword:  #// モニタリングやアラート
 文書設定: #settings:
     __GitLabUser__: takakiriy1
     __GitLabAcount__: Takakiriy
-    __Reposiroty__: first
+    __Repository__: first
     __PAT__: __PAT__
     __ProjectName__: centos7

@@ -154,8 +154,8 @@ SQL文:  #keyword: SQL, SQL文
             Unit of Work: #keyword: Unit of Work,  UoW  #// アプリ層の話
                 概要: 1つの業務処理で起きる複数のデータ変更をまとめて扱い、全部成功か全部失敗のどちらかにすることで、データが中途半端な状態になるのを防ぐ仕組みです
                 保存とコミットの違い:
-                	save は「何を保存するか」の指示
-            	    commit は「いつまとめて確定するか」の指示
+                    save は「何を保存するか」の指示
+                    commit は「いつまとめて確定するか」の指示
                 トランザクションと Unit of Work の違い: #keyword: transaction vs Unit of Work
                     アプリ層とデータベース層の違いです
                     図  #ref: ${typrm_files}/ref/Database/Transaction_vs_Unit_of_Work.html
@@ -283,12 +283,14 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                     - https://dev.mysql.com/downloads/repo/yum/
                     - https://castleobj.com/centos7-mysql57/
                     - https://qiita.com/nooboolean/items/7efc5c35b2e95637d8c1
-            dnf yum:
+            dnf yum: #keyword: dnf install MySQL
                 Rocky Linux 8:
-                    sudo yum install -y  mysql-server
-                    mysqld --version
-                    書きかけ
+                    MySQL 8.0:  #ref: https://dev.mysql.com/doc/refman/8.0/en/linux-installation-yum-repo.html
+                        sudo dnf install -y  https://dev.mysql.com/get/mysql80-community-release-el8-9.noarch.rpm
+                        sudo yum module disable -y  mysql  #search: RPM module
+                    MySQL 8.4:  #ref: https://dev.mysql.com/doc/refman/8.4/en/linux-installation-yum-repo.html
         関連 >> CentOS Docker コンテナーを作ります:  #search: Docker CentOS
+        SQL コマンド入力:  #search: mysql>
         文字コードを UTF-8 に設定します:  #keyword: MySQL UTF-8
             一覧: |
                 mysql> show variables like "chara%";
@@ -419,9 +421,9 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
             共通:
                 A と B を開きます: |
                         (PowerShell) code --remote ssh-remote+mysql-A_ssh_config  home/user1/mysql
-                        (@A:bash) read -s -p "Enter password: "  MYSQL_ROOT_PASSWORD  #ref: https://____
+                        (@A:bash) read -rs -p "Enter password: "  MYSQL_ROOT_PASSWORD  #ref: https://____
                         (PowerShell) code --remote ssh-remote+mysql-B_ssh_config  home/user1/mysql
-                        (@B:bash) read -s -p "Enter password: "  MYSQL_ROOT_PASSWORD  #ref: https://____
+                        (@B:bash) read -rs -p "Enter password: "  MYSQL_ROOT_PASSWORD  #ref: https://____
                     #template-at(-4): ssh-remote+__HostA_SshConfig__  __Project__
                     #template-at(-4): #ref: __PasswordURL__
                     #template-at(-4): ssh-remote+__HostB_SshConfig__  __Project__
@@ -584,7 +586,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
             #search: 高可用性
     画面:
         MySQL VSCode 拡張機能: #keyword: MySQL VSCode extension
-            Database Client 製, 旧 Weijan Chen (cweijan) 製:  #ref: https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-mysql-client2
+            Database Client 製, 旧 Weijan Chen (cweijan) 製: #keyword: VSCode Database Client  #ref: https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-mysql-client2
                 対応:
                     DB: MySQL, MariaDB, PostgreSQL, SQLite, SQL Server, Oracle, DuckDB, ClickHouse, JDBC
                     その他: SH, Docker, Redis, ElasticSearch, MongoDB, S3, FTP, Kafka, RabbiMQ, Loki, Redshift, Snowflake, Neo4j, Zookeeper
@@ -603,7 +605,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                         Host: 127.0.0.1
                         Port: 3306
                         Username: root  #// ←サンプル
-                        Password: ____  #// 実験用の漏洩していいものを入力します
+                        Password: ____  #// 実験用の漏洩していいものを入力します🌟
                         Save ボタン:
                         #// Database ビュー にツリーが追加されます
                 表示内容:
@@ -629,9 +631,293 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                         複数の項目を入力できます
                     MySQL に保存します:
                         Save ボタン（チェック マーク：上）
+                トラブルシューティング:
+                    MySQL に接続できない:
+                        ログ: |
+                            （接続ページの上側に）
+                            Access denied for user 'root'@'172.____.0.1' (using password: NO)
+                        対処:
+                            パスワードが空欄になっているなら、入力してください
+                    接続数が多い:  #// 有料版を勧められる
+                        ログ: |  #focus: /3
+                            （接続ページの上側に）
+                            Free accounts are limited to 3 connections per panel!
+                            Free accounts are limited to connections per panel
+                            Note: Requires a Premium License to unlock all features. Database 3/3 , Other 1/3
+                        対処:
+                            接続情報を全クリアします:
+                                VSCode のウィンドウをすべて閉じます:
+                                WSL にログインします:
+                                    (PowerShell)
+                                    wsl -d ____  #// 任意の distro
+                                sqlite が使えることを確認します:
+                                    sqlite3 --version
+                                        バージョンが表示されること
+                                スクリプトをインストールします:
+                                    tee _vscdb.sh > /dev/null
+                                        （下記 _vscdb.sh を貼り付けます）
+                                        Ctrl + D
+                                設定を環境変数に設定します:
+                                    WindowsUser=____
+                                    VSCodeDB=/mnt/c/Users/${WindowsUser}/AppData/Roaming/Code/User/globalStorage/state.vscdb
+                                    ExtensionID=cweijan.vscode-mysql-client2
+                                state.vscdb ファイルをバックアップします:
+                                    エクスプローラーでコピーします（例）
+                                データのキーが合っていることを確認します:
+                                    bash _vscdb.sh  --show  --db "${VSCodeDB}"  --extension-id "${ExtensionID}"
+                                        #// --extension-id が違うと、エラー No keys matched 'cweijan.vscode-mysql-client2' in ItemTable.
+                                        #// 問題なければ、大量のデータが表示されます。
+                                対象のキーをクリアします:
+                                    bash _vscdb.sh  --clear --db "${VSCodeDB}"  --extension-id "${ExtensionID}"
+                        補足:
+                            接続数を増やす: VSCode のウィンドウを複数開いて、接続を開始してください。
+                                接続していると "Database 3/3 , Other 1/3" の /3 の左の数が増えます
+                            効果が無かった方法:
+                                - Database view >> 歯車アイコン（上）>> Close All Connections（左下）や Clear Cache（左下）
+                                - 拡張機能の Disable して Enable、アンインストールしてインストール
+                        コード, _vscdb.sh: |
+                            #!/bin/bash
+                            #// Inspect or clear Database Client connections stored in VSCode's state.vscdb.
+
+                            function  Help() {
+                                #// Show usage of this script.
+                                #// Usage: db-connections.sh (--show | --clear) [--db __DatabasePath__] [--extension-id __ExtensionId__]
+
+                                echo  "Usage: db-connections.sh (--show | --clear) [--db __DatabasePath__] [--extension-id __ExtensionId__]"
+                                echo  ""
+                                echo  "  --show          Show extension keys and their stored values"
+                                echo  "  --clear         Clear every saved connection (VSCode must be closed first)"
+                                echo  "  --db            Path to state.vscdb (default: \$APPDATA/Code/User/globalStorage/state.vscdb)"
+                                echo  "  --extension-id  Extension id key in ItemTable (default: cweijan.vscode-mysql-client2)"
+                            }
+
+                            Options_Mode=""
+                            Options_DatabasePath="${APPDATA}/Code/User/globalStorage/state.vscdb"
+                            Options_ExtensionId="cweijan.vscode-mysql-client2"
+
+                            PositionalArgs=()
+                            while [[ $# -gt 0 ]]; do
+                                case $1 in
+                                    --show)          Options_Mode="show"; shift;;  #search: bash default values
+                                    --clear)         Options_Mode="clear"; shift;;
+                                    --db)            Options_DatabasePath="$2"; shift; shift;;
+                                    --extension-id)  Options_ExtensionId="$2"; shift; shift;;
+                                    -h|--help)       Help; exit 0;;
+                                    -*) echo  "Unknown option $1"; exit 1;;
+                                    *) PositionalArgs+=("$1"); shift;;
+                                esac
+                            done
+                            set -- "${PositionalArgs[@]}"  #// set $1, $2, ...
+                            unset PositionalArgs
+
+                            function  Main() {
+                                #// Entry point. Dispatch to show or clear based on the selected mode.
+
+                                AssertModeSelected
+
+                                AssertDatabaseExists
+
+                                if [ "${Options_Mode}" == "show" ]; then
+                                    ShowMatchingKeys
+                                else
+                                    ClearConnectionsWithBackup
+                                fi
+                            }
+
+                            function  AssertModeSelected() {
+                                #// Stop with an error if neither --show nor --clear was given.
+
+                                if [ "${Options_Mode}" == "" ]; then
+                                    Error  "Select a mode: --show or --clear (see --help)"
+                                fi
+                            }
+
+                            function  AssertDatabaseExists() {
+                                #// Stop with an error if the state.vscdb file is not found.
+
+                                if [ ! -f "${Options_DatabasePath}" ]; then
+                                    Error  "state.vscdb not found: ${Options_DatabasePath}"
+                                fi
+                            }
+
+                            function  ShowMatchingKeys() {
+                                #// List ItemTable keys related to the extension, then print each value.
+
+                                local  matchedKeys="$( QueryMatchingKeys )"
+
+                                if [ "${matchedKeys}" == "" ]; then
+                                    echo  "No keys matched '${Options_ExtensionId}' in ItemTable."  1>&2
+                                    return
+                                fi
+
+                                echo  "Matched keys:"  1>&2
+                                echo  "${matchedKeys}"  1>&2
+                                echo  ""  1>&2
+
+                                PrintValuesForKeys  "${matchedKeys}"
+                            }
+
+                            function  QueryMatchingKeys() {
+                                #// Return ItemTable keys that contain the extension id, one per line.
+
+                                local  selectKeysSql="SELECT key FROM ItemTable WHERE key LIKE '%${Options_ExtensionId}%';"
+
+                                sqlite3  "${Options_DatabasePath}"  "${selectKeysSql}"  ||  Error  "Failed to query keys from ${Options_DatabasePath}"
+                            }
+
+                            function  PrintValuesForKeys() {
+                                #// Print the stored value for each given key.
+                                #// Arguments: __Keys__ (newline separated list of ItemTable keys)
+
+                                local  keys="$1"
+
+                                while IFS= read  -r oneKey; do
+
+                                    if [ "${oneKey}" == "" ]; then
+                                        continue
+                                    fi
+
+                                    echo  "===== ${oneKey} ====="
+                                    PrintValueForKey  "${oneKey}"
+                                    echo  ""
+                                done <<< "${keys}"
+                            }
+
+                            function  PrintValueForKey() {
+                                #// Print the stored value for a single key.
+                                #// Arguments: __Key__ (an ItemTable key)
+
+                                local  targetKey="$1"
+                                local  selectValueSql="SELECT value FROM ItemTable WHERE key = '${targetKey}';"
+
+                                sqlite3  "${Options_DatabasePath}"  "${selectValueSql}"  ||  Error  "Failed to read value for key ${targetKey}"
+                            }
+
+                            function  ClearConnectionsWithBackup() {
+                                #// Verify VSCode is closed, back up the database, then clear connections.
+
+                                AssertVscodeClosed
+
+                                local  backupPath="$( MakeBackup )"
+
+                                echo  "Backup created: ${backupPath}"  1>&2
+
+                                ClearConnections
+
+                                echo  "All connections cleared. Restart VSCode to confirm."  1>&2
+                            }
+
+                            function  AssertVscodeClosed() {
+                                #// Warn and stop if a Code process appears to be running.
+                                #// A running VSCode may overwrite the database on exit.
+
+                                local  runningProcess="$( FindRunningVscode )"
+
+                                if [ ! "${runningProcess}" == "" ]; then
+                                    Error  "VSCode appears to be running. Close it completely before clearing."
+                                fi
+                            }
+
+                            function  FindRunningVscode() {
+                                #// Return a non-empty string if a Code process is detected.
+
+                                tasklist  2>/dev/null  |  grep  -i  "Code.exe"
+                                true
+                            }
+
+                            function  MakeBackup() {
+                                #// Copy state.vscdb to a timestamped backup and return its path.
+
+                                local  timeStamp="$( date  +%Y%m%d_%H%M%S )"
+                                local  backupPath="${Options_DatabasePath}.${timeStamp}.bak"
+
+                                cp  "${Options_DatabasePath}"  "${backupPath}"  ||  Error  "Failed to create backup at ${backupPath}"
+
+                                echo  "${backupPath}"
+                            }
+
+                            function  ClearConnections() {
+                                #// Read the extension value, empty connection fields, write it back.
+
+                                local  currentValue="$( ReadValue )"
+
+                                if [ "${currentValue}" == "" ]; then
+                                    Error  "No value found for key ${Options_ExtensionId}"
+                                fi
+
+                                local  updatedValue="$( EmptyConnectionFields  "${currentValue}" )"
+
+                                WriteValue  "${updatedValue}"
+                            }
+
+                            function  ReadValue() {
+                                #// Return the stored JSON value for the extension key.
+
+                                local  selectValueSql="SELECT value FROM ItemTable WHERE key = '${Options_ExtensionId}';"
+
+                                sqlite3  "${Options_DatabasePath}"  "${selectValueSql}"  ||  Error  "Failed to read value for ${Options_ExtensionId}"
+                            }
+
+                            function  EmptyConnectionFields() {
+                                #// Set all connection-holding fields to empty objects.
+                                #// Arguments: __JsonValue__ (the extension's stored JSON string)
+
+                                local  jsonValue="$1"
+
+                                echo  "${jsonValue}"  |  python3  -c  "$( PythonEmptyScript )"  ||  Error  "Failed to transform JSON value"
+                            }
+
+                            function  PythonEmptyScript() {
+                                #// Return a python script that empties connection fields from stdin JSON.
+                                #// The fields cover local and ssh-remote MySQL and NoSQL connections.
+
+                                cat  <<'_HERE_DOCUMENT'
+                            import sys, json
+
+                            data = json.load(sys.stdin)
+
+                            fieldsToEmpty = [
+                                "database.connections",
+                                "nosql.connections",
+                                "database.connectionsssh-remote",
+                                "nosql.connectionsssh-remote",
+                            ]
+
+                            for fieldName in fieldsToEmpty:
+                                if fieldName in data:
+                                    data[fieldName] = {}
+
+                            sys.stdout.write(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
+                            _HERE_DOCUMENT
+                            }
+
+                            function  WriteValue() {
+                                #// Write the given JSON value back into ItemTable for the extension key.
+                                #// Arguments: __JsonValue__ (the new JSON string to store)
+
+                                local  jsonValue="$1"
+                                local  escapedValue="${jsonValue//\'/\'\'}"
+                                local  updateSql="UPDATE ItemTable SET value = '${escapedValue}' WHERE key = '${Options_ExtensionId}';"
+
+                                sqlite3  "${Options_DatabasePath}"  "${updateSql}"  ||  Error  "Failed to write updated value for ${Options_ExtensionId}"
+                            }
+
+                            function  Error() {
+                                #// Print an error message to stderr and exit.
+                                #// Arguments: __Message__ (the error description)
+
+                                local  message="$1"
+
+                                echo  "Error: ${message}"  1>&2
+                                exit  1
+                            }
+
+                            Main  "$@"
             Jun Han 製: #ref: https://qiita.com/ymasaoka/items/aa03323bbac7e7c5f1be
+                VSCode >> Explorer View >> MySQL（最も下）
+                認証なしの接続ができない様子
             Oracle 製: #ref: https://dev.mysql.com/doc/mysql-shell-gui/en/mysql-shell-for-vscode-setup.html
-                #// 接続できません
+                #// WSL2 環境では接続できません
                 メニュー: MySQL ビュー（左）>> DATABASE CONNECTIONS（の右にマウスを合わせる）>> …（右端）>>
                     Launch Welcome Wizard >> Next（下） >> Next（下）>> Reload VS Code Window
     コマンド:
@@ -658,7 +944,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                     __HostName__: 127.0.0.1 など  #// localhost では接続できません。--socket が使えるかもしれません
                     パスワードをコマンドラインに含めるとき: --password="____"  #// 最後のパラメーターにしないとパスワードを指定できません
                     パスワードを環境変数に入れる場合:
-                        read -s -p "Enter password> "  MYSQL_ROOT_PASSWORD
+                        read -rs -p "Enter password> "  MYSQL_ROOT_PASSWORD
                         mysql __Parameters__ --password="${MYSQL_ROOT_PASSWORD}"
                     #ref: ${programming}/検索技術、DB/SQL/MySQL.svg#root_user
                 サンプル: #ref: ${GitHub}/MyPrivateCode/ansible_vagrant/multi_vm_ansible/branch_orchestration-with-group/README.yaml#MySQL command shell
@@ -1586,7 +1872,7 @@ MySQL:  #keyword: #ref: http://www.mysql.com/
                         MySQL 8.0.13 (8.0.30?) ～
                         MySQL 8.3.0 でも使えます
                     コマンド:  #search: MySQL command
-                        read -s -p "Enter password> "  MYSQL_ROOT_PASSWORD
+                        read -rs -p "Enter password> "  MYSQL_ROOT_PASSWORD
                         mysql  --socket=_____  --user "root"  --password="${MYSQL_ROOT_PASSWORD}"  -e"SET GLOBAL log_error_suppression_list = 'MY-013360';"
                         mysql  --socket=_____  --user "root"  --password="${MYSQL_ROOT_PASSWORD}"  -e"SHOW GLOBAL VARIABLES LIKE 'log_error_suppression_list';"
                     再起動した場合:
@@ -3000,7 +3286,7 @@ Flyway: #keyword: Flyway, .sql file  #// マイグレーション。データベ
         flyway info:  #// 現在の状態、Pending状態などを表示します
             CLI で flyway を実行します: | #keyword: flyway CLI
                 export FLYWAY_USER="admin"
-                read -s -p "Enter password: "  FLYWAY_PASSWORD
+                read -rs -p "Enter password: "  FLYWAY_PASSWORD
                 export FLYWAY_PASSWORD="${FLYWAY_PASSWORD}"
                 FlyWayLocationsPath="/var/tmp/mysql-schema-migration"
                 export FLYWAY_LOCATIONS="filesystem:${FlyWayLocationsPath}"  #// flyway を実行するホストの中の .sql ファイルがあるパス  #ref: https://documentation.red-gate.com/fd/flyway-locations-setting-277579008.html
@@ -6681,6 +6967,8 @@ DTO, DAO:  #keyword:
                     - それは BFF（Backend for Frontend） という設計パターンが解決しようとしている問題そのものです。
                 #ref: https://claude.ai/chat/b49796e2-e195-442c-b28c-f16ab50498e6
                     - （プロジェクトを作っただけ）
+        Aggregate DTO や Composite DTO:
+            いくつかのクラスを集めたもの
         メモ:
             - データの集合と、それらをプログラミング言語から読み書きする手段のみからなる１つのオブジェクト。
             - DTO は内部的に持つこと。クライアントには非公開。そうしないと、DTO が謎の中間モデルになってしまうためメンテナンスがほぼ不可能になります。

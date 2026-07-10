@@ -5,7 +5,7 @@
     .git フォルダーをバックアップします: #search: git backup example
 概念: #keyword: Git concept  #glossary: Git  #// ブランチ、タグ、サブモジュール、Git が定義する概念
     リポジトリ:  #keyword: Git repository,  Git server,  Git origin
-        ローカル, リモート: #keyword: Git local reposiroty, Git remote repository
+        ローカル, リモート: #keyword: Git local repository, Git remote repository
             ローカル: ワーキング フォルダー があるマシンにあるリポジトリ  #search: Git local repository
             リモート:  #// サーバーにあるリポジトリ
                 場所:  #search: show Git repository
@@ -20,6 +20,7 @@
             #ref: https://gigazine.net/news/20240725-github-anyone-can-access-hidden-repository/
         手順:
             基本 >> 作成: git commit -m "__CommitMessage__"  #search: git commit
+            情報表示:  #search: Git commit information
             コミットする:
                 メッセージのサンプル: #keyword: git commit message example
                     - Add ____ function.
@@ -190,7 +191,8 @@
                                 Otherwise, please use 'git cherry-pick --skip'
             コミットを禁止します:  #search: disabled git commit
             コミットのメッセージなどを変更します:  #search: git commit --amend
-        情報表示:
+            コミットする直前で自動チェックします:  #search: Git hooks
+        情報表示: #keyword: Git commit information
             コミットIDを表示します: #keyword: Git rev-parse commit ID
                 bashlib:  #search: GetCommitID
                 git:
@@ -206,6 +208,12 @@
                     #ref: https://stackoverflow.com/questions/47592077/show-git-branch-name-or-commit-id
                 マージ ベース:  #// 枝分かれしたコミット、共通の祖先のコミット  #search: git merge-base
             コミットの情報を表示します: git show __CommitID__  #search: git show
+            編集内容を特定する情報:  #keyword: Git change identifier  #// git rebase 等による コミット ID の変化に対する耐性があります
+                git log --pretty=format:"%h %aI %s"
+                    または
+                git log --pretty=format:"%h %aI %s"  origin/__Branch__
+                #// ハッシュ、編集コミット日時、コミット メッセージ を表示します
+                #// .git フォルダー を作らずに（git ls-remote コマンドで）コミット メッセージ 等を取得することはできません
             ファイルを表示します:  #search: GitHub code file  #// 指定したコミットのファイルの内容を GitHub で表示します
             VSCode で表示します: #keyword: VSCode git show commit,  VSCode commit,  git show VSCode,  VSCode git lens show commit diff
                 コミット ID から:
@@ -429,11 +437,23 @@
                     clean 状態の場合: 現在のコミット
                     編集中の場合: 前回コミットしたときのコミット
                     git add した場合: 現在のワークの内容
-                HEAD~, HEAD^:  #keyword: Git HEAD~, Git HEAD^
+                ORIG_HEAD: #keyword: Git ORIG_HEAD  #// マージ実行前の HEAD の位置
+                    その他: git merge, git reset, git rebase の実行前
+                    サンプル: git reset --hard ORIG_HEAD  #// マージ前に戻します。コードも戻します
+                    位置:  #// ORIG_HEAD が指すコミットの情報を表示します
+                        git log ORIG_HEAD -n 1  #// または git log ORIG_HEAD -1
+                        #// -n 1 は 1件表示する指定です
+                HEAD~, HEAD^: #keyword: Git HEAD~, Git HEAD^
                     clean 状態の場合: 前回のコミット
                     編集中の場合: 前前回コミットしたときのコミット
-                HEAD~2:  #keyword: Git HEAD~2  #// HEAD^2 は不可
+                HEAD~2: #keyword: Git HEAD~2  #// HEAD^2 は不可
                     clean 状態の場合: 2つ前のコミット
+                detached HEAD: #keyword:  #// HEAD がブランチではなく特定のコミットを直接指している状態
+                    注意:
+                        コミットを作るといずれ消えます:
+                            コミットを作ると、そのコミットはどのブランチにも属しません。そのまま別のブランチに移動すると、
+                            そのコミットは参照されなくなり、やがてガベージコレクションで消える可能性があります。
+                    #search: git branch --force
             ドロップ: #keyword: Git drop  #// 受け入れるコミットと同様の編集が済んでいるので、そのコミットを受け入れない（マージしない）こと
                 マージするときの ソース ブランチ に含まれる受け入れるコミット（マージしようとしているコミット）のうち、
                 同様の編集がすでに済んでいた場合、そのコミットのマージについてはスキップします。
@@ -460,6 +480,8 @@
                 -   git branch __RemoteBranchName__  origin/__RemoteBranchName__
             現在のブランチを切り替えずにブランチを新規作成する場合:
                 #search: git branch __NewBranchName__
+            現在のブランチを（削除して）リポジトリに合わせる場合:
+                #search: git branch --force
         作成: #keyword: Git new branch, create Git branch  #// ブランチを作ります:
             新しいブランチを作り、そのブランチに変わります:
                 現在位置からブランチを作ります:
@@ -1649,8 +1671,11 @@
             ツール:
                 git-flow:  #// git-flow という Git のプラグイン
                 gradle-ospackage-plugin によるバージョン番号更新:  #search: nebula.ospackage version number
+        翻訳: #keyword: Git translated,  Git 翻訳 同期
+            同期したときのコミットに translated タグを付けます
         コミットがブランチに含まれているか調べます:  #keyword: Git commit branch contains,  コミットがブランチに含まれているか
             コマンド: git merge-base --is-ancestor  __CommitID__  __BranchOrCommitID__  &&  echo yes  ||  echo no
+                #// __CommitID__ が __BranchOrCommitID__ に含まれているか
         コミットID:  #search: Git rev-parse commit ID
         ベース ブランチ:  #keyword: Git base branch  #// 分岐する元のブランチ、例えば feature branch にとっての develop branch のこと
             - 親ブランチ とも言います  #// Parent Branch
@@ -2097,11 +2122,11 @@
         タグを移動します:  #keyword: update git tag,  move git tag
             _: 移動するコマンドはありません。コメントを退避した後、削除して追加してください。
             __: | #snip:  #search: delete git tag  #search: git tag add
-                git checkout  __TargetBranch__
-                git tag -d  "__TagName__"
-                git push origin :refs/tags/__TagName__
-                git tag -a  "__TagName__"  -m "__TagName__"   #// コメントはタグ名と同じ内容にしています
-                git push origin  "__TagName__"
+                TagName="__TagName__";  NewCommitID="__NewCommitID__"
+                git tag -d  "${TagName}"
+                git push origin :refs/tags/${TagName}
+                git tag -a  "${TagName}"  -m "${TagName}"  "${NewCommitID}"   #// コメントはタグ名と同じ内容にしています
+                git push origin  "${TagName}"
         タグを削除します:  #keyword: delete git tag  #snippet-depth: 2
             注意: マージ ベース（枝分かれしたコミット）からタグがあるコミットまでの、１つ以上のコミットも削除されます
             コマンド:
@@ -2160,7 +2185,7 @@
                 サブモジュールの外を更新（pull, pull, checkout）したときに、サブモジュールの中のファイルも更新する場合、
                 普段は、サブモジュールの中の .git フォルダーを圧縮しておき、
                 サブモジュールを更新（pull, pull, checkout）するときは、一時的に .git フォルダーを復帰させます。
-            モノレポ: #keyword: Monorepo, モノレポ, モノレポ構成, マルチ プロジェクト 複数  #// 略語ではない
+            モノレポ: #keyword: Monorepo, モノレポ, モノレポ構成, マルチ 複数プロジェクト  #// 略語ではない
                 概要: アプリケーションやマイクロサービスの全コードを単一のモノリシックなリポジトリ (普通は Git) に保存するパターン
                     #ref: https://zenn.dev/anneau/articles/4c9beff9645af7
         clone: #// サブモジュールを含むリポジトリをクローンします  #search: git clone submodule
@@ -2440,109 +2465,205 @@
     フック:  #keyword: Git hooks,  git-config  #ref: https://git-scm.com/docs/githooks
         #ref: ${COMMAND_PREFIX}{programming}/方法論/CVS/Git.svg#Git_hook
         ❗注意: ローカルでのみ実行されます。GitHub ではフックは実行されません。たとえばプルリクエストしても post-merge フックは動きません。
-        フックの目的:
+        手順:
+            git clone したとき: #keyword: Git clone hooks  #// フックを有効化します
+                #search: enable Git hooks 
+                プロジェクトに含まれている場合, git-config/hooks:  #// __Project__/git-config/hooks/pre-commit など
+                    フック（スクリプト）の場所を設定します: #keyword: git hookspath,  git config core.hookspath  #focus: git-config/hooks  #search: git config --local
+                        git config --local  core.hookspath  "git-config/hooks"
+                    注意: git clone した PC ごとに１度だけ下記の設定コマンドを実行する必要があります。
+                プロジェクトに含まれていない場合, .git/hooks:  #// __Project__/.git/hooks/pre-commit など
+                    フック（スクリプト）をインストールします:
+                        cp -ap  "____/hooks/"*  "__Project__/.git/hooks"
+            有効化する:  #search: Git clone hooks
+            サンプル >> 実行してみます:  #search: disable git commit example git-config/hooks
+            開発 >> スクリプトを開発します: #keyword: Git hooks development
+                #↓ pre-commit フック（スクリプト）を編集して、単体で動作確認し、デプロイして（フックの置き場所にコピーして）、Git コマンドから呼び出せるようにします
+                準備:
+                    新規 feature ブランチで実験します:
+                        git checkout -b __NewBranchName__
+                        #// 実験的に git commit などを行うため、プロジェクトの開発に影響しないように、
+                        #// 新規 feature ブランチで実験してください。
+                        #// 編集するスクリプト自体は新規 feature ブランチの中に含まれないので、バックアップしてください
+                    （レアケース）既存のフックを無効化します:
+                        __Project__/.git/hooks/ または __Project__/git-config/hooks/ があれば、一時的に移動します
+                    （既存のフックがあれば）編集する場所（下記）へコピーします:
+                        cp  __Project__/git-config/hooks/pre-commit  __Project__/working/hooks/pre-commit  #// ← サンプル
+                            #template: cp  __ProductHooks__/__Timing__  __WorkingHooks__/__Timing__
+                編集します:  #ref: __Project__/working/hooks/pre-commit
+                    スクリプトの一時的な置き場所:  #// 編集を始めるスクリプトを保存します  #search: __Project__/working/hooks
+                        __Project__/working/hooks/pre-commit
+                            #template: __WorkingHooks__/__Timing__
+                        #// git status に影響しない場所でスクリプトを開発します。スクリプトの変化が git の動作に影響すると開発が難しくなるためです。
+                        #// .git/hooks/ はデフォルトで有効化されていて意図せず実行される可能性があるので非推奨
+                実行してみます: |  #// フックが呼ばれる環境で直接起動します
+                    ( cd __Project__  &&  working/hooks/pre-commit ;  echo "(exit code: $?)" )
+                デプロイします:  #// 実際にフックするタイミングで実行されるようにします
+                    VSCode の場合:
+                        差分を確認して反映します  #search: VSCode compare clipboard text
+                    CLI の場合:
+                        -   diff  __Project__/working/hooks/pre-commit  __Project__/git-config/hooks/pre-commit  #// 上書きしていい内容か確認してください。パスが合ってるか確認してください
+                        -   cp    __Project__/working/hooks/pre-commit  __Project__/git-config/hooks/pre-commit  #// 上書きコピーします。パスが合ってるか確認してください
+                （必要なら）バックアップします:  #// 編集中のスクリプトが無くならないように別の場所に保存します
+                    cp  __Project__/working/hooks/pre-commit  ~/_hook_example  #// ← サンプル
+                    #// 上記の通り、編集するスクリプト自体は新規 feature ブランチの中に含まれないので、バックアップしてください
+                （文書設定）: #settings:
+                    __ProductHooks__: __Project__/git-config/hooks
+                    __WorkingHooks__: __Project__/working/hooks
+                    __Timing__: pre-commit
+        機能:
+            #// フックの目的のサンプル
+            コミット前のチェック:  #search: disable git commit example
+            コンフリクトしていないことのチェック:  #search: Git conflict check hook
             ブランチごとの要求事項のチェック:
             Gitの管理対象外の内容のチェック: .gitignore されるファイルの存在や内容のチェックや自動調整をフックを使って自動実施できます
             パーミッションの復元: chmod +x 以外のパーミッションは Git は管理対象外ですが、フックを使って管理できます
-        フックを .git の外に作る場合:
-            準備: #keyword: git hookspath
-                PC ごとに１度だけ下記の設定コマンドを実行する必要があります。
-                git config --local  core.hookspath  "git-config/hooks"
-            コミットを禁止します:  #keyword: disabled git commit
-                __Project__/git-config/hooks/pre-commit: |  #keyword:
+        構成:
+            スクリプト:
+                下記「ファイル」を参照
+            タイミング, フックの種類: #keyword: Git hooks timing,  Git hooks event  #glossary: Git Hooks  #// イベントの種類
+                一覧:  #ref: ${typrm_files}/ref/Git/GitHooks.html
+                pre-commit: コミット直前  #ref: https://git-scm.com/docs/githooks#_pre_commit
+                post-checkout:  #ref: https://git-scm.com/docs/githooks#_post_checkout  #// git clone でも実行されます
+                ...:
+        ファイル:
+            #↓ 置き場所
+            __Project__/git-config/hooks: #keyword:  #// 【本番1】リポジトリに含める場合のスクリプトの置き場所
+                __Project__/git-config/hooks/pre-commit など
+            __Project__/.git/hooks: #keyword:        #// 【本番2】リポジトリに含めない場合のスクリプトの置き場所。Git のデフォルト
+                __Project__/.git/hooks/pre-commit など
+            __Project__/working/hooks: #keyword:     #// 【開発】開発中のスクリプトの置き場所の例。working 以外の名前でも構いませんが、.gitignore の対象であること。 #search: Git hooks development
+                __Project__/working/hooks/pre-commit など
+            #↓ 起動スクリプト。以下は pre-commit のタイミングの場合。その他のタイミングは #search: Git hooks timing
+            __Project__/git-config/hooks/pre-commit:  #// リポジトリに含める場合    #search: disable git commit example git-config/hooks
+            __Project__/.git/hooks/pre-commit:        #// リポジトリに含めない場合  #search: disable git commit example .git/hooks
+            __Project__/working/hooks/pre-commit:     #// 開発中の場合。working 以外の名前でも構いませんが、.gitignore の対象であること。 #search: Git hooks development
+            #↓ 実行スクリプト
+            __Project__/__Stage__/hooks/scripts/____.sh:  #// 実際の処理を実行するスクリプト。__Stage__ は working など
+                _: 複数のタイミングで同じ処理をする場合、複数の起動スクリプトから実行スクリプトを呼び出すように分けます。
+                pre-commit, post-merge など: |  #// 起動スクリプト
                     #!/bin/bash
-                    pwd  #// カレント フォルダー に関わらず __Project__ になります
-                    echo  "To commit this work folder is disabled by __Project__/git-config/hooks/pre-commit"
-                    exit  1
-                実行可能モードを追加します:
-                    chmod +x __Project__/git-config/hooks/pre-commit
-                サンプル (Git bash):
-                    コミットを禁止します: #keyword: disable git commit
-                        （１回目）Git hooks を使えるようにします:  #search: Git hooks
-                        (git bash): |  #focus: git-config/hooks
-                            cd  __Project__
-                            git config --local  core.hookspath  "git-config/hooks"
-                            edit="$(pwd)/git-config/hooks/pre-commit"
-                            mkdir -p  "${edit}"
-                            rmdir     "${edit}"
-                            echo  '#!/bin/sh' > "${edit}"
-                            echo  "pwd" >> "${edit}"
-                            echo  "echo  \"\"  >&2" >> "${edit}"
-                            echo  "echo  \"__Project__/git-config/hooks/pre-commit: [ERROR] To commit in this work is disabled\"  >&2" >> "${edit}"
-                            echo  "exit  1" >> "${edit}"
-                            chmod +x  "${edit}"
-                            ls -l  "git-config/hooks/pre-commit"
-                            git status
-                    （必要なら）コミットを禁止を試します:
-                        注意: .git フォルダーのバックアップがあること
-                        (git bash):
-                            git add .
-                            git commit -m "____"
-                    （デバッグする場合）:
-                        git-config/hooks/pre-commit;  echo $?
-                コミット禁止を終了します:
-                    #// 右記の続きです  #search: disable git commit
-                    rm  "git-config/hooks/pre-commit"
-                    git commit -m "____"
-            設定ファイルをチェックします:  #keyword: check file contents Git hooks  #// たとえば、.env ファイルに storage=local が無ければコミットできないエラーにします
-                #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  CheckPatternExists
-        フックを .git の中に作る場合:
-            注意:
-                リポジトリに保存されません
-            コミットを禁止します:
-                __Project__/.git/hooks/pre-commit: |
-                    #!/bin/bash
-                    echo  "To commit this work folder is disabled by __Project__/git-config/hooks/pre-commit"
-                    exit  1
-                実行属性を追加します:
-                    chmod +x __Project__/.git/hooks/pre-commit
-                サンプル (Git bash):
-                    コミットを禁止します:
-                        （１回目）Git hooks を使えるようにします:  #search: Git hooks
-                        (git bash):  #focus: .git/hooks
-                            cd  __Project__
-                            edit="$(pwd)/.git/hooks/pre-commit"
-                            mkdir -p  "${edit}"
-                            rmdir     "${edit}"
-                            echo  '#!/bin/sh' > "${edit}"
-                            echo  "echo  \"\"" >> "${edit}"
-                            echo  "echo  \"[ERROR] To commit in this work is disabled by __Project__/.git/hooks/pre-commit\"" >> "${edit}"
-                            echo  "exit  1" >> "${edit}"
-                            chmod +x  "${edit}"
-                            ls -l  .git/hooks/pre-commit
-                            git status
-                    （必要なら）コミットを禁止を試します:
-                        注意: .git フォルダーのバックアップがあること
-                        (git bash):
-                            git add .
-                            git commit -m "____"
-        シークレットを git サーバーにアップロードしないようにする場合: #keyword: git secret hooks
-            git-secrets: #keyword: aws git-secrets  #// AWS のシークレットが git に公開されないかチェックします
-                公式: #ref: https://github.com/awslabs/git-secrets
-                概要:
-                    AWS のシークレット（API キーなどの秘密の鍵）を git のコミットに追加しようとすると拒否されるようにします。
-                    対象は、コミット、コミットメッセージ、--no-ff マージ。
-                    設定された禁止された正規表現パターンの1つと一致する場合、コミットは拒否されます。
-                インストール:
-                    本体:
-                        mac:
-                            brew install git-secrets
-                            git secrets  #// git secrets の使い方が表示されます
-                    フック:  #// プロジェクトに git-secrets のフックを追加して、コミットにシークレットが追加されないようにします
-                        git secrets --install
-                        git secrets --register-aws
-                    テンプレート:  #// git init や git clone したときに git-secrets フックをプロジェクトに追加するように設定します  #search: git init template
-                        git secrets --register-aws --global
-                        git secrets --install ~/.git-templates/git-secrets
-                        git config --global init.templateDir ~/.git-templates/git-secrets
-                参考: #ref: https://dev.classmethod.jp/articles/startup-git-secrets/
-            手動:
-                gitフックによりAWSアクセスキー混入を防止する: #ref: https://qiita.com/aosho235/items/bf84a59caeb7c51abb60
-                    判定方法: AKI から始まるパターンを検索すること
-        フックの種類: #glossary: Git Hooks  #// イベントの種類
-            pre-commit:  #ref: https://git-scm.com/docs/githooks#_pre_commit
-            post-checkout:  #ref: https://git-scm.com/docs/githooks#_post_checkout  #// git clone でも実行されます
-            ...:
+                    # Please run the following command:
+                    #     git config --local  core.hookspath  "git-config/hooks"
+                    ThisFolder="${0%/*}"   #// left of last "/"
+
+                    ${ThisFolder}/scripts/check-git-user.sh  ||  exit $?
+                scripts/check-git-user.sh: |  #// 実行スクリプト
+                    ...
+            #↓ その他
+            カレント フォルダー:
+                __Project__  #// .git があるフォルダー
+        コード:
+            有効化, サンプル実行: #keyword: enable Git hooks  #// フックが起動するように有効化します
+                #search: Git clone hooks
+                フックを .git/ の外に作る場合:  #// __Project__/git-config/hooks/____ に、フックが呼び出されるタイミングで実行するスクリプトを置きます
+                    場所: __Project__/git-config/hooks/pre-commit  #// ← pre-commit はフックの種類によって変わります  #search: __Project__/git-config/hooks
+                    #↓ フックのサンプル (1)
+                    コミットを禁止します: #keyword: disable git commit example git-config/hooks
+                        準備:  #// フックを使えるようにします
+                            #search: git hookspath
+                        配置するスクリプト:
+                            __Project__/git-config/hooks/pre-commit: | #keyword:  #// core.hookspath に指定したパスの中に書きます。開発時は #search: __Project__/working/hooks
+                                #!/bin/bash
+                                # Please run the following command:
+                                #     git config --local  core.hookspath  "git-config/hooks"
+                                pwd  #// git commit を実行したときの カレント フォルダー に関わらず、スクリプトを実行するときの カレント フォルダー は __Project__ になります
+                                echo  "To commit this work folder is disabled by __Project__/git-config/hooks/pre-commit"
+                                exit  1
+                            上記の補足:
+                                exit 1:
+                                    終了コードが 0 以外なら、git commit を始める前に中断します
+                                実行属性が必要です:
+                                    chmod +x __Project__/git-config/hooks/pre-commit
+                        詳細実行サンプル:  #// 実際にコミットできる環境
+                            コミットを禁止します: #keyword: disable git commit
+                                (git bash):  #focus: git-config/hooks
+                                    フックを使えるようにします:  #// git clone した PC ごとに１度だけ下記の設定コマンドを実行する必要があります。
+                                        cd  __Project__
+                                        git checkout -b  hook_example
+                                        git config --local  core.hookspath  "git-config/hooks"
+                                    スクリプトを作ります: |
+                                        edit="$(pwd)/git-config/hooks/pre-commit"
+                                        mkdir -p  "${edit}"
+                                        rmdir     "${edit}"
+                                        echo  '#!/bin/sh' > "${edit}"
+                                        echo  "pwd" >> "${edit}"
+                                        echo  "echo  \"\"  >&2" >> "${edit}"
+                                        echo  "echo  \"__Project__/git-config/hooks/pre-commit: [ERROR] To commit in this work is disabled\"  >&2" >> "${edit}"
+                                        echo  "exit  1" >> "${edit}"
+                                        chmod +x  "${edit}"
+                                    できた状態を確認します:
+                                        ls -l  "git-config/hooks/pre-commit"
+                                        git status
+                            （必要なら）コミットを禁止を試します:
+                                注意: .git フォルダーのバックアップがあること
+                                (git bash):
+                                    git add "."
+                                    git commit -m "____"
+                            （デバッグする場合）:
+                                git-config/hooks/pre-commit;  echo $?
+                            コミット禁止を終了します: |
+                                rm  "git-config/hooks/pre-commit"
+                                git checkout  develop          #// 以下でブランチを削除するため
+                                git branch -D  hook_example
+                    設定ファイルをチェックします:  #keyword: check file contents Git hooks  #// たとえば、.env ファイルに storage=local が無ければコミットできないエラーにします
+                        #ref: ${GitHub}/MyPrivateCode/bash/git-hooks/pre-commit#function  CheckPatternExists
+                フックを .git/ の中に作る場合:  #// VSCode の Explorer View に表示されません。リポジトリに保存されません
+                    注意:
+                        リポジトリに保存されません
+                    場所: __Project__/.git/hooks/pre-commit  #// ← pre-commit はフックの種類によって変わります  #search: __Project__/.git/hooks
+                    #↓ フックのサンプル (2)
+                    コミットを禁止します: #keyword: disable git commit example .git/hooks
+                        __Project__/.git/hooks/pre-commit: |  #// .git/hooks は core.hookspath のデフォルトです
+                            #!/bin/bash
+                            echo  "To commit this work folder is disabled by __Project__/.git/hooks/pre-commit"
+                            exit  1
+                        実行属性を追加します:
+                            chmod +x __Project__/.git/hooks/pre-commit
+                        サンプル (Git bash):
+                            コミットを禁止します:
+                                （１回目）Git hooks を使えるようにします:  #search: Git hooks
+                                (git bash):  #focus: .git/hooks
+                                    cd  __Project__
+                                    edit="$(pwd)/.git/hooks/pre-commit"
+                                    mkdir -p  "${edit}"
+                                    rmdir     "${edit}"
+                                    echo  '#!/bin/sh' > "${edit}"
+                                    echo  "echo  \"\"" >> "${edit}"
+                                    echo  "echo  \"[ERROR] To commit in this work is disabled by __Project__/.git/hooks/pre-commit\"" >> "${edit}"
+                                    echo  "exit  1" >> "${edit}"
+                                    chmod +x  "${edit}"
+                                    ls -l  .git/hooks/pre-commit
+                                    git status
+                            （必要なら）コミットを禁止を試します:
+                                注意: .git フォルダーのバックアップがあること
+                                (git bash):
+                                    git add .
+                                    git commit -m "____"
+            #↓ フックのサンプル (3)
+            シークレットを git サーバーにアップロードしないようにする場合: #keyword: git secret hooks
+                git-secrets: #keyword: aws git-secrets  #// AWS のシークレットが git に公開されないかチェックします
+                    公式: #ref: https://github.com/awslabs/git-secrets
+                    概要:
+                        AWS のシークレット（API キーなどの秘密の鍵）を git のコミットに追加しようとすると拒否されるようにします。
+                        対象は、コミット、コミットメッセージ、--no-ff マージ。
+                        設定された禁止された正規表現パターンの1つと一致する場合、コミットは拒否されます。
+                    インストール:
+                        本体:
+                            mac:
+                                brew install git-secrets
+                                git secrets  #// git secrets の使い方が表示されます
+                        フック:  #// プロジェクトに git-secrets のフックを追加して、コミットにシークレットが追加されないようにします
+                            git secrets --install
+                            git secrets --register-aws
+                        テンプレート:  #// git init や git clone したときに git-secrets フックをプロジェクトに追加するように設定します  #search: git init template
+                            git secrets --register-aws --global
+                            git secrets --install ~/.git-templates/git-secrets
+                            git config --global init.templateDir ~/.git-templates/git-secrets
+                    参考: #ref: https://dev.classmethod.jp/articles/startup-git-secrets/
+                手動:
+                    gitフックによりAWSアクセスキー混入を防止する: #ref: https://qiita.com/aosho235/items/bf84a59caeb7c51abb60
+                        判定方法: AKI から始まるパターンを検索すること
     init のテンプレート: #keyword: git init template
         概要:
             init のテンプレートを設定しておくと、git clone や git init したときにテンプレートの内容が .git フォルダーの中にコピーされます
@@ -3025,13 +3146,15 @@ Git: #keyword: git
                                 GitHub プロジェクト >> Settings タグ >> Allow squash merging（をブラウザーの機能で検索）
                             参考: #ref: https://docs.github.com/ja/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-pull-request-commits
                     マージをキャンセルします:  #keyword: git merge cancel,  git merge --abort
-                        編集完了前の場合: git merge --abort  #// コンフリクトの解消作業をキャンセルします
-                        編集後の場合:
-                            ブランチの HEAD を移動する場合:  #search: git branch move
-                            git reset コマンドを使う場合:  #search: git reset --hard
+                        マージ中:
+                            コンフリクトの編集が完了する前の場合: git merge --abort  #// コンフリクトの解消作業をキャンセルします
+                            編集後の場合(?):
+                                ブランチの HEAD を移動する場合:  #search: git branch move
+                                git reset コマンドを使う場合:  #search: git reset --hard
                         コミット後の場合:
-                            マージ前のツリーに戻します:  #// ファイルの内容は戻しません
-                                git reset --soft HEAD^  #search: git commit cancel
+                            マージ前のコミットに戻します: |  #// コードも戻します
+                                git log ORIG_HEAD -n 1  #// 戻った後の場所を確認します
+                                git reset --hard ORIG_HEAD
                             リバートします:  #// リバートを行ったコミットを追加します
                                 git revert -m 1  __MergedCommitID__
                         参考: #ref: https://qiita.com/chihiro/items/5dd671aa6f1c332986a7
@@ -3613,7 +3736,14 @@ Git: #keyword: git
                 #ref: https://git-scm.com/docs/git-blame
                 GitHub: #search: GitHub blame
                 前のバージョン: #search: git log --follow
-            git branch: #search: Git branch
+            git branch: #keyword: git branch (command)  #search: Git branch
+                git branch --force: #keyword:  #// 現在のブランチを（削除して）リポジトリに合わせます
+                    カレント ブランチ で合わせる場合:
+                        git fetch origin
+                        git branch --force  origin/$(git branch --show-current)
+                    ブランチ名を指定する場合:
+                        git fetch origin
+                        git branch --force  __Branch__  origin/__Branch__
                 git branch -m:  #// ブランチ名の変更
                     #ref: https://qiita.com/obonno3/items/f44bb730facc29a3b7d5
             git checkout: #keyword: git checkout
@@ -3623,6 +3753,7 @@ Git: #keyword: git
                     git checkout -t: リモートブランチから新しいブランチをローカルに生成し、さらにそのブランチへ移動します
                     内容を変えずに、現在のブランチを変更します:  #// ワーキング フォルダー の内容は変更しません
                         #search: git symbolic-ref
+                    強制的にリモートと同じにします:  #search: git pull reset hard
                 戻したことをキャンセルします:  #keyword: git checkout undo
                     git checkout にパラメーターを指定しなかった場合:  #// パラメーターの例: "."
                         ファイルはコミットまで戻されていません
@@ -3671,9 +3802,26 @@ Git: #keyword: git
                             PAT の場合:
                                 username: oauth2
                                 password: PAT
-                        ~/.netrc を使う場合:  #search: ~/.netrc Git
-                        ~/.git-credentials を使う場合: #keyword: ~/.git-credentials  #// 非推奨
-                            #// 平文で保存するため非推奨
+                        #↓ 指定方法
+                        コマンドに指定する場合: #keyword: CLI git authentication
+                            -c credential.helper を使う場合: #keyword: CLI ~/.secret/gitlab-pat  #search: Git credential.helper
+                                local  credentialOptions=( -c credential.helper='!f() { echo "username=oauth2"; echo "password=$( cat ~/.secret/gitlab-pat )"; }; f' )
+                                git "${credentialOptions[@]}" clone ...
+                                #// -c オプション  #search: git -c option  #// git のグローバルオプション(サブコマンドの前に置くオプション)で、「設定値をその場で一時的に指定する」ためのものです。
+                                #// ~/.secret/gitlab-pat に PAT を保存しておいてください。平文で保存するためローカル以外は非推奨  #search: ~/.git-credentials
+                                #// 保存は  #search: ~/.secret/gitlab-pat
+                            URL に埋め込む方式:  #// 非推奨
+                                ❗リスク: git remote get-url origin コマンドで表示されてしまいます  #keyword: git clone token in URL risk
+                                トークン, PAT: #keyword: git clone https://oauth2:
+                                    git clone  https://oauth2:$( cat ~/.secret/gitlab-pat )@__GitRepositoryURL__
+                                    #search: git clone PAT
+                                パスワード:  #// HTTPS であれば、通信上は暗号化されています。パスワードの平文は HTTPS の中で流れるため
+                                    git clone  https://__GitLabUser__:__GitLabApiToken__@__GitRepositoryURL__
+                                    #// __GitRepositoryURL__ は https:// を含みません
+                        ~/.netrc に設定する場合:  #search: ~/.netrc Git
+                        ~/.git-credentials に設定する場合: #keyword: ~/.git-credentials  #// 非推奨  git-credential-store が認証情報を保存・参照するためのファイル
+                            #// 平文で保存するためローカル以外は非推奨
+                            （コマンドに指定する場合）:  #search: CLI git authentication
                             基本認証:
                                 ~/.git-credentials ファイル:
                                     https://__User__:__Password__@__RepositoryServer__
@@ -3686,92 +3834,152 @@ Git: #keyword: git
                                 - credential.helper の設定  #search: git credential.helper store
                                 #// git clone に .my-credentials の場所を指定するオプションはありません。一時変更してください  #search: temporary git credential.helper store
                                 #// 平文を指定する方法はあります  #search: git clone authentication
-                        コマンドに指定する場合: #// 非推奨
-                            ❗リスク: git remote get-url origin コマンドで表示されてしまいます  #keyword: git clone token in URL risk
-                            トークン, PAT: #keyword: git clone https://oauth2:
-                                git clone  https://oauth2:$(cat ~/.secret/gitlab-pat)@__GitRepositoryURL__
-                                #search: git clone PAT
-                            パスワード:  #// HTTPS であれば、通信上は暗号化されています。パスワードの平文は HTTPS の中で流れるため
-                                git clone  https://__GitLabUser__:__GitLabApiToken__@__GitRepositoryURL__
-                                #// __GitRepositoryURL__ は https:// を含みません
-                        実行中入力: |  #// HTTPS であれば、通信上は暗号化されています。パスワードの平文は HTTPS の中で流れるため
-                            #// 後日 git pull するときは、毎回入力が必要です
-                            $ git clone  https://__GitRepositoryURL__
-                            Cloning into 'reposiroty'...
-                            Username for 'https://__GitRepositoryURL__': 
-                            Password for 'https://__GitLabUser__@__GitRepositoryURL__': 
-                        credential.helper: #keyword: Git credential.helper,  git clone authentication automatic input  #// Git リポジトリのパスワードを毎回入力することを不要にします
-                            #// Git クライアント内の認証情報の保存場所。保存場所はヘルパーによっていろいろあります
-                            #ref: https://git-scm.com/book/ja/v2/Git-のさまざまなツール-認証情報の保存
-                            参照: #// 現在の設定を表示します。クライアント側
+                    実行中に入力する場合:  #search: Git token input
+                    #↓ 構成
+                    credential.helper: #keyword: Git credential.helper,  git clone authentication automatic input  #// Git リポジトリのパスワードを毎回入力することを不要にします
+                        #// Git クライアント内の認証情報の保存場所。保存場所はヘルパーによっていろいろあります
+                        #ref: ${typrm_files}/ref/Git/Git_credential_taxonomy.html
+                        #ref: https://git-scm.com/book/ja/v2/Git-のさまざまなツール-認証情報の保存
+                        値:  #// credential.helper の値
+                            外部コマンド型:  #// 値が ! で始まらない場合
+                                git は credential.helper の値を見て git-credential-<値> という名前の実行ファイルを探して呼び出します。
+                                たとえば credential.helper=store なら git-credential-store という実体のあるプログラムが実行されます。
+                                store や cache、osxkeychain などはこの形で、git に同梱・インストールされた実行ファイルです。
+                                パラメーターも指定できます
+                                保存期間は <値> によって異なります。 #search: git-credential-cache
+                            シェルコマンド型: | #// 値の先頭が ! の場合
+                                git は ! の次以降の文字列をシェルに渡して実行します。
+                                    !f() { echo "username=oauth2"; echo "password=$(cat ~/.secret/gitlab-pat)"; echo; }; f
+                                これは ! を取り除いた
+                                    f() { echo "username=oauth2"; echo "password=$(cat ~/.secret/gitlab-pat)"; echo; }; f
+                                というシェルスクリプト断片が sh -c '...' 相当で実行される、という意味です。
+                                保存期間は、書いたスクリプトによりますが、保存するようなスクリプトでなければ、
+                                git-credential-cache にさえ認証情報は保存されません。
+                        参照:
+                            credential.helper の値:  #// コマンドラインに指定しなかった場合の、現在の設定を表示します。クライアント側
                                 - git config credential.helper
                                 - cat ~/.git-credentials  #// store 設定の場合
-                            設定: #// 設定します。クライアント側。 Git リポジトリにアクセスしようとすると自動的にユーザー名とパスワード（やトークン）を入力します
-                                # ↓保存場所
-                                cache, メモリー:  #// 一定時間だけ入力不要にします。デフォルト 15分
-                                    - git config --global credential.helper cache
-                                    - git config --global credential.helper 'cache --timeout=60'
-                                ファイル, store: #keyword: git config credential.helper  #// ❗平文
-                                    設定を表示します:  #// 有効無効と、ファイルのパス
-                                        入力コマンド:
-                                            -   git config  --get credential.helper
-                                            #// または
-                                            -   git config --global  --get credential.helper  #search: git config --global
-                                        出力の意味:
-                                            - |
-                                                $ git config  --get credential.helper
-                                                store                           #// git fetch などを実行するときに、~/.git-credentials から認証情報を読み込みます
-                                            - |
-                                                $ git config  --get credential.helper
-                                                store --file ~/.my-credentials  #// git fetch などを実行するときに、~/.my-credentials から認証情報を読み込みます
-                                            - |
-                                                $ git config  --get credential.helper
-                                                                                #// 何も表示されないとき、git fetch などを実行するときに、認証情報を読み込みません
-                                    保存します: #// 未確認
-                                        次回入力した認証情報をファイルに保存するように設定します:
-                                            標準的な ~/.git-credentials に保存する場合:
-                                                git config --global credential.helper store
-                                            指定した場所に保存する場合:
-                                                git config --global credential.helper store  --file ~/.my-credentials
-                                        認証情報を保存します:
-                                            git fetch を実行する場合: |  #// git fetch を実行して認証情報を保存する場合
-                                                $ git config --global credential.helper store
-                                                $ git fetch
-                                                Username for 'https://github.com': myusername
-                                                Password for 'https://myusername@github.com': ********
-                                                # ↑ここで入力した認証情報が自動的にファイルに保存される
-                                    （古い情報）:
-                                        パスワードを設定します:  #// 以下のいずれか
-                                            ~/.git-credentials:  #search: ~/.git-credentials
-                                            Git リポジトリにアクセス >> ユーザー名とパスワードを入力します:
-                                        ファイルに保存する設定をします: #keyword: git credential.helper store  #// 以下のいずれか
-                                            基本:
-                                                - git config --global credential.helper store  #// ~/.git-credentials に保存されます
-                                                - git config --global credential.helper store  --file ~/.my-credentials  #// ~/.my-credentials に保存されます
-                                                #// 認証情報は平文で保存されます
-                                            一時的にファイルの場所を指定する場合:  #keyword: temporary git credential.helper store
-                                                - su --login __User__  #// 必要なら、ユーザーを正しくします
-                                                - git config credential.helper
-                                                #// 以下は何も表示されなかった場合
-                                                - git config --global credential.helper store  --file __CredentialsFilePath__
-                                                - git clone  __URL__
-                                                - git config --global --unset credential.helper
-                                        参考 >> 他の保存場所:  #search: save password
-                                なし:  #// （デフォルト）保存されません。接続のたびにパスワードを入力します
-                                    - git config --global --unset credential.helper
-                                OS のパスワード管理:
-                                    - git config --global credential.helper manager
-                                    - Git リポジトリにアクセス >> ユーザー名とパスワードを入力します
-                            保存, git credential approve: #keyword: git credential approve  #// credential.helper に「この認証情報を保存してください」と指示します
-                                サンプル: |  #// シークレットを変数に保存しません  #search: git authentication username password
-                                    printf "protocol=https\nhost=%s\nusername=%s\npassword=%s\n\n" \
-                                        "${GitLabHost}"  "$( cat  "${GitLabAccountPath}" )"  "$( cat  "${GitLabPATPath}" )" \
-                                    | docker exec -i ${containerName} sh -lc 'git credential approve'  ||  Error
-                                Vault と連携する場合:  #search: Vault + GitLab PAT + CI + Container
-                        #↓ リポジトリ側、クラウド側
-                        GitHub:  #search: GitHub account
-                        GitLab:  #search: GitLab access token
-                        いろいろなトークン >> GitLab:  #search: GitLab members
+                            トークン:
+                                git コマンドの内部で参照します
+                        設定: #// 設定します。クライアント側。 Git リポジトリにアクセスしようとすると自動的にユーザー名とパスワード（やトークン）を入力します
+                            #↓ CLI へ指定する場合や、設定を使用する場合
+                            CLI, -c オプション:  #search: CLI git authentication
+                            config: #keyword: Git config credential.helper
+                                git config --global credential.helper cache
+                            優先順位: |
+                                | 優先順位 | 設定元                                           |
+                                |----------|--------------------------------------------------|
+                                | 1        | `git -c credential.helper=...`（コマンドライン） |
+                                | 2        | `git config --local`（リポジトリ単位）           |
+                                | 3        | `git config --global`（ユーザー単位）            |
+                                | 4        | `git config --system`（システム単位）            |
+                            credential.helper の値のデフォルト: |
+                                | OS      | デフォルトの helper                 |
+                                |---------|-------------------------------------|
+                                | Mac     | `osxkeychain`                       |
+                                | Windows | `manager`（Git Credential Manager） |
+                                | Linux   | 設定されていないことが多い          |
+                            #↓ 失敗したときに入力する場合
+                            再入力のプロンプト: |  #keyword: Git token input  #// HTTPS であれば、通信上は暗号化されています。パスワードの平文は HTTPS の中で流れるため
+                                    Username for 'https://github.com': __YourUsername__
+                                    Password for 'https://your-username@github.com': __YourToken__
+                                #// ブラウザーが開くこともあります
+                            OS 別の再入力モジュール: |
+                                | credential helper      | 認証失敗時の挙動                                   |
+                                |------------------------|----------------------------------------------------|
+                                | 設定なし（Linux など） | 再入力を求められる（数回試行後にエラー）           |
+                                | `osxkeychain`（Mac）   | エラーで終了し、再入力は求められないことが多い     |
+                                | `manager`（Windows）   | GUIダイアログが表示され再入力を促す                |
+                                | `cache`                | エラーで終了                                       |
+                            認証に成功したら:
+                                認証情報は、設定された場所（helper の種類による）に保存され、
+                                以後の git push などを実行するときに、認証は求められません。
+                            保存場所:
+                                git config credential.helper の設定値によります。 #search: credential.helper
+                            保存期間:
+                                helper の種類（git-credential-store など）によります。
+                            認証の区別:
+                                認証は、ローカルのユーザー単位で管理され、リモートのホスト単位で区別されます。
+                                Git working フォルダーごとには区別されません。
+                        #↓ 保存場所、保存期間、ヘルパー プログラム、外部コマンド
+                        メモリー, git-credential-cache:  #// 一定時間だけ入力不要にします。デフォルト 15分
+                            - git config --global credential.helper cache
+                            - git config --global credential.helper 'cache --timeout=60'
+                        ファイル, git-credential-store: #keyword: git config credential.helper git-credential-store  #// ❗平文
+                            _: ~/.git-credentials を使います  #search: ~/.git-credentials
+                            設定を表示します:  #// 有効無効と、ファイルのパス
+                                入力コマンド:
+                                    -   git config  --get credential.helper
+                                    #// または
+                                    -   git config --global  --get credential.helper  #search: git config --global
+                                出力の意味:
+                                    - |
+                                        $ git config  --get credential.helper
+                                        store                           #// git fetch などを実行するときに、~/.git-credentials から認証情報を読み込みます
+                                    - |
+                                        $ git config  --get credential.helper
+                                        store --file ~/.my-credentials  #// git fetch などを実行するときに、~/.my-credentials から認証情報を読み込みます
+                                    - |
+                                        $ git config  --get credential.helper
+                                                                        #// 何も表示されないとき、git fetch などを実行するときに、認証情報を読み込みません
+                            保存します: #// 未確認
+                                次回入力した認証情報をファイルに保存するように設定します:
+                                    標準的な ~/.git-credentials に保存する場合:
+                                        git config --global credential.helper store
+                                    指定した場所に保存する場合:
+                                        git config --global credential.helper store  --file ~/.my-credentials
+                                認証情報を保存します:
+                                    git fetch を実行する場合: |  #// git fetch を実行して認証情報を保存する場合
+                                        $ git config --global credential.helper store
+                                        $ git fetch
+                                        Username for 'https://github.com': myusername
+                                        Password for 'https://myusername@github.com': ********
+                                        # ↑ここで入力した認証情報が自動的にファイルに保存される
+                            （古い情報）:
+                                パスワードを設定します:  #// 以下のいずれか
+                                    ~/.git-credentials:  #search: ~/.git-credentials
+                                    Git リポジトリにアクセス >> ユーザー名とパスワードを入力します:
+                                ファイルに保存する設定をします: #keyword: git credential.helper git-credential-store  #// 以下のいずれか
+                                    基本:
+                                        - git config --global credential.helper store  #// ~/.git-credentials に保存されます
+                                        - git config --global credential.helper store  --file ~/.my-credentials  #// ~/.my-credentials に保存されます
+                                        #// 認証情報は平文で保存されます
+                                    一時的にファイルの場所を指定する場合:  #keyword: temporary git credential.helper store
+                                        - su --login __User__  #// 必要なら、ユーザーを正しくします
+                                        - git config credential.helper
+                                        #// 以下は何も表示されなかった場合
+                                        - git config --global credential.helper store  --file __CredentialsFilePath__
+                                        - git clone  __URL__
+                                        - git config --global --unset credential.helper
+                                参考 >> 他の保存場所:  #search: save password
+                        OS のパスワード管理, git-credential-manager:
+                            - git config --global credential.helper manager
+                            - Git リポジトリにアクセス >> ユーザー名とパスワードを入力します
+                        なし:  #// （デフォルト）保存されません。接続のたびにパスワードを入力します
+                            - git config --global --unset credential.helper
+                        保存, git credential approve: #keyword: git credential approve  #// credential.helper に「この認証情報を保存してください」と指示します
+                            サンプル: |  #// シークレットを変数に保存しません  #search: git authentication username password
+                                printf "protocol=https\nhost=%s\nusername=%s\npassword=%s\n\n" \
+                                    "${GitLabHost}"  "$( cat  "${GitLabAccountPath}" )"  "$( cat  "${GitLabPATPath}" )" \
+                                | docker exec -i ${containerName} sh -lc 'git credential approve'  ||  Error
+                            Vault と連携する場合:  #search: Vault + GitLab PAT + CI + Container
+                    権限: | #keyword: GitHub 権限
+                        | 操作                                            | アカウントなし | アカウントあり（最低権限） |
+                        |-------------------------------------------------|----------------|------------------------|
+                        | パブリックリポジトリの `git clone` / `git pull` | ✅            | ✅                     |
+                        | GitHub上でのコード閲覧（ブラウザ）              | ✅            | ✅                     |
+                        | Releases のファイルダウンロード                 | ✅            | ✅                     |
+                        | Issue の作成・コメント                          | ❌            | ✅ パブリックのみ      |
+                        | Fork して `git push` → PR 作成                 | ❌            | ✅ パブリックのみ      |
+                        | Star / Watch                                    | ❌            | ✅ パブリックのみ      |
+                        | 自分のリポジトリの作成・管理                    | ❌            | ✅                     |
+                        | 他人のリポジトリへの直接 `git push`             | ❌            | ❌ write権限が必要     |
+                        | プライベートリポジトリへのアクセス              | ❌            | ❌ 招待が必要          |
+                    #↓ リポジトリ側、クラウド側
+                    GitHub:  #search: GitHub account
+                    GitLab:  #search: GitLab access token
+                    いろいろなトークン >> GitLab:  #search: GitLab members
+                    その他 ログイン トークン:  #search: GitHub login token
                 性能のオプション:
                     --depth オプション: #keyword: git clone --depth  #// シャロークローン (shallow clone)
                         --depth 1 とすると、最新のコミットだけダウンロードします。早くダウンロードできます
@@ -3787,6 +3995,7 @@ Git: #keyword: git
                             #template: https://github.com/__RepositoryUser__/__Project__/tree/__Branch__/__RelativePath__
                             #to__: vercel, next.js, canary, examples/with-react-bootstrap
                         sparse-checkout を使う場合:
+                            private の場合:  #search: private sparse checkout
                             初回の場合:  #focus: next.js,  examples
                                 準備:
                                     - mkdir -p  ~/GitClone/GitHub/vercel  #template: __GitClone__/__RepositoryUser__
@@ -4340,10 +4549,10 @@ Git: #keyword: git
                     git ls-remote --tags  #search: list git tag
                 リポジトリを指定します:
                     git ls-remote --heads -- https://github.com/Takakiriy/first
-                        #template__: -- __ReposirotyURL__
+                        #template__: -- __RepositoryURL__
                 コミットID を取得します:  #// 指定したリポジトリの指定したブランチのヘッドの コミットID を取得します
                     git ls-remote -- https://github.com/Takakiriy/first  refs/heads/main
-                        #template__: -- __ReposirotyURL__  refs/heads/__BranchName__
+                        #template__: -- __RepositoryURL__  refs/heads/__BranchName__
             git merge:
                 公式: #ref: https://git-scm.com/docs/git-merge
                 #search: git merge
@@ -4364,7 +4573,15 @@ Git: #keyword: git
                     git pull でマージする設定:
                         cd  __Project__
                         git config pull.ff false
-                別のブランチを同期（git pull）します:
+                同期しようとして git pull に失敗するとき: #keyword: git pull reset hard
+                    #// リモートに合わせます
+                    clean 状態の場合:  #// git status で見える編集中の内容は discard されます
+                        git reset --hard origin/$( git branch --show-current )
+                    clean 状態ではない場合:
+                        git stash
+                        git reset --hard origin/$( git branch --show-current )
+                        git stash pop
+                別のブランチを同期（git pull）します:  #// カレント ブランチ はそのままで、別のブランチをリモートから pull します
                         #// 1つのコマンドではできません
                     -   git stash   #// git status が clean ではないときだけ
                     -   git checkout  __OtherBranch__
@@ -4503,7 +4720,20 @@ Git: #keyword: git
                     git push したことが分かっていれば、push した日時は、コミット日時の近くでしょう
                     git push したかどうか GitHub など（リモート側）にコミットがあるかどうかで基本的に分かりますが、 force push されたら消えている可能性があります。
             git rebase: #keyword:  #// リベースした後で push するときは git push --force-with-lease
+                ❗注意: リベースする前に正解ブランチを作ります
                 ブランチのベースを移動します:  #keyword: git rebase branch
+                    ❗注意 >> リベースする前に正解ブランチを作ります:
+                        編集するブランチに移動します:
+                            git checkout  __UpdatingBranch__
+                        _answer ブランチ を作ります:
+                            git checkout -b  _answer
+                            git merge --no-ff --no-edit  __UpdatingBranch__
+                            git checkout  __UpdatingBranch__
+                        リベースします:
+                            下記
+                        _answer ブランチ と同じであることを確認します:
+                            git diff  _answer
+                            git branch -D _answer  #// _answer ブランチ を削除します
                     コミットを１つでも git push した後の場合: #keyword: git rebase remote branch  #// リベース前がリポジトリにある場合
                         新しい方法:  #// --force-with-lease を使います。develop ブランチから feature ブランチが枝分かれしている場合
                             編集するブランチに移動します:
@@ -5178,43 +5408,50 @@ Git: #keyword: git
                         #search: git symbolic-ref
                 hard: #keyword: git reset --hard,  git cancel,  git undo  #// 現在のブランチの位置、インデックス、ワーキング フォルダー を変更します
                     手順:
-                        編集がある場合、暫定的にコミットします:
-                            git status
-                                not clean
-                            git checkout -b tmp
-                            git add "."
-                            git commit -m "WIP"
-                            git checkout __PreviousBranch__
-                        キャンセルする内容を確認します:
-                            git reflog --date=iso  #// --date オプションを付けると日時が表示されます
-                        出力例 >>> --date=iso あり: |  #search: rebase (start)
-                            commit ID (branch)    HEAD@{__Num__}: command
-                            -------------------------------------------------------------------------------------------------------
-                            7c738a5d1 (HEAD -> feature) HEAD@{2023-01-01 00:00:00 +0000}: checkout: moving from feature to feature
-                            7c738a5d1 (HEAD -> feature) HEAD@{2023-01-01 00:00:00 +0000}: rebase (finish): returning to refs/heads/feature
-                            7c738a5d1 (HEAD -> feature) HEAD@{2023-01-01 00:00:00 +0000}: rebase (pick): Changed commit message
-                            5eb484411 (develop) HEAD@{2023-01-01 00:00:00 +0000}: rebase (start): checkout develop
-                            10942daa1 (origin/feature) HEAD@{2023-01-01 00:00:00 +0000}: checkout: moving from feature_2 to feature
-                        出力例 >>> --date=iso なし: |
-                            commit ID (branch)    HEAD@{__Num__}: command
-                            -------------------------------------------------------------------------------------------------------
-                            7c738a5d1 (HEAD -> feature) HEAD@{0}: checkout: moving from feature to feature
-                            7c738a5d1 (HEAD -> feature) HEAD@{1}: rebase (finish): returning to refs/heads/feature
-                            7c738a5d1 (HEAD -> feature) HEAD@{2}: rebase (pick): Changed commit message
-                            5eb484411 (develop) HEAD@{3}: rebase (start): checkout develop
-                            10942daa1 (origin/feature) HEAD@{4}: checkout: moving from feature_2 to feature
-                        git reset コマンドを実行します:  #// HEAD@{____} に書かれたコマンドを実行した直後の状態に戻します
-                            git reset --hard "HEAD@{4}"   #// 上から 4行分をキャンセルする場合
-                                #// ワーキング フォルダー を維持する場合は --hard の代わりに --soft に置き換えます
-                        git reset --hard を実行した後の reflog: |  #// ソース ファイル の内容は 4行分キャンセルしますが reglog は追加されます
-                            commit ID (branch)    HEAD@{__Num__}: command
-                            -------------------------------------------------------------------------------------------------------
-                            10942daa1 (HEAD -> feature) HEAD@{0}: reset: moving to HEAD@{4}  #// {4} は reset 実行前の値。reset した対象はこの出力では {5}
-                            7c738a5d1 HEAD@{1}: checkout: moving from feature to feature
-                            7c738a5d1 HEAD@{2}: rebase (finish): returning to refs/heads/feature
-                            7c738a5d1 HEAD@{3}: rebase (pick): Changed commit message
-                            5eb484411 (develop) HEAD@{4}: rebase (start): checkout develop
-                            10942daa1 (origin/feature) HEAD@{5}: checkout: moving from feature_2 to feature
+                        Git コマンド の実行をキャンセルします:
+                            汎用:
+                                編集がある場合、暫定的にコミットします:
+                                    git status
+                                        not clean
+                                    git checkout -b tmp
+                                    git add "."
+                                    git commit -m "WIP"
+                                    git checkout __PreviousBranch__
+                                キャンセルする内容を確認します:
+                                    git reflog --date=iso  #// --date オプションを付けると日時が表示されます
+                                出力例 >>> --date=iso あり: |  #search: rebase (start)
+                                    commit ID (branch)    HEAD@{__Num__}: command
+                                    -------------------------------------------------------------------------------------------------------
+                                    7c738a5d1 (HEAD -> feature) HEAD@{2023-01-01 00:00:00 +0000}: checkout: moving from feature to feature
+                                    7c738a5d1 (HEAD -> feature) HEAD@{2023-01-01 00:00:00 +0000}: rebase (finish): returning to refs/heads/feature
+                                    7c738a5d1 (HEAD -> feature) HEAD@{2023-01-01 00:00:00 +0000}: rebase (pick): Changed commit message
+                                    5eb484411 (develop) HEAD@{2023-01-01 00:00:00 +0000}: rebase (start): checkout develop
+                                    10942daa1 (origin/feature) HEAD@{2023-01-01 00:00:00 +0000}: checkout: moving from feature_2 to feature
+                                出力例 >>> --date=iso なし: |
+                                    commit ID (branch)    HEAD@{__Num__}: command
+                                    -------------------------------------------------------------------------------------------------------
+                                    7c738a5d1 (HEAD -> feature) HEAD@{0}: checkout: moving from feature to feature
+                                    7c738a5d1 (HEAD -> feature) HEAD@{1}: rebase (finish): returning to refs/heads/feature
+                                    7c738a5d1 (HEAD -> feature) HEAD@{2}: rebase (pick): Changed commit message
+                                    5eb484411 (develop) HEAD@{3}: rebase (start): checkout develop
+                                    10942daa1 (origin/feature) HEAD@{4}: checkout: moving from feature_2 to feature
+                                git reset コマンドを実行します:  #// HEAD@{____} に書かれたコマンドを実行した直後の状態に戻します
+                                    git reset --hard "HEAD@{4}"   #// 上から 4行分をキャンセルする場合
+                                        #// ワーキング フォルダー を維持する場合は --hard の代わりに --soft に置き換えます
+                                git reset --hard を実行した後の reflog: |  #// ソース ファイル の内容は 4行分キャンセルしますが reglog は追加されます
+                                    commit ID (branch)    HEAD@{__Num__}: command
+                                    -------------------------------------------------------------------------------------------------------
+                                    10942daa1 (HEAD -> feature) HEAD@{0}: reset: moving to HEAD@{4}  #// {4} は reset 実行前の値。reset した対象はこの出力では {5}
+                                    7c738a5d1 HEAD@{1}: checkout: moving from feature to feature
+                                    7c738a5d1 HEAD@{2}: rebase (finish): returning to refs/heads/feature
+                                    7c738a5d1 HEAD@{3}: rebase (pick): Changed commit message
+                                    5eb484411 (develop) HEAD@{4}: rebase (start): checkout develop
+                                    10942daa1 (origin/feature) HEAD@{5}: checkout: moving from feature_2 to feature
+                            commit:  #search: git commit cancel
+                            merge:   #search: git merge cancel
+                            rebase:  #search: git rebase cancel
+                        git pull に失敗するとき:
+                            #search: git pull reset hard
                     関連:  #search: git reset --soft
                 mixed: #keyword: git reset --mixed  #// 現在のブランチの位置、インデックス を変更します。ワーキング フォルダー の内容は変えません （--mixed はデフォルトです）
                     #search: git symbolic-ref
@@ -6307,11 +6544,14 @@ Git: #keyword: git
             参考:
                 diff -u <(git rev-list --first-parent HEAD)  <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1 :
                     #ref: https://stackoverflow.com/questions/1527234/finding-a-branch-point-with-git
-                git rev-parse --abbrev-ref HEAD :
-                    現在のブランチを表示します:  #keyword: show Git current branch
-                        bashlib:
-                            #search: GetCurrentGitBranch
-                            #search: ChangeGitBranch
+                現在のブランチを表示します:  #keyword: show Git current branch,  git branch --show-current
+                    基本:
+                        git branch --show-current
+                    bashlib:
+                        #search: GetCurrentGitBranch
+                        #search: ChangeGitBranch
+                    git rev-parse を使う場合:
+                        git rev-parse --abbrev-ref HEAD :
                     #ref: https://stackoverflow.com/questions/6245570/how-do-i-get-the-current-branch-name-in-git
             PATH を通します:
                 #search: home/bin PATH
@@ -6375,15 +6615,9 @@ Git: #keyword: git
         gitstatus コマンド（独自）:  #keyword: gitstatus  #// 事前に設定した複数のフォルダーに対して git status を実行します
             概要:
                 - ローカルにある全リポジトリに git status を実行します
-                - ローカルにある設定をリポジトリにコピーします（git status を実行する前に）
-                - 一定期間以上バックアップされていないファイルを一覧します（git status を実行する前に、-mtime オプション）
+                - ローカルにある設定をリポジトリにバックアップします（git status を実行する前に）
                 - リポジトリに入れてはいけない NG ワード をチェックします  #search: CheckNGWord
-            関連するファイル: #keyword: gitstatus related files  #ref: ~/bin/gitstatus
-                gitstatus.ps1: |  #ref: ~/bin/gitstatus.ps1
-                    & "C:\Program Files\Git\bin\bash" $HOME/bin/gitstatus
-                gitpull:  #ref: ~/bin/gitpull
-                gitpull.ps1: |  #ref: ~/bin/gitpull.ps1
-                    & "C:\Program Files\Git\bin\bash" $HOME/bin/gitpull
+                - 一定期間以上バックアップされていないファイルを一覧します（git status を実行する前に、-mtime オプション）
             ~/bin/gitstatus のサンプル: |
                 #!/bin/bash
 
@@ -6417,7 +6651,14 @@ Git: #keyword: git
                 }
 
                 Main
-            CheckNGWord: |  #keyword:
+            各種バックアップ: #keyword: back up by gitstatus  #// 設定のバックアップを作成します  #ref: ${GitHub}/MyPrivateCode/settings/
+                概要:
+                    gitstatus コマンドを実行すると各種端末のいくつかの設定ファイルをバックアップします。
+                    MyPrivateCode をコミットできるように、コミット前に実行するであろう gitstatus でバックアップしています。
+                場所:
+                    GPD4:  #ref: ${GitHub}/MyPrivateCode/settings/GPD4/typrm
+                    M1-mac:  #ref: ${GitHub}/MyPrivateCode/settings/M1-mac/typrm
+            CheckNGWord: |  #keyword:  #// NG ワード。 保存する場所が適切でないことを検出します
                 function  CheckNGWord() {
 
                     local  patternOfNGWord='__Product__|__Company__'
@@ -6431,9 +6672,12 @@ Git: #keyword: git
                     #     --exclude=\*.{svg,pdf}  --exclude "package-lock.json"  --exclude "yarn.lock" \
                     #     "${patternOfNGWord}"  "C:${PWD:2}"
                 }
-            設定のバックアップを作成します: #keyword: back up by gitstatus  #ref: ${GitHub}/MyPrivateCode/settings/
-                gitstatus コマンドを実行すると各種端末の設定ファイルをバックアップします。
-                MyPrivateCode をコミットできるように、コミット前に実行するであろう gitstatus でバックアップしています。
+            関連するファイル: #keyword: gitstatus related files  #ref: ~/bin/gitstatus
+                gitstatus.ps1: |  #ref: ~/bin/gitstatus.ps1
+                    & "C:\Program Files\Git\bin\bash" $HOME/bin/gitstatus
+                gitpull:  #ref: ~/bin/gitpull
+                gitpull.ps1: |  #ref: ~/bin/gitpull.ps1
+                    & "C:\Program Files\Git\bin\bash" $HOME/bin/gitpull
         gitpull コマンド（独自）:  #keyword: gitpull  #// 事前に設定した複数のフォルダーに対して git pull を実行します
             ~/bin/gitpull のサンプル: |
                 #!/bin/bash
@@ -6529,17 +6773,60 @@ Git: #keyword: git
             #ref: https://github.com/Takakiriy/codediff
             内容: 2つのフォルダーの差分を git diff として見えるようにフォルダーを新しく作り、Visual Studio Code で開きます
                 Git のリポジトリから git clone して git diff として見えるフォルダーを作ることもできます。
-            インストール:
-                本体:  #ref: https://github.com/Takakiriy/codediff/blob/main/codediff
-                    #ref: ${GitHub}/codediff/codediff
-                サンプル:
-                    git clone  https://github.com/Takakiriy/codediff  ~/codediff
-                    ln -sf  ~/codediff  ~/bin/codediff
+            手順:
+                インストール:
+                    本体:  #ref: https://github.com/Takakiriy/codediff/blob/main/codediff
+                        #ref: ${GitHub}/codediff/codediff
+                    サンプル:
+                        git clone  https://github.com/Takakiriy/codediff  ~/codediff
+                        ln -sf  ~/codediff  ~/bin/codediff
+                コンフリクトしているかチェックします:
+                    _: 指定した複数のブランチの間でコンフリクトしていたらエラー表示して、終了コードは 0以外になります
+                    自動チェック: #keyword: Git conflict check hook  #search: Git hook
+                        __Project__/git-config/hooks/post-commit : |  #// por-commit に書くと、下記 codediff 内でエラーになります
+                            #!/bin/bash
+                            # Please run the following command:
+                            #     git config --local  core.hookspath  "git-config/hooks"
+
+                            MergeBranches="develop"
+                                #// Feature branch can edit this. Example: "feature1, feature2, feature3"
+
+                            function  Main() {
+                                CheckConflict
+                            }
+
+                            function  CheckConflict() {
+                                if command -v codediff > /dev/null; then
+                                    CheckDefaultValue
+
+                                    echo  "Checking no conflict..."
+                                    codediff  "."  --merge "${MergeBranches}"  --check
+                                fi
+                            }
+
+                            function  CheckDefaultValue() {
+                                if [ "$( GetCurrentGitBranch )" == "develop" ] || [ "$( GetCurrentGitBranch )" == "develop-wip" ]; then
+                                    local  defaultSetting="develop"
+                                    if [ "${MergeBranches}" != "${defaultSetting}" ]; then
+                                        echo -e  "${Yellow}WARNING: MergeBranches in git-config/hooks/post-commit is not default. Default value is \"${defaultSetting}\".${DefaultColor}"
+                                    fi
+                                fi
+                            }
+
+                            function  GetCurrentGitBranch() {
+                                git rev-parse --abbrev-ref HEAD
+                            }
+
+                            DefaultColor="\e[0m"
+                            Yellow="\e[93m"
+
+                            Main  "$@"
             コマンド:
                 - codediff  path/to/old/folder  path/to/new/folder
                 - codediff  https://URL1#branch1  https://URL2#branch2
                 - codediff  /c/Users/____/_base.yaml
                 - wsl codediff  /c/Users/____/_base.yaml
+                - codediff  "."  --merge "__BranchCSV__"  --check
             ファイル:
                 codediff タグ: #keyword: codediff tag  #// #codediff:  #ref: https://github.com/Takakiriy/codediff/blob/main/README-jp.md
                     言語ごとのテンプレート:  #search: diff _base example
@@ -6835,15 +7122,47 @@ Git: #keyword: git
                     git log --diff-filter=D --summary | grep "delete mode" -A 1 | grep "__PartOfFileName__"
                 コミット情報を調べます:  #search: git log output
                     git log --diff-filter=D --name-only -- "__RelativePath__"
+        ファイル名 Unicode: #keyword: Git Unicode path,  git config core.quotePath
+            サンプル:
+                \346\227\245\346\234\254\350\252\236
+            デコードする:  #// Unicode 文字を表示する
+                (bash)
+                    printf "\346\227\245\346\234\254\350\252\236.txt\n"
+                    #template__: printf "__CQuoteString__\n"
+            常にデコードする:  #// Unicode 文字を表示する
+                git config --global  core.quotePath false
+            形式名:  Cクォート  #keyword: C quote  #// C言語スタイルのエスケープ
+            形式: |
+                | 文字                   | エスケープ後       |
+                |------------------------|--------------------|
+                | タブ                   | `\t`               |
+                | 改行                   | `\n`               |
+                | バックスラッシュ       | `\\`               |
+                | ダブルクォート         | `\"`               |
+                | その他の制御文字       | `\ooo`（8進数3桁） |
+                | 0x80以上（非ASCII）    | `\ooo`（8進数3桁） |
+            #search: Unicode escape
         .git:
             減らす: #keyword: reduce .git  #// .git フォルダーのサイズを減らします
                 方法A:
                     git clone しなおす
                 方法B:
                     git gc --prune=now
-    設定 >> ワーキング フォルダー の設定:
+    設定, ワーキング フォルダー の設定: #keyword: Git settings  #ref: __Project__/.git/config,  ~/.gitconfig
         一覧: cat .git/config  #// 設定の一覧
         リモートに接続するプロトコル: #search: git remote
+        -c オプション:  #keyword: git -c option  #// git のグローバルオプション(サブコマンドの前に置くオプション)で、「設定値をその場で一時的に指定する」ためのものです。
+            書式:
+                git -c <名前>=<値> <サブコマンド> ...
+            補足: |
+                <名前>=<値> は、設定ファイル(.git/config や ~/.gitconfig)に書く設定項目と同じ形式です。たとえば設定ファイルに
+                    [credential]
+                        helper = ...
+                と書くのと、コマンドラインで
+                    git -c credential.helper=... ...
+                と書くのは、同じ credential.helper という設定項目を指定していることになります。
+        #↓ 設定項目名
+        credential.helper: #search: Git credential.helper
     Git bash: #search:
     その他 仕様:
         pathspec: #keyword: Git pathspec  #// Git におけるパスの仕様
@@ -7009,6 +7328,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         #// HTML がダウンロードされる場合、その内容が認証に失敗したという内容であれば、PAT などが必要です
             SSH 公開鍵を設定します: #search: GitHub publickey
             アカウント設定: #search: GitHub account
+            認証:  #search: git clone authentication
             新規リポジトリ: #keyword: GitHub new repository
                 LICENSE ファイル の編集部分:
                     Copyright [yyyy] [name of copyright owner]
@@ -8050,6 +8370,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         メニュー: ログイン >> アカウント ボタン（右上）>> Settings >>（Access）Sessions
                         Web sessions: ブラウザーでログイン中
                         GitHub Mobile sessions: スマホのアプリでログイン中
+                    実行中に入力する場合:  #search: Git token input
                     署名, GPG キー 関連: #keyword: register GitHub GPG  #// アカウントの GPG キー を登録します。
                         概要: 書類やコミットに付いている署名に書かれたメールアドレスが秘密鍵によって保証できるようにします（偽装があったらバレます）。
                             メールアドレスの所有者 ⇒ 秘密鍵の所有者 ⇒ 署名を付けた人
@@ -8183,6 +8504,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                             Automatic watching >>（各種）: チェック
                             （各種）>> Web : チェック
                             Email notification preferences >> Include your own updates: チェック
+                    #search: git clone authentication
                 メンバー: #keyword: GitHub member  #// オーナーの一員または編集員
                     アカウント メンバー:
                         一覧: https://github.com/__Account__  >>  People タブ
@@ -8265,7 +8587,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                             - Setting (タブ) >> Manage access（左）>> Invite teams or people
                                         username: Takakiri1  #template: __GitHubCollaboratorAccount__
                                         Choose a role: Admin  #// Write ロールは git push ができます。後で Write などに変更できます
-                                        Add Takakiri1 to this reposiroty ボタン:  #// __GitHubCollaboratorAccount__
+                                        Add Takakiri1 to this repository ボタン:  #// __GitHubCollaboratorAccount__
                                     招待を受けた人は招待を受け入れます:
                                         - 届いたメールにあるボタンを押します
                                         - View invitation >> Accept invitation
@@ -8404,7 +8726,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                         Manage access のページに書かれた Takakiri1 ユーザーがクリックできるようになります:  #// __GitHubCollaboratorAccount__
                                     （Organizationsのリポジトリの場合）:
                                         Choose a role: Write  #// Write ロールは git push ができます。後で変更できます
-                                        Add Takakiri1 to this reposiroty ボタン:  #// __GitHubCollaboratorAccount__
+                                        Add Takakiri1 to this repository ボタン:  #// __GitHubCollaboratorAccount__
                                         #// メールは送られません
                                 React のプロジェクトを作成します（コラボレーター）:
                                     GitHub にサインインします（コラボレーター）:
@@ -8637,15 +8959,19 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
         GitHub Actions: #keyword: GitHub Actions,  GitHub CI/CD  #ref: https://github.blog/2021-11-04-10-github-actions-resources-basics-ci-cd/
             手順:
                 追加:  #// GitHub Actions のワークフローを追加します
-                    サンプル プロジェクト:  #search: brebase  #ref: https://github.com/Takakiriy/brebase/actions
+                    （サンプル プロジェクト）:  #search: brebase
+                        #ref: https://github.com/Takakiriy/brebase/blob/main/.github/workflows/test.yml
+                        #ref: https://github.com/Takakiriy/brebase/actions
+                    #↓ git push したときに job を実行します
+                    #// 既存のプロジェクトでも、おためし用ブランチで作業すれば、既存のプロジェクトに影響しません
                     （必要なら）ブランチを新規作成します:  #// 以下で追加する設定ファイルが入ります
                         git checkout -b __NewBranch__
                         git push --set-upstream origin __NewBranch__
-                    メニュー: （リポジトリ）>> Actions（タブ）>>（2回目以降では）New workflow >>（Simple workflow の）Configure >>
+                    新規作成します: （リポジトリ）>> Actions（タブ）>>（2回目以降では）New workflow >>（Simple workflow の）Configure >>
                         （ブランチの選択：左上）>>（discard には OK）
                         #// ここで指定したブランチ、または新規ブランチに、下記の設定ファイルを追加します（どちらのブランチかは後で指定します）
                         #// 下記の設定ファイルが作られます
-                    設定ファイル:  #keyword: GitHub Actions YAML,  GitHub workflow .yml
+                    設定ファイルを作ります:  #keyword: GitHub Actions YAML,  GitHub workflow .yml
                         場所の例: __Project__/.github/workflows/blank.yml  #keyword: __Project__/.github/workflows/__WorkflowName__.yml  #// .github/workflows の中
                         サンプル: |
                             name: CI  #// アクション名。複数の設定ファイルのグループ名
@@ -9089,14 +9415,15 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                                     - （違ったみたい→） また、後のテストが実行中でも、成功したテストのログ表示は、すぐに折りたたまれるようです。
                         ログの表示:
                             すべて折りたたみます: Home キー を押して、▽ をクリックします
-                    フィールド:
+                    フィールド:  #glossary: GitHub Actions
                         name:  #// ランナー名  #search: GitHub Actions YAML
-                        on: #// トリガー  #search: GitHub status check workflow YAML  #ref: https://docs.github.com/ja/actions/using-workflows/workflow-syntax-for-github-actions#on
+                        on: #keyword: GitHub on  #// トリガー  #search: GitHub status check workflow YAML  #ref: https://docs.github.com/ja/actions/using-workflows/workflow-syntax-for-github-actions#on
                             （値のみの場合）:  #search: GitHub status check workflow YAML
                                 on: [push, pull_request]  #// プルリクエスト用
                                 #// 全ブランチが対象です  #search: .github/workflows branches
                             push: git push されたとき
                             pull_request: プルリクエストを作ったときと、作った後に git push されたとき。push トリガー と両方指定する必要はありません
+                            merge_group: #keyword: GitHub merge_group  #// プルリクの マージ ボタン を押したとき、Merge Queue に入ったとき
                             workflow_dispatch: #// 手動でジョブをトリガーします  #search: GitHub Actions inputs
                                 __VariableName__: | #keyword: GitHub workflow_dispatch,  GitHub Actions YAML Input ID  #// 手動でジョブをトリガーするときに入力する項目
                                     workflow_dispatch:
@@ -9343,7 +9670,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                 メニュー:
                     https://about.gitlab.com/-/profile/keys
                         または GitLab (web) >> アカウントのアイコン（右上）>> Preferences >> SSH keys（左）
-                Key: （公開鍵の内容） #search: SSH show public key 
+                Key: （公開鍵の内容） #search: SSH show public key
                 Title: （マシン名など）
                 Add key ボタン:
                 #// SSH 形式のアドレス git clone git@github.com:Takakiriy/first.git でアクセスするときに使われます
@@ -9394,7 +9721,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                 GitLab:
                     Pin code: Authenticator に表示されたコード
                     Register with two-factor app ボタン:
-            2要素認証が設定されている場合、個人用アクセストークンを使う場合: #keyword: GitLab PAT,  GitLab personal access token  #ref: ~/.secret/gitlab-pat
+            PAT, 2要素認証が設定されている場合、個人用アクセストークンを使う場合: #keyword: GitLab PAT,  GitLab personal access token  #ref: ~/.secret/gitlab-pat
                 PAT とは:
                     ユーザー名の欄に 自分のアカウント名、
                     パスワード欄に 取得した PAT を書くと、GitLab にアクセスできます
@@ -9402,12 +9729,11 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                     [vagrant@localhost ~]$ git clone https://gitlab.com/takakiriy1/first
                     Cloning into 'first'...
                     Username for 'https://gitlab.com': takakiriy1
-                    Password for 'https://takakiriy1@gitlab.com': 
+                    Password for 'https://takakiriy1@gitlab.com':
                     remote: HTTP Basic: Access denied. The provided password or token is incorrect or your account has 2FA enabled and you must use a personal access token instead of a password.
                         See https://gitlab.com/help/topics/git/troubleshooting_git#error-on-git-fetch-http-basic-access-denied
                     fatal: Authentication failed for 'https://gitlab.com/takakiriy1/first.git/'
-                git clone する場合:  #search: git clone authentication
-                個人用アクセストークンを作ります: #keyword: create GitLab PAT  #search: GitLab members
+                作成: #keyword: create GitLab PAT  #// 個人用アクセストークン(PAT)を作ります  #search: GitLab members
                     #// 作るとオーナーに通知メールを送信します
                     サインインします: https://gitlab.com/ >> Login（右上）
                     メニュー:
@@ -9421,33 +9747,67 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         - write_repository
                     Create personal access token ボタン:
                         Your new personal access token （Token name の上）にトークンが表示されます。
-                    トークンを保存します: |
+                    保存します: | #keyword: ~/.secret/gitlab-pat  #// トークンを ~/.secret/gitlab-pat に保存します
                         -   必要なら VM やコンテナーにログインします
                         -   PasswordFile=~/.secret/gitlab-pat  #// このパスはサンプルです
                             mkdir -p  ${PasswordFile%/*}   #// left of last "/"
-                            read -s -p "Enter password: "  _x  &&  echo "${_x}" > ${PasswordFile};  unset  _x  #search: input password file
+                            read -rs -p "Enter password: "  _x  &&  echo "${_x}" > ${PasswordFile};  unset  _x  #search: input password file
                         -   chmod 600  ${PasswordFile}  #// 自分だけがアクセスできるようにします
                             unset  PasswordFile
-                    （上記で GitLab PAT を作ったら）:
-                        PAT の表示を消します:
-                            ブラウザーをリロード 
+                    #//上記で GitLab PAT を作ったら
+                    PAT の表示を消します:
+                        ブラウザーをリロード
                     #// バックアップは不要です。紛失したら再発行します
-                個人用アクセストークンをコマンドラインで使います:  #keyword: git clone PAT  #focus: oauth2:$(cat ~/.secret/gitlab-pat)@
-                    注意: git remote get-url で PAT が見えてしまいます
+                使用: #keyword: git clone PAT  #// 個人用アクセストークン(PAT)をコマンドラインで使います  #focus: oauth2:$(cat ~/.secret/gitlab-pat)@
+                    ❗注意: git remote get-url で PAT が見えてしまいます
+                        ディスクの使用量が大きいです。不要な RPM もダウンロードするため
+                    #↓ 基本 git clone
                     実行したいコマンド:
                         git clone  https://gitlab.com/takakiriy1/first    #template_: https://gitlab.com/__GitLabUser__/__ProjectName__
                     入力するコマンド:
-                        #search: git clone token in URL risk
-                        git clone  https://oauth2:$( cat ~/.secret/gitlab-pat )@gitlab.com/takakiriy1/first    #template_: https://gitlab.com/__GitLabUser__/__ProjectName__
-                git credential approve: #search:
+                        git clone  https://oauth2:$( cat ~/.secret/gitlab-pat )@gitlab.com/takakiriy1/first
+                            #template_: gitlab.com/__GitLabUser__/__ProjectName__
+                            #// ❗上記はリスクがあります  #search: git clone token in URL risk
+                            #search: CLI ~/.secret/gitlab-pat
+                    git clone その他:  #search: git clone authentication
+                    #↓ その他のために使う場合
+                    1つのファイルをダウンロードします: #keyword: GitLab private download 1 file,  GitLab private raw download  #search: GitLab download 1 file
+                        API を使う場合:
+                            ❗注意: GitLab 11.5.1から、PRIVATE-TOKENヘッダを使用してrawリンクのダウンロードができなくなりました
+                            curl GitLab API: |  #// 未確認
+                                curl -L --header "PRIVATE-TOKEN: $( cat ~/.secret/gitlab-pat )" \
+                                    --url "https://gitlab.com/api/v4/projects/__ProjectID__/repository/files/__EscapedFileRelativePath__/raw?ref=master&lfs=true"
+                                    （GitLab の サイン イン HTML）
+                                    <title>Sign in · GitLab</title>
+                            __ProjectID__: #keyword: GitLab project ID
+                                表示: プロジェクトのホームページの最初に表示されます  https://gitlab.com/__UserName__/__Project__
+                            __EscapedFileRelativePath__:
+                                / は %2F に置き換えてください
+                        sparse checkout を使う場合: #keyword: private sparse checkout
+                            CLI: |  #search: sparse checkout
+                                cd  __ParentOfProject__
+                                git clone --filter=blob:none --sparse  https://oauth2:$(cat ~/.secret/gitlab-pat )@gitlab.com/__Account__/__Repository__
+                                cd  __Repository__
+                                git sparse-checkout init --no-cone  #// sparse-checkout にファイルも指定できるようにします
+                                git sparse-checkout set __RelativePath__
+                            bashlib:  #search: GitDownloadBySparseCheckout
+                        WSL2 + ブラウザー を使う場合:  #search: GitLab download 1 file
+                        LFS が必要な場合:
+                            yum install -y  git-lfs
+                            以降不明
+                    RPM をインストールします:
+                        オフライン インストール を使います:  #search: yum localinstall
+                    private プロジェクト に設定します:  #search: GitLab private project
+                保存, git credential approve:  #search: git credential approve
                 参考:
                     GitLab >> 個人用アクセストークン:  #ref: https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
                     アクセストークンを使用した認証:  #ref: https://knasmueller.net/gitlab-authenticate-using-access-token
                 関連:
                     プロジェクト アクセス トークン:  #search: GitLab project access token
                     その他の認証:  #search: git clone authentication
-            GitLab 認証: #keyword:
+            GitLab 認証: #keyword:  #// GitLab 以外のサイトでの話
                 GitLab 以外のログイン画面に「GitLab でログイン」があれば、GitLab へジャンプして、許可するか聞かれます。そのまま許可すればログインできます。
+            認証:  #search: git clone authentication
             その他トークンなど:  #search: GitLab members
             プロキシ設定:
             ダウンロード:
@@ -9461,21 +9821,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                     curl を使う場合:
                         public リポジトリの場合:
                             curl -OL  https://gitlab.com/__UserName__/__Project__/-/raw/__Branch__/__FileRelativePath__
-                        private リポジトリの場合: #keyword: GitLab private raw download
-                            ❗注意: GitLab 11.5.1から、PRIVATE-TOKENヘッダを使用してrawリンクのダウンロードができなくなりました
-                            curl GitLab API: |  #// 未確認
-                                curl -L --header "PRIVATE-TOKEN: $( cat ~/.secret/gitlab-pat )" \
-                                    --url "https://gitlab.com/api/v4/projects/__ProjectID__/repository/files/__EscapedFileRelativePath__/raw?ref=master&lfs=true"
-                                    （GitLab の サイン イン HTML）
-                                    <title>Sign in · GitLab</title>
-                            __ProjectID__: #keyword: GitLab project ID
-                                表示: プロジェクトのホームページの最初に表示されます  https://gitlab.com/__UserName__/__Project__
-                            __EscapedFileRelativePath__:
-                                / は %2F に置き換えてください
-                            WSL2 + ブラウザー を使う場合:  #search: GitLab download 1 file
-                            LFS が必要な場合:
-                                yum install -y  git-lfs 
-                                以降不明
+                        private リポジトリの場合:  #search: GitLab private download 1 file
             アップロード:
                 1つのファイルをアップロードします: #keyword: GitLab upload 1 file
                     ブラウザー を使う場合, WSL2 の場合:
@@ -9525,7 +9871,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                     raw 表示: #keyword: GitLab raw
                         URL の中にある blob を raw に変えたページを開きます。
                         ページの途中にジャンプさせるには、 #:~:text=
-                ブランチ: 
+                ブランチ:
                     手順 >> ロックします:  #keyword: lock GitLab branch steps
                         リポジトリの設定画面を開きます:  #search: GitLab repository settings
                         ロックします:
@@ -9560,13 +9906,9 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         対応している種類:  #ref: https://docs.gitlab.com/user/packages/package_registry/#accepting-contributions
                             private リポジトリでなければ使えるようです
                     nginx proxy で認証する場合:
-                    git clone で認証する場合:
-                        注意: ディスクの使用量が大きいです。不要な RPM もダウンロードするため
-                        認証:  #search: GitLab PAT
-                        RPM では オフライン インストール を使います:  #search: yum localinstall
-                    URL でファイルをダウンロードする場合:
-                        1つのファイルをダウンロードします: #search: GitLab download 1 file
-                        RPM では オフライン インストール を使います:  #search: yum localinstall
+                    PAT を使う場合:  #search: git PAT
+                    git clone で認証する場合:  #search: git clone PAT
+                    URL でファイルをダウンロードする場合:  #search: GitLab private download 1 file
                 リポジトリ, レジストリ: #keyword: GitLab Package Registry
                     場所:
                         URL の場合: https://gitlab.com/__Account__/__Repository__/-/packages
@@ -9578,7 +9920,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         疎通確認します: #keyword: GitLab Package Registry 疎通確認
                             #↓ Scope
                             read_package_registry: | #// pip install など
-                                read -s -p "Enter PAT: "  PAT
+                                read -rs -p "Enter PAT: "  PAT
                                 curl https://gitlab%2Bdeploy-token-__Number__:${PAT}@gitlab.com/api/v4/projects/__ProjectID__/packages/pypi/simple/__PackageName__/
                                     <!DOCTYPE html>
                                     <html>
@@ -9624,16 +9966,16 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         使えないトークン:
                             CI_JOB_TOKEN,  Deploy Token
                         実験: |  #focus: CI_JOB_TOKEN, DEPLOY_TOKEN
-                            read -s -p "Enter PAT: "  PAT
+                            read -rs -p "Enter PAT: "  PAT
                             curl -s --header "PRIVATE-TOKEN: ${PAT}"  https://gitlab.com/api/v4/projects/1234/packages?package_type=pypi
                                 ...
-                            read -s -p "Enter GroupAccessToken: "  GroupAccessToken
+                            read -rs -p "Enter GroupAccessToken: "  GroupAccessToken
                             curl -s --header "PRIVATE-TOKEN: ${GroupAccessToken}"  https://gitlab.com/api/v4/projects/1234/packages?package_type=pypi
                                 ...
                             curl -s --header "JOB-TOKEN: ${CI_JOB_TOKEN}"  https://gitlab.com/api/v4/projects/1234/packages?package_type=pypi
                                 {"message":"404 Project Not Found"}
-                            read -s -p "Enter DEPLOY_TOKEN_USERNAME: "  DEPLOY_TOKEN_USERNAME
-                            read -s -p "Enter DEPLOY_TOKEN: "  DEPLOY_TOKEN
+                            read -rs -p "Enter DEPLOY_TOKEN_USERNAME: "  DEPLOY_TOKEN_USERNAME
+                            read -rs -p "Enter DEPLOY_TOKEN: "  DEPLOY_TOKEN
                             curl -s --header "Deploy-Token: ${DEPLOY_TOKEN}"  https://gitlab.com/api/v4/projects/1234/packages?package_type=pypi
                                 {"message":"404 Project Not Found"}
                             curl -s -u "${DEPLOY_TOKEN_USERNAME}:${DEPLOY_TOKEN}"  https://gitlab.com/api/v4/projects/1234/packages?package_type=pypi
@@ -10952,7 +11294,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
             __User__: takakiriy1
             __Repository__: first
         トラブルシューティング:
-            raw ダウンロードができない:  #search: GitLab private raw download
+            raw ダウンロードができない:  #search: GitLab private download 1 file
     リポジトリを作ります:  #keyword: Git new repository
         プロジェクトの first commit を git push します: #keyword: GitHub new repository
             settings: #settings:

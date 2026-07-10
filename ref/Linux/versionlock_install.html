@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<title>バージョン固定の図解</title>
+<style>
+.page {
+    margin: 0;
+    padding: 16px;
+    background: #f7f5ef;
+    color: #2c2c2a;
+    font-family: -apple-system, "Hiragino Sans", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+}
+.title {
+    font-size: 30px;
+    font-weight: 700;
+    margin: 8px 0 24px;
+}
+.section {
+    margin: 0 0 40px;
+}
+.heading {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+.note {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 12px 0 0;
+}
+.scroll {
+    overflow-x: auto;
+}
+.figure {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #ffffff;
+    border: 2px solid #d3d1c7;
+    border-radius: 12px;
+}
+.tlabel { fill: #2c2c2a; font-size: 18px; font-weight: 700; font-family: -apple-system, "Hiragino Sans", sans-serif; }
+.tsub { fill: #5f5e5a; font-size: 16px; font-weight: 700; font-family: -apple-system, "Hiragino Sans", sans-serif; }
+.tnote { fill: #5f5e5a; font-size: 14px; font-weight: 700; font-family: -apple-system, "Hiragino Sans", sans-serif; }
+.tred { fill: #791f1f; font-size: 16px; font-weight: 700; font-family: -apple-system, "Hiragino Sans", sans-serif; }
+</style>
+</head>
+<body class="page">
+
+<div class="title">バージョン固定オプション --lock</div>
+
+<div class="section">
+<div class="heading">二つのモードの処理順序</div>
+<div class="scroll">
+<svg class="figure" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+
+<text class="tlabel" x="170" y="28" text-anchor="middle">通常モード</text>
+<text class="tsub" x="170" y="50" text-anchor="middle">最新を入れて versionlock.list を作る</text>
+
+<rect x="70" y="66" width="200" height="46" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="170" y="86" text-anchor="middle">dnf install＋設定編集</text>
+<text class="tsub" x="170" y="104" text-anchor="middle">冒頭で配列確認</text>
+<line x1="170" y1="112" x2="170" y2="132" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="70" y="132" width="200" height="42" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="170" y="158" text-anchor="middle">versionlock.list 生成</text>
+<line x1="170" y1="174" x2="170" y2="194" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="70" y="194" width="200" height="42" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="170" y="220" text-anchor="middle">バージョン検証</text>
+<line x1="170" y1="236" x2="170" y2="256" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="70" y="256" width="200" height="46" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="170" y="276" text-anchor="middle">保存先へコピー</text>
+<text class="tsub" x="170" y="294" text-anchor="middle">配布用 versionlock.list</text>
+
+<text class="tlabel" x="510" y="28" text-anchor="middle">--lock（固定モード）</text>
+<text class="tsub" x="510" y="50" text-anchor="middle">versionlock.list で再現する</text>
+
+<rect x="410" y="66" width="200" height="46" rx="8" fill="#fac775" stroke="#854f0b" stroke-width="1"/>
+<text class="tlabel" x="510" y="86" text-anchor="middle">versionlock.list を配置</text>
+<text class="tsub" x="510" y="104" text-anchor="middle">所定の場所へ</text>
+<line x1="510" y1="112" x2="510" y2="132" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="410" y="132" width="200" height="46" rx="8" fill="#fac775" stroke="#854f0b" stroke-width="1"/>
+<text class="tlabel" x="510" y="152" text-anchor="middle">dnf install＋設定編集</text>
+<text class="tsub" x="510" y="170" text-anchor="middle">配列確認・固定版</text>
+<line x1="510" y1="178" x2="510" y2="198" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="410" y="198" width="200" height="46" rx="8" fill="#fac775" stroke="#854f0b" stroke-width="1"/>
+<text class="tlabel" x="510" y="218" text-anchor="middle">バージョン検証</text>
+<text class="tsub" x="510" y="236" text-anchor="middle">固定どおりか確認</text>
+<text class="tred" x="510" y="282" text-anchor="middle">不一致なら停止</text>
+
+<text class="tnote" x="340" y="352" text-anchor="middle">どちらのモードも dnf install の冒頭で TargetPackages 配列確認、その後にバージョン検証</text>
+</svg>
+</div>
+<div class="note">通常モードは最新を dnf install してから /etc/dnf/plugins/versionlock.list を生成し、固定モード用にコピーします。固定モードは配布された versionlock.list を置いてから dnf install し、固定どおりか検証します。両モードとも dnf install の前に配列確認、後にバージョン検証が入ります。</div>
+</div>
+
+<div class="section">
+<div class="heading">インストール スクリプト と TargetPackages 配列と versionlock.list の関係</div>
+<div class="scroll">
+<svg class="figure" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
+<text class="tlabel" x="120" y="28" text-anchor="middle">dnf install する</text>
+<text class="tsub" x="120" y="50" text-anchor="middle">スクリプト</text>
+<text class="tlabel" x="340" y="28" text-anchor="middle">TargetPackages 配列</text>
+<text class="tsub" x="340" y="50" text-anchor="middle">固定の母集団</text>
+<text class="tlabel" x="560" y="28" text-anchor="middle">versionlock.list</text>
+<text class="tsub" x="560" y="50" text-anchor="middle">実際に固定される</text>
+
+<rect x="40" y="66" width="160" height="290" rx="14" fill="#e1f5ee" stroke="#0f6e56" stroke-width="1"/>
+<rect x="260" y="66" width="160" height="290" rx="14" fill="#f1efe8" stroke="#5f5e5a" stroke-width="1"/>
+<rect x="480" y="66" width="160" height="290" rx="14" fill="#faeeda" stroke="#854f0b" stroke-width="1"/>
+
+<rect x="58" y="86" width="124" height="38" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="120" y="110" text-anchor="middle">nginx</text>
+<rect x="278" y="86" width="124" height="38" rx="8" fill="#d3d1c7" stroke="#5f5e5a" stroke-width="1"/>
+<text class="tlabel" x="340" y="110" text-anchor="middle">nginx</text>
+<rect x="498" y="86" width="124" height="38" rx="8" fill="#fac775" stroke="#854f0b" stroke-width="1"/>
+<text class="tlabel" x="560" y="110" text-anchor="middle">nginx</text>
+<line x1="184" y1="105" x2="274" y2="105" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="404" y1="105" x2="494" y2="105" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="58" y="136" width="124" height="38" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="120" y="160" text-anchor="middle">httpd-tools</text>
+<rect x="278" y="136" width="124" height="38" rx="8" fill="#d3d1c7" stroke="#5f5e5a" stroke-width="1"/>
+<text class="tlabel" x="340" y="160" text-anchor="middle">httpd-tools</text>
+<rect x="498" y="136" width="124" height="38" rx="8" fill="#fac775" stroke="#854f0b" stroke-width="1"/>
+<text class="tlabel" x="560" y="160" text-anchor="middle">httpd-tools</text>
+<line x1="184" y1="155" x2="274" y2="155" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="404" y1="155" x2="494" y2="155" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="58" y="202" width="124" height="46" rx="8" fill="#f7c1c1" stroke="#a32d2d" stroke-width="1.5"/>
+<text class="tlabel" x="120" y="222" text-anchor="middle">sftp</text>
+<text class="tred" x="120" y="240" text-anchor="middle">配列へ足し忘れ</text>
+<rect x="278" y="202" width="124" height="46" rx="8" fill="#f7c1c1" stroke="#a32d2d" stroke-width="1.5"/>
+<text class="tlabel" x="340" y="222" text-anchor="middle">sftp が無い</text>
+<text class="tred" x="340" y="240" text-anchor="middle">確認で停止</text>
+<line x1="184" y1="225" x2="274" y2="225" stroke="#a32d2d" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text class="tred" x="229" y="214" text-anchor="middle">不一致</text>
+<text class="tsub" x="560" y="228" text-anchor="middle">（到達しない）</text>
+
+<rect x="58" y="290" width="124" height="38" rx="8" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1"/>
+<text class="tlabel" x="120" y="314" text-anchor="middle">curl</text>
+<rect x="278" y="290" width="124" height="38" rx="8" fill="#d3d1c7" stroke="#5f5e5a" stroke-width="1"/>
+<text class="tlabel" x="340" y="314" text-anchor="middle">curl</text>
+<rect x="498" y="290" width="124" height="38" rx="8" fill="#fac775" stroke="#854f0b" stroke-width="1"/>
+<text class="tlabel" x="560" y="314" text-anchor="middle">curl</text>
+<line x1="184" y1="309" x2="274" y2="309" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="404" y1="309" x2="494" y2="309" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<text class="tnote" x="340" y="382" text-anchor="middle">dnf install の冒頭で TargetPackages 配列との不一致を確認している</text>
+</svg>
+</div>
+<div class="note">スクリプトが dnf install する対象は、TargetPackages 配列にも載っている必要があり、無ければエラーになります。
+TargetPackages 配列が versionlock.list の生成の母集団になるため、dnf install するのに配列へ足し忘れると、バージョン固定の検証もされません。</div>
+</div>
+
+</body>
+</html>
