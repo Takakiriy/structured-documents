@@ -1504,6 +1504,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                 シェルの環境変数に設定します:
                     bash の場合: |
                             read -rs -p "Enter password: "  PASSWORD
+                            echo  ""  #// "read" command does not echo LF
                                 #// パスワードを入力します。-s オプションによりパスワードは表示されません
                                 #// 上記の場合、環境変数 PASSWORD にパスワードを代入します。
                                 #// 古い Korn シェル（bash シェルではない）では -s オプションは ヒストリー・ファイルに保存してしまうので注意
@@ -1512,6 +1513,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                         #ref: ${typrm_files}/ref/Network-AI.yaml#client password from AI
                     zsh の場合: |
                             read -rs "?Enter password: " PASSWORD
+                            echo  ""  #// "read" command does not echo LF
                                 #// パスワードを入力します。-s オプションによりパスワードは表示されません
                                 #// 古い Korn シェル（bash シェルではない）では -s オプションは ヒストリー・ファイルに保存してしまうので注意
                                 #// ? によりプロンプトを表示します
@@ -1522,19 +1524,28 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
                     ❗注意:
                         - 変数を export しないでください
                         - 上記 read 以外でスクリプトで環境変数の値を代入してはいけません。たとえば、クラウドの中のパスワードを保存できる環境変数を設定する項目に設定します
-                ファイル ディスクリプター 経由で渡します: #keyword: password file descriptor
+                ファイル ディスクリプター 経由で渡します: #keyword: password file descriptor,  Options_PasswordFD,  --password-fd
                     #// パスワードをプロセスのファイルシステムや環境に残さず渡せます
-                    親スクリプト側: |
+                    親スクリプト側: |  #// パスワードを渡す側
                         #!/bin/bash
-                        read -rs -p "Password: "  MyPassword
+                        read -rs -p "Password: "  MyPassword  #// MyPassword=
+                        "/c/Program Files/7-Zip/7z.exe" t -p"${MyPassword}" "${HOME}/WSL_back_up/install-dev_token_pack.7z"  > /dev/null  &&  echo  "OK"  ||  echo  "NG"
                         echo  ""
 
-                        # FD 3 で渡す
-                        ./child.sh 3<<< "${MyPassword}"
-                    子スクリプト側: |
+                        #// file descriptor &3 で渡す。 --password-fd オプションで &3 から入力する動きにする
+                        ./child.sh  --password-fd 3<<< "${MyPassword}"
+                    子スクリプト側: |  #// パスワードを受け取る側
+                        # 使用直前
                         #!/bin/bash
-                        read -r  MyPassword  <&3
-                        # 使用後
+                        --password-fd)   Options_PasswordFD="yes"; shift;;  #// Use file descriptor &3  #search: Linux flag option shift
+
+                        if [ "${Options_PasswordFD}" == "" ]; then
+                            read -rs -p "Enter password: "  MyPassword  #// MyPassword=
+                        else
+                            read -r  MyPassword  <&3
+                        fi
+
+                        #// 使用後
                         unset  MyPassword
                 ファイルに出力します: #keyword: make password file
                     場所:  #search: password store path
@@ -3281,6 +3292,7 @@ MIME type, メディア タイプ:  #keyword:  #ref: https://developer.mozilla.o
         対策:
             Secret Zero 問題: #search:
             ファイアウォール: iptables
+    Linux:  #search: Linux network security
     VPN: #keyword:
         IPSec:  #// ネットワーク層で動くVPN用の暗号化技術
     被害の範囲: #keyword:

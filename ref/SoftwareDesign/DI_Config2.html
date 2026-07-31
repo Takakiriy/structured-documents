@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=0.5">
+<title>設定の渡し方</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1814;
+    --paper: #f4ede0;
+    --paper-2: #ebe2d0;
+    --accent: #c2410c;
+    --accent-2: #166534;
+    --bad: #991b1b;
+    --muted: #6b6358;
+    --line: #1a1814;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', 'Fraunces', serif;
+    line-height: 1.65;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(194,65,12,0.08) 0%, transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(22,101,52,0.06) 0%, transparent 45%);
+    min-height: 100vh;
+    padding: 60px 40px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 680px;
+    margin-bottom: 50px;
+  }
+  .divider {
+    height: 1px;
+    background: var(--line);
+    margin: 0 0 50px 0;
+    position: relative;
+  }
+  .divider::after {
+    content: "";
+    position: absolute;
+    left: 0; top: -3px;
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  section { margin-bottom: 70px; }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h2 .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  h2 .badge {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    padding: 3px 12px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+  }
+  h2 .subtitle-inline {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--muted);
+  }
+  p { margin-bottom: 14px; font-size: 14px; line-height: 1.8; }
+  p code, li code, .ptext code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--paper-2);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* 段階(色だけ反映) */
+  .stage {
+    margin-bottom: 30px;
+  }
+  .stage.bad .badge { color: var(--bad); border-color: var(--bad); }
+  .stage.bad .subtitle-inline { color: var(--bad); }
+  .stage.good .badge { color: var(--accent-2); border-color: var(--accent-2); }
+  .stage.good .subtitle-inline { color: var(--accent-2); }
+
+  /* 問題リスト */
+  .issues {
+    list-style: none;
+    margin-top: 14px;
+    padding-left: 0;
+  }
+  .issues li {
+    position: relative;
+    padding: 10px 0 10px 32px;
+    font-size: 14px;
+    line-height: 1.75;
+    border-bottom: 1px dotted rgba(26,24,20,0.2);
+  }
+  .issues li:last-child { border-bottom: none; }
+  .issues li::before {
+    content: "❌";
+    position: absolute;
+    left: 0; top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .stage.good .issues li::before {
+    content: "✓";
+    color: var(--accent-2);
+  }
+  .issues li strong { font-weight: 700; }
+
+  /* 変更リスト(DI 本の流儀に従った変更) */
+  .improvements {
+    list-style: none;
+    margin-top: 14px;
+    padding-left: 0;
+  }
+  .improvements li {
+    position: relative;
+    padding: 10px 0 10px 32px;
+    font-size: 14px;
+    line-height: 1.75;
+    border-bottom: 1px dotted rgba(26,24,20,0.2);
+  }
+  .improvements li:last-child { border-bottom: none; }
+  .improvements li::before {
+    content: "✅";
+    position: absolute;
+    left: 0; top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .improvements li.bad::before {
+    content: "❌";
+  }
+  .improvements li strong { font-weight: 700; }
+
+  /* コード */
+  .code-wrap {
+    background: var(--ink);
+    color: #e8dfc7;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.6;
+    padding: 24px 28px;
+    border-radius: 2px;
+    overflow-x: auto;
+    margin-top: 14px;
+    position: relative;
+  }
+  .code-wrap pre {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    background: none;
+    white-space: pre;
+  }
+  .code-wrap.bad { border-left: 3px solid var(--bad); }
+  .code-wrap.good { border-left: 3px solid var(--accent-2); }
+  .code-wrap .filename {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: #6b6358;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(232,223,199,0.2);
+  }
+  .code-wrap .kw { color: #e8a87c; }
+  .code-wrap .str { color: #a3be8c; }
+  .code-wrap .cm { color: #6b6358; font-style: italic; }
+  .code-wrap .ty { color: #88c0d0; }
+
+  /* 結論カード */
+  .conclusion {
+    background: var(--paper-2);
+    border: 2px solid var(--accent-2);
+    padding: 32px 36px;
+    border-radius: 2px;
+    position: relative;
+    margin-top: 16px;
+  }
+  .conclusion::before {
+    content: "結論";
+    position: absolute;
+    top: -12px; left: 24px;
+    background: var(--paper);
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent-2);
+  }
+  .conclusion p { font-size: 16px; }
+  .conclusion p:last-child { margin-bottom: 0; }
+  .conclusion strong {
+    font-weight: 700;
+    background: linear-gradient(transparent 65%, rgba(22,101,52,0.2) 65%);
+  }
+
+  /* 制約 */
+  .constraint {
+    background: var(--paper-2);
+    border-left: 3px solid var(--accent);
+    padding: 18px 22px;
+    font-size: 14px;
+    margin-top: 16px;
+  }
+  .constraint strong { font-weight: 700; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* SVG 図 */
+  .diagram-wrap {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    padding: 30px;
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow-x: auto;
+  }
+  svg { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="eyebrow">設定の渡し方</div>
+  <h1>DI における設定の能動性逆転<br><em>疎結合のために設定ファイルを特別扱いする問題</em></h1>
+  <p class="subtitle">設定オブジェクトの渡し方 4 方式を、SmtpClient を題材に比較する。</p>
+
+  <p>「クラスが自分で設定ファイルを読み込む方式」「AppConfig をそのまま渡す方式」を順に検討し、Seemann/van Deursen が書いた DI 本の流儀に沿った方式として「エントリポイントで直接 new する方式」と「用途別に括った構成オブジェクト(SmtpConfig)を渡す方式」の 2 つを提示する。その上で、設定の「能動性逆転」と Composition Root 側の負担を踏まえ、Interface Adapter 層では準疎結合方式 (A) を採ることを推奨する。</p>
+  <div style="background: var(--paper-2); border-left: 3px solid var(--muted); padding: 14px 22px; margin: 20px 0 28px; font-size: 13px; line-height: 1.8;">
+    <strong style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; color: var(--muted); display: block; margin-bottom: 8px;">略語の説明</strong>
+    <ul style="list-style: none; padding-left: 0; margin: 0;">
+      <li><strong>DI</strong> (Dependency Injection): 依存性注入。クラスが必要とする依存を外部から渡す設計。</li>
+      <li><strong>DIP</strong> (Dependency Inversion Principle): 依存性逆転の原則。上位モジュールが下位モジュールの詳細に依存しないようにする。</li>
+      <li><strong>ISP</strong> (Interface Segregation Principle): インターフェース分離の原則。クライアントは使わないメソッド/値への依存を強制されない。</li>
+      <li><strong>OCP</strong> (Open/Closed Principle): 開放閉鎖の原則。拡張に対して開いており、修正に対して閉じている。</li>
+      <li><strong>DDD</strong> (Domain-Driven Design): ドメイン駆動設計。</li>
+      <li><strong>POCO</strong> (Plain Old CLR/Class Object): 振る舞いを持たない単純なデータオブジェクト。</li>
+    </ul>
+  </div>
+
+  <!-- 1. 出発点 -->
+  <section class="stage bad">
+    <h2>
+      
+      <span>出発点</span>
+      <span class="badge">密結合のサンプル</span>
+      <span class="subtitle-inline">クラスが自分で設定ファイルを読み込む</span>
+    </h2>
+    <p>DI 本「第 2 章 密結合したコードで構築されたアプリケーション」に書かれているサンプルに対応する実装。</p>
+    <p>前提となる設定ファイル(<code>config.json</code>)はこのような内容で、すべての案で共通とする。</p>
+    <div class="code-wrap"><pre><span class="filename">config.json</span>{
+    <span class="str">"smtp"</span>: {
+        <span class="str">"host"</span>: <span class="str">"smtp.example.com"</span>,
+        <span class="str">"port"</span>: <span class="ty">587</span>
+    },
+    <span class="str">"clientName"</span>: <span class="str">"OnlineShop"</span>
+}</pre></div>
+    <p style="margin-top:18px;">密結合のサンプル はもっとも素朴な実装。<code>SmtpClient</code> が必要なときに自分で <code>config.json</code> を読み込み、接続情報を取り出して使う。外部からは何も渡さない。</p>
+    <div class="code-wrap bad"><pre><span class="kw">import</span> { readFileSync } <span class="kw">from</span> <span class="str">"fs"</span>;
+<span class="kw">import</span> nodemailer, { <span class="ty">Transporter</span> } <span class="kw">from</span> <span class="str">"nodemailer"</span>;
+
+<span class="kw">class</span> <span class="ty">SmtpClient</span> {
+    <span class="kw">private readonly</span> transporter: <span class="ty">Transporter</span>;
+
+    <span class="kw">constructor</span>() {
+        <span class="cm">// 自分で設定ファイルを読み込んで接続情報を取り出す</span>
+        <span class="kw">const</span> raw = readFileSync(<span class="str">"config.json"</span>, <span class="str">"utf-8"</span>);
+        <span class="kw">const</span> config = <span class="ty">JSON</span>.parse(raw);
+        <span class="kw">const</span> host = config.smtp.host;
+        <span class="kw">const</span> port = config.smtp.port;
+        <span class="kw">const</span> clientName = config.clientName;
+
+        <span class="kw">this</span>.transporter = nodemailer.createTransport(
+            { host, port, name: clientName }
+        );
+    }
+
+    send(message: <span class="ty">Message</span>) {
+        <span class="kw">return this</span>.transporter.sendMail(message);
+    }
+}
+
+<span class="cm">// エントリポイントでの呼び出し</span>
+<span class="kw">const</span> smtpClient = <span class="kw">new</span> <span class="ty">SmtpClient</span>();</pre></div>
+    <p style="margin-top:18px;"><strong>問題点:</strong></p>
+    <ul class="issues">
+      <li><strong>(1) 設定ファイルへの暗黙的な依存。</strong> <code>SmtpClient</code> のコンストラクターのシグネチャからは、このクラスが <code>config.json</code> という具体的なファイルに依存していることが全く読めない。利用側はこの事実を知らずに使ってしまう。</li>
+      <li><strong>(2) 設定ファイルの形式への直接結合。</strong> JSON ファイルの読み込みや構造(<code>smtp.host</code>、<code>smtp.port</code>)を <code>SmtpClient</code> が直接知っている。環境変数や別形式に変えるたびに <code>SmtpClient</code> 自身を書き換える必要がある。</li>
+      <li><strong>(3) テストが困難。</strong> テストのたびに実ファイル <code>config.json</code> を用意するか、ファイルシステムをモックする必要がある。</li>
+      <li><strong>(4) 再利用できない。</strong> 別のアプリでこのクラスを使おうとしても、<code>config.json</code> という同じ名前のファイルがその場所に存在することを前提にしてしまう。</li>
+      <li><strong>(5) エントリポイントの責務が分散する。</strong> 設定ファイルを読む場所がアプリ中に散らばり、エントリポイントが構成の流れを把握できなくなる。</li>
+      <li><strong>(6) 型なしアクセス。</strong> <code>JSON.parse</code> の戻り値を直接参照しているため、タイポや欠落が実行時まで分からない。</li>
+      <li><strong>(7) ISP 違反。</strong> <code>JSON.parse</code> の戻り値はアプリ全構成を含むオブジェクトで、<code>SmtpClient</code> は <code>smtp</code> 以外のあらゆる設定にもアクセスできる。実際に使うのは <code>smtp.host</code>、<code>smtp.port</code>、<code>clientName</code> だけ。</li>
+    </ul>
+  </section>
+
+  <!-- 2. 中間案: getter POCO -->
+  <section class="stage bad">
+    <h2>
+      
+      <span>改良案</span>
+      <span class="badge">準疎結合方式 (A)</span>
+      <span class="subtitle-inline">AppConfig をそのまま渡す</span>
+    </h2>
+    <p>密結合のサンプル の問題点(設定ファイルへの暗黙的依存、テスト困難など)を解消するため、設定ファイルの構造に型を付けた <code>AppConfig</code> を導入し、エントリポイントで読み込んだものを <code>SmtpClient</code> に渡す。コンストラクターは、クラスが必要とする <code>host</code>, <code>port</code>, <code>clientName</code> を直接受け取り、テスト用とする。</p>
+    <p>「準疎結合」と呼ぶのは、疎結合の側に寄ろうとしつつ、<code>fromConfig</code> の中だけ <code>AppConfig</code> 型に従うこと(DDD の Conformist 的な選択)を受け入れる、という意味。クラス本体は <code>AppConfig</code> を知らないが、<strong><code>fromConfig</code> の入口に限って</strong> <code>AppConfig</code> 全体への依存を受け入れる。</p>
+    <div class="code-wrap bad"><pre><span class="kw">import</span> nodemailer, { <span class="ty">Transporter</span> } <span class="kw">from</span> <span class="str">"nodemailer"</span>;
+
+<span class="kw">class</span> <span class="ty">SmtpClient</span> {
+    <span class="kw">private readonly</span> transporter: <span class="ty">Transporter</span>;
+
+    <span class="cm">// 通常はこちらを使う(エントリポイントから)</span>
+    <span class="kw">static</span> fromConfig(config: <span class="ty">AppConfig</span>): <span class="ty">SmtpClient</span> {
+        <span class="kw">return new</span> <span class="ty">SmtpClient</span>(
+            config.smtp.host,
+            config.smtp.port,
+            config.clientName
+        );
+    }
+
+    <span class="cm">// テスト用: host、port、clientName を直接渡せる</span>
+    <span class="kw">constructor</span>(host: <span class="ty">string</span>, port: <span class="ty">number</span>, clientName: <span class="ty">string</span>) {
+        <span class="kw">this</span>.transporter = nodemailer.createTransport(
+            { host, port, name: clientName }
+        );
+    }
+
+    send(message: <span class="ty">Message</span>) {
+        <span class="kw">return this</span>.transporter.sendMail(message);
+    }
+}
+
+<span class="cm">// === Composition Root 側 ===</span>
+
+<span class="cm">// 設定ファイルの構造に型をつけたもの(Composition Root に属する)</span>
+<span class="kw">interface</span> <span class="ty">AppConfig</span> {
+    smtp: { host: <span class="ty">string</span>; port: <span class="ty">number</span>; };
+    db: { connectionString: <span class="ty">string</span>; };
+    app: { name: <span class="ty">string</span>; logLevel: <span class="ty">string</span>; };
+    clientName: <span class="ty">string</span>;
+}
+
+<span class="cm">// エントリポイントで読み込み・検証</span>
+<span class="kw">const</span> appConfig: <span class="ty">AppConfig</span> = loadAndValidateConfig(<span class="str">"config.json"</span>);
+<span class="kw">const</span> smtpClient = <span class="ty">SmtpClient</span>.fromConfig(appConfig);</pre></div>
+    <p style="margin-top:18px;"><strong>密結合のサンプルから解消されたこと:</strong></p>
+    <ul class="improvements">
+      <li><strong>(1) 設定ファイルへの暗黙的依存が解消。</strong> 読み込みは外部(エントリポイント)に移動した。</li>
+      <li><strong>(3) テストが容易になった。</strong> テストでは <code>new SmtpClient(host, port, clientName)</code> で直接組み立てればよく、ファイルシステムは不要。設定値は既存の <code>config.json</code> を参考にできる。</li>
+      <li><strong>(5) エントリポイントの責務が集約される。</strong> 構成読み取りはエントリポイントだけで行われる。</li>
+      <li><strong>(6) 型なしアクセスが解消。</strong> <code>loadAndValidateConfig</code> が <code>AppConfig</code> 型として返すので型付きアクセスになり、起動時に不正な構成を早期失敗できる。</li>
+    </ul>
+    <p style="margin-top:18px;"><strong>残る問題点(密結合のサンプルから引き継ぎ・形を変えて残る):</strong></p>
+    <ul class="issues">
+      <li><strong>(2) 設定ファイルの構造への結合が SmtpClient にまで届いている。</strong> 設定ファイル読み込みは外に出たが、<code>fromConfig</code> 内で <code>config.smtp.host</code> という JSON 構造を直接参照しているため、設定ファイルの構造変更(例: <code>smtp</code> セクション名の変更)が <code>SmtpClient.fromConfig</code> の修正を要求する。</li>
+      <li><strong>(4) SmtpClient が AppConfig 型を知っている(再利用できない)。</strong> SMTP クライアントに、アプリ全体の構成型への依存が混入する。再利用しようとすると <code>fromConfig</code> の定義内容を編集することになり、OCP 違反となる。この影響については後述「保守性の高さと頻度」で検討する。</li>
+      <li><strong>(7) ISP 違反が型として顕在化。</strong> <code>fromConfig</code> は <code>AppConfig</code>(アプリ全構成)を要求するので、シグネチャの上で「アプリ全体の構成」への依存が明示される。密結合のサンプルでは <code>JSON.parse</code> の戻り値経由で暗黙に存在していた問題が、ここでは型として表面化する。</li>
+    </ul>
+  </section>
+
+  <!-- 3. エントリポイントで直接 new -->
+  <section class="stage bad">
+    <h2>
+      
+      <span>SmtpClient を直接組み立てる</span>
+      <span class="badge">疎結合のサンプル (B)</span>
+      <span class="subtitle-inline">エントリポイントで直接 new する</span>
+    </h2>
+    <p>DI 本「第 4 章 依存注入のパターン」リスト 4.4 にある Pure DI のサンプル(<code>new HomeController(new ProductService(...))</code> のようにネストした <code>new</code> でオブジェクト・グラフを構築する形)に対応する実装。エントリポイントで <code>appConfig</code> から値を取り出して直接 <code>new SmtpClient(...)</code> を呼ぶ。</p>
+    <div class="code-wrap bad"><pre><span class="kw">import</span> nodemailer, { <span class="ty">Transporter</span> } <span class="kw">from</span> <span class="str">"nodemailer"</span>;
+
+<span class="kw">class</span> <span class="ty">SmtpClient</span> {
+    <span class="kw">private readonly</span> transporter: <span class="ty">Transporter</span>;
+
+    <span class="kw">constructor</span>(host: <span class="ty">string</span>, port: <span class="ty">number</span>, clientName: <span class="ty">string</span>) {
+        <span class="kw">this</span>.transporter = nodemailer.createTransport(
+            { host, port, name: clientName }
+        );
+    }
+
+    send(message: <span class="ty">Message</span>) {
+        <span class="kw">return this</span>.transporter.sendMail(message);
+    }
+}
+
+<span class="cm">// === Composition Root 側 ===</span>
+
+<span class="cm">// 設定ファイルの構造に型をつけたもの(Composition Root に属する)</span>
+<span class="kw">interface</span> <span class="ty">AppConfig</span> {
+    smtp: { host: <span class="ty">string</span>; port: <span class="ty">number</span>; };
+    db: { connectionString: <span class="ty">string</span>; };
+    app: { name: <span class="ty">string</span>; logLevel: <span class="ty">string</span>; };
+    clientName: <span class="ty">string</span>;
+}
+
+<span class="cm">// エントリポイントで AppConfig から値を取り出して直接 new</span>
+<span class="kw">const</span> appConfig: <span class="ty">AppConfig</span> = loadAndValidateConfig(<span class="str">"config.json"</span>);
+<span class="kw">const</span> smtpClient = <span class="kw">new</span> <span class="ty">SmtpClient</span>(
+    appConfig.smtp.host,
+    appConfig.smtp.port,
+    appConfig.clientName
+);</pre></div>
+    <p style="margin-top:18px;"><strong>準疎結合方式 (A) から解消されたこと:</strong></p>
+    <ul class="improvements">
+      <li><strong>(2) 設定ファイルの構造への結合が SmtpClient から切り離される。</strong> (A) では <code>fromConfig</code> 内で <code>config.smtp.host</code> という JSON 構造を直接参照しているため設定ファイルの構造変更が <code>SmtpClient.fromConfig</code> の修正を要求するが、(B) では <code>SmtpClient</code> はプリミティブのみを受け取り、JSON 構造を知らない。</li>
+      <li><strong>(4) SmtpClient が AppConfig 型を知らない。</strong> (A) では <code>fromConfig(config: AppConfig)</code> により <code>SmtpClient</code> が <code>AppConfig</code> 型に依存するが、(B) では <code>SmtpClient</code> のコンストラクターはプリミティブのみを受け取り、<code>AppConfig</code> 型を知らない。</li>
+      <li><strong>(7) ISP を満たす。</strong> <code>SmtpClient</code> のコンストラクターは <code>host</code>、<code>port</code>、<code>clientName</code> のみを受け取り、使わない値への依存を強制されない。必要最小限の依存がコンストラクターの引数から直接読み取れる。</li>
+    </ul>
+    <p style="margin-top:18px;"><strong>(A) と比べたトレードオフ:</strong></p>
+    <ul class="issues">
+      <li><strong>(2)' 設定キーの所在を SmtpClient から辿りにくい。</strong> (A) では <code>SmtpClient.fromConfig</code> 内に <code>config.smtp.host</code> という参照があり、SmtpClient のクラス定義から設定キーの所在が直接読める。(B) では <code>SmtpClient</code> のコンストラクターを見ても <code>host: string</code> としか書かれておらず、実際の JSON キーは <code>new SmtpClient(...)</code> の呼び出し箇所(エントリポイント)を逆引きする必要がある。IDE の参照元へのジャンプや grep ではノイズが多くなる。</li>
+    </ul>
+    <p style="margin-top:18px;"><strong>新たな問題点:</strong></p>
+    <ul class="issues">
+      <li><strong>(9) コンストラクター引数だけでは SmtpClient が必要とする値の集合を型として表明できない。</strong> 引数の並びでしか表現されないため、引数が増えると読みづらくなる。JavaScript には名前付き引数がないため、呼び出し側でどの値がどの引数に対応するかをコメントや変数名で補う必要がある。</li>
+      <li><strong>(10) DIコンテナーと相性が悪い。</strong> プリミティブ(string、number)はDIコンテナーの型キーとして機能しないため、Auto-Wiring が効かない。DIコンテナーを使う場合は手動でファクトリ関数を書く必要があり、DIコンテナーを使うメリットがほとんどなくなる。(A) は <code>AppConfig</code> を型キーとしてDIコンテナーに登録できるので、Pure DI でもDIコンテナーでもどちらでも使えるが、(B) は Pure DI 専用と言える。</li>
+    </ul>
+  </section>
+
+  <!-- 4. SmtpConfig を渡す -->
+  <section class="stage bad">
+    <h2>
+      
+      <span>Composition Root と SmtpClient の分離</span>
+      <span class="badge">構造的疎結合方式 (C)</span>
+      <span class="subtitle-inline">用途別に括った構成オブジェクト(SmtpConfig)を渡す</span>
+    </h2>
+    <p><code>AppConfig</code>(設定ファイル全体に型を付けたもの)はそのままに、<code>SmtpClient</code> 専用の <code>SmtpConfig</code> インターフェースを導入する。<code>SmtpConfig</code> は <code>SmtpClient</code> が必要とする値を表すシンプルな型(POCO)。<code>AppConfig</code> から <code>SmtpConfig</code> を取り出す作業は、Composition Root 側の <code>getSmtpClientConfig</code> 関数に任せ、<code>SmtpClient.fromConfig</code> はエントリポイント本体から直接呼び出す。これにより <code>SmtpClient</code> の構築がエントリポイントから直接見える形になる((A) では <code>fromConfig</code> の内部に隠れている)。</p>
+    <div class="code-wrap bad"><pre><span class="kw">import</span> nodemailer, { <span class="ty">Transporter</span> } <span class="kw">from</span> <span class="str">"nodemailer"</span>;
+
+<span class="cm">// SmtpClient が必要とする値を表す型(POCO)</span>
+<span class="kw">interface</span> <span class="ty">SmtpConfig</span> {
+    <span class="kw">readonly</span> host: <span class="ty">string</span>;
+    <span class="kw">readonly</span> port: <span class="ty">number</span>;
+    <span class="kw">readonly</span> clientName: <span class="ty">string</span>;
+}
+
+<span class="kw">class</span> <span class="ty">SmtpClient</span> {
+    <span class="kw">private readonly</span> transporter: <span class="ty">Transporter</span>;
+
+    <span class="cm">// 通常はこちらを使う(エントリポイントから)</span>
+    <span class="kw">static</span> fromConfig(config: <span class="ty">SmtpConfig</span>): <span class="ty">SmtpClient</span> {
+        <span class="kw">return new</span> <span class="ty">SmtpClient</span>(
+            config.host,
+            config.port,
+            config.clientName
+        );
+    }
+
+    <span class="cm">// テスト用: host、port、clientName を直接渡せる</span>
+    <span class="kw">constructor</span>(host: <span class="ty">string</span>, port: <span class="ty">number</span>, clientName: <span class="ty">string</span>) {
+        <span class="kw">this</span>.transporter = nodemailer.createTransport(
+            { host, port, name: clientName }
+        );
+    }
+
+    send(message: <span class="ty">Message</span>) {
+        <span class="kw">return this</span>.transporter.sendMail(message);
+    }
+}
+
+<span class="cm">// === Composition Root 側 ===</span>
+
+<span class="cm">// 設定ファイルの構造に型をつけたもの(Composition Root に属する)</span>
+<span class="kw">interface</span> <span class="ty">AppConfig</span> {
+    smtp: { host: <span class="ty">string</span>; port: <span class="ty">number</span>; };
+    db: { connectionString: <span class="ty">string</span>; };
+    app: { name: <span class="ty">string</span>; logLevel: <span class="ty">string</span>; };
+    clientName: <span class="ty">string</span>;
+}
+
+<span class="cm">// AppConfig から SmtpConfig を取り出す</span>
+<span class="kw">function</span> getSmtpClientConfig(appConfig: <span class="ty">AppConfig</span>): <span class="ty">SmtpConfig</span> {
+    <span class="kw">return</span> {
+        host: appConfig.smtp.host,
+        port: appConfig.smtp.port,
+        clientName: appConfig.clientName,
+    };
+}
+
+<span class="cm">// エントリポイント本体: SmtpClient の構築が直接見える</span>
+<span class="kw">const</span> appConfig: <span class="ty">AppConfig</span> = loadAndValidateConfig(<span class="str">"config.json"</span>);
+<span class="kw">const</span> smtpClient = <span class="ty">SmtpClient</span>.fromConfig(getSmtpClientConfig(appConfig));</pre></div>
+    <p style="margin-top:18px;"><strong>疎結合のサンプル (B) から解消されたこと:</strong></p>
+    <ul class="improvements">
+      <li><strong>(9) 「SmtpClient が必要とする値の集合」を型で表明できる。</strong> (B) ではコンストラクター引数の並びでしか表現されないが、(C) では <code>SmtpConfig</code> が「この 3 つが SmtpClient に必要」と明示する。引数が増えても読みやすさが保たれる。</li>
+      <li><strong>(10) DIコンテナーと相性がよい。</strong> (B) ではプリミティブがDIコンテナーの型キーとして機能しないため Auto-Wiring が効かないが、(C) では <code>SmtpConfig</code> を型キーとしてDIコンテナーに登録できるので、Pure DI でもDIコンテナーでもどちらでも使える。</li>
+    </ul>
+    <p style="margin-top:18px;"><strong>新たな問題点:</strong></p>
+    <ul class="issues">
+      <li><strong>(11) 中間の型・関数に分けるコードが必要。</strong> <code>SmtpConfig</code> インターフェース、<code>fromConfig</code>、<code>getSmtpClientConfig</code> を別途定義する必要があり、(B) に比べてコード量が増える。</li>
+      <li><strong>(12) Composition Root 側の負担が増える。</strong> 各クラスごとに <code>getSmtpClientConfig</code>、<code>getDbConfig</code>、<code>getLoggerConfig</code> のような橋渡し関数を書く必要がある。(A) なら <code>appConfig</code> をそのまま渡すだけで済むが、(C) では「<code>AppConfig</code> のどこを取り出して、どう束ね直すか」を Composition Root が個別に決める。クラスが増えれば、橋渡し関数も増える。</li>
+    </ul>
+    <p style="margin-top:18px;"><strong>(A) と比べたトレードオフ:</strong></p>
+    <ul class="issues">
+      <li><strong>(2)' 設定キーの所在を SmtpClient から辿りにくい。</strong> (A) では <code>SmtpClient.fromConfig</code> 内に <code>config.smtp.host</code> という参照があり、SmtpClient のクラス定義から設定キーの所在が直接読める。(C) では <code>SmtpClient.fromConfig</code> を見ても <code>config.host</code> としか書かれておらず、実際の JSON キーは <code>getSmtpClientConfig</code> を逆引きする必要がある。IDE の参照元へのジャンプや grep ではノイズが多くなる。</li>
+    </ul>
+    <p style="
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 14px 18px;
+      border-left: 2px solid var(--muted);
+      margin-top: 18px;
+      background: var(--paper-2);
+    ">※ メモ: <code>SmtpConfig</code> を interface として書いている理由について。DI 本では POCO にインターフェースを作るのはコストに見合わないとされているが、これは C# では具象クラスとインターフェースを別々に書く必要があり、その労力に対する評価。TypeScript の interface は構造的型付けによりオブジェクトリテラルで満たせるため、ここでいう「不要な抽象」には当たらず、<code>SmtpConfig</code> を interface として書く方式は DI 本の主旨(振る舞いのない単純なデータを渡す)に沿う。</p>
+  </section>
+
+  <!-- 4b. 準疎結合方式 (A) を再評価する -->
+  <section>
+    <h2>準疎結合方式 (A) を再評価する</h2>
+    <p style="margin-top:18px;"><strong>疎結合のサンプル (B) および構造的疎結合方式 (C) から解消されたこと:</strong></p>
+    <ul class="improvements">
+      <li><strong>(10) DIコンテナーと相性がよい。</strong> (B) ではプリミティブがDIコンテナーの型キーとして機能しないため Auto-Wiring が効かないが、(A) では <code>AppConfig</code> を型キーとしてDIコンテナーに登録できるので、Pure DI でもDIコンテナーでもどちらでも使える。</li>
+      <li><strong>(11) 中間の型・関数に分けるコードが不要。</strong> (C) では <code>SmtpConfig</code> インターフェース、<code>fromConfig</code>、<code>getSmtpClientConfig</code> を別途定義する必要があるが、(A) ではこれらが不要でコード量が少ない。</li>
+      <li><strong>(12) Composition Root 側の負担が増えない。</strong> (C) では各クラスごとに橋渡し関数を書く必要があるが、(A) なら <code>appConfig</code> をそのまま渡すだけで済む。クラスが増えても橋渡し関数は増えない。</li>
+      <li><strong>(2)' 設定キーの所在を SmtpClient から辿れる。</strong> (B)(C) では実際の JSON キーをエントリポイントや <code>getSmtpClientConfig</code> を逆引きする必要があるが、(A) では <code>SmtpClient.fromConfig</code> 内に <code>config.smtp.host</code> という参照があり、SmtpClient のクラス定義から設定キーの所在が直接読める。</li>
+    </ul>
+  </section>
+
+  <!-- 5. トレードオフの深掘り -->
+  <section>
+    <h2>トレードオフの深掘り</h2>
+    <p>(A)(B)(C) のトレードオフを並べたうえで、結論を導く前に、それぞれの方式を選ぶときに見落とされがちな観点を整理する。これらは「自然に書くとなぜ密結合になるのか」「(B)(C) のコストはどこに現れるのか」という問いに対する答えにもなっており、結論の根拠になっている。</p>
+
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 28px; margin-bottom: 12px;">⟳ 設定の「能動性逆転」</h3>
+    <p>DIP(依存性逆転の原則)が「依存の方向を逆転させる」ことで上位モジュールを下位モジュールの詳細から守るのに対し、設定の渡し方には別種の「逆転」が起きている。これを <strong>能動性逆転</strong> と呼んでおく。</p>
+    <p>自然な方向の例として、エンティティとデータベースの関係がある。エンティティ(<code>User</code>)はデータベースの存在を知らず、リポジトリ(<code>UserRepository</code>)が「エンティティをどう書くか」を <em>呼び出す側で</em> コーディングする。能動性は使う側(リポジトリ)にあり、使われる側(エンティティ)は受動的でよい。これは自然な方向(使う側 → 使われる側)。</p>
+    <p>一方、設定の場合は、<code>SmtpClient</code> が「自分には <code>host</code> と <code>port</code> と <code>clientName</code> が必要だ」とスキーマを設計したにもかかわらず、疎結合のサンプル (B) の <code>SmtpClient</code> のコンストラクター/<code>fromConfig</code> は <em>設定オブジェクトを受け取る側</em> になっている。スキーマの設計者が、そのスキーマに沿った値を受動的に注入される側に回っている。本来の能動性(自分が必要なものを自分で取りに行く)が、DI のフォーマットに合わせるために受動側に押し込まれている。</p>
+    <p>密結合のサンプル(クラスが自分で <code>config.json</code> を読む)は、この本来の能動性を素直に表現した形に近い。だから「自然に書くと密結合になる」のは、書き手の不勉強だけが原因ではなく、<strong>設定というものの本来の能動性に DI のフォーマットが噛み合っていない</strong>ことの現れでもある。</p>
+    <ul class="improvements">
+      <li><strong>密結合のサンプル</strong>: 本来の能動性(自分で <code>config.json</code> を読みに行く)が素直に表現されている。</li>
+      <li><strong>方式 (A)</strong>: 値の取り出し(<code>config.smtp.host</code> など)は <code>fromConfig</code> 内、つまり SmtpClient 側に保たれる。能動性逆転は起きていない。</li>
+      <li class="bad"><strong>方式 (B)</strong>: スキーマ（型）を持たず、値の取り出しもすべてエントリポイント（Composition Root）側に委ねる。能動性逆転が最大化する。</li>
+      <li class="bad"><strong>方式 (C)</strong>: スキーマの所有権(<code>SmtpConfig</code>)は SmtpClient 側に残るが、値の取り出し(<code>getSmtpClientConfig</code>)は Composition Root に移る。能動性が分裂する。</li>
+    </ul>
+
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 28px; margin-bottom: 12px;">⚖ Composition Root の責務</h3>
+    <p>「自然に書く」と、両端ともに <strong>自分側の責務を少なくしたい引力</strong>を感じる。SmtpClient 側は「必要なものは自分のクラス内で完結させたい」、Composition Root 側は「各クラスが自分のことは自分でやってほしい」。つまり、<strong>SmtpClient 側からも、Composition Root 側からも、「密結合に倒したい引力」が働いている</strong>。更に、密結合の方が責務の境界が守られており、並列開発によるメリットが大きい。(B)(C) はこの引力に逆らって、両端にコストを払わせる方式になっている。</p>
+    <ul class="improvements">
+      <li class="bad"><strong>Composition Root 側のコスト</strong>: SmtpClient に関する設定値の意味を理解した上で、橋渡し関数(<code>getSmtpClientConfig</code>、<code>getDbConfig</code>、…)を各クラスごとに書く必要がある。クラスが増えれば線形に増える。</li>
+      <li class="bad"><strong>SmtpClient 側のコスト</strong>: (C) では自分で設計したスキーマ(<code>SmtpConfig</code> 型)を定義し、その内容を Composition Root が把握するためのレビューが発生する。(B) ではスキーマ型こそ不要だが、コンストラクター引数の意味（どの引数がどの設定キーに対応するか）を Composition Root 側が把握する必要がある。</li>
+      <li><strong>(A) では両端のコストが発生しない</strong>: Composition Root は <code>appConfig</code> をそのまま渡すだけで済み、SmtpClient は自分のスキーマを外に教える必要もない。並列開発もしやすい。</li>
+    </ul>
+
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 28px; margin-bottom: 12px;">◷ 保守性の高さと頻度</h3>
+    <p><strong>疎結合であれば常に保守容易性が高いとは限らない</strong>。境界を引いて疎にした分のコストは確実に発生するが、その境界が回収するべき将来のイベントは発生するとは限らない。多くの人にとって <strong>設定オブジェクトの中身の更新のほうが、他のアプリケーションへの再利用や設定ファイルの構造の大改変よりも頻繁にある</strong>。発生頻度の低いイベントへの備えは、日常の保守作業を遅くしうる。</p>
+    <p>(C) が (A) に対して持つ本当の利点は、(i) 設定ファイルの構造を大幅に作り替えるときの <code>SmtpClient</code> への波及を避けられること、(ii) 型シグネチャに「必要な値の集合」を表明できる可読性、の二つ。だが、</p>
+    <ul class="issues">
+      <li><strong>(i) 設定ファイルの構造の大幅な作り替えは頻度が低い。</strong> 構造そのものを根本から作り替えるレベルのイベントは、Interface Adapter 層のクラスに対してそこまで備える必要は薄い。</li>
+      <li><strong>(ii) 可読性の差も小さい。</strong> (A) でも <code>fromConfig</code> の本体に <code>config.smtp.host</code> などと書いてあり、必要な値は読める。素のコンストラクター <code>(host, port, clientName)</code> は (A)(B)(C) で共通。</li>
+      <li><strong>SmtpClient の再利用も (A) で対応できる。</strong> 別アプリ用の <code>fromAnotherAppConfig</code> を追加またはそれに置き換えるか、素のコンストラクターを呼べばよい。<code>SmtpClient</code> は Interface Adapter 層のクラスであり、公開ライブラリほどの OCP は要らない。</li>
+    </ul>
+  </section>
+
+  <!-- 6. 図 -->
+  <section>
+    <h2>図</h2>
+
+    <!-- 図 密結合 -->
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 14px; margin-bottom: 12px;">密結合のサンプル: SmtpClient が config.json を直接読み込む</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 740 280" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow-tight" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1a1814"/>
+    </marker>
+    <marker id="arrow-tight-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#991b1b"/>
+    </marker>
+  </defs>
+
+  <!-- SmtpClient ボックス -->
+  <rect x="40" y="60" width="240" height="110" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+  <text x="160" y="86" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">SmtpClient</text>
+  <line x1="60" y1="96" x2="260" y2="96" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+  <text x="160" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">const cfg = loadConfig()</text>
+  <text x="160" y="132" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">cfg.smtp.host / cfg.smtp.port</text>
+  <text x="160" y="148" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">cfg.clientName</text>
+
+  <!-- config.json ボックス -->
+  <rect x="460" y="60" width="240" height="110" fill="#ebe2d0" stroke="#1a1814" stroke-width="1.5"/>
+  <text x="580" y="86" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">config.json</text>
+  <line x1="480" y1="96" x2="680" y2="96" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+  <text x="580" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">smtp: { host, port }</text>
+  <text x="580" y="132" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">db: { connectionString }</text>
+  <text x="580" y="148" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">app: { name, logLevel }</text>
+  <text x="580" y="164" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">clientName</text>
+
+  <!-- 矢印: SmtpClient → config.json -->
+  <line x1="282" y1="115" x2="458" y2="115" stroke="#991b1b" stroke-width="1.8" marker-end="url(#arrow-tight-red)"/>
+  <text x="370" y="105" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">直接読み込み</text>
+
+      </svg>
+    </div>
+
+    <!-- 図 (A) -->
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 14px; margin-bottom: 12px;">準疎結合方式 (A): AppConfig をそのまま渡す</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow-a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#1a1814"/>
+      </marker>
+      <marker id="arrow-accent-a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/>
+      </marker>
+    </defs>
+
+    <rect x="20" y="20" width="370" height="500" fill="none" stroke="#1a1814" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="205" y="46" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="15" fill="#c2410c">Composition Root</text>
+
+    <rect x="410" y="20" width="370" height="500" fill="none" stroke="#1a1814" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="595" y="46" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="15" fill="#c2410c">SmtpClient</text>
+
+    <!-- Composition Root 本体(上段) -->
+    <rect x="60" y="90" width="290" height="80" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="116" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">Composition Root</text>
+    <line x1="80" y1="128" x2="330" y2="128" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="148" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1814">SmtpClient.fromConfig(appConfig)</text>
+    <text x="205" y="164" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">appConfig を保持</text>
+
+    <!-- AppConfig(中段) -->
+    <rect x="60" y="260" width="290" height="100" fill="#ebe2d0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="286" text-anchor="middle" font-family="Fraunces, serif" font-size="14" font-weight="600" fill="#1a1814">AppConfig</text>
+    <line x1="80" y1="296" x2="330" y2="296" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">smtp: { host, port }</text>
+    <text x="205" y="329" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">db: { connectionString }</text>
+    <text x="205" y="343" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">app: { name, logLevel }</text>
+    <text x="205" y="357" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">clientName</text>
+
+    <!-- SmtpClient(下段) -->
+    <rect x="450" y="360" width="290" height="100" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="595" y="386" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">SmtpClient</text>
+    <line x1="470" y1="398" x2="720" y2="398" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="595" y="418" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1814">fromConfig(config: AppConfig)</text>
+    <text x="595" y="436" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">config.smtp.host / config.smtp.port</text>
+    <text x="595" y="452" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">config.clientName (AppConfig に依存)</text>
+
+    <!-- 矢印: CR→SmtpClient(L字下回り、(C) と同形式) -->
+    <polyline points="350,130 420,130 420,410 448,410" fill="none" stroke="#c2410c" stroke-width="2" marker-end="url(#arrow-accent-a)"/>
+    <text x="432" y="285" font-family="JetBrains Mono, monospace" font-size="10" fill="#c2410c">appConfig を渡す</text>
+
+    <!-- 矢印: CR→AppConfig -->
+    <line x1="205" y1="170" x2="205" y2="256" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-a)"/>
+    <text x="217" y="220" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">読み込み</text>
+
+    <!-- 点線矢印: SmtpClient → AppConfig(要求の関係、(C) と同形式の下回り込み) -->
+    <polyline points="595,460 595,485 205,485 205,362" fill="none" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-a)" stroke-dasharray="4 3"/>
+    <text x="400" y="500" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">SmtpClient が smtp の構成を要求する。smtp 型は無い</text>
+  </svg>
+    </div>
+
+    <!-- 図 (B) -->
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 28px; margin-bottom: 12px;">疎結合のサンプル (B): エントリポイントで直接 new する</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow-accent-c" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/>
+      </marker>
+      <marker id="arrow-c" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#1a1814"/>
+      </marker>
+    </defs>
+
+    <rect x="20" y="20" width="370" height="500" fill="none" stroke="#1a1814" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="205" y="46" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="15" fill="#c2410c">Composition Root</text>
+
+    <rect x="410" y="20" width="370" height="500" fill="none" stroke="#1a1814" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="595" y="46" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="15" fill="#c2410c">SmtpClient</text>
+
+    <!-- Composition Root 本体 -->
+    <rect x="60" y="90" width="290" height="130" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="116" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">Composition Root</text>
+    <line x1="80" y1="128" x2="330" y2="128" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="148" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">new SmtpClient(</text>
+    <text x="205" y="162" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">  appConfig.smtp.host,</text>
+    <text x="205" y="176" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">  appConfig.smtp.port,</text>
+    <text x="205" y="190" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">  appConfig.clientName</text>
+    <text x="205" y="204" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">)</text>
+
+    <!-- AppConfig -->
+    <rect x="60" y="260" width="290" height="100" fill="#ebe2d0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="286" text-anchor="middle" font-family="Fraunces, serif" font-size="14" font-weight="600" fill="#1a1814">AppConfig</text>
+    <line x1="80" y1="296" x2="330" y2="296" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="315" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">smtp: { host, port }</text>
+    <text x="205" y="329" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">db: { connectionString }</text>
+    <text x="205" y="343" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">app: { name, logLevel }</text>
+    <text x="205" y="357" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">clientName</text>
+
+    <!-- SmtpClient(赤字注記は削除) -->
+    <rect x="450" y="360" width="290" height="80" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="595" y="386" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">SmtpClient</text>
+    <line x1="470" y1="398" x2="720" y2="398" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="595" y="418" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1814">constructor(host, port, clientName)</text>
+    <text x="595" y="434" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">プリミティブのみ受け取る</text>
+
+    <!-- 矢印: CR→SmtpClient(L字、下回り) -->
+    <polyline points="350,155 420,155 420,410 448,410" fill="none" stroke="#c2410c" stroke-width="2" marker-end="url(#arrow-accent-c)"/>
+    <text x="432" y="285" font-family="JetBrains Mono, monospace" font-size="10" fill="#c2410c">AppConfig の中から</text>
+    <text x="432" y="299" font-family="JetBrains Mono, monospace" font-size="10" fill="#c2410c">host, port, clientName を渡す</text>
+
+    <!-- 矢印: CR→AppConfig -->
+    <line x1="205" y1="220" x2="205" y2="256" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-c)"/>
+    <text x="217" y="240" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">読み込み</text>
+
+    <!-- 点線矢印: SmtpClient → AppConfig(要求の関係)
+         (B) の SmtpClient→SmtpConfig 点線と同じく、下回り込み形式。
+         SmtpClient 左下端 → 下方 → 左方向 → AppConfig 下端 -->
+    <polyline points="595,440 595,485 205,485 205,362" fill="none" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-c)" stroke-dasharray="4 3"/>
+    <text x="400" y="500" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">SmtpClient が smtp の構成を要求する。smtp 型は無い</text>
+  </svg>
+    </div>
+
+    <!-- 図 (C) -->
+    <h3 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; margin-top: 28px; margin-bottom: 12px;">構造的疎結合方式 (C): SmtpConfig を介して渡す</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 800 560" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow-b" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#1a1814"/>
+      </marker>
+      <marker id="arrow-accent-b" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#c2410c"/>
+      </marker>
+    </defs>
+
+    <rect x="20" y="20" width="370" height="520" fill="none" stroke="#1a1814" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="205" y="46" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="15" fill="#c2410c">Composition Root</text>
+
+    <rect x="410" y="20" width="370" height="520" fill="none" stroke="#1a1814" stroke-width="1" stroke-dasharray="5 4"/>
+    <text x="595" y="46" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="15" fill="#c2410c">SmtpClient</text>
+
+    <!-- Composition Root 本体 -->
+    <rect x="60" y="90" width="290" height="100" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="116" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">Composition Root</text>
+    <line x1="80" y1="128" x2="330" y2="128" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="148" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">SmtpClient.fromConfig(</text>
+    <text x="205" y="162" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1814">  getSmtpClientConfig(appConfig))</text>
+    <text x="205" y="182" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">SmtpClient のスキーマを理解して束ね直す</text>
+
+    <!-- AppConfig -->
+    <rect x="60" y="250" width="290" height="100" fill="#ebe2d0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="276" text-anchor="middle" font-family="Fraunces, serif" font-size="14" font-weight="600" fill="#1a1814">AppConfig</text>
+    <line x1="80" y1="286" x2="330" y2="286" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="305" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">smtp: { host, port }</text>
+    <text x="205" y="319" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">db: { connectionString }</text>
+    <text x="205" y="333" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">app: { name, logLevel }</text>
+    <text x="205" y="347" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">clientName</text>
+
+    <!-- SmtpConfig -->
+    <rect x="60" y="380" width="290" height="70" fill="#ebe2d0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="205" y="405" text-anchor="middle" font-family="Fraunces, serif" font-size="14" font-weight="600" fill="#1a1814">SmtpConfig</text>
+    <line x1="80" y1="415" x2="330" y2="415" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="205" y="434" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">host / port / clientName</text>
+
+    <!-- SmtpClient -->
+    <rect x="450" y="380" width="290" height="80" fill="#f4ede0" stroke="#1a1814" stroke-width="1.5"/>
+    <text x="595" y="406" text-anchor="middle" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#1a1814">SmtpClient</text>
+    <line x1="470" y1="418" x2="720" y2="418" stroke="#1a1814" stroke-width="0.3" stroke-dasharray="3 2"/>
+    <text x="595" y="438" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1814">fromConfig(config: SmtpConfig)</text>
+    <text x="595" y="454" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">config.host / config.port / config.clientName</text>
+
+    <line x1="205" y1="190" x2="205" y2="246" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-b)"/>
+    <text x="217" y="221" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">読み込み</text>
+
+    <line x1="205" y1="350" x2="205" y2="376" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-b)"/>
+    <text x="217" y="367" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6358">束ね直す</text>
+
+    <line x1="350" y1="415" x2="448" y2="415" stroke="#c2410c" stroke-width="2" marker-end="url(#arrow-accent-b)"/>
+    <text x="399" y="407" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#c2410c">SmtpConfig を渡す</text>
+
+    <!-- 型の依存(点線、下回り込み) -->
+    <polyline points="595,460 595,505 205,505 205,452" fill="none" stroke="#1a1814" stroke-width="1.2" marker-end="url(#arrow-b)" stroke-dasharray="4 3"/>
+    <text x="400" y="520" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#991b1b">SmtpClient が SmtpConfig 型の構成を要求して依存</text>
+  </svg>
+    </div>
+  </section>
+
+  <!-- 7. 比較表 -->
+  <section>
+    <h2>比較表</h2>
+    <div style="overflow-x: auto; margin-top: 12px;">
+      <table style="border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 13px; width: 100%;">
+        <thead>
+          <tr style="background: var(--paper-2);">
+            <th style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: left; font-family: 'Fraunces', serif; font-weight: 600;">問題点</th>
+            <th style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; font-family: 'Fraunces', serif; font-weight: 600;">密結合</th>
+            <th style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; font-family: 'Fraunces', serif; font-weight: 600;">(A)</th>
+            <th style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; font-family: 'Fraunces', serif; font-weight: 600;">(B)</th>
+            <th style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; font-family: 'Fraunces', serif; font-weight: 600;">(C)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(1) 設定ファイルへの暗黙的依存</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(2) 構造への結合が SmtpClient に届く</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(2)' 設定キーの所在を辿りにくい</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(3) テストが困難</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(4) SmtpClient が AppConfig 型を知っている</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(5) エントリポイントの責務が分散</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(6) 型なしアクセス</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(7) ISP 違反</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(9) 値の集合を型で表明できない</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #6b6358;">—</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #6b6358;">—</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(10) DIコンテナーと相性が悪い</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #6b6358;">—</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(11) 中間の型・関数のコストが必要</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">(12) Composition Root 側の負担が増える</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">⟳ 設定の「能動性逆転」</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+          </tr>
+          <tr>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">⚖ Composition Root の責務</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+          </tr>
+          <tr style="background: var(--paper-2);">
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px;">◷ 保守性の高さと頻度</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #6b6358;">—</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #166534;">✅</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+            <td style="border: 1px solid #c8b89a; padding: 8px 12px; text-align: center; color: #991b1b;">❌</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 8. 結論 -->
+  <section>
+    <h2>結論</h2>
+    <div class="conclusion">
+      <p><strong>Interface Adapter 層では準疎結合方式 (A) を採る。</strong> <code>SmtpClient</code> のように、アプリと外部ライブラリ(nodemailer)の間に位置する Interface Adapter 層のクラスでは、<code>fromConfig(config: AppConfig)</code> の形で <code>AppConfig</code> をそのまま受け取ってよい。両端(SmtpClient 側と Composition Root 側)から働く「密結合に倒したい引力」を素直に受け止め、必要になったときに逆引きで直す方が、合計コストが小さい。</p>
+      <p><strong>汎用ライブラリ層では疎結合のサンプル (B) または構造的疎結合方式 (C) を採る。</strong> 公開ライブラリとして外部に出すクラス、複数の Composition Root から組み立てられる部品、設定ファイルの構造そのものが頻繁に作り替わる領域では、両端のコストを払って (B) または (C) を採る価値がある。OCP を強く要求される場面、再利用が常態である場面、ISP を型として表明したい場面では、(B)(C) の利点が実際に効く。</p>
+      <p>判断の基準は「自然な密結合でも大丈夫か、それとも影響範囲の境界(疎結合)が必要か」を <em>クラスの位置付けに応じて</em> 見極めることに尽きる。(A)(B)(C) は進歩の段階ではなく、層に応じた選択肢として同列に並ぶ。</p>
+    </div>
+  </section>
+
+  <!-- 8. 制約 -->
+  <section>
+    <h2>制約</h2>
+    <div class="constraint">
+      <strong>動的リロードに対応しない。</strong>
+      この方針は起動時に確定した値を渡す前提なので、実行中の構成変更を反映しない。リロード要件がある場合は、変更通知を明示的に扱う仕組み(ファイル監視 + コールバック、Observable など)を別途設計する。
+    </div>
+  </section>
+
+  <footer>
+    <span>密結合のサンプル · 準疎結合方式 (A) · 疎結合のサンプル (B) · 構造的疎結合方式 (C)</span>
+    <span>密結合のサンプル · 準疎結合方式 (A) · 疎結合のサンプル (B) · 構造的疎結合方式 (C)</span>
+  </footer>
+
+</div>
+</body>
+</html>

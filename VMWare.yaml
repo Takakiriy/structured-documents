@@ -4511,7 +4511,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                                 wsl --terminate  "Ubuntu-20.04-____"  #template: "__DistributionName__-____"
                         アンインストール: #keyword: wsl --unregister,  WSL uninstall distribution  #// 指定のディストリビューションをアンインストールします
                             (PowerShell>): #// 管理者でなくてもよい
-                                wsl --unregister "Ubuntu-20.04-____"  #template: "__DistributionName__-____"
+                                wsl --unregister  "Ubuntu-20.04-____"  #template: "__DistributionName__-____"
                 Windows 10 2004 以降: #ref: https://www.yokoweb.net/2020/05/29/windows10-wsl2-ubuntu-20_04/
                     #// 2022-10 現在、Microsoft Store で 起動 ボタンを押すとエラーになるようになってしまいました。
                     #// Windows 10 20H2 までは同様らしい（未確認） #ref: https://atmarkit.itmedia.co.jp/ait/articles/2102/03/news020.html
@@ -4932,7 +4932,7 @@ WSL, Windows Subsystem for Linux:  #keyword: WSL, WSL2
                             .7z ファイル（を右クリック）>> 削除  #// コピー先とコピー元
         ディストロ:
             独立した VM ではなく、1つの Linux カーネル(1つの軽量 VM)を全ディストロで共有するコンテナ。userland
-        軽量 VM, カーネル:  #// 軽量ユーティリティ仮想マシン(lightweight utility virtual machine、ユーティリティ VM)
+        軽量 VM, カーネル: #keyword: WSL2 kernel  #// 軽量ユーティリティ仮想マシン(lightweight utility virtual machine、ユーティリティ VM)
             概要:
                 Hyper-V の技術で作られる仮想マシン。通常の VM と違い、起動が速く、メモリを Windows と動的に融通し合うので
                 「軽量(lightweight utility VM)」と呼ばれます。これがシステム全体で1つです。

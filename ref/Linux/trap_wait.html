@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>trap と wait のタイミング</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --panel: #ffffff;
+    --border: #dcdad2;
+    --text: #2c2c2a;
+    --text-muted: #6b6a63;
+    --accent: #0f6e56;
+    --accent-bg: #e1f5ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Hiragino Sans", "Yu Gothic", "Segoe UI", sans-serif;
+    line-height: 1.7;
+  }
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  p.lead {
+    color: var(--text-muted);
+    margin: 0 0 32px;
+    font-size: 15px;
+  }
+  h2 {
+    font-size: 17.5px;
+    font-weight: 600;
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .diagram-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+  .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14.5px;
+  }
+  thead th {
+    background: var(--accent-bg);
+    color: var(--accent);
+    text-align: left;
+    padding: 12px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  tbody tr:nth-child(even) {
+    background: #f5f4ef;
+  }
+  td.count {
+    font-weight: 600;
+    color: var(--accent);
+  }
+  code {
+    background: #eeece4;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.92em;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .psd-section {
+    --psd-bg: #fafaf8;
+    --psd-panel: #ffffff;
+    --psd-panel-2: #f5f4ef;
+    --psd-border: #dcdad2;
+    --psd-text: #2c2c2a;
+    --psd-text-muted: #6b6a63;
+    --psd-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --psd-sans: -apple-system, "Hiragino Sans", "Yu Gothic", "Segoe UI", sans-serif;
+
+    --psd-pg1-tint: rgba(61, 220, 132, 0.07);
+    --psd-pg1-line: #3ddc84;
+    --psd-pg2-tint: rgba(227, 179, 65, 0.08);
+    --psd-pg2-line: #e3b341;
+    --psd-pg3-tint: rgba(248, 81, 73, 0.08);
+    --psd-pg3-line: #f85149;
+
+    --psd-spawn: #3ddc84;   /* fork/exec */
+    --psd-signal: #f85149;  /* kill による明示的シグナル転送 */
+    --psd-pipe: #58a6ff;    /* 標準出力のパイプ */
+  }
+  .psd-section * { box-sizing: border-box; }
+  .psd-section {
+    margin: 0;
+    padding: 36px 0 60px;
+    background: var(--psd-bg);
+    color: var(--psd-text);
+    font-family: var(--psd-sans);
+    line-height: 1.7;
+  }
+  .psd-section h2.psd-title {
+    font-family: var(--psd-mono);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: 0.02em;
+  }
+  .psd-section h2.psd-title .dim { color: var(--psd-text-muted); font-weight: 400; }
+  .psd-section p.psd-lead {
+    color: var(--psd-text-muted);
+    font-size: 14.5px;
+    margin: 0 0 22px;
+  }
+
+  .psd-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    background: var(--psd-panel);
+    border: 1px solid var(--psd-border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 13.5px;
+  }
+  .psd-legend-item { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .psd-swatch { width: 26px; height: 0; border-top-width: 3px; border-top-style: solid; flex: none; }
+  .psd-swatch.spawn  { border-color: var(--psd-spawn); }
+  .psd-swatch.signal { border-color: var(--psd-signal); border-top-style: dashed; }
+  .psd-swatch.pipe   { border-color: var(--psd-pipe); border-top-style: dashed; }
+  .psd-swatch.group  {
+    width: 22px; height: 14px; border: 1.5px dashed var(--psd-text-muted);
+    border-radius: 4px; background: transparent;
+  }
+
+  .psd-panel {
+    background: var(--psd-panel);
+    border: 1px solid var(--psd-border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .psd-panel svg { display: block; width: 100%; height: auto; }
+
+  .psd-principle {
+    margin-top: 20px;
+    background: var(--psd-panel-2);
+    border: 1px solid var(--psd-border);
+    border-left: 3px solid var(--psd-pg2-line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+  .psd-principle b { color: var(--psd-text); }
+  .psd-principle .tag {
+    font-family: var(--psd-mono);
+    font-size: 12px;
+    color: var(--psd-pg2-line);
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .psd-section text { font-family: var(--psd-sans); }
+  .psd-mono { font-family: var(--psd-mono); }
+
+</style>
+</head>
+<body>
+<main>
+  <section class="psd-section">
+
+  <h2 class="psd-title">プロセス構成図 <span class="dim">— parent.sh → child.sh → child2.sh</span></h2>
+  <p class="psd-lead">3つのスクリプトが作る子プロセス構造・プロセスグループ (PGID) の境界・SIGINT の転送経路を示す図</p>
+
+  <div class="psd-legend">
+    <div class="psd-legend-item"><span class="psd-swatch spawn"></span>fork / exec（子プロセス起動）</div>
+    <div class="psd-legend-item"><span class="psd-swatch signal"></span>kill による明示的なシグナル転送</div>
+    <div class="psd-legend-item"><span class="psd-swatch pipe"></span>標準出力・標準エラーのパイプ</div>
+    <div class="psd-legend-item"><span class="psd-swatch group"></span>プロセスグループ（PGID）の境界</div>
+    <div class="psd-legend-item"><span style="display:inline-flex;align-items:center;justify-content:center;width:76px;height:18px;border-radius:9px;border:1.3px solid #2c2c2a;font-family:var(--psd-mono);font-size:9px;font-weight:700;">PID 5000</span>プロセス（PID）の境界</div>
+    <div class="psd-legend-item"><span class="psd-mono" style="font-size:11px;color:#6b6a63;">PGID <b style="color:#2c2c2a;">N</b></span>プロセスグループ番号（＝グループ先頭プロセスのプロセスID）</div>
+  </div>
+
+  <div class="psd-panel">
+    <svg viewBox="135 0 900 1002" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowSpawn" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#3ddc84"/>
+        </marker>
+        <marker id="arrowSignal" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#f85149"/>
+        </marker>
+        <marker id="arrowPipe" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#58a6ff"/>
+        </marker>
+      </defs>
+
+      <!-- tty -->
+      <rect x="280" y="24" width="460" height="64" rx="10" fill="#f5f4ef" stroke="#c9c7bd"/>
+      <text x="510" y="48" text-anchor="middle" font-size="15" font-weight="700" fill="#2c2c2a">端末 (tty)</text>
+      <text x="510" y="66" text-anchor="middle" font-size="13" fill="#6b6a63">Ctrl+C → フォアグラウンド PGID 全体へ SIGINT</text>
+
+      <line x1="510" y1="88" x2="510" y2="140" stroke="#f85149" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowSignal)"/>
+      <text x="524" y="118" font-size="13" fill="#f85149">SIGINT（一斉送信）</text>
+
+      <!-- PG1 group -->
+      <rect x="150" y="140" width="800" height="290" rx="14" fill="rgba(61,220,132,0.07)" stroke="#3ddc84" stroke-dasharray="7 5" stroke-width="1.3"/>
+      <text x="170" y="164" font-size="14.5" font-weight="700" fill="#3ddc84" class="psd-mono">PGID 5000</text><text x="252" y="164" font-size="14.5" font-weight="700" fill="#3ddc84"> — フォアグラウンド プロセスグループ（tty から直接 SIGINT を受信）</text>
+
+      <!-- parent.sh box -->
+      <rect x="185" y="182" width="330" height="210" rx="10" fill="#f5f4ef" stroke="#c9c7bd"/>
+      <rect x="433" y="190" width="76" height="20" rx="10" fill="#fafaf8" stroke="#2c2c2a" stroke-width="1.3"/>
+      <text x="471" y="204" text-anchor="middle" font-size="12" font-weight="700" fill="#2c2c2a" class="psd-mono">PID 5000</text>
+      <text x="205" y="208" font-size="15.5" font-weight="700" fill="#2c2c2a" class="psd-mono">parent.sh</text>
+      <line x1="205" y1="218" x2="495" y2="218" stroke="#dcdad2"/>
+      <text x="205" y="238" font-size="14" fill="#2c2c2a">set -m <tspan fill="#6b6a63">（新規PGIDでの子起動を可能にする）</tspan></text>
+      <text x="205" y="258" font-size="14" fill="#2c2c2a" class="psd-mono">trap CtrlC → SIGINT</text>
+      <text x="205" y="276" font-size="14" fill="#2c2c2a" class="psd-mono">trap DefaultSignalHandler → 他シグナル</text>
+      <text x="205" y="276" font-size="14" fill="#2c2c2a" class="psd-mono"></text>
+      <text x="205" y="298" font-size="13.5" fill="#6b6a63">（他シグナルも -ChildPID へ同じ転送先）</text>
+      <text x="205" y="322" font-size="14" fill="#2c2c2a" class="psd-mono">wait "$ChildPID"</text>
+      <text x="215" y="340" font-size="13" fill="#6b6a63">1回目リターン: 128+signal</text>
+      <text x="215" y="356" font-size="13" fill="#6b6a63">2回目リターン: child.sh の終了コード</text>
+      <text x="205" y="378" font-size="13" fill="#6b6a63">→ WaitForChildExit ループで2回目まで待つ</text>
+
+      <!-- tee box -->
+      <rect x="560" y="200" width="330" height="96" rx="10" fill="#f5f4ef" stroke="#c9c7bd"/>
+      <rect x="808" y="208" width="76" height="20" rx="10" fill="#fafaf8" stroke="#2c2c2a" stroke-width="1.3"/>
+      <text x="846" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="#2c2c2a" class="psd-mono">PID 5001</text>
+      <text x="580" y="224" font-size="15" font-weight="700" fill="#2c2c2a" class="psd-mono">tee <tspan fill="#6b6a63" font-weight="400">（非同期プロセス）</tspan></text>
+      <text x="580" y="244" font-size="13.5" fill="#2c2c2a">child.sh の stdout+stderr を受信</text>
+      <text x="580" y="262" font-size="13.5" fill="#6b6a63">CtrlC の転送先には含まれない</text>
+      <text x="580" y="280" font-size="13" fill="#6b6a63">（child.sh 側の fd が閉じると自然終了）</text>
+
+      <line x1="515" y1="242" x2="558" y2="242" stroke="#58a6ff" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round" marker-end="url(#arrowPipe)"/>
+
+      <!-- child.log file -->
+      <rect x="560" y="322" width="200" height="46" rx="7" fill="#ffffff" stroke="#c9c7bd" stroke-dasharray="3 3"/>
+      <text x="580" y="350" font-size="13.5" fill="#2c2c2a">child.log <tspan fill="#6b6a63">（保存先ファイル）</tspan></text>
+      <line x1="700" y1="296" x2="700" y2="320" stroke="#58a6ff" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round" marker-end="url(#arrowPipe)"/>
+
+      <!-- Arrows PG1 -> PG2 -->
+      <line x1="270" y1="392" x2="270" y2="452" stroke="#3ddc84" stroke-width="2" marker-end="url(#arrowSpawn)"/>
+      <text x="284" y="414" font-size="13" fill="#3ddc84">① ./child.sh &amp;</text>
+      <text x="284" y="428" font-size="13" fill="#3ddc84">   ChildPID=$!</text>
+
+      <line x1="430" y1="392" x2="430" y2="452" stroke="#f85149" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowSignal)"/>
+      <text x="444" y="414" font-size="13" fill="#f85149">② kill -INT</text>
+      <text x="444" y="428" font-size="13" fill="#f85149">   -"$ChildPID"</text>
+
+      <!-- PG2 group -->
+      <rect x="150" y="452" width="450" height="200" rx="14" fill="rgba(227,179,65,0.08)" stroke="#e3b341" stroke-dasharray="7 5" stroke-width="1.3"/>
+      <text x="170" y="476" font-size="14.5" font-weight="700" fill="#e3b341" class="psd-mono">PGID 5002</text><text x="252" y="476" font-size="14.5" font-weight="700" fill="#e3b341"> — set -m で新規作成（tty からの SIGINT は届かない）</text>
+
+      <rect x="185" y="494" width="380" height="140" rx="10" fill="#f5f4ef" stroke="#c9c7bd"/>
+      <rect x="483" y="502" width="76" height="20" rx="10" fill="#fafaf8" stroke="#2c2c2a" stroke-width="1.3"/>
+      <text x="521" y="516" text-anchor="middle" font-size="12" font-weight="700" fill="#2c2c2a" class="psd-mono">PID 5002</text>
+      <text x="205" y="520" font-size="15.5" font-weight="700" fill="#2c2c2a" class="psd-mono">child.sh</text>
+      <line x1="205" y1="530" x2="545" y2="530" stroke="#dcdad2"/>
+      <text x="205" y="550" font-size="14" fill="#2c2c2a">set -m <tspan fill="#6b6a63">（子2をさらに別PGIDへ）</tspan></text>
+      <text x="205" y="570" font-size="14" fill="#2c2c2a" class="psd-mono">trap CtrlC → SIGINT</text>
+      <text x="205" y="588" font-size="14" fill="#2c2c2a" class="psd-mono">trap DefaultSignalHandler → 他シグナル</text>
+      <text x="205" y="608" font-size="14" fill="#2c2c2a" class="psd-mono">wait "$GrandchildPID"</text>
+      <text x="215" y="624" font-size="13" fill="#6b6a63">exit code = 128+signal</text>
+
+      <!-- Arrows PG2 -> PG3 -->
+      <line x1="270" y1="652" x2="270" y2="712" stroke="#3ddc84" stroke-width="2" marker-end="url(#arrowSpawn)"/>
+      <text x="284" y="674" font-size="13" fill="#3ddc84">① ./child2.sh &amp;</text>
+      <text x="284" y="688" font-size="13" fill="#3ddc84">   GrandchildPID=$!</text>
+
+      <line x1="430" y1="652" x2="430" y2="712" stroke="#f85149" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowSignal)"/>
+      <text x="444" y="670" font-size="13" fill="#f85149">② kill -INT</text>
+      <text x="444" y="684" font-size="13" fill="#f85149">   -"$GrandchildPID"</text>
+      <text x="444" y="698" font-size="12.5" fill="#6b6a63">（- 付き = PGID 一斉送信）</text>
+
+      <!-- branch dashed lines showing PGID broadcast reaches both members -->
+      <path d="M430,712 C430,730 300,730 300,752" fill="none" stroke="#f85149" stroke-width="1.4" stroke-dasharray="3 4"/>
+      <path d="M430,712 C430,730 620,730 620,762" fill="none" stroke="#f85149" stroke-width="1.4" stroke-dasharray="3 4"/>
+
+      <!-- PG3 group -->
+      <rect x="150" y="712" width="600" height="270" rx="14" fill="rgba(248,81,73,0.08)" stroke="#f85149" stroke-dasharray="7 5" stroke-width="1.3"/>
+      <text x="170" y="736" font-size="14.5" font-weight="700" fill="#f85149" class="psd-mono">PGID 5003</text><text x="252" y="736" font-size="14.5" font-weight="700" fill="#f85149"> — set -m で新規作成（child2.sh 自身は trap を持たない）</text>
+
+      <!-- child2.sh box -->
+      <rect x="185" y="752" width="250" height="200" rx="10" fill="#f5f4ef" stroke="#c9c7bd"/>
+      <rect x="353" y="760" width="76" height="20" rx="10" fill="#fafaf8" stroke="#2c2c2a" stroke-width="1.3"/>
+      <text x="391" y="774" text-anchor="middle" font-size="12" font-weight="700" fill="#2c2c2a" class="psd-mono">PID 5003</text>
+      <text x="205" y="778" font-size="15.5" font-weight="700" fill="#2c2c2a" class="psd-mono">child2.sh</text>
+      <line x1="205" y1="788" x2="415" y2="788" stroke="#dcdad2"/>
+      <text x="205" y="808" font-size="14" fill="#2c2c2a">trap: なし</text>
+      <text x="205" y="826" font-size="13.5" fill="#6b6a63">→ SIGINT でデフォルト動作</text>
+      <text x="205" y="842" font-size="13.5" fill="#6b6a63">   （即座に終了）</text>
+      <text x="205" y="866" font-size="14" fill="#2c2c2a" class="psd-mono">while true:</text>
+      <text x="215" y="884" font-size="14" fill="#2c2c2a" class="psd-mono">  sleep 3s</text>
+      <text x="205" y="908" font-size="13" fill="#6b6a63">同じ PG3 のまま</text>
+      <text x="205" y="924" font-size="13" fill="#6b6a63">（set -m を呼ばない）</text>
+
+      <!-- arrow child2.sh -> sleep -->
+      <line x1="437" y1="852" x2="472" y2="852" stroke="#3ddc84" stroke-width="2" marker-end="url(#arrowSpawn)"/>
+
+      <!-- sleep box -->
+      <rect x="474" y="792" width="240" height="130" rx="10" fill="#f5f4ef" stroke="#c9c7bd"/>
+      <rect x="632" y="800" width="76" height="20" rx="10" fill="#fafaf8" stroke="#2c2c2a" stroke-width="1.3"/>
+      <text x="670" y="814" text-anchor="middle" font-size="12" font-weight="700" fill="#2c2c2a" class="psd-mono">PID 5004</text>
+      <text x="494" y="818" font-size="15.5" font-weight="700" fill="#2c2c2a" class="psd-mono">sleep 3s</text>
+      <line x1="494" y1="828" x2="694" y2="828" stroke="#dcdad2"/>
+      <text x="494" y="848" font-size="13.5" fill="#2c2c2a">child2.sh のフォアグラウンド子</text>
+      <text x="494" y="866" font-size="13.5" fill="#6b6a63">trap: なし（デフォルト動作）</text>
+      <text x="494" y="886" font-size="13.5" fill="#6b6a63">PG3 の一員としてシグナルを</text>
+      <text x="494" y="902" font-size="13.5" fill="#6b6a63">直接受信する</text>
+
+      <!-- side note box -->
+      <rect x="790" y="452" width="230" height="220" rx="10" fill="#ffffff" stroke="#dcdad2"/>
+      <text x="808" y="478" font-size="14" font-weight="700" fill="#2c2c2a">なぜ2段階の転送が必要か</text>
+      <text x="808" y="500" font-size="13" fill="#6b6a63">PG2 / PG3 は set -m により</text>
+      <text x="808" y="516" font-size="13" fill="#6b6a63">tty のフォアグラウンド</text>
+      <text x="808" y="532" font-size="13" fill="#6b6a63">グループから外れるため、</text>
+      <text x="808" y="548" font-size="13" fill="#6b6a63">Ctrl+C は自動では届かない。</text>
+      <text x="808" y="572" font-size="13" fill="#6b6a63">そのため各階層の CtrlC が</text>
+      <text x="808" y="588" font-size="13" fill="#6b6a63">受信済みシグナルを、直下の</text>
+      <text x="808" y="604" font-size="13" fill="#6b6a63">プロセス(グループ)へ kill で</text>
+      <text x="808" y="620" font-size="13" fill="#6b6a63">明示的にリレーしている。</text>
+      <text x="808" y="644" font-size="13" fill="#6b6a63">child.sh / parent.sh ともに</text>
+      <text x="808" y="660" font-size="13" fill="#6b6a63">-PGID 宛てに統一しており、</text>
+      <text x="808" y="676" font-size="13" fill="#6b6a63">PG2 が単一プロセスでも同じ流儀</text>
+    </svg>
+  </div>
+
+  <div class="psd-principle">
+    <span class="tag">GENERAL RULE / 一般原則</span>
+    <b>tty からのシグナルは「フォアグラウンド プロセスグループ」にしか届かない。</b>
+    <code style="font-family:var(--psd-mono)">set -m</code> 付きで <code style="font-family:var(--psd-mono)">&amp;</code> 起動した子は新しい PGID を持つため、
+    Ctrl+C はその子孫に自動では伝播しなくなる。したがって「非同期化して即座に反応したい」という要求と
+    「シグナルが自動で届かなくなる」という副作用は常にセットで発生し、trap 内で
+    <code style="font-family:var(--psd-mono)">kill</code> による明示的な再送信（対象が単一プロセスなら プロセスID 指定、
+    プロセスグループなら <code style="font-family:var(--psd-mono)">-PGID</code> 指定）を書かない限り、
+    孫プロセス以降には一切シグナルが届かない。この関係は SIGINT に限らず、
+    <code style="font-family:var(--psd-mono)">DefaultSignalHandler</code> が扱う他のシグナルにもそのまま当てはまる、
+    「非同期化の階層が増えるたびに、その階層分だけ手動転送を積み上げる必要がある」という構造上の一般則である。
+  </div>
+
+  </section>
+
+  <h1>trap が呼ばれるタイミングと wait のリターン回数</h1>
+
+  <h2>表</h2>
+  <p class="lead">trap の有無と、呼び出すコマンドの特性によって、シグナル受信時の反応がどう変わるかをまとめたもの</p>
+  <table>
+    <thead>
+      <tr>
+        <th>trap の有無</th>
+        <th>コマンドの特性</th>
+        <th>trap が呼ばれるタイミングやリターンするタイミング</th>
+        <th>スクリプトに返る回数と終了コード</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>無し</b></td>
+        <td>呼び出すコマンドを問わない</td>
+        <td>trap 自体が無いため呼ばれない。デフォルト動作でスクリプトがそこで終了するため、リターンもせず、スクリプトは継続しない</td>
+        <td class="count">0回</td>
+      </tr>
+      <tr>
+        <td>有り</td>
+        <td><b><code>wait</code> で、バックグラウンド化した対象を待つ</b>。例えば <code>sleep &amp;</code> の後に <code>wait</code></td>
+        <td>trap が呼ばれ、その完了後に <code>wait</code> が1回目のリターンをし、スクリプトは継続する。対象コマンドの終了後に、もう一度 <code>wait</code> を呼べば2回目のリターンをし、スクリプトはさらに継続する</td>
+        <td class="count">2回。1回目の終了コードは <code>128+signal</code> になる。2回目は対象コマンドの終了コード</td>
+      </tr>
+      <tr>
+        <td>有り</td>
+        <td><b>フォアグラウンド</b>で直接呼び出す、待つコマンド。例えば <code>sleep</code></td>
+        <td>対象コマンドの実行が完了した後に trap が呼ばれ、そのままリターンし、スクリプトは継続する</td>
+        <td class="count">1回。対象コマンドの終了コード <code>128+signal</code> のみ</td>
+      </tr>
+      <tr>
+        <td>有り</td>
+        <td><b>待たない</b>コマンド。例えば <code>echo</code></td>
+        <td>コマンド自体が即座に終わるため、trap が呼ばれるタイミングもリターンするタイミングも実質的に即座で、スクリプトは継続する</td>
+        <td class="count">1回。コマンドの終了コード(通常は 0)のみ</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>フローチャート</h2>
+  <p class="lead">trap の有無と、呼び出すコマンドの特性によって、子・孫プロセスがシグナルを受信したときの反応がどう変わるかをまとめたもの</p>
+  <div class="diagram-panel">
+    <div class="mermaid">
+graph TD
+    Start[parent.sh から<br/>child.sh を呼び出す] --> D0{child.sh は tty と同じ<br/>フォアグラウンド<br/>プロセス グループ か}
+    D0 -. set -m で別グループ .-> PA0[parent.sh が<br/>child.sh へシグナル送信]
+    PA0 -.-> D1{child.sh で trap は設定されているか}
+    D0 -. 同じ .-> P0[tty がシグナルを<br/>グループ全体に一斉送信]
+    P0 -.-> D1
+    P0 -.-> P1[child.sh も<br/>直接シグナルを受信]
+
+    D1 -- trap 無し --> End1[デフォルト動作で終了<br/>0回リターン]
+    D1 -- ⚠️trap 有り --> D2{child.sh が呼び出す<br/>対象コマンドの特性は}
+
+    D2 -- フォアグラウンドで<br/>すぐ終わるコマンド --> C1[trap が呼ばれる]
+    C1 --> C2[1回リターン<br/>対象コマンドの終了コード]
+
+    D2 -- フォアグラウンドで<br/>長いコマンド --> B1[⚠️対象コマンドの終了待ち<br/>（同じグループならシグナル受信済み）]
+    B1 -- 対象コマンド終了 --> B2[trap が呼ばれる]
+    B2 --> B3[1回リターン<br/>対象コマンドの終了コード]
+
+    D2 -- バックグラウンド化 + wait<br/>（例: child2.sh） --> A0[wait が<br/>child2.sh の終了待ち]
+    A0 -- スクリプトが<br/>シグナルを受信 --> A1[trap が呼ばれる] --> DG
+    DG{child2.sh は tty と同じ<br/>フォアグラウンド<br/>プロセス グループ か}
+    DG -- set -m で別グループ --> A1S[⚠️trap が PGID 宛てに送る<br/>（sleep にも届く）]
+    A1S -.-> A2C[child2.sh と sleep が<br/>シグナルを受信]
+    DG -. 同じ .-> PG0[tty がシグナルを<br/>グループ全体に一斉送信]
+    PG0 -.-> A2C
+    A2C -.-> A4
+    DG -- 同じ --> A2
+    A1S --> A2[⚠️wait から 1回目のリターン<br/>終了コード 128+signal]
+    A2 --> A3[再度 wait を呼ぶ]
+    A3 --> A4[child2.sh の終了待ち]
+    A4 -- child2.sh 終了 --> A5[wait から 2回目のリターン<br/>child2.sh の終了コード]
+    </div>
+  </div>
+
+  <h2>依存関係グラフ</h2>
+  <p class="lead">child.sh の CtrlC で処理を実行し、実行ログを取り、終了を待つという要求から、set -m・CtrlC・WaitForChildExit がなぜ必要になるかを遡って示したもの</p>
+  <div class="diagram-panel">
+    <div class="mermaid">
+graph TD
+    Req[要求・対応グラフ<br/>child.sh の CtrlC で処理を実行し、<br/>child.sh の実行ログを取り、<br/>child.sh の終了を待つ]
+    B[B: child.sh のログを取る]
+    A[A: child.sh の CtrlC を実行する]
+    C[C: child.sh の終了を待つ]
+
+    Req --> B
+    Req --> A
+    Req --> C
+
+    B  --> B1[B1: parent.sh にある<br/>プロセス置換（tee）やパイプで<br/>ログを保存]
+    B1 --> B2[B2: プロセス置換やパイプ（非同期化）の副作用:<br/>child.sh の SIGINT が無視される<br/>]
+    B2 --> B3[B3: parent.sh の set -m<br/><br/>非同期化したときでも<br/>child.sh の SIGINT が無視されなくなる]
+    B3 --> B4[B4: set -m の副作用:<br/>非同期化したプロセス（新しい PGID）に<br/>tty からシグナルが届かなくなる]
+    B4 --> B5[B5: parent.sh の CtrlC<br/><br/>新しい PGID にシグナルを送る]
+    B5 --> B6[B6: parent.sh の CtrlC が<br/>child.sh の終了ではなく<br/>シグナルを受信したすぐに<br/>呼ばれるようにするため、]
+    B6 --> B7[B7: child.sh をフォアグラウンドではなく<br/>child.sh &amp; + wait で起動]
+    B7 --> B8[B8: 副作用: SIGINT 以外のシグナルで<br/>parent.sh が終了すると<br/>child.sh が孤児になる]
+    B8 --> B9[B9: parent.sh の DefaultSignalHandler<br/>（他のシグナルも child.sh へ転送）]
+    B7 --> C8
+
+    C  --> C8[C8:wait の副作用:<br/>wait リターン 1回目<br/>だけでは不十分<br/>child.sh の終了は 2回目]
+    C8 --> C9[C9: WaitForChildExit で<br/>wait リターン 2回目を待つ]
+
+    A  --> B5
+    A  --> A1[A1: trap CtrlC の副作用:<br/>child2.sh と sleep に<br/>明示的にシグナルを送る必要が出てくる]
+    A1 --> A2[A2: 自分 child.sh にシグナルを送らないために<br/>（child.sh）の PGID と<br/>（child2.sh, sleep）の PGID に分けるため、]
+    A2 --> A3[A3: =B3: child.sh の set -m]
+    A  --> A4[A4: =B6: child.sh の CtrlC が<br/>child2.sh の終了ではなく<br/>シグナルを受信したすぐに<br/>呼ばれるようにするため、]
+    A4 --> A5[A5: =B7: child2.sh をフォアグラウンドではなく<br/>child2.sh &amp; + wait で起動（これも非同期化）]
+    A5 --> A6[A6: =B2: 非同期化の副作用:<br/>child2.sh で SIGINT が無視される<br/>（Ctrl+C に即応できない）]
+    A6 --> A3
+    A5 --> A7[A7: 副作用: SIGINT 以外のシグナルで<br/>child.sh が終了すると<br/>child2.sh が孤児になる]
+    A7 --> A8[A8: child.sh の DefaultSignalHandler<br/>（他のシグナルも PGID 宛てに転送）]
+
+    classDef req fill:#EEEDFE,stroke:#534AB7,color:#26215C;
+    classDef root fill:#FAECE7,stroke:#D85A30,color:#4A1B0C;
+    classDef code fill:#E1F5EE,stroke:#0F6E56,color:#04342C;
+    classDef reason fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A;
+
+    class Req req;
+    class A,B,C root;
+    class B3,B5,B7,A3,A5,B9,A8,C9 code;
+    class B1,B2,B4,B6,A1,A2,A4,A6,B8,A7,C8 reason;
+    </div>
+  </div>
+</main>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+</script>
+</body>
+</html>

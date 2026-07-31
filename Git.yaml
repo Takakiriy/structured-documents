@@ -1,5 +1,5 @@
 #keyword: Git.yaml, Git  #ref: ${programming}/方法論/CVS/Git.svg
-サンプルのテンプレート: 
+サンプルのテンプレート:
     一般: #search: release branch
     一時リポジトリあり:  #search: git rebase commit
     .git フォルダーをバックアップします: #search: git backup example
@@ -60,6 +60,21 @@
                                 マージを記録します:
                                     theirs から ours へのマージを行います（記録します）。
                                     #// こうすることで、theirs の変更（ours で変更しない内容）を受け入れるマージが後でもできるようになります。
+                既存フォルダーに .git フォルダーを設置してコミットします: #keyword: git commit existing folder
+                    .git フォルダー がローカルにある場合:
+                        .git フォルダーをコピーまたは移動します
+                    .git フォルダー がローカルにない場合: |  #// ブランチの指定は必須です。 指定しないと デフォルト ブランチ にさえなりません。
+                        cd  __ExistingFolder__
+                        Branch="Rocky8"
+                        git init
+                        git remote add origin  __RepositoryURL__
+                        git fetch origin                #// ローカル側に .git/objects/ と refs/remotes/origin/* （全リモート追跡ブランチ）をダウンロード・作成・更新します
+                        git symbolic-ref  HEAD  refs/heads/${Branch}    #// HEAD が指すブランチ名だけを設定します(中身は未参照)
+                        git reset  origin/${Branch}     #// ローカル側に refs/heads/${Branch} を作成・更新します。ダウンロードは発生しません
+                        git status
+                        git diff
+                    注意:
+                        既存の内容を上書きしてしまうことが無いよう、git diff などで確認してください
                 git commit、署名付きコミット:  #// git commit コマンドの実行、または、署名付きコミットを行います
                     git commit -m "__CommitMessage__"
                     #serach: git commit command
@@ -6927,6 +6942,9 @@ Git: #keyword: git
                 行の順番: 下が優先です
             Checking-out and checking-in: https://git-scm.com/docs/gitattributes#_checking_out_and_checking_in
         .gitkeep:  空のフォルダーをリポジトリに入れます（未確認）。削除されてもリポジトリに残します（未確認）  #keyword:
+        .git フォルダー: #keyword:
+            ワーキング フォルダー の直下にある Git の管理用フォルダー
+            VSCode では表示されません
         .commit: #keyword: Git .commit  #// 独自。ベースとなるコミット
             手順:
                 更新確認: #keyword:  #// フォルダーの中に更新があるかどうかを調べます
@@ -7487,6 +7505,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                         GitHub の Code タブを選びます:
                             https://github.com/__Account__/__Repository__
                             #// __Account__ は個人または組織のアカウント名です
+                        コミットを選ぶ場合:  #search: GitHub commit contents
                         行番号をクリックします:
                             複数行を指す場合: さらに Shift を押しながら範囲の最後の行をクリックします
                         パーマリンクに変換します:  #// 特定のコミットに固定された URL になります
@@ -11318,6 +11337,7 @@ GitHub, サーバー、リポジトリ:  #// GitHub, プロジェクトボード
                 -   git commit -m "1st commit"
                 -   git remote add origin https://github.com/Takakiriy/nextjs-blog.git  #template: /__GitHubUser__/__Repository__.git
                 -   git push --set-upstream origin main
+        既存フォルダーに .git フォルダーを設置します: #search: git commit existing folder  #// フォルダーの内容を完成させてから .git を持ってきてコミットします
         サーバーなしの .git フォルダーを作ります:  #keyword: Git local work
             設定: #settings:
                 __RepositoryName__: project_1

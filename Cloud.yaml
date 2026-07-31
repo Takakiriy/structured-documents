@@ -1590,6 +1590,9 @@ RabbitMQ: #keyword:  #// メッセージ キュー  #ref: https://www.rabbitmq.c
             #ref: ${typrm_files}/ref/Cloud-AI.yaml#label: vhost
         クラスター:
             状態表示:  #search: RabbitMQ rabbitmqctl
+        ユーザー:
+            rabbitmqctl add_user lowpriv secret
+            rabbitmqctl set_permissions -p "/" lowpriv "^$" "^$" "^$"
     ファイル:
         /etc/rabbitmq/rabbitmq-env.conf : |  #// 下記は FQDN を使う場合に必要な設定です
             NODENAME=rabbit@rabbit-server1.example.com

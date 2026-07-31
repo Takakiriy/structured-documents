@@ -156,10 +156,10 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                 __Working1__: #search: __Ticket__
                     __SubWorking__: #search: __Ticket__ now
                 今日済）__Working2__: #     今日の分が終わったら 今日済）を付けます
-            近日:
-                YYYY-MM-DD 曜 今日:
-                YYYY-MM-DD 曜 ____:
-            明日:
+            後日:
+                近日:
+                    YYYY-MM-DD 曜 今日:
+                    YYYY-MM-DD 曜 ____:
                 __Working3__: #
         分類版:
             #↓ 時期
@@ -169,10 +169,10 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                 __Project1__:
                     __Working1__: #search: __Ticket__
                 今日済）__Project2__:
-            近日:
-                YYYY-MM-DD 曜 今日:
-                YYYY-MM-DD 曜 ____:
             後日:
+                近日:
+                    YYYY-MM-DD 曜 今日:
+                    YYYY-MM-DD 曜 ____:
                 __Project1__:
                     __Working1__: #search: __Ticket__
                 __Project2__:
@@ -372,7 +372,7 @@ YAML, 構造化ドキュメンテーション:  #keyword: 構造化ドキュメ�
                     進捗状況:
                         #// 未🔥, 済✅  #search: 依頼内容
                 ツール: #keyword: ticket sub ID tools
-                    __Project__-now: #keyword: __Project__-now,  sub ID now  #// 未完了を表示します
+                    __Project__-now: #keyword: __Project__-now,  -now,  sub ID now  #// 未完了を表示します
                         準備: | #keyword: __Project__-now code  #// __Project__-now（__Project__ はプロジェクト名など）という名前の スクリプト ファイル を作ります
                             code  ~/bin/__Project__-now
                                 #!/bin/bash
@@ -1220,7 +1220,9 @@ mermaid:  #// テキストから図を作成します  #keyword: mermaid,  （ma
                 npm install -g @mermaid-js/mermaid-cli
             画像に変換します:  #// エラー メッセージ が表示されます
                 mmdc -i ${HOME}/GitHub/steps/!Temp.mmd -o ${HOME}/_mermaid.png
-    サンプル: #ref: ${steps}/Document.md
+    サンプル:
+        #ref: ${steps}/Document.md
+        #ref: ${steps}/Document.mmd
     ガントチャート: #keyword: mermaid ガントチャート
         #ref: https://qiita.com/sato_kana/items/2a13f19017576488f017
     関連:

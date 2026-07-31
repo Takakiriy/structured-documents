@@ -2092,25 +2092,30 @@
         例外の内容:  #keyword: Python exception print
             コールスタックを表示します:  #keyword: Python call stack,  Python call tree,  traceback.format_exc,  traceback.print_exc
                 関連 >> ログ:  #search: Python logging
-                例外発生時: |
-                    try:
-                        :
-                    except Exception, e:  #// except (Error1, Error2) as exception:
+                例外発生時:
+                    _: |
+                        try:
+                            :
+                        except Exception, e:  #// except (Error1, Error2) as exception:
+                            import traceback
+                            call_stack = traceback.format_exc()
+                            print(call_stack)
+                            #// logger.error("%s %s", str(exception), call_stack)
+                            sys.exit(1)
+                    デバッグ時: |  #// コールスタックを公開するのは基本的に NG
                         import traceback
-                        call_stack = traceback.format_exc()
-                        print(call_stack)
-                        #// logger.error("%s %s", str(exception), call_stack)
-                        sys.exit(1)
-                デバッグ時: |  #// コールスタックを公開するのは基本的に NG
-                    import traceback
 
-                    debug = True
-                    if debug:
-                        call_stack = ' > ' + traceback.format_exc()
-                    else:
-                        call_stack = ''
-                    return self.error_response('500', '失敗しました'+ call_stack)
-                #ref: ${programming}/スクリプト/Python.svg#traceback_print_exc
+                        debug = True
+                        if debug:
+                            call_stack = ' > ' + traceback.format_exc()
+                        else:
+                            call_stack = ''
+                        return self.error_response('500', '失敗しました'+ call_stack)
+                    #ref: ${programming}/スクリプト/Python.svg#traceback_print_exc
+                例外が発生していないとき: |  #// format_exc() は使えません（None を返す）
+                    import traceback
+                    print(''.join(traceback.format_stack()))
+                    #// logger.error("@@@ %s", ''.join(traceback.format_stack()))
                 コマンド実行時:
                     poetry などのエラーの原因を調べるときは、
                     .pyenv/versions/__Version__/bin/poetry から
@@ -4928,6 +4933,9 @@
             イテレーター, ジェネレーター:  #keyword: Python iterator,  Python generator
                 関連 >> ジェネレーター:  #search: Python generator
                 手順:
+                    配列からイテレーターを取得します:
+                        lst = [1, 2, 3]
+                        it = iter(lst)
                     for: | #keyword: yield for  #ref: ${GitHub}/MyPrivateCode/Python/try_Python/examples/yield/loop-yield.py
                         #focus: yield, yield_function
 
@@ -10168,8 +10176,8 @@
             旧仕様。 代わりは  #search: Python threading
     シグナル, Ctrl + C:  #keyword: Python signal,  Python Ctrl+C
         コード: |
-            signal.signal(signal.SIGTERM, __ShutdownFunction__)  #keyword: SIGTERM,  kill コマンド  #search: kill
-            signal.signal(signal.SIGINT, __ShutdownFunction__)   #keyword: SIGINT, Ctrl + C
+            signal.signal(signal.SIGTERM, __ShutdownFunction__)  #keyword: Python SIGTERM,  kill コマンド  #search: kill
+            signal.signal(signal.SIGINT, __ShutdownFunction__)   #keyword: Python SIGINT,  Python Ctrl + C
         Django:  #search: Django Ctrl+C
         #ref: https://docs.python.org/3/library/signal.html#examples
 パッケージ管理: #keyword: Python package,  Python module

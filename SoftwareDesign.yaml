@@ -1008,8 +1008,9 @@
                 - コンストラクター（Go言語なら Provider）を調べます
                 - 実装クラスを調べます  #search: go navigate implementation
         設定ファイルの扱い: #keyword: DI setting file
-            1:  #ref: ${typrm_files}/ref/SoftwareDesign/DI_Config.html
-            2:  #ref: ${typrm_files}/ref/SoftwareDesign/DI_Config2.html  #// B と C を入れ替えた
+            公開記事:   #ref: ${typrm_files}/Qiita下書き/36_DI_Config/36_DI_Config.md
+            version 2:  #ref: ${typrm_files}/ref/SoftwareDesign/DI_Config2.html  #// B と C を入れ替えた
+            version 1:  #ref: ${typrm_files}/ref/SoftwareDesign/DI_Config.html
         内部クラスを複数使ったお試しコードを実行する場合:
             メインに近い package にお試しコードを書きます:
                 複数のクラスに共通する親 package を探します
@@ -1304,7 +1305,7 @@
                                     それを実現する１つの方法が factory
                                 補足:
                                     -   p306 「まとめると、破棄可能な抽象は漏洩する抽象である」は、まとめではなく、破棄可能な抽象のことを言っているだけ
-                                    -   p306 「構成ファイルの読み込み」は、
+                                    -   p306 「構成ファイルの読み込み」は、第２章に書いてある悪いコードであることが補強されたわけではない。
                                         WCFでは、ChannelFactory を構成情報(エンドポイントのアドレス、バインディング、契約など)を与えずに作ると、
                                         その情報を構成ファイル(App.configやWeb.configの <system.serviceModel> セクション)から自動的に読み込む、という仕組みがあります
                                 短命な破棄可能オブジェクト（ephemeral disposable）:
@@ -2872,10 +2873,20 @@
             不合理に禁止しているルール:
                 #ref: https://www.flake8rules.com/rules/E272.html
         略語や頭字語の禁止: #keyword:
-            #ref: ${GitHub}/MyPrivateCode/PDF/toImage/toImage.js#readable
-            略語は文脈がないと言葉が指す概念を特定できないため禁止
-            一瞬でも覚えなければならないので非効率
-            ただし、何回も参照されて、ローカルに代入するのであれば、上記の理由が該当しないため、構わない
+            _: #ref: ${GitHub}/MyPrivateCode/PDF/toImage/toImage.js#readable
+                略語は文脈がないと言葉が指す概念を特定できないため禁止
+                一瞬でも覚えなければならないので非効率
+                ただし、何回も参照されて、ローカルに代入するのであれば、上記の理由が該当しないため、構わない
+            NEVRA 周りの略語の乱発: #keyword: NEVRA 略語 乱発  #// 略語をどんどん作ってしまうのは悪い文化
+                現状: |
+                    | 略語  | 展開                            | 含む要素                                             |
+                    |-------|---------------------------------|------------------------------------------------------|
+                    | NVR   | Name-Version-Release            | 名前・バージョン・リリース                           |
+                    | NEVR  | Name-Epoch-Version-Release      | 名前・エポック・バージョン・リリース                 |
+                    | EVR   | Epoch-Version-Release           | エポック・バージョン・リリース                       |
+                    | NEVRA | Name-Epoch-Version-Release-Arch | 名前・エポック・バージョン・リリース・アーキテクチャ |
+                対処:
+                    NVR についてはコード上では、NevraNvr と表現します
     マスター、スレーブといったプログラミング用語の置き換え: #keyword: master term
         #ref: https://japan.zdnet.com/article/35155289/
         概要: ブラック・ライブズ・マター Black Lives Matter への配慮
@@ -3043,21 +3054,38 @@
                 - 固定は期限付きの時間稼ぎとして使い、放置しない。セキュリティ修正が当たっていないなど問題があるため
                     本当に固定が必要な場面（再現性のための検証環境など）以外では最新を使うことをおすすめします。
             ステージング リポジトリ（ミラー）: #keyword: staging repository
-                ステージング:
+                ステージング:  #// staging repository
                     「本番を止める警報」ではなく「ステージングで鳴る警報」にする。
                     新バージョンはまず中間リポジトリには入れず、検証用の経路にだけ流す。
                     検証を通ったバージョンだけを中間リポジトリに「昇格」させ、本番はそこからしか取らない。
                     ステージングが参照する「最新受信用リポジトリ」と、本番が参照する「承認済みリポジトリ」に分けます。
                     reposync で同期するが、デフォルトで外部に合わせて古い RPM を削除しがち。（よくない）
+                プロダクト:  #// product repository
+                    本番は承認済みリポジトリを使います
+                    staging repository を使ったテストと product repository を使ったテストの両方を実行します
+                versionlock.list, RPM_versions.lock:  #search: versionlock.list
+                    バージョン番号が保存してあるファイル
+                    リポジトリに通常ファイルとして入れておきます
+                    旧バージョンを（本番用・承認済みリポジトリから）インストールするときに参照します
                 段階的本番リリース:
                     全台一斉ではなく段階的にします。
                     適用前に必ず戻せる状態を用意しておく。
                     本番だけでなくステージングでもテストするほうがよい。
-                versionlock.list, RPM_versions.lock:
-                    バージョン番号が保存してあるファイル
-                    旧バージョンをインストールするときに参照します
-                    #search: versionlock.list
-                更新スクリプト:  #ref: ${GitHub}/MyPrivateCode/bash/RPM_version_lock/update-staging-repository.sh
+                スクリプト:
+                    インストーラー（最新・固定）:  #ref: ${GitHub}/MyPrivateCode/bash/RPM_version_lock/install-packages.sh
+                        - 固定バージョンの場合、use-locked-repository.sh を先に実行してください。使うリポジトリを設定します
+                        - 固定バージョンの install-packages.sh は、使うバージョンを設定して RPM をインストールします
+                    最新リポジトリ作成:            #ref: ${GitHub}/MyPrivateCode/bash/RPM_version_lock/make-locked-repository.sh
+                    固定リポジトリを参照する設定:  #ref: ${GitHub}/MyPrivateCode/bash/RPM_version_lock/use-locked-repository.sh
+                CI 構成例:
+                    NewRPMTest/install/new:    最新バージョンを構築
+                    NewRPMTest/test_all:       最新バージョンで アプリケーション テスト（最新固定バージョンと共用）
+                    NewTestRepository:         最新固定バージョンのリポジトリ
+                    NewTestRepositoryTester:   最新固定バージョンのリポジトリのテスト
+                    NewRPMTest/install/locked: 最新固定バージョンを構築
+                    TestRepository:            承認済みバージョンのリポジトリ
+                    Test/install/locked:       承認済みバージョンを構築
+                    Test/test_all:             承認済みバージョンで アプリケーション テスト
         旧 手順:  #focus: 最新をインストール,  バージョンを記録,  バージョン指定したときの動作確認
             実験環境で:
                 最新をインストールします:
@@ -3561,7 +3589,7 @@
         個別に非表示にできること  suppress/ignore/skip warning
     エラー ログ: #keyword: エラー ログ
         本番環境のログのチェックとエラーの処置。エラーログは全く無いようにする（警告はあり）。定期的にチェックする
-    runbook:  #search: test failed runbook
+    runbook へのリンク:  #search: test failed runbook
     PublicError: #keyword: PublicError
         概要:
             - 見せる相手（ロール）ごとに エラー メッセージ の内容を変えられる PublicError 例外

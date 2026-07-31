@@ -285,7 +285,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     npm install -D @playwright/test@latest
                     npx playwright install chromium
                     npx playwright --version
-        テスト作成:
+        テスト作成: #keyword: make Playwright test
             ログイン状態の保存:
             GUI 操作:  #// テスト コード による GUI の操作
                 URL 指定, ページ移動: #keyword: Playwright page.goto
@@ -350,7 +350,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         toBeFocused, toBeVisible, toBeAttached,
                         toHaveURL, toHaveTitle,
                         toPass,
-                    toPass: #keyword: Playwright toPass  #ref: https://playwright.dev/docs/test-assertions
+                    toPass: #keyword: Playwright toPass  #ref: https://playwright.dev/docs/test-assertions  #// 一連の処理を実行し、例外が発生したらリトライします
                         書式:
                             - await expect(__AssertionOperation__).toPass()
                             - await expect(__AssertionOperation__).toPass(__Options__)
@@ -393,11 +393,12 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     違い:
                         await が無い: すぐに判定します
                         await がある: 期待値になるまで待ちます
-                not などを使ったチェック: #keyword: Playwright not expect  #// expect.not, expect.soft など
+                not などを使ったチェック: #keyword: Playwright not expect  #glossary: Playwright  #// expect.not, expect.soft など
                     not:  #// 指定した条件に満たないのが期待値
                         await expect(__Locator__).not.toEqual(0);
-                    toHaveCount: #// Locators などでマッチした数。削除処理が成功したことをチェックするときは 0 を指定します
+                    toHaveCount: |  #// Locators などでマッチした数。削除処理が成功したことをチェックするときは 0 を指定します
                         await expect(__Locator__).toHaveCount(0);
+                        await expect(page.getByRole('cell', { name: /id\d{4}/ })).not.toHaveCount(0);    #search: Playwright getByRole cell
                     soft:  #// エラーが発生しても中断しない
                         expect(value).soft.toEqual(0);
                     poll:  #// ポーリング。状態を得る処理を書きます  #ref: https://playwright.dev/docs/test-assertions
@@ -420,6 +421,10 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         関連:
                             toPass,  expect を __GetOperation__ に書く場合, :  #search: Playwright toPass
                     expect.configure: #search:
+                タイムアウトを伸ばす: |  #keyword: Playwright time out
+                        チェック メソッド に timeout オプションを付けます
+                        ____.toHaveCount(0, {timeout: 30_000});
+                    #search: Playwright assertion methods
                 エラー メッセージ:  #// 標準的な エラー メッセージ から変える場合
                     コード:
                         expect(__Locator__, __ErrorMessage__).toBe___
@@ -626,7 +631,8 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
             サンプル: #🌟  #search: Playwright CLI  #// 一部を実行するなど
             npx: #search:
             --reporter:  #// 失敗時の動作。デフォルトは、結果を表示する Web サーバー を起動します
-                --reporter=line: #keyword:  #// 失敗時に Web サーバー を起動しません
+                --reporter=list: #keyword:  #// 失敗時に Web サーバー を起動しません。テスト項目を一覧します
+                --reporter=line: #keyword:  #// 失敗時に Web サーバー を起動しません。テスト項目を一時的に表示します。リダイレクトしてもリダイレクト先に保存されません
                 --reporter=html: #keyword:  #// 失敗時に Web サーバー を起動します
             終了コード:
                 終了コード:
@@ -738,9 +744,11 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                             const fileChooser = await fileChooserPromise;
 
                             await fileChooser.setFiles(path.join(__dirname, '../fixtures/test.pdf'));
-            絞り込み: | #keyword: Playwright 絞り込み
-                await page.locator('#table2  #input-text').fill('ABC');
-                await page.getByTestId('__Parent__').getByTestId('__Child__').click();
+            絞り込み: #keyword: Playwright 絞り込み
+                CSS セレクター を使う場合: |  #// '#table2  #input-text'
+                    await page.locator('#table2  #input-text').fill('ABC');
+                メソッド チェーン を使う場合: |  #// getByTestId().getByTestId()
+                    await page.getByTestId('__Parent__').getByTestId('__Child__').click();
             親 HTML 要素:
                 const  tr = td.locator('xpath=..');
                 const  tbody = td.locator('xpath=../..');
@@ -775,7 +783,7 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                 export default defineConfig({});
             サーバーの起動:  #// Web サーバー や バックエンド サービス を起動します
                 #search: playwright.config.ts webServer
-            タイムアウト: |
+            タイムアウト: | #keyword: playwright.config.ts
                 export default defineConfig({
                     timeout: 30_000,         // テスト全体  デフォルト 30,000ms
                     globalTimeout: 600_000,  // スイート全体  デフォルト 0（無制限）
@@ -898,7 +906,13 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                     page.getByRole('button',{name:'削除'})
                     page.getByText('削除')
                     page.locator('button:has-text("更新")')
-                表:
+                表: #keyword: Playwright table
+                    どこかのセルにマッチする内容があるかどうか: #keyword: Playwright getByRole cell
+                        基本: |
+                            ____.getByRole('cell', { name: /id\d{4}/ });
+                        見出しの直後の表のセル: |
+                                await expect(page.getByRole('heading', { name: '表2' }).locator('xpath=following::table[1]').getByRole('cell', { name: /id\d{4}/ })).not.toHaveCount(0);
+                            #template__: getByRole('heading', { name: '__HeaderName__' }).locator('xpath=following::table[1]').getByRole('cell', { name: __RegularExpression__ })
                     1列目:  #// nth(0) が 1行目を指します。nth(1) にすると 2行目を指します。
                         page.locator('table td:first-child').nth(0).locator('xpath=..//button')
                     2列目が特定のテキストの 1列目:
@@ -975,6 +989,10 @@ Playwright: #keyword:  #// プレイライト、劇作家。 playright や playw
                         'button':
                         'checkbox':
                         'heading': <h1>..<h6>
+                        'cell': #search: Playwright getByRole cell  #// テーブルのセルの内容
+                    正規表現を name に指定する: |   #// 正規表現に name がマッチする GUI 部品のコレクション
+                            await expect(page.getByRole('cell', { name: /id\d{4}/ })).not.toHaveCount(0);
+                        #search: Playwright getByRole cell
         ElementHandle:  #// ElementHandle<SVGElement | HTMLElement>  #// get の返り値を await したもの  #search: Playwright get
             click:
                 await page.locator('#input-button').click();

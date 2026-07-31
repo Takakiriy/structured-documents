@@ -2595,9 +2595,9 @@ HTTP 通信: #keyword: HTTP
                             シナリオと状態: #search: WireMock scenario state  #// ユーザー定義の状態に応じてレスポンスを変えます
                             extensions: #search: WireMock extensions  #// 何でもありだが Java
                     Web API をキャプチャーして mappings を作ります:  #search: tcpdump Web API example
-                    遅延したレスポンス: |  #// 3秒
+                    遅延したレスポンス: | #keyword: WireMock fixedDelayMilliseconds
                         "response": {
-                            "fixedDelayMilliseconds": 3000
+                            "fixedDelayMilliseconds": 3000  #// 3秒
                 キャプチャーと再生:
                     #ref: https://wiremock.org/docs/record-playback/
                     #ref: https://github.com/abstracta/wiresham
@@ -2609,6 +2609,32 @@ HTTP 通信: #keyword: HTTP
                 --https-port: HTTPS のポート番号。--port オプションを指定しない場合、HTTP の 8080 ポートも使います
                 --root-dir: 本書では __WireMockRoot__ と表します。 省略すると カレント フォルダー がルートになります。
                 参考: #ref: http://wiremock.org/docs/running-standalone/
+            ログ: #keyword: WireMock log
+                アクセス ログ:
+                    有効にします:
+                        wiremock の起動オプション --verbose を付けます（再起動します）
+                    ログのサンプル: |  #focus: response
+                        2026-07-30 12:34:56.789 Request received:
+                        127.0.0.1 - GET /api/users?id=1
+
+                        Host: [localhost:8080]
+                        User-Agent: [curl/8.4.0]
+                        Accept: [*/*]
+
+
+                        Matched response definition:
+                        {
+                            "status" : 200,
+                            "headers" : {
+                                "Content-Type" : "application/json"
+                            },
+                            "body" : "{\"id\":1}"
+                        }
+
+                        Response:
+                        HTTP/1.1 200
+                        Matched-Stub-Id: [3f1c9a2e-...]
+                        Content-Type: [application/json]
             ファイル >> mappings ファイル: #keyword: WireMock mappings  #// 応答内容
                 置き場所:
                     - __WireMockRoot__/mappings/___.json
