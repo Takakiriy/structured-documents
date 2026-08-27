@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数式を文章として読む議論の分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+.page {
+    margin: 0;
+    padding: 1.2rem 1rem 4rem 1rem;
+    background-color: #fbfaf6;
+    color: #17181a;
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 100%;
+    line-height: 1.8;
+}
+
+.wrap {
+    max-width: 54rem;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    margin: 0 0 0.2rem 0;
+    color: #101114;
+}
+
+.subtitle {
+    margin: 0 0 1.6rem 0;
+    color: #3a3d42;
+}
+
+.chapter {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin: 2.4rem 0 0.6rem 0;
+    padding: 0.3rem 0 0.3rem 0.6rem;
+    border-left: 0.35rem solid #b06a30;
+    color: #101114;
+}
+
+.section {
+    font-size: 1.08rem;
+    line-height: 1.6;
+    margin: 1.6rem 0 0.4rem 0;
+    color: #101114;
+}
+
+.text {
+    margin: 0.5rem 0;
+}
+
+.list {
+    margin: 0.5rem 0;
+    padding-left: 1.4rem;
+}
+
+.item {
+    margin: 0.35rem 0;
+}
+
+.strong {
+    font-weight: 700;
+}
+
+.mark {
+    font-weight: 700;
+    color: #8d3f10;
+}
+
+.note {
+    margin: 0.8rem 0;
+    padding: 0.7rem 0.9rem;
+    background-color: #f1eee5;
+    border: 1px solid #d6cfbd;
+    border-radius: 0.4rem;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin: 0.8rem 0 1.2rem 0;
+    padding: 0.7rem 0.9rem;
+    background-color: #f3f1ea;
+    border: 1px solid #d8d3c4;
+    border-radius: 0.4rem;
+}
+
+.legend-item {
+    white-space: nowrap;
+}
+
+.columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0.8rem 0;
+}
+
+.column {
+    flex: 1 1 18rem;
+    min-width: 0;
+    padding: 0.8rem 1rem;
+    background-color: #f5f3ec;
+    border: 1px solid #d8d3c4;
+    border-radius: 0.4rem;
+}
+
+.column-head {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem 0;
+    color: #101114;
+}
+
+.shrink {
+    font-size: clamp(0.34rem, 2.55vw, 1rem);
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.6rem 0;
+}
+
+.table-head {
+    background-color: #ece7da;
+}
+
+.cell-head {
+    border: 1px solid #c9c2b0;
+    padding: 0.4em 0.6em;
+    text-align: left;
+    color: #101114;
+}
+
+.cell {
+    border: 1px solid #c9c2b0;
+    padding: 0.4em 0.6em;
+    vertical-align: top;
+}
+
+.code {
+    margin: 0.6rem 0;
+    padding: 0.7em 0.9em;
+    background-color: #f2efe6;
+    border: 1px solid #d3ccba;
+    border-radius: 0.4rem;
+    color: #17181a;
+    font-family: Iosevka, "Courier New", monospace;
+    font-size: clamp(0.34rem, 2.4vw, 0.95rem);
+    line-height: 1.7;
+    overflow-x: auto;
+}
+
+.url {
+    display: block;
+    margin: 0.1rem 0 0 0;
+    color: #3a4d6b;
+    font-family: Iosevka, "Courier New", monospace;
+    font-size: clamp(0.34rem, 2.1vw, 0.72rem);
+    line-height: 1.6;
+    word-break: break-all;
+}
+
+.figure {
+    margin: 1rem 0 1.4rem 0;
+}
+
+.figure-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: #ffffff;
+    border: 1px solid #d8d3c4;
+    border-radius: 0.4rem;
+}
+
+.figure-caption {
+    margin: 0.4rem 0 0 0;
+    color: #3a3d42;
+    font-size: 0.9rem;
+}
+
+.svg-title {
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    fill: #101114;
+}
+
+.svg-lane {
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    fill: #2f3236;
+}
+
+.svg-box-left {
+    fill: #e6edf7;
+    stroke: #40608f;
+    stroke-width: 1.4;
+}
+
+.svg-box-right {
+    fill: #fbeadb;
+    stroke: #a9612b;
+    stroke-width: 1.4;
+}
+
+.svg-box-out {
+    fill: #eceae4;
+    stroke: #8b8778;
+    stroke-width: 1.4;
+    stroke-dasharray: 5 3;
+}
+
+.svg-number {
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    fill: #101114;
+}
+
+.svg-name {
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 12px;
+    fill: #2f3236;
+}
+
+.svg-body {
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 13px;
+    fill: #17181a;
+}
+
+.svg-tag {
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    fill: #7a3c0d;
+}
+
+.svg-edge {
+    stroke: #55585d;
+    stroke-width: 1.4;
+    fill: none;
+}
+
+.svg-edge-quote {
+    stroke: #55585d;
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+    fill: none;
+}
+
+.svg-arrow {
+    fill: #55585d;
+}
+
+.svg-band {
+    fill: #f4f1e9;
+}
+
+.svg-band-line {
+    stroke: #cfc9b8;
+    stroke-width: 1;
+}
+</style>
+</head>
+<body class="page">
+<div class="wrap">
+
+<h1 class="title">数式を文章として読む議論の分析</h1>
+<p class="subtitle">投稿 1 から 12 までと、その後の引用までを対象とした最終版</p>
+
+<h2 class="chapter">1. 記号の凡例</h2>
+
+<div class="legend">
+    <span class="legend-item"><span class="mark">🆕</span> 新しい観点</span>
+    <span class="legend-item"><span class="mark">🪞</span> メタ化</span>
+    <span class="legend-item"><span class="mark">❓</span> 修辞疑問（隠れた意図）</span>
+    <span class="legend-item"><span class="mark">⚠️</span> 説明負荷</span>
+    <span class="legend-item"><span class="mark">🚫</span> 論点から除外</span>
+</div>
+
+<p class="text">論点ズラしを表す記号は、最終版では使用箇所がありません。移動と判定した箇所がすべて取り消されたためです。</p>
+
+<h2 class="chapter">2. 論点の系譜</h2>
+
+<div class="shrink">
+<table class="table">
+    <thead class="table-head">
+        <tr>
+            <th class="cell-head">記号</th>
+            <th class="cell-head">論点</th>
+            <th class="cell-head">登場</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td class="cell">A</td><td class="cell">数式に「文章としての意味」があるか</td><td class="cell">1, 8</td></tr>
+        <tr><td class="cell">A'</td><td class="cell">A を根拠に教えないことの是非</td><td class="cell">2, 3, 6</td></tr>
+        <tr><td class="cell">B</td><td class="cell">能力の価値を「必要性」で測ってよいか</td><td class="cell">3, 4</td></tr>
+        <tr><td class="cell">C</td><td class="cell">授業の規範がこの場に及ぶか</td><td class="cell">6, 7</td></tr>
+        <tr><td class="cell">D</td><td class="cell">主張の範囲（あえて文章として読む）</td><td class="cell">9</td></tr>
+        <tr><td class="cell">F</td><td class="cell">「文章」の現物の提示</td><td class="cell">12</td></tr>
+    </tbody>
+</table>
+</div>
+
+<h2 class="chapter">3. 投稿の流れ</h2>
+
+<div class="figure">
+<svg class="figure-image" viewBox="0 0 680 830" role="img" aria-label="投稿 1 から 12 までの返信と引用の流れ">
+    <defs>
+        <marker id="head" markerWidth="9" markerHeight="9" refX="7.5" refY="3" orient="auto">
+            <path class="svg-arrow" d="M0,0 L8,3 L0,6 Z"></path>
+        </marker>
+    </defs>
+
+    <rect class="svg-band" x="0" y="0" width="680" height="64"></rect>
+    <line class="svg-band-line" x1="0" y1="64" x2="680" y2="64"></line>
+    <text class="svg-title" x="20" y="28">返信と引用の流れ</text>
+    <text class="svg-lane" x="20" y="52">反対側</text>
+    <text class="svg-lane" x="400" y="52">@bux5rgls 側</text>
+
+    <rect class="svg-box-left" x="16" y="80" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="28" y="99">1</text>
+    <text class="svg-name" x="46" y="99">@SSako86</text>
+    <text class="svg-body" x="28" y="118">文章としての意味を否定</text>
+    <text class="svg-tag" x="250" y="99">A</text>
+
+    <rect class="svg-box-right" x="394" y="140" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="406" y="159">2</text>
+    <text class="svg-name" x="424" y="159">@bux5rgls</text>
+    <text class="svg-body" x="406" y="178">両方読めるほうがよい</text>
+    <text class="svg-tag" x="622" y="159">A'</text>
+
+    <rect class="svg-box-left" x="16" y="200" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="28" y="219">3</text>
+    <text class="svg-name" x="46" y="219">@mo0210_neu</text>
+    <text class="svg-body" x="28" y="238">必要ないので意味がない</text>
+    <text class="svg-tag" x="250" y="219">B</text>
+
+    <rect class="svg-box-right" x="394" y="260" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="406" y="279">4</text>
+    <text class="svg-name" x="424" y="279">@bux5rgls</text>
+    <text class="svg-body" x="406" y="298">試験の基準を否定</text>
+    <text class="svg-tag" x="622" y="279">B</text>
+
+    <rect class="svg-box-right" x="394" y="320" width="270" height="40" rx="6"></rect>
+    <text class="svg-number" x="406" y="345">5</text>
+    <text class="svg-name" x="424" y="345">@bux5rgls</text>
+    <text class="svg-body" x="500" y="345">リンクのみ</text>
+
+    <rect class="svg-box-left" x="16" y="372" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="28" y="391">6</text>
+    <text class="svg-name" x="46" y="391">@shadow_redcat</text>
+    <text class="svg-body" x="28" y="410">算数の授業ではやるな</text>
+    <text class="svg-tag" x="250" y="391">A'</text>
+
+    <rect class="svg-box-right" x="394" y="432" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="406" y="451">7</text>
+    <text class="svg-name" x="424" y="451">@bux5rgls</text>
+    <text class="svg-body" x="406" y="470">ここは授業ではない</text>
+    <text class="svg-tag" x="622" y="451">C</text>
+
+    <rect class="svg-box-left" x="16" y="492" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="28" y="511">8</text>
+    <text class="svg-name" x="46" y="511">@shadow_redcat</text>
+    <text class="svg-body" x="28" y="530">数式は文章ではない</text>
+    <text class="svg-tag" x="250" y="511">A</text>
+
+    <rect class="svg-box-right" x="394" y="552" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="406" y="571">9</text>
+    <text class="svg-name" x="424" y="571">@bux5rgls</text>
+    <text class="svg-body" x="406" y="590">あえて文章として読む話</text>
+    <text class="svg-tag" x="622" y="571">D</text>
+
+    <rect class="svg-box-out" x="394" y="612" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="406" y="631">10</text>
+    <text class="svg-name" x="430" y="631">@bux5rgls</text>
+    <text class="svg-body" x="406" y="650">相手の属性を対象とした投稿</text>
+    <text class="svg-tag" x="622" y="631">🚫</text>
+
+    <rect class="svg-box-out" x="394" y="672" width="270" height="40" rx="6"></rect>
+    <text class="svg-number" x="406" y="697">11</text>
+    <text class="svg-name" x="430" y="697">@bux5rgls</text>
+    <text class="svg-body" x="506" y="697">リンクのみ</text>
+
+    <rect class="svg-box-left" x="16" y="724" width="270" height="48" rx="6"></rect>
+    <text class="svg-number" x="28" y="743">12</text>
+    <text class="svg-name" x="52" y="743">@regulus_math</text>
+    <text class="svg-body" x="28" y="762">文章を提示しろ</text>
+    <text class="svg-tag" x="250" y="743">F</text>
+
+    <path class="svg-edge-quote" d="M286,104 L340,104 L340,164 L390,164" marker-end="url(#head)"></path>
+    <path class="svg-edge" d="M394,182 L340,182 L340,224 L290,224" marker-end="url(#head)"></path>
+    <path class="svg-edge-quote" d="M286,236 L340,236 L340,284 L390,284" marker-end="url(#head)"></path>
+    <path class="svg-edge-quote" d="M470,308 L470,316" marker-end="url(#head)"></path>
+    <path class="svg-edge" d="M394,344 L340,344 L340,396 L290,396" marker-end="url(#head)"></path>
+    <path class="svg-edge" d="M286,408 L340,408 L340,456 L390,456" marker-end="url(#head)"></path>
+    <path class="svg-edge" d="M394,470 L340,470 L340,516 L290,516" marker-end="url(#head)"></path>
+    <path class="svg-edge" d="M286,528 L340,528 L340,576 L390,576" marker-end="url(#head)"></path>
+    <path class="svg-edge" d="M470,600 L470,608" marker-end="url(#head)"></path>
+    <path class="svg-edge-quote" d="M470,660 L470,668" marker-end="url(#head)"></path>
+    <path class="svg-edge-quote" d="M394,700 L340,700 L340,748 L290,748" marker-end="url(#head)"></path>
+</svg>
+<p class="figure-caption">実線は返信、破線は引用。破線の枠は論点から除外した投稿。</p>
+</div>
+
+<p class="text">返信と引用をたどった最短の経路は次のとおりです。</p>
+
+<pre class="code">1 --quote--&gt; 2 --reply--&gt; 3 --quote--&gt; 4 --reply--&gt; 5 --quote--&gt;
+6 --reply--&gt; 7 --reply--&gt; 8 --reply--&gt; 9 --reply--&gt; 10 --reply--&gt;
+11 --quote--&gt; 12 --quote--&gt; 終点</pre>
+
+<h2 class="chapter">4. 各投稿の評価</h2>
+
+<p class="text"><span class="strong">1 @SSako86 — A</span><br>
+数式としての意味と文章としての意味を切り分け、後者を否定。引用元には、否定の対象となる読みがあったと読めます。<span class="url">https://x.com/SSako86/status/2092228444629422329</span></p>
+
+<p class="text"><span class="strong">2 @bux5rgls — <span class="mark">🆕</span> A'</span><br>
+A の帰結（片方しか身につけないこと）への懸念。3 と 6 が実際に不要論と禁止を導いたことで、この懸念は事後的に裏づけられています。<span class="url">https://x.com/bux5rgls/status/2092228694022791408</span></p>
+
+<p class="text"><span class="strong">3 @mo0210_neu — <span class="mark">🆕</span> B</span><br>
+必要性を価値の基準として提示し、2 に正面から反論。<span class="url">https://x.com/mo0210_neu/status/2092231646309384244</span></p>
+
+<p class="text"><span class="strong">4 @bux5rgls — B への反論</span><br>
+「試験じゃあるまいし」で、必要な範囲だけが価値を持つという基準を否定。結論ではなく推論の前提を拒否しています。3 と正面対立し、<span class="strong">未決着</span>。<span class="url">https://x.com/bux5rgls/status/2092231829273395488</span></p>
+
+<p class="text"><span class="strong">5 — リンクのみ</span><span class="url">https://x.com/bux5rgls/status/2092247798075084924</span></p>
+
+<p class="text"><span class="strong">6 @shadow_redcat — <span class="mark">🆕</span> A'（場面限定）</span><br>
+授業に限定した点で 3 より譲歩。<span class="url">https://x.com/shadow_redcat/status/2092252271413542991</span></p>
+
+<p class="text"><span class="strong">7 @bux5rgls — C</span><br>
+授業の規範がこの場に及ばないという、6 への適用範囲の否定。6 の内容への反論です。<span class="mark">❓</span> 「知ってました？」は情報を求めない修辞疑問。<span class="url">https://x.com/bux5rgls/status/2092252687677149424</span></p>
+
+<p class="text"><span class="strong">8 @shadow_redcat — A への回帰</span><br>
+7 の文型を借用。<span class="mark">🪞</span> 内容から応酬の型への傾きが始まります。<span class="mark">❓</span> 同じく修辞疑問。<span class="url">https://x.com/shadow_redcat/status/2092300839033729416</span></p>
+
+<p class="text"><span class="strong">9 @bux5rgls — D（範囲の明示）</span><br>
+「あえて文章として読んだ場合の話」。A を否定しない位置に自説を置き直したもので、核の主張は 2 から変わりません。内容面のやり取りはここで終わります。<span class="mark">❓</span> 修辞疑問。<span class="url">https://x.com/bux5rgls/status/2092361352220422432</span></p>
+
+<p class="text"><span class="strong">10 @bux5rgls — <span class="mark">🚫</span> 論点外</span><br>
+<span class="mark">🪞</span> 相手の属性を対象とした投稿。人格や能力の否定にあたるため、論点に数えません。<span class="url">https://x.com/bux5rgls/status/2092382613688533106</span></p>
+
+<p class="text"><span class="strong">11 — リンクのみ（10 の引用）</span><span class="url">https://x.com/bux5rgls/status/2092587901276316091</span></p>
+
+<p class="text"><span class="strong">12 @regulus_math — F</span><br>
+前半は 10（論点外）への応答なので、内容として残るのは後半の要求のみ。<br>
+<span class="mark">⚠️</span> 2, 4, 7, 9 で位置づけが繰り返し示された後の再提示要求です。ただし A に立てば 9 の提示は前提ごと不成立なので、要求する側からは未提示に見えている可能性があります。<span class="url">https://x.com/regulus_math/status/2092589038830313796</span></p>
+
+<p class="text"><span class="strong">12 以降</span><br>
+@bux5rgls が引用で応答し、@regulus_math が同じ要求を反復。その後の引用（値と式の区別、2+3 は値か）は投稿内容に踏み込んだ具体的な問いで、読んでいないことは示しません。ただし向いているのは数式の記号論であり、A' と B は一度も拾われていません。</p>
+
+<h2 class="chapter">5. 全体</h2>
+
+<ul class="list">
+    <li class="item"><span class="strong">論点移動は 0 回。</span> 2, 3, 6 は観点の追加、4, 7, 8 は既出論点への反論と回帰。</li>
+    <li class="item">@bux5rgls の主張は 2 から 9 まで一貫。7 と 9 の限定は範囲の明示であり、立場の変更ではありません。</li>
+    <li class="item">未決着は B（3 対 4）と A'（6 の提起）。両側とも詰めないまま終わっています。</li>
+    <li class="item">7, 8, 9 の「知ってました？」系はすべて修辞疑問。</li>
+    <li class="item">内容面は 9 で終わり、10 で論点外へ出たあと、12 以降は F の反復で停滞。</li>
+</ul>
+
+<h2 class="chapter">6. 最初の分析との違いの原因</h2>
+
+<h3 class="section">観点 1: 一般命題が否定している帰結を、後続の投稿から読む</h3>
+<p class="text">2 を単体で見て、反論不能な一般命題ゆえに A の回避と判定していました。実際には 3 と 6 が A から不要論と禁止を導いており、2 はそれを先回りして否定しています。後続の投稿が先行する投稿の争点を事後的に確定させる、という読み方を欠いていました。</p>
+
+<h3 class="section">観点 2: 相手の推論のどの部分を拒否しているかを見る</h3>
+<p class="text">4 と 7 を前提の帰属と話題移動と判定した根拠は、どちらも結論に答えていないことでした。実際は 4 が推論の前提を、7 が規範の適用範囲を否定しています。結論への直接応答の有無だけで判定すると、前提や適用範囲への反論が回避に見えます。</p>
+
+<h3 class="section">観点 3: 明示されていないことと、変更されたことを区別する</h3>
+<p class="text">9 を後退と評価したのは、教育への接続が書かれていないことを、教育の主張の取り下げと同一視したためです。表現上の不明示は立場の変更ではありません。</p>
+
+<h3 class="section">観点 4: 論点外とした投稿を、論点の系譜にも数えない</h3>
+<p class="text">10 を論点外としながら、議論態度という論点を表に載せ、そこへの移動を 1 回と数えていました。除外を徹底すると移動は 0 回になり、12 の前半も論点外への応答になります。</p>
+
+<h3 class="section">観点 5: 提示の有無は、立場によって評価が割れる</h3>
+<p class="text">12 を未提示分の要求と判定し、引用元の内容を保留していました。1 が A を主張している以上、否定の対象は引用元にあったと文面から遡れます。同時に、A に立つ側からは提示が提示として数えられない、という構造も見えていませんでした。</p>
+
+<div class="note">
+<p class="text">これらの直接の原因の背後には、@bux5rgls 側の明示不足があります。ただし 3 と 6 は 2 の懸念どおりに反応しているため、意図は伝わる形で出ていました。明示不足は誤読を招きやすくしたところまでで、誤読そのものを決定づけてはいません。</p>
+</div>
+
+<h2 class="chapter">7. 双方の議論上の問題点</h2>
+
+<p class="text">人格や能力に関する評価は除き、議論の運び方に限ります。</p>
+
+<div class="columns">
+    <div class="column">
+        <p class="column-head">@bux5rgls 側</p>
+        <ul class="list">
+            <li class="item"><span class="strong">骨格を書かないまま一般命題で応じた。</span> 2 は A' の懸念という骨格を欠き、9 も教育への接続を書いていません。読み手が補えば一貫しますが、補わない読み手には別の主張に見える余地を残しました。</li>
+            <li class="item"><span class="strong">現物を出さなかった。</span> 12 以降の要求は、A に立つ側には未提示に映っています。読み下した文章そのものを一度提示すれば、争点は「その読みが成立するか」に移り、F の反復は止まりました。</li>
+            <li class="item"><span class="strong">10 で論点外に出た。</span> 内容面のやり取りは 9 で終わっており、以降の応酬は論点を進めていません。</li>
+            <li class="item"><span class="strong">修辞疑問の反復。</span> 7 と 9 の問いかけは情報を求めない形式で、8 でそのまま返され、内容から応酬の型へ移る一因になりました。</li>
+        </ul>
+    </div>
+    <div class="column">
+        <p class="column-head">反対側</p>
+        <ul class="list">
+            <li class="item"><span class="strong">A' と B を最後まで拾わなかった。</span> 3 が B を出し 4 が反論した時点で争点は「価値を必要性で測ってよいか」に定まっていましたが、以降誰も戻りません。6 が出した A' も同様で、数式の記号論に一貫して寄せています。</li>
+            <li class="item"><span class="strong">F の反復に留まった。</span> 12 とその後の再要求は同じ形で、どこが不足かを絞っていません。A に立てば絞る対象が生じないという事情はありますが、その事情自体を明示すれば、争点は A に戻せました。</li>
+            <li class="item"><span class="strong">8 で応酬の型を引き受けた。</span> 7 の文型を借りて返したことで、内容の議論から形式の応酬へ移る流れを共有しています。</li>
+        </ul>
+    </div>
+</div>
+
+<h3 class="section">共通</h3>
+<p class="text"><span class="strong">A と A' が最後まで接続されなかった。</span> A（数式に文章としての意味はあるか）と A'（それを根拠に教えないでよいか）は別の問いですが、どちらの側もこの区別を明示しないまま、それぞれ別の問いに答え続けました。未決着の中身は実質これに尽きます。</p>
+
+</div>
+</body>
+</html>
