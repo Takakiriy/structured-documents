@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<!-- AI-generated code -->
+<html lang="ja" class="root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>式を区別する5つの層についての確認と質問</title>
+<!-- フォントはオンライン時にだけ読み込まれる。オフラインでは端末にインストール済みのフォントか代替フォントで表示される
+     Fonts load only when online. Offline, installed fonts or fallback fonts are used. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/iosevka@5.3.0/index.css">
+<style>
+.root {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+.page {
+    margin: 0;
+    padding: 1.5rem 4vw 3rem;
+    background: #f7f9fb;
+    color: #1b1f24;
+    font-family: Arial, "BIZ UDGothic", sans-serif;
+    font-size: 100%;
+    line-height: 1.8;
+}
+.title {
+    margin: 0 0 .4rem;
+    font-size: 1.9rem;
+    line-height: 1.35;
+    font-weight: 700;
+}
+.subtitle {
+    margin: 0 0 2rem;
+    color: #3d4650;
+}
+.section {
+    margin: 0 0 2.5rem;
+}
+.heading {
+    margin: 0 0 .6rem;
+    padding-bottom: .2rem;
+    border-bottom: 2px solid #c9d3dd;
+    font-size: 1.3rem;
+    line-height: 1.4;
+    font-weight: 700;
+}
+.text {
+    margin: 0 0 .9rem;
+}
+
+/* 横並びのパネル。幅が足りないときは縦積みに折り返す
+   Side-by-side panels. They wrap into a vertical stack when the width is not enough. */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.panel {
+    flex: 1 1 18rem;
+    padding: .9rem 1.1rem;
+    border: 2px dashed #a0421c;
+    background: #ffffff;
+}
+.panel-title {
+    margin: 0 0 .4rem;
+    font-weight: 700;
+    color: #a0421c;
+}
+.panel-question {
+    margin: 0 0 .5rem;
+    font-weight: 700;
+}
+.panel-text {
+    margin: 0;
+}
+
+/* 折り返せない要素 (図・表) の入れ物。
+   中の表は、入れ物の幅 (cqi) に比例して文字を縮める。下限は親の文字の 33%
+   Container for elements that cannot wrap (figure, table).
+   The table inside shrinks its text in proportion to the container width (cqi). The lower limit is 33% of the parent text. */
+.fit {
+    container-type: inline-size;
+    overflow-x: auto;
+    margin: 0 0 1rem;
+}
+.fit-table {
+    --fit-em: 46;
+    font-size: clamp(33%, calc(100cqi / var(--fit-em)), 100%);
+}
+
+/* 図は viewBox の幅 760 を 760px として描く。画面幅に合わせて縮み、下限は 33%
+   The figure treats the viewBox width 760 as 760px. It shrinks to the screen width, down to 33%. */
+.layers {
+    display: block;
+    width: 100%;
+    max-width: 760px;
+    min-width: 251px;
+    height: auto;
+}
+.svg-label {
+    font-size: 16px;
+    font-weight: 700;
+    fill: #1b1f24;
+}
+.svg-expression {
+    font-size: 19px;
+    fill: #1b1f24;
+    text-anchor: middle;
+}
+.svg-note {
+    font-size: 14px;
+    fill: #3d4650;
+    text-anchor: middle;
+}
+.svg-status {
+    font-size: 15px;
+    font-weight: 700;
+    text-anchor: middle;
+}
+.svg-status-known {
+    fill: #16705f;
+}
+.svg-status-question {
+    fill: #a0421c;
+}
+.box-known {
+    fill: #e2f2ee;
+    stroke: #16705f;
+    stroke-width: 2;
+}
+.box-question {
+    fill: #fbeee7;
+    stroke: #a0421c;
+    stroke-width: 2;
+    stroke-dasharray: 7 5;
+}
+.connector {
+    stroke: #6b7580;
+    stroke-width: 2;
+}
+
+.table {
+    border-collapse: collapse;
+    width: max-content;
+    background: #ffffff;
+}
+.cell {
+    padding: .45em .8em;
+    border: 1px solid #c9d3dd;
+    text-align: left;
+    vertical-align: top;
+}
+.cell-head {
+    background: #eef2f6;
+    font-weight: 700;
+}
+.cell-known {
+    color: #16705f;
+    font-weight: 700;
+}
+.cell-question {
+    color: #a0421c;
+    font-weight: 700;
+}
+.row-judgement {
+    background: #f3f6f9;
+}
+.code-inline {
+    font-family: Iosevka, "BIZ UDGothic", monospace;
+}
+</style>
+</head>
+<body class="page">
+
+<h1 class="title">式を区別する5つの層についての確認と質問</h1>
+<p class="subtitle">SiNさんのこれまでの発言から整理した理解です。緑の層は合意、点線の層は質問です。</p>
+
+<section class="section">
+    <h2 class="heading">5つの層</h2>
+    <p class="text">式どうしの違いを、細かいほうから5つの層に分けました。上の層で異なっていても、下の層では同じになることがあります。</p>
+    <div class="fit">
+        <svg class="layers" viewBox="0 0 760 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="文字列、構造、役割、値の対応、具体的な値の5層で、3×2、2×3、3+3、10−4 がどう区別されるかを示す図。構造と役割の層は質問">
+            <text class="svg-label" x="8" y="54">文字列</text>
+            <text class="svg-label" x="8" y="140">構造</text>
+            <text class="svg-label" x="8" y="226">役割</text>
+            <text class="svg-label" x="8" y="302">入力全体に対する</text>
+            <text class="svg-label" x="8" y="324">値の対応</text>
+            <text class="svg-label" x="8" y="398">具体的な値</text>
+
+            <rect class="box-known" x="180" y="22" width="115" height="52" rx="4"/>
+            <rect class="box-known" x="305" y="22" width="115" height="52" rx="4"/>
+            <rect class="box-known" x="430" y="22" width="115" height="52" rx="4"/>
+            <rect class="box-known" x="555" y="22" width="115" height="52" rx="4"/>
+            <text class="svg-expression" x="237.5" y="55">3×2</text>
+            <text class="svg-expression" x="362.5" y="55">2×3</text>
+            <text class="svg-expression" x="487.5" y="55">3+3</text>
+            <text class="svg-expression" x="612.5" y="55">10−4</text>
+            <text class="svg-status svg-status-known" x="718" y="54">合意</text>
+
+            <line class="connector" x1="237.5" y1="74" x2="237.5" y2="108"/>
+            <line class="connector" x1="362.5" y1="74" x2="362.5" y2="108"/>
+            <line class="connector" x1="487.5" y1="74" x2="487.5" y2="108"/>
+            <line class="connector" x1="612.5" y1="74" x2="612.5" y2="108"/>
+
+            <rect class="box-question" x="180" y="108" width="115" height="52" rx="4"/>
+            <rect class="box-question" x="305" y="108" width="115" height="52" rx="4"/>
+            <rect class="box-question" x="430" y="108" width="115" height="52" rx="4"/>
+            <rect class="box-question" x="555" y="108" width="115" height="52" rx="4"/>
+            <text class="svg-expression" x="237.5" y="141">×(3, 2)</text>
+            <text class="svg-expression" x="362.5" y="141">×(2, 3)</text>
+            <text class="svg-expression" x="487.5" y="141">+(3, 3)</text>
+            <text class="svg-expression" x="612.5" y="141">−(10, 4)</text>
+            <text class="svg-status svg-status-question" x="718" y="140">質問1</text>
+
+            <line class="connector" x1="237.5" y1="160" x2="237.5" y2="194"/>
+            <line class="connector" x1="362.5" y1="160" x2="362.5" y2="194"/>
+            <line class="connector" x1="487.5" y1="160" x2="487.5" y2="194"/>
+            <line class="connector" x1="612.5" y1="160" x2="612.5" y2="194"/>
+
+            <rect class="box-question" x="180" y="194" width="490" height="56" rx="4"/>
+            <text class="svg-expression" x="425" y="218">一つ分・いくつ分という役割を、式が表しているか</text>
+            <text class="svg-note" x="425" y="240">表しているなら、引数の位置で表していることになる</text>
+            <text class="svg-status svg-status-question" x="718" y="226">質問2</text>
+
+            <line class="connector" x1="362.5" y1="250" x2="362.5" y2="280"/>
+            <line class="connector" x1="612.5" y1="250" x2="612.5" y2="280"/>
+
+            <rect class="box-known" x="180" y="280" width="365" height="60" rx="4"/>
+            <rect class="box-known" x="555" y="280" width="115" height="60" rx="4"/>
+            <text class="svg-expression" x="362.5" y="308">a×b ・ b×a ・ a+…+a</text>
+            <text class="svg-note" x="362.5" y="329">どの a, b でも同じ値になる</text>
+            <text class="svg-expression" x="612.5" y="308">c−d</text>
+            <text class="svg-note" x="612.5" y="329">別の対応</text>
+            <text class="svg-status svg-status-known" x="718" y="314">合意</text>
+
+            <line class="connector" x1="362.5" y1="340" x2="362.5" y2="370"/>
+            <line class="connector" x1="612.5" y1="340" x2="612.5" y2="370"/>
+
+            <rect class="box-known" x="180" y="370" width="490" height="52" rx="4"/>
+            <text class="svg-expression" x="425" y="403">6</text>
+            <text class="svg-status svg-status-known" x="718" y="398">合意</text>
+        </svg>
+    </div>
+    <p class="text">構造の層の <span class="code-inline">×(3, 2)</span> は、左の引数が3、右の引数が2の乗法を表します。値の対応の層の a+…+a は b 個の a の和で、3+3 は a = 3、b = 2 の場合にあたります。</p>
+</section>
+
+<section class="section">
+    <h2 class="heading">層ごとの違いとナンセンスの判定</h2>
+    <p class="text">ナンセンスの判定は、値の対応の層で行われているという理解です。</p>
+    <div class="fit">
+        <table class="table fit-table">
+            <tr>
+                <th class="cell cell-head">層</th>
+                <th class="cell cell-head">3×2 と 2×3</th>
+                <th class="cell cell-head">a×b と a+…+a</th>
+                <th class="cell cell-head">3×2 と 10−4</th>
+                <th class="cell cell-head">扱い</th>
+            </tr>
+            <tr>
+                <td class="cell">文字列</td>
+                <td class="cell">異なる</td>
+                <td class="cell">異なる</td>
+                <td class="cell">異なる</td>
+                <td class="cell cell-known">合意</td>
+            </tr>
+            <tr>
+                <td class="cell">構造</td>
+                <td class="cell">異なる?</td>
+                <td class="cell">異なる?</td>
+                <td class="cell">異なる?</td>
+                <td class="cell cell-question">質問1</td>
+            </tr>
+            <tr>
+                <td class="cell">役割</td>
+                <td class="cell">?</td>
+                <td class="cell">?</td>
+                <td class="cell">?</td>
+                <td class="cell cell-question">質問2</td>
+            </tr>
+            <tr>
+                <td class="cell">値の対応</td>
+                <td class="cell">同じ</td>
+                <td class="cell">同じ</td>
+                <td class="cell">異なる</td>
+                <td class="cell cell-known">合意</td>
+            </tr>
+            <tr>
+                <td class="cell">具体的な値</td>
+                <td class="cell">同じ</td>
+                <td class="cell">(文字を含むため決まらない)</td>
+                <td class="cell">同じ</td>
+                <td class="cell cell-known">合意</td>
+            </tr>
+            <tr class="row-judgement">
+                <td class="cell">ナンセンスの判定</td>
+                <td class="cell">ナンセンス</td>
+                <td class="cell">ナンセンス</td>
+                <td class="cell">ナンセンスではない</td>
+                <td class="cell cell-known">合意</td>
+            </tr>
+        </table>
+    </div>
+    <p class="text">合意の層について、この理解に誤りがあれば指摘をお願いします。</p>
+</section>
+
+<section class="section">
+    <h2 class="heading">質問</h2>
+    <div class="row">
+        <div class="panel">
+            <p class="panel-title">質問1:構造の層</p>
+            <p class="panel-question">3×2 と 2×3 は、文字列の違いに加えて、左の引数と右の引数が入れ替わっているという構造の違いもあると考えますか。</p>
+            <p class="panel-text">"3×2" と "3·2" のように記号だけが違う場合と、"3×2" と "2×3" のように引数が入れ替わる場合を、同じ種類の違いとみなすかどうか、という質問でもあります。</p>
+        </div>
+        <div class="panel">
+            <p class="panel-title">質問2:役割の層</p>
+            <p class="panel-question">「一つ分」「いくつ分」という役割は、式 3×2 の中に表されていると考えますか。</p>
+            <p class="panel-text">たとえば「3人に2個ずつ配る」場面では、1人あたりの個数2が一つ分、人数3がいくつ分です。この場面を 3×2 と書いたとき、式の中のどちらの数が一つ分かが式から読み取れるのか、それとも式には表れず、場面の説明を読んで初めて分かるのか、という質問です。</p>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
