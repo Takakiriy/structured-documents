@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<!-- AI-generated code -->
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <!-- iPhone で本文を一般的な Web ページと同じ文字サイズで表示するための指定 -->
+    <!-- Makes body text on iPhone the same size as on typical web pages -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>かけ算の順序の指導: 目的、利点、証拠、評価の付け方</title>
+    <!-- BIZ UDGothic が端末に無い場合 (iPhone など) に Google Fonts から読み込む。オフラインでは端末の既定フォントになる -->
+    <!-- Loads BIZ UDGothic from Google Fonts when the device lacks it (e.g. iPhone). Falls back to the device font when offline -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap">
+    <style>
+        .page {
+            margin: 0;
+            background: #fbfbf8;
+            color: #1b1b1b;
+            font-family: Arial, "BIZ UDGothic", sans-serif;
+            font-size: 100%;
+            line-height: 1.75;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .title {
+            font-size: 1.6em;
+            line-height: 1.4;
+            margin: 0.6em 0 0.3em;
+        }
+        .lead {
+            margin: 0 0 1.2em;
+            overflow-wrap: anywhere;
+        }
+        .toc {
+            background: #ffffff;
+            border: 1px solid #d5d5cf;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 0 0 1.2em;
+        }
+        .tocTitle {
+            font-weight: bold;
+            margin: 0 0 0.3em;
+        }
+        .tocList {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        .tocItem {
+            margin: 0.3em 0;
+        }
+        .tocSubList {
+            margin: 0.2em 0 0.4em;
+            padding-left: 1.4em;
+        }
+        .tocSubItem {
+            margin: 0.1em 0;
+        }
+        .tocLink {
+            color: #0b4fa8;
+        }
+        .section {
+            margin: 0 0 2em;
+        }
+        .sectionTitle {
+            font-size: 1.3em;
+            line-height: 1.4;
+            margin: 0 0 0.6em;
+            padding-bottom: 0.3em;
+            border-bottom: 2px solid #2f5d8a;
+        }
+        .subTitle {
+            font-size: 1.1em;
+            margin: 1.2em 0 0.4em;
+        }
+        .cardRow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0.8em 0;
+        }
+        .card {
+            flex: 1 1 16em;
+            border: 1px solid #c9d6e3;
+            background: #f3f7fb;
+            border-radius: 6px;
+            padding: 12px 14px;
+            box-sizing: border-box;
+        }
+        .cardTitle {
+            font-weight: bold;
+            margin: 0 0 0.3em;
+        }
+        .cardText {
+            margin: 0;
+        }
+        .note {
+            border-left: 4px solid #a8742a;
+            background: #fbf5ea;
+            padding: 10px 14px;
+            margin: 1em 0;
+        }
+        .noteText {
+            margin: 0 0 0.6em;
+        }
+        .noteTextLast {
+            margin: 0;
+        }
+        .list {
+            margin: 0.4em 0;
+            padding-left: 1.4em;
+        }
+        .listItem {
+            margin: 0.3em 0;
+        }
+        /* 図: 画面幅に合わせて縮小し、元の幅 720 の 33% (238px) 未満にはせずに横スクロールにする */
+        /* Figures: shrink to the screen width, but scroll horizontally instead of going below 33% (238px) of the original width 720 */
+        .figureBox {
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        .figureImage {
+            display: block;
+            width: 100%;
+            min-width: 238px;
+            height: auto;
+        }
+        .figureCaption {
+            font-size: 0.9em;
+            margin: 0.3em 0 0;
+        }
+        /* 表: 幅 36em の表が本文の幅に収まるよう文字サイズを縮小する。32px は main の左右の余白の合計 */
+        /* Tables: shrink the font so a 36em-wide table fits the body width. 32px is the total left and right padding of main */
+        .tableBox {
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        .fitTable {
+            font-size: clamp(0.33rem, calc((min(100vw, 960px) - 32px) / 36), 1rem);
+            width: 100%;
+            min-width: 36em;
+            border-collapse: collapse;
+            line-height: 1.6;
+        }
+        .tableHead {
+            background: #e6edf4;
+            text-align: left;
+            border: 1px solid #b9c7d5;
+            padding: 0.4em 0.6em;
+        }
+        .tableCell {
+            border: 1px solid #c9d2db;
+            padding: 0.4em 0.6em;
+            vertical-align: top;
+        }
+        .tableCellStrong {
+            border: 1px solid #c9d2db;
+            padding: 0.4em 0.6em;
+            vertical-align: top;
+            font-weight: bold;
+        }
+        .link {
+            color: #0b4fa8;
+            word-break: break-all;
+        }
+        .svgText {
+            fill: #1b1b1b;
+            font-family: Arial, "BIZ UDGothic", sans-serif;
+        }
+        .svgTextBig {
+            fill: #1b1b1b;
+            font-family: Arial, "BIZ UDGothic", sans-serif;
+            font-weight: bold;
+        }
+        .svgPlate {
+            fill: #ffffff;
+            stroke: #6b6b6b;
+            stroke-width: 2;
+        }
+        .svgApple {
+            fill: #c8402f;
+        }
+        .svgBoxJapan {
+            fill: #eef4fa;
+            stroke: #2f5d8a;
+            stroke-width: 2;
+        }
+        .svgBoxOther {
+            fill: #fbf5ea;
+            stroke: #a8742a;
+            stroke-width: 2;
+        }
+        .svgArrow {
+            stroke: #2f5d8a;
+            stroke-width: 2;
+            fill: none;
+        }
+        .svgArrowHead {
+            fill: #2f5d8a;
+        }
+    </style>
+</head>
+<body class="page">
+<main class="main">
+
+    <h1 class="title">かけ算の順序の指導: 目的、利点、証拠、評価の付け方</h1>
+    <nav class="toc">
+        <p class="tocTitle">目次</p>
+        <ul class="tocList">
+            <li class="tocItem"><a class="tocLink" href="#chapter1">1. 日本の表記とほかの表記</a>
+            </li>
+            <li class="tocItem"><a class="tocLink" href="#chapter2">2. 順序を統一する目的と、日本の順序の利点</a>
+                <ul class="tocSubList">
+                    <li class="tocSubItem"><a class="tocLink" href="#topic1">順序を統一すること自体の目的</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic2">日本の順序の利点としてよく言われていること</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic3">海外の文献での評価</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic4">批判と補足</a></li>
+                </ul>
+            </li>
+            <li class="tocItem"><a class="tocLink" href="#chapter3">3. 有効性の証拠</a>
+                <ul class="tocSubList">
+                    <li class="tocSubItem"><a class="tocLink" href="#topic5">研究の有無を確かめる方法</a></li>
+                </ul>
+            </li>
+            <li class="tocItem"><a class="tocLink" href="#chapter4">4. 被乗数と乗数を逆にした式についての実態調査</a>
+                <ul class="tocSubList">
+                    <li class="tocSubItem"><a class="tocLink" href="#topic6">データの解釈</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic7">絵から分かること、分からないこと</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic8">4 × 3 と書いた21名の内訳は分からない</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic9">「約束がなくても1つ分は理解できている」という主張について</a></li>
+                    <li class="tocSubItem"><a class="tocLink" href="#topic10">人数と調査の範囲</a></li>
+                </ul>
+            </li>
+            <li class="tocItem"><a class="tocLink" href="#chapter5">5. 逆順の式への評価の付け方</a>
+            </li>
+            <li class="tocItem"><a class="tocLink" href="#chapter6">6. 出典</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="lead">日本の小学校では、かけ算の式を「1つ分の大きさ × いくつ分」の順に書くよう指導します。この資料では、順序を統一する目的と日本の順序の利点、有効性の証拠、被乗数と乗数を逆にした式についての実態調査、逆順の式への評価の付け方をまとめます。</p>
+
+    <section class="section">
+        <h2 class="sectionTitle" id="chapter1">1. 日本の表記とほかの表記</h2>
+        <p>学習指導要領では、乗法を「幾つ分といったことを何倍とみて、一つ分の大きさの何倍かに当たる大きさを求めること」と説明しています。この資料では、一つ分の大きさ (被乗数) を「1つ分」、幾つ分 (乗数) を「いくつ分」と書きます。</p>
+        <p>同じ場面でも、どちらの数を先に書くかの約束は国や教材によって異なります。米国の Common Core に沿った授業例では、日本とは逆に「いくつ分 × 1つ分」の順で説明しています。</p>
+        <div class="figureBox">
+            <svg class="figureImage" viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1皿に3個ずつ4皿分の場面と、日本の教科書と米国の授業例での式の表記">
+                <g>
+                    <ellipse class="svgPlate" cx="60" cy="130" rx="40" ry="14"/>
+                    <circle class="svgApple" cx="42" cy="112" r="9"/>
+                    <circle class="svgApple" cx="60" cy="112" r="9"/>
+                    <circle class="svgApple" cx="78" cy="112" r="9"/>
+                    <text class="svgText" x="60" y="170" font-size="15" text-anchor="middle">1皿目</text>
+                </g>
+                <g>
+                    <ellipse class="svgPlate" cx="150" cy="130" rx="40" ry="14"/>
+                    <circle class="svgApple" cx="132" cy="112" r="9"/>
+                    <circle class="svgApple" cx="150" cy="112" r="9"/>
+                    <circle class="svgApple" cx="168" cy="112" r="9"/>
+                    <text class="svgText" x="150" y="170" font-size="15" text-anchor="middle">2皿目</text>
+                </g>
+                <g>
+                    <ellipse class="svgPlate" cx="240" cy="130" rx="40" ry="14"/>
+                    <circle class="svgApple" cx="222" cy="112" r="9"/>
+                    <circle class="svgApple" cx="240" cy="112" r="9"/>
+                    <circle class="svgApple" cx="258" cy="112" r="9"/>
+                    <text class="svgText" x="240" y="170" font-size="15" text-anchor="middle">3皿目</text>
+                </g>
+                <g>
+                    <ellipse class="svgPlate" cx="330" cy="130" rx="40" ry="14"/>
+                    <circle class="svgApple" cx="312" cy="112" r="9"/>
+                    <circle class="svgApple" cx="330" cy="112" r="9"/>
+                    <circle class="svgApple" cx="348" cy="112" r="9"/>
+                    <text class="svgText" x="330" y="170" font-size="15" text-anchor="middle">4皿目</text>
+                </g>
+                <text class="svgTextBig" x="195" y="60" font-size="18" text-anchor="middle">場面: 1皿に3個ずつ、4皿分</text>
+                <text class="svgText" x="195" y="215" font-size="16" text-anchor="middle">全部で 12個</text>
+
+                <rect class="svgBoxJapan" x="420" y="30" width="280" height="105" rx="8"/>
+                <text class="svgText" x="560" y="58" font-size="15" text-anchor="middle">日本の教科書の表記</text>
+                <text class="svgTextBig" x="560" y="95" font-size="28" text-anchor="middle">3 × 4</text>
+                <text class="svgText" x="560" y="122" font-size="15" text-anchor="middle">1つ分 × いくつ分</text>
+
+                <rect class="svgBoxOther" x="420" y="150" width="280" height="105" rx="8"/>
+                <text class="svgText" x="560" y="178" font-size="15" text-anchor="middle">米国 Common Core の授業例</text>
+                <text class="svgTextBig" x="560" y="215" font-size="28" text-anchor="middle">4 × 3</text>
+                <text class="svgText" x="560" y="242" font-size="15" text-anchor="middle">4 groups of 3 (いくつ分 × 1つ分)</text>
+
+                <text class="svgText" x="360" y="288" font-size="15" text-anchor="middle">どちらも答えは 12。違うのは、どちらの数を先に書くかという約束だけ</text>
+            </svg>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="sectionTitle" id="chapter2">2. 順序を統一する目的と、日本の順序の利点</h2>
+
+        <h3 class="subTitle" id="topic1">順序を統一すること自体の目的</h3>
+        <p>次の目的は、どちらの順に揃えるかには関係なく、揃っていること自体から生まれるものです。</p>
+        <div class="cardRow">
+            <div class="card">
+                <p class="cardTitle">式から場面を読めるようにする</p>
+                <p class="cardText">「1つ分が先」と決めておけば、4 × 3 と聞いただけで1皿4個が3皿分の場面だと分かる (布川和彦氏)。読む人 (先生や友だち) は、式だけから場面を組み立て直せる。約束が共有されていることが条件で、共有できていれば有効なので、共有するよう教える意味がある。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">理解しているかを式から確かめる</p>
+                <p class="cardText">数字を出てきた順に並べただけの子と、1つ分を捉えた子を、書いた式から見分けるという狙い。ただし伊藤 (2001) の調査では、式の順序と絵の正誤が一致しない子が多く、順序だけで理解を判定することはできない (4章)。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">新しい場面で1つ分を思いつく手がかりにする</p>
+                <p class="cardText">約束を身につけた学習者は、小数のかけ算のように「いくつ分」と数えられない場面でも、決まった位置の数を1つ分と読むことで1つ分をより正確に捉え、倍の理解につなげられる場合がある (3章)。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">後の学習と対応させる</p>
+                <p class="cardText">被乗数と乗数を区別しないと、等分除と包含除、さらに分数の2つの意味を区別できない (礒田・Olfos)。</p>
+            </div>
+        </div>
+        <div class="note">
+            <p class="noteTextLast">算数以外にも、明確な決まりがなくても順序の慣習はあります。たとえば移動距離 = 速度 × 時間は x = vt と書き、x = tv とは書きません (布川和彦氏)。</p>
+        </div>
+
+        <h3 class="subTitle" id="topic2">日本の順序の利点としてよく言われていること</h3>
+        <div class="cardRow">
+            <div class="card">
+                <p class="cardTitle">1つ分を先に踏まえてから操作する</p>
+                <p class="cardText">3 × 4 は、1つ分の3を先に置き、それを4回分繰り返す (3 + 3 + 3 + 3) と読める。書く順序が、累加の手順や九九の段の作り方 (3の段は3ずつ増える) と一致する。英語圏の表記 (4 × 3 を「4 times 3」と読む) では、書く順序が手順と逆になる。礒田・Olfos の本も、1つ分を先に示すので、かけ算を使う場面かどうかを子どもが判断しやすいとしている。この順序のほうが頭の中で操作しやすく負荷が低いと思われるが、この資料の作成者の感覚によるものなので、まだ仮説の域を出ない。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">文章題と対応させやすい</p>
+                <p class="cardText">文章題を式にするとき、単位や数量の意味を踏まえて順に考える手がかりになる。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">交換法則を、計算の性質として後で学ぶ</p>
+                <p class="cardText">意味に沿った順序で式を作ることを先に学び、そのあと「入れ替えても答えは同じ」という計算の性質として交換法則を学ぶ。</p>
+            </div>
+        </div>
+
+        <h3 class="subTitle" id="topic3">海外の文献での評価</h3>
+        <p>礒田正美 (筑波大学) と Raimundo Olfos (チリ) が編集した『Teaching Multiplication with Lesson Study』(Springer、2021年、オープンアクセス) の第4章が、日本の表記を英語圏の表記と比べて論じています。</p>
+        <div class="tableBox">
+            <table class="fitTable">
+                <thead>
+                    <tr>
+                        <th class="tableHead">観点</th>
+                        <th class="tableHead">挙げられている利点</th>
+                        <th class="tableHead">利点がある表記</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableCellStrong">九九</td>
+                        <td class="tableCell">かける数が1増えると答えが1つ分ずつ増え、段を作りやすい</td>
+                        <td class="tableCell">日本の表記</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">筆算</td>
+                        <td class="tableCell">九九と筆算の手順が一貫する</td>
+                        <td class="tableCell">日本の表記</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">わり算</td>
+                        <td class="tableCell">等分除と包含除という、わり算の2つの意味と対応がつく</td>
+                        <td class="tableCell">日本の表記</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">文字式</td>
+                        <td class="tableCell">(定数) × (変数) という文字式の形と一致する</td>
+                        <td class="tableCell">日本の表記</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">用語</td>
+                        <td class="tableCell">被乗数を先、乗数を後とするスペインの伝統的な算術書と一致する</td>
+                        <td class="tableCell">日本の表記</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">場面の判断</td>
+                        <td class="tableCell">1つ分を先に示すので、かけ算を使う場面かどうかを子どもが判断しやすい</td>
+                        <td class="tableCell">日本の表記</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">言語</td>
+                        <td class="tableCell">英語の times、スペイン語の veces などの語順と一致する</td>
+                        <td class="tableCell">英語圏の表記</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <ul class="list">
+            <li class="listItem">どちらが良いかは文化の問題なので決着はつけられない、としている。</li>
+            <li class="listItem">そのうえで、ラテンアメリカの一部の国はすでに日本の表記を好んで採用している、としている。</li>
+            <li class="listItem">結びでは、この一貫性が理由で、日本の定義と表記が中米・東南アジア・アフリカなどの事業で好まれてきた、と述べている。</li>
+        </ul>
+        <div class="note">
+            <p class="noteTextLast">注意する点: 著者の一人は日本の表記を推進してきた日本人研究者で、日本の外の研究者だけによる評価ではありません。根拠は教育課程の一貫性という理論的な論証と他国での採用で、順序を指定した場合としなかった場合で子どもの理解や成績を比べたデータは示されていません。また同じ章の注には、日本でも順序を区別するのは小学校の教員だけで、中学校以降の教員は区別しない、とあります。</p>
+        </div>
+        <p>この本は、かけ算で順序を区別することを、後の学年の内容への準備と位置づけています。</p>
+        <div class="figureBox">
+            <svg class="figureImage" viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="かけ算の順序の区別が後の学習内容につながる関係">
+                <defs>
+                    <marker id="arrowHead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                        <path class="svgArrowHead" d="M0,0 L10,5 L0,10 z"/>
+                    </marker>
+                </defs>
+                <rect class="svgBoxJapan" x="16" y="135" width="200" height="90" rx="8"/>
+                <text class="svgTextBig" x="116" y="172" font-size="16" text-anchor="middle">被乗数と乗数を区別</text>
+                <text class="svgText" x="116" y="200" font-size="15" text-anchor="middle">2年: かけ算の導入</text>
+
+                <rect class="svgBoxOther" x="266" y="16" width="444" height="52" rx="8"/>
+                <text class="svgText" x="488" y="48" font-size="13" text-anchor="middle">2年 九九の段: かける数が1増えると答えが1つ分ずつ増える</text>
+                <rect class="svgBoxOther" x="266" y="86" width="444" height="52" rx="8"/>
+                <text class="svgText" x="488" y="118" font-size="13" text-anchor="middle">3年 わり算: 等分除 (1つ分を求める) と包含除 (いくつ分を求める)</text>
+                <rect class="svgBoxOther" x="266" y="156" width="444" height="52" rx="8"/>
+                <text class="svgText" x="488" y="188" font-size="13" text-anchor="middle">分数: わり算の2つの意味に対応する2つの意味</text>
+                <rect class="svgBoxOther" x="266" y="226" width="444" height="52" rx="8"/>
+                <text class="svgText" x="488" y="258" font-size="13" text-anchor="middle">5〜6年 割合・比例: 何を基準量 (1つ分) とするか</text>
+                <rect class="svgBoxOther" x="266" y="296" width="444" height="52" rx="8"/>
+                <text class="svgText" x="488" y="328" font-size="13" text-anchor="middle">中学 文字式・関数: (定数) × (変数)、y = ax</text>
+
+                <path class="svgArrow" d="M216,180 L262,42" marker-end="url(#arrowHead)"/>
+                <path class="svgArrow" d="M216,180 L262,112" marker-end="url(#arrowHead)"/>
+                <path class="svgArrow" d="M216,180 L262,182" marker-end="url(#arrowHead)"/>
+                <path class="svgArrow" d="M216,180 L262,252" marker-end="url(#arrowHead)"/>
+                <path class="svgArrow" d="M216,180 L262,322" marker-end="url(#arrowHead)"/>
+            </svg>
+            <p class="figureCaption">Isoda &amp; Olfos (2021) 第4章の整理をもとに作図</p>
+        </div>
+
+        <h3 class="subTitle" id="topic4">批判と補足</h3>
+        <div class="note">
+            <p class="noteText">順序を指定して採点すること (いわゆる「かけ算の順序問題」) には、日本国内でも批判があります。主な理由は、かけ算では交換法則が成り立つことと、場面の数量関係の捉え方は人によって異なりうることです。</p>
+            <p class="noteTextLast">布川和彦氏は、数どうしの計算としてのかけ算と、量を含む場面を表す手段としてのかけ算を区別して議論すべきだとしています。順序に意味があるとされるのは後者で、前者では交換法則により順序は関係なくなります。</p>
+        </div>
+        <div class="note">
+            <p class="noteTextLast">交換法則により答えは同じでも、人が計算するときの速さは数の順序で変わることが、心理学の研究で報告されています (Butterworth ほか 2003年、Didino ほか 2014年)。比べているのは数の大小の順で、1つ分といくつ分の順ではありませんが、人にとってかけ算の数の順序が無関係だとは言えないことを示しています。</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="sectionTitle" id="chapter3">3. 有効性の証拠</h2>
+        <p>順序を指定して指導・採点すると理解や文章題の成績が上がることを、指定しない場合と比べて示した実証研究は、この資料の作成時の検索では見つかりませんでした。根拠の種類ごとに整理すると次のとおりです。</p>
+        <div class="tableBox">
+            <table class="fitTable">
+                <thead>
+                    <tr>
+                        <th class="tableHead">根拠の種類</th>
+                        <th class="tableHead">内容</th>
+                        <th class="tableHead">見つかったか</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableCellStrong">理論的な論証</td>
+                        <td class="tableCell">わり算・分数・比例まで教育課程が一貫する (礒田・Olfos の本)</td>
+                        <td class="tableCell">あり</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">現場の観察</td>
+                        <td class="tableCell">意味を考えずに、問題文に出てきた数字を出てきた順に並べて式を作る子がいる</td>
+                        <td class="tableCell">あり (指導が必要な子がいることの観察で、順序の指導で改善するという証拠ではない)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">他国での採用</td>
+                        <td class="tableCell">ラテンアメリカの一部の国、日本の政府開発援助による事業での採用</td>
+                        <td class="tableCell">あり</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">作成者の経験</td>
+                        <td class="tableCell">この資料の作成者が、小数のかけ算で×の左を1つ分と読むことで1つ分をより正確に捉え、倍の理解につなげた</td>
+                        <td class="tableCell">あり (個人の事例で、一般化はできない)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">実態調査</td>
+                        <td class="tableCell">3年生の1クラスで、約束どおりの順序で式を書けたのは約4分の1 (伊藤宏、2001年。4章)</td>
+                        <td class="tableCell">あり (逆順で式を書いても、場面の絵は描ける子が多い。確かめたのは場面を描けたことまでで、1つ分を理解していたかは確かめていない)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">比較研究</td>
+                        <td class="tableCell">順序を指定したグループと指定しなかったグループで、文章題の正答率や「1つ分」の捉え方を比べる</td>
+                        <td class="tableCell">見つからず</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h3 class="subTitle" id="topic5">研究の有無を確かめる方法</h3>
+        <p>J-STAGE や CiNii で「乗法 立式 順序」「被乗数 乗数 文章題」などで検索し、上の表の「比較研究」にあたる論文があるかを見るのが直接的です。</p>
+    </section>
+
+    <section class="section">
+        <h2 class="sectionTitle" id="chapter4">4. 被乗数と乗数を逆にした式についての実態調査</h2>
+        <p>伊藤宏「日常生活の中で計算が活用できる子供の育成を目指した学習指導の一試み」(宮城県教育研修センター、平成13年度 長期研修員研究報告書) は、3年生1クラス34名に、かけ算の式と、その式にした理由を表す絵を描かせています。調査日は平成13年6月14日です。順序を指定した採点に反対する側が2014年から繰り返し引用している資料です。</p>
+        <div class="note">
+            <p class="noteTextLast">問題: ここに4まいのふくろがあります。かずや君が，1まいのふくろにりんごを3こずつ入れました。りんごは，ぜんぶでなんこありますか。<br>(いくつ分にあたる「4まい」が、1つ分にあたる「3こずつ」より先に出てくる構成です)</p>
+        </div>
+        <div class="tableBox">
+            <table class="fitTable">
+                <thead>
+                    <tr>
+                        <th class="tableHead">式</th>
+                        <th class="tableHead">人数</th>
+                        <th class="tableHead">そのうち絵を正しく描けた人数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableCellStrong">3 × 4 (正答)</td>
+                        <td class="tableCell">8名</td>
+                        <td class="tableCell">8名</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">3 + 3 + 3 + 3 (正答)</td>
+                        <td class="tableCell">1名</td>
+                        <td class="tableCell">0名</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">4 × 3</td>
+                        <td class="tableCell">21名</td>
+                        <td class="tableCell">21名</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">4 + 3、4 − 1、1 + 3</td>
+                        <td class="tableCell">4名</td>
+                        <td class="tableCell">0名</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="subTitle" id="topic6">データの解釈</h3>
+        <div class="cardRow">
+            <div class="card">
+                <p class="cardTitle">筆者 (伊藤氏) の解釈</p>
+                <p class="cardText">「文章の意味は分かるのだが，乗法の意味が明確に理解できていない」。文章の数字を順に並べたためで、正しい立式を指導する必要がある。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">反対側 (黒木玄氏) の解釈</p>
+                <p class="cardText">「掛算順序をどう書くかと掛算文章題の理解は無関係であると解釈できる調査結果を得ている報告」。</p>
+            </div>
+            <div class="card">
+                <p class="cardTitle">データから直接言えること</p>
+                <p class="cardText">順序どおりに書いたかどうかと、場面の絵を描けたかどうかは、一致しない子が多い。3年生6月のこの問題では、約束どおりの順序で書いた児童は約4分の1だった。</p>
+            </div>
+        </div>
+
+        <h3 class="subTitle" id="topic7">絵から分かること、分からないこと</h3>
+        <p>「1まいに3こずつ」の絵を正しく描くには、袋ごとに同じ数ずつ入っているという場面を文章から読み取る必要があります。絵から確認できるのはここまでです。文章をそのまま絵にするだけなら、かけ算の考えはいりません。「アリとキリギリス」の場面を正確に描ける子が、教訓を言えるとは限らないのと同じです。絵からは次のことは分かりません。</p>
+        <ul class="list">
+            <li class="listItem">どの袋も同じ数だという条件を意識し、3個のまとまりをかけ算の単位 (1つ分) として捉えているか</li>
+            <li class="listItem">1つ分を式のどの数に対応させるか</li>
+        </ul>
+        <p>筆者も「文章の意味は分かるのだが、乗法の意味が明確に理解できていない」と書いており、絵を文章の理解を示すものとして読んでいます。</p>
+
+        <h3 class="subTitle" id="topic8">4 × 3 と書いた21名の内訳は分からない</h3>
+        <p>21名は同じ 4 × 3 という式を書いていますが、考えたことは子どもによって違いえます。</p>
+        <div class="tableBox">
+            <table class="fitTable">
+                <thead>
+                    <tr>
+                        <th class="tableHead">考え方</th>
+                        <th class="tableHead">1つ分を理解しているか</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableCellStrong">ア. 「4袋に3個ずつだから 4袋 × 3個」と、いくつ分を先に書いた</td>
+                        <td class="tableCell">している (英語圏と同じ表記で、日本の約束を使っていないだけ)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">イ. 文章に出てきた順に、4と3を並べただけ (筆者の解釈)</td>
+                        <td class="tableCell">分からない</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">ウ. 4を1つ分だと読み違えた</td>
+                        <td class="tableCell">していない</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>報告には式と絵しか記録されていないので、どの子がどれにあたるかは分かりません。全員がアかもしれず、ほとんどがイかもしれません。そのため、筆者の解釈も反対側の解釈も、データの範囲を超えています。考え方を区別するには、4 × 3 と書いた子に「どれが1つ分か」を説明させる、1つ分が先に出る問題と後に出る問題の正答率を比べる、式を見せて絵を描かせる、といった調査が必要です。</p>
+
+        <h3 class="subTitle" id="topic9">「約束がなくても1つ分は理解できている」という主張について</h3>
+        <p>反対側がこの報告を引く背景には、逆順で書いた子も絵は描けるので、約束がなくても1つ分は理解できており、約束は理解に必要ない、という主張があります。上のアにあたる子については、そのとおりです。ただし、この主張が正しくても、「約束を身につけた人には、1つ分を考える手がかりになる」という主張とは両立します。必要ではないことと、役に立たないことは別です。1つ分の概念を正確に理解するには、整数、小数、割合といった様々な場面で繰り返し使う経験が必要で、時間がかかります。約束は、場面が変わっても同じ見方を当てはめるための手がかりとして、その積み重ねを支えます。</p>
+        <p>また、この問題は「3こずつ」と書かれているので、どの袋も同じ数かどうかを確かめる必要がありません。そのため、「1つ分は同じ数のまとまりである」という条件の知識がなくても解ける問題です。この調査は、その条件を使う必要がある場面での理解を調べていません。</p>
+
+        <h3 class="subTitle" id="topic10">人数と調査の範囲</h3>
+        <p>このクラスと同じ条件の児童全体 (母集団) での割合を、95%信頼区間 (Wilson のスコア区間、Python の statsmodels で計算) で見積もると次のとおりです。区間は広めですが、「大半が約束どおりに書かなかった」という向きは変わりません。</p>
+        <div class="tableBox">
+            <table class="fitTable">
+                <thead>
+                    <tr>
+                        <th class="tableHead">項目</th>
+                        <th class="tableHead">このクラスの割合</th>
+                        <th class="tableHead">95%信頼区間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableCellStrong">式が正答 (9名)</td>
+                        <td class="tableCell">26%</td>
+                        <td class="tableCell">15〜43%</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">4 × 3 と書いた (21名)</td>
+                        <td class="tableCell">62%</td>
+                        <td class="tableCell">45〜76%</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">絵が正しい (29名)</td>
+                        <td class="tableCell">85%</td>
+                        <td class="tableCell">70〜94%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>この計算は、児童一人ひとりが互いに無関係に選ばれたことを前提にしています。実際には全員が同じ先生の指導を受けているので、学級を単位にすると標本数は1です。ほかにも、3年生6月という時期、1つ分を後ろに置いた1問だけの調査、平成13年という年代が結果を左右しえます。11月の事後調査で同じ問題を調べた記述はありません。</p>
+        <div class="note">
+            <p class="noteTextLast">SNS では、宮下甲 (1990) の調査や、片桐重男氏が同じ課題で書かせた卒業論文でも、逆順で式を書いた子が場面を正しく表す図を描いたとされています。事実なら1クラスだけの傾向ではないことになりますが、原文は確認できていません。</p>
+        </div>
+        <div class="note">
+            <p class="noteTextLast">これらの調査が確かめているのは、文章から式を書くことと、文章の場面を絵に描くことまでです。1つ分の概念を理解しているかは確かめていません。</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="sectionTitle" id="chapter5">5. 逆順の式への評価の付け方</h2>
+        <p>約束を教えることと、逆順に × (バツ、誤答の印) を付けることは、別々に選べます。目的を「1つ分の理解」と「1つ分が読む人に伝わる式を書く表現力」に分けると、評価の付け方は次のように比べられます。</p>
+        <div class="tableBox">
+            <table class="fitTable">
+                <thead>
+                    <tr>
+                        <th class="tableHead">目的</th>
+                        <th class="tableHead">何も添えない ○</th>
+                        <th class="tableHead">○ に「どっちが1つ分?」と添える</th>
+                        <th class="tableHead">△ を付ける</th>
+                        <th class="tableHead">× を付ける</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tableCellStrong">1つ分を理解しているか確かめる</td>
+                        <td class="tableCell">できない</td>
+                        <td class="tableCell">できる (口頭や書き込みで答えさせる)</td>
+                        <td class="tableCell">できない (印だけでは分からない)</td>
+                        <td class="tableCell">できない (印だけでは分からない)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">1つ分が読む人に伝わる式を書けるようにする</td>
+                        <td class="tableCell">扱わない</td>
+                        <td class="tableCell">直接は扱わない (式は ○ のまま)</td>
+                        <td class="tableCell">扱う (式そのものに印が付く)</td>
+                        <td class="tableCell">扱う (式そのものに印が付く)</td>
+                    </tr>
+                    <tr>
+                        <td class="tableCellStrong">数量関係を正しく捉えた式の扱い</td>
+                        <td class="tableCell">正しいとする</td>
+                        <td class="tableCell">正しいとする</td>
+                        <td class="tableCell">正しいとし、表記だけが約束と違うことを示す</td>
+                        <td class="tableCell">誤りとする</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>何も添えない ○ と比べると、△ には「式から1つ分が伝わらない」ことを知らせる情報があり、気づくきっかけになります。これは情報の有無の違いなので、比較研究がなくても言えます。ただし、△ の意味を「この順だと、読む人には1つ分が伝わらない」と子どもに伝えておくことが前提です。伝えていないと、子どもは △ を「少し間違い」と受け取り、順序の規則だけを覚えることになりかねません。</p>
+        <p>また、仮に約束がなくても1つ分は理解できているとしても、4 × 3 と書いた児童の式は、約束を共有する読み手には1つ分を伝えていません。</p>
+    </section>
+
+    <section class="section">
+        <h2 class="sectionTitle" id="chapter6">6. 出典</h2>
+        <ul class="list">
+            <li class="listItem"><a class="link" href="https://www.pref.kochi.lg.jp/doc/2018041600231/file_contents/file_20202204215934_1.pdf">高知県教育委員会の資料 (学習指導要領の乗法の説明の引用)</a></li>
+            <li class="listItem"><a class="link" href="https://link.springer.com/chapter/10.1007/978-3-030-28561-6_4">Isoda &amp; Olfos (2021), Chapter 4: Introduction of Multiplication and Its Extension</a></li>
+            <li class="listItem"><a class="link" href="https://www.springer.com/9783030285616">Teaching Multiplication with Lesson Study (Springer)</a></li>
+            <li class="listItem"><a class="link" href="https://www.juen.ac.jp/g_katei/nunokawa/IAQs/commutativity_of_multiplications.pdf">布川和彦「かけ算の交換法則について」</a></li>
+            <li class="listItem"><a class="link" href="https://mathematicalbrain.com/pdf/MULTI.PDF">Butterworth, Marchesini, Girelli: Multiplication Facts: Passive Storage or Dynamic Reorganization? (2003年刊行の書籍の章の、1999年の原稿)</a></li>
+            <li class="listItem"><a class="link" href="https://www.research.unipd.it/handle/11577/3309577">Didino, Lombardi, Vespignani (2014) Operand-order effect in multiplication and addition (概要)</a></li>
+            <li class="listItem"><a class="link" href="https://blogs.itmedia.co.jp/kaimai_mizuhiro/2011/12/post_111.html">ITmedia オルタナティブ・ブログ: 「掛け算には順序がある」・・・なんて、ご冗談でしょう?</a></li>
+            <li class="listItem"><a class="link" href="https://achievethecore.org/file/4572">Achieve the Core: Exemplar Lesson Preparation Guide</a></li>
+            <li class="listItem"><a class="link" href="https://earlymath.erikson.edu/?p=9102">Erikson Institute: Five 3s or Three 5s</a></li>
+            <li class="listItem"><a class="link" href="https://www.edu-c.pref.miyagi.jp/mnavidata/practice_research/01B0010.pdf">伊藤宏「日常生活の中で計算が活用できる子供の育成を目指した学習指導の一試み」(宮城県教育研修センター)</a></li>
+            <li class="listItem"><a class="link" href="https://x.com/genkuroki/status/1201045154968137729">@genkuroki (2019年12月1日) 伊藤宏の報告についての投稿</a></li>
+            <li class="listItem"><a class="link" href="https://x.com/temmusu_n/status/1040228262708895744">@temmusu_n (2018年9月13日) 片桐重男氏の同種の実験についての投稿</a></li>
+        </ul>
+    </section>
+
+</main>
+</body>
+</html>
