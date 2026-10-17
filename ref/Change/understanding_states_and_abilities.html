@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!-- AI-generated code -->
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>理解の状態とできること</title>
+    <style>
+        :root {
+            --background: #ffffff;
+            --text: #1f2328;
+            --muted: #59636e;
+            --border: #d1d9e0;
+            --header: #f6f8fa;
+            --role: #fff8e6;
+            --yes: #1a7f37;
+            --partial: #9a6700;
+            --no: #cf222e;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0d1117;
+                --text: #e6edf3;
+                --muted: #9198a1;
+                --border: #3d444d;
+                --header: #151b23;
+                --role: #2a2414;
+                --yes: #3fb950;
+                --partial: #d29922;
+                --no: #f85149;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 16px;
+            background: var(--background);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Noto Sans CJK JP", sans-serif;
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 1.25rem;
+            margin: 0 0 12px;
+        }
+        h2 {
+            font-size: 1.05rem;
+            margin: 24px 0 4px;
+        }
+        /* スマートフォンでは表だけを横スクロールさせる */
+        /* Only the table scrolls horizontally on phones */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            min-width: 760px;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            vertical-align: top;
+            text-align: left;
+        }
+        thead th {
+            background: var(--header);
+        }
+        .term {
+            display: block;
+            font-weight: normal;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        tbody th {
+            background: var(--header);
+            white-space: nowrap;
+        }
+        tr.role th, tr.role td {
+            background: var(--role);
+        }
+        .mark {
+            font-weight: bold;
+            margin-right: 4px;
+        }
+        .yes { color: var(--yes); }
+        .partial { color: var(--partial); }
+        .no { color: var(--no); }
+        .sources {
+            font-size: 0.85rem;
+            padding-left: 20px;
+        }
+        .sources li {
+            margin-bottom: 6px;
+        }
+        .note {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>理解の状態とできること</h1>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>できること</th>
+                    <th>知らない</th>
+                    <th>言葉だけ覚えている</th>
+                    <th>暗黙的に理解している<span class="term">暗黙知</span></th>
+                    <th>言語化できる<span class="term">形式知</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>慣れた場面で実行する</th>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark partial">△</span>覚えた手順どおりなら</td>
+                    <td><span class="mark yes">○</span></td>
+                    <td><span class="mark yes">○</span></td>
+                </tr>
+                <tr>
+                    <th>少し違う場面に応用する</th>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark partial">△</span>見た目が似た場面なら</td>
+                    <td><span class="mark yes">○</span></td>
+                </tr>
+                <tr>
+                    <th>自分の誤りに気づく</th>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark partial">△</span>違和感としてだけ</td>
+                    <td><span class="mark yes">○</span>誤りの箇所まで特定</td>
+                </tr>
+                <tr>
+                    <th>理由・根拠を説明する</th>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark partial">△</span>覚えた文を言えるだけ</td>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark yes">○</span></td>
+                </tr>
+                <tr>
+                    <th>他者に教える</th>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark partial">△</span>言葉を伝えるだけ</td>
+                    <td><span class="mark partial">△</span>手本を見せて真似させる</td>
+                    <td><span class="mark yes">○</span></td>
+                </tr>
+                <tr>
+                    <th>他者が理解を評価する</th>
+                    <td><span class="mark no">×</span></td>
+                    <td><span class="mark partial">△</span>理解していると誤認されやすい</td>
+                    <td><span class="mark partial">△</span>結果の正誤だけ</td>
+                    <td><span class="mark yes">○</span></td>
+                </tr>
+                <tr class="role">
+                    <th>言語活動の役割<span class="term">学習指導要領の考え方に<br>当てはめた場合</span></th>
+                    <td>習得の手段：説明を聞いたり伝え合ったりする中で知る</td>
+                    <td>関連付ける手段：具体物・図・式・言葉の相互の関連を図り、中身を伴わせる</td>
+                    <td>深める手段：説明・表現を通して考えを発展させる</td>
+                    <td>活用・探究の基盤：考えを使って課題を解決する</td>
+                </tr>
+                <tr class="role">
+                    <th>学習指導要領での位置づけ</th>
+                    <td>出発点</td>
+                    <td>通過点：ここで止めず、知識の理解の質を高める</td>
+                    <td>目標の一つ：「知識及び技能」の技能、「実感を伴った理解」</td>
+                    <td>目標の一つ：「思考力、判断力、表現力等」</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="note">
+        ○：できる　△：条件つきでできる　×：できない<br>
+        列の並びは、状態が必ずこの順に進むという意味ではありません。「言葉だけ覚えている」を経ずに「暗黙的に理解している」に至ることもあります。<br>
+        「言語活動の役割」と「学習指導要領での位置づけ」の行は、下の出典の記述を各状態に当てはめた解釈です。
+        学習指導要領や答申がこの4つの状態を区別して書いているわけではありません。
+    </p>
+
+    <h2>出典</h2>
+    <p class="note">
+        ページ番号は、文部科学省が公開している PDF「小学校学習指導要領（平成29年告示）」の印刷ページです。
+        市販の冊子などでは異なる場合があります。
+    </p>
+    <ul class="sources">
+        <li><b>p.18</b> 第1章 総則 第1の3の(1)〜(3)：資質・能力の三つの柱（知識及び技能／思考力、判断力、表現力等／学びに向かう力、人間性等）を偏りなく実現する<br>→ 学習指導要領での位置づけ</li>
+        <li><b>p.19</b> 第1章 総則 第2の2の(1)：言語能力を学習の基盤となる資質・能力とする<br>→ 言語活動の役割（活用・探究の基盤）</li>
+        <li><b>p.22</b> 第1章 総則 第3の1の(1)：知識を相互に関連付けてより深く理解する<br>→ 言語活動の役割（深める手段）</li>
+        <li><b>p.22</b> 第1章 総則 第3の1の(2)：言語能力の育成のため、各教科等の特質に応じて言語活動を充実する<br>→ 言語活動の役割（全体）</li>
+        <li><b>p.64</b> 第2章 第3節 算数 第1 目標の(2)：数学的な表現を用いて事象を簡潔・明瞭・的確に表す力<br>→ 言語化できる</li>
+        <li><b>p.92</b> 第2章 第3節 算数 第3の2の(1)：具体物、図、言葉、数、式、表、グラフなどを用いて考えたり、説明したり、伝え合ったりする学習活動<br>→ 言語活動の役割（深める手段）</li>
+        <li><b>pp.92–93</b> 第2章 第3節 算数 第3の2の(3)：具体物の操作などの体験を伴う学習を通して、実感を伴った理解をする<br>→ 暗黙的に理解している</li>
+        <li><b>p.93</b> 第2章 第3節 算数 第3の3の(4)：具体物、図、数、式、表、グラフ相互の関連を図る機会を設ける<br>→ 言語活動の役割（関連付ける手段）</li>
+    </ul>
+    <p class="note">
+        ページ番号のない出典：<br>
+        ・中央教育審議会答申（平成20年1月17日）5の(4)、7の(1)：文部科学省の Web ページに載っている抄録（ページ番号なし）<br>
+        ・学習指導要領解説（平成29年）の「まえがき」：「知識の理解の質を更に高め」（まえがきにはページ番号がない）
+    </p>
+</body>
+</html>
