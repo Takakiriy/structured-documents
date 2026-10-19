@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>児童の性的画像をめぐる規制の変遷</title>
+  <style>
+    :root {
+      --ink: #17213a;
+      --muted: #5d6880;
+      --paper: #f6f3ec;
+      --panel: #fffdf8;
+      --line: #d9d5cc;
+      --navy: #16375b;
+      --blue: #246a8f;
+      --teal: #178174;
+      --amber: #d98a24;
+      --red: #b94c4c;
+      --soft-blue: #e8f1f6;
+      --soft-teal: #e7f4f0;
+      --soft-amber: #fff1d9;
+      --soft-red: #faeaea;
+      --shadow: 0 16px 44px rgba(23, 33, 58, .09);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 7% 0%, rgba(36, 106, 143, .10), transparent 28rem),
+        radial-gradient(circle at 100% 18%, rgba(217, 138, 36, .09), transparent 27rem),
+        var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      line-height: 1.75;
+    }
+
+    a { color: #155f89; text-underline-offset: 3px; }
+    a:hover { color: #0c4567; }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 72px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 6vw, 64px);
+      color: white;
+      background: linear-gradient(135deg, #112d4a 0%, #174c69 58%, #17796d 100%);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      right: -130px;
+      top: -170px;
+      border: 44px solid rgba(255,255,255,.08);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #bfece3;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.25rem);
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 22px 0 0;
+      color: #e7f4f5;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+
+    .hero-note {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 24px;
+      padding: 8px 12px;
+      color: #fef7e9;
+      background: rgba(255,255,255,.11);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      font-size: .82rem;
+    }
+
+    .hero-note::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: #ffd278;
+      border-radius: 50%;
+    }
+
+    .intro-panel, section {
+      background: rgba(255,253,248,.94);
+      border: 1px solid rgba(217,213,204,.9);
+      box-shadow: 0 10px 30px rgba(23,33,58,.055);
+    }
+
+    .intro-panel {
+      margin-top: 22px;
+      padding: clamp(22px, 4vw, 34px);
+      border-radius: 22px;
+    }
+
+    .intro-label {
+      margin: 0 0 6px;
+      color: var(--teal);
+      font-size: .76rem;
+      font-weight: 850;
+      letter-spacing: .12em;
+    }
+
+    .intro-answer {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.16rem);
+      font-weight: 700;
+    }
+
+    .contents {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px 28px;
+      align-items: start;
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .contents h2 {
+      margin: 2px 0 0;
+      font-size: .88rem;
+      letter-spacing: .08em;
+    }
+
+    .contents ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 28px;
+      margin: 0;
+      padding-left: 1.4em;
+    }
+
+    .contents a {
+      color: var(--ink);
+      text-decoration-color: #afbac3;
+    }
+
+    section {
+      margin-top: 22px;
+      padding: clamp(22px, 4vw, 40px);
+      border-radius: 22px;
+    }
+
+    .section-kicker {
+      margin: 0 0 4px;
+      color: var(--blue);
+      font-size: .75rem;
+      font-weight: 850;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h2.section-title {
+      margin: 0 0 18px;
+      font-size: clamp(1.45rem, 3vw, 2.15rem);
+      line-height: 1.3;
+      letter-spacing: -.02em;
+    }
+
+    .thesis {
+      margin: 0;
+      padding: 20px 22px;
+      background: var(--soft-amber);
+      border-left: 5px solid var(--amber);
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .term-note {
+      margin-top: 18px;
+      padding: 20px 22px;
+      background: var(--soft-blue);
+      border: 1px solid #bfd5e0;
+      border-radius: 14px;
+    }
+
+    .term-note h3 {
+      margin: 0 0 7px;
+      color: var(--navy);
+      font-size: 1rem;
+    }
+
+    .term-note p { margin: 0; }
+
+    .term-note p + p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .concept-bundle {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .bundle-item {
+      padding: 16px;
+      background: white;
+      border: 1px solid #bfd5e0;
+      border-radius: 12px;
+    }
+
+    .bundle-item h4 {
+      margin: 0 0 6px;
+      color: var(--navy);
+      font-size: .9rem;
+    }
+
+    .bundle-item p { margin: 0; color: var(--muted); font-size: .86rem; }
+    .bundle-item.preventive { border-color: #efd19f; background: #fffaf0; }
+
+    .bundle-conclusion {
+      margin-top: 14px !important;
+      padding-top: 13px;
+      border-top: 1px solid #bfd5e0;
+    }
+
+    .timeline-wrap {
+      overflow-x: auto;
+      margin-top: 20px;
+      padding: 4px 2px 10px;
+    }
+
+    .timeline-svg {
+      display: block;
+      width: 100%;
+      min-width: 840px;
+      height: auto;
+    }
+
+    .timeline-caption {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .shift-grid {
+      display: grid;
+      grid-template-columns: 1fr 72px 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 20px;
+    }
+
+    .shift-card {
+      padding: 24px;
+      border-radius: 16px;
+    }
+
+    .shift-card.old { background: #f1f2f4; }
+    .shift-card.new { background: var(--soft-teal); }
+
+    .shift-card h3 { margin: 0 0 12px; font-size: 1.1rem; }
+    .shift-card p { margin: 0; color: var(--muted); }
+    .shift-card ul { margin: 12px 0 0; padding-left: 1.2em; }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--teal);
+      font-size: 2.2rem;
+      font-weight: 900;
+    }
+
+    .parallel-intro {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .parallel-timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .parallel-item {
+      display: grid;
+      grid-template-columns: 125px 1fr;
+      gap: 18px;
+      padding: 18px 20px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .parallel-year {
+      color: var(--blue);
+      font-weight: 850;
+    }
+
+    .parallel-item h3 { margin: 0 0 5px; font-size: 1rem; }
+    .parallel-item p { margin: 0; color: var(--muted); }
+
+    .two-layer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .layer-card {
+      padding: 20px;
+      border-radius: 14px;
+    }
+
+    .layer-card.general { background: var(--soft-blue); }
+    .layer-card.gender { background: var(--soft-red); }
+    .layer-card h3 { margin: 0 0 8px; font-size: 1rem; }
+    .layer-card p { margin: 0; }
+
+    .caution-note {
+      margin: 14px 0 0;
+      padding-left: 14px;
+      color: var(--muted);
+      border-left: 3px solid var(--red);
+      font-size: .9rem;
+    }
+
+    .history {
+      display: grid;
+      gap: 0;
+      margin-top: 20px;
+    }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: 110px 28px 1fr;
+      gap: 12px;
+      min-height: 118px;
+    }
+
+    .year {
+      padding-top: 2px;
+      color: var(--navy);
+      font-size: 1.15rem;
+      font-weight: 850;
+      text-align: right;
+    }
+
+    .rail {
+      position: relative;
+    }
+
+    .rail::before {
+      content: "";
+      position: absolute;
+      top: 11px;
+      bottom: -11px;
+      left: 13px;
+      width: 2px;
+      background: #cfd8dc;
+    }
+
+    .history-item:last-child .rail::before { display: none; }
+
+    .dot {
+      position: absolute;
+      top: 7px;
+      left: 7px;
+      z-index: 1;
+      width: 14px;
+      height: 14px;
+      background: var(--teal);
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px var(--teal);
+    }
+
+    .history-copy { padding: 0 0 28px; }
+    .history-copy h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .history-copy p { margin: 0; color: var(--muted); }
+
+    .table-wrap {
+      margin-top: 20px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .logic-table {
+      width: 100%;
+      min-width: 1080px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .logic-table,
+    .analysis-table {
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+
+    .logic-table th,
+    .logic-table td {
+      padding: 14px 16px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    .logic-table thead th {
+      color: white;
+      background: var(--navy);
+      font-size: inherit;
+    }
+
+    .logic-table td { background: white; }
+    .logic-table tbody th {
+      width: 13%;
+      color: var(--navy);
+      background: var(--soft-blue);
+      font-size: .92rem;
+      font-weight: 850;
+    }
+    .logic-table tr:last-child td,
+    .logic-table tr:last-child th { border-bottom: 0; }
+    .logic-table td:nth-child(4) { width: 12%; }
+    .logic-table td:last-child { background: #fffaf0; }
+
+    .analysis-table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .analysis-table th,
+    .analysis-table td {
+      padding: 14px 16px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    .analysis-table thead th {
+      color: white;
+      background: var(--navy);
+      font-size: inherit;
+    }
+
+    .analysis-table td { background: white; }
+    .analysis-table tbody th {
+      width: 18%;
+      color: var(--navy);
+      background: var(--soft-blue);
+      font-size: .92rem;
+      font-weight: 850;
+    }
+    .analysis-table tr:last-child td,
+    .analysis-table tr:last-child th { border-bottom: 0; }
+    .analysis-table td:last-child { background: #fffaf0; }
+
+    .protection-flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .protection-step {
+      position: relative;
+      padding: 16px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .protection-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -12px;
+      z-index: 1;
+      width: 22px;
+      color: var(--teal);
+      background: var(--panel);
+      font-weight: 900;
+      text-align: center;
+      transform: translateY(-50%);
+    }
+
+    .protection-step h3 { margin: 0 0 7px; font-size: .94rem; }
+    .protection-step p { margin: 0; color: var(--muted); font-size: .86rem; }
+
+    .interpretation-box {
+      margin-top: 18px;
+      padding: 20px 22px;
+      background: var(--soft-red);
+      border-left: 5px solid var(--red);
+      border-radius: 12px;
+    }
+
+    .interpretation-box h3 { margin: 0 0 8px; font-size: 1rem; }
+    .interpretation-box p { margin: 0; }
+    .interpretation-box p + p { margin-top: 9px; }
+
+    .comparison-note {
+      margin: 18px 0 0;
+      padding: 16px 18px;
+      color: var(--muted);
+      background: #f1f2f4;
+      border-radius: 12px;
+      font-size: .9rem;
+    }
+
+    .basis-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: .76rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .basis-harm { color: #8f3434; background: var(--soft-red); }
+    .basis-mixed { color: #8a5a10; background: var(--soft-amber); }
+    .basis-prevent { color: #155f89; background: var(--soft-blue); }
+    .basis-morality { color: #525d70; background: #eceef2; }
+
+    .basis-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin: 0;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .case {
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .case.actual { background: var(--soft-blue); border-color: #bfd5e1; }
+    .case.synthetic { background: var(--soft-red); border-color: #e8c3c3; }
+    .case h3 { margin: 0 0 10px; }
+    .case p { margin: 0; color: var(--muted); }
+    .case ul { margin: 14px 0 0; padding-left: 1.25em; }
+
+    .verdict {
+      margin-top: 18px;
+      padding: 20px 22px;
+      background: linear-gradient(90deg, #17395b, #176c66);
+      color: white;
+      border-radius: 14px;
+      font-size: 1.04rem;
+      font-weight: 750;
+    }
+
+    .sources {
+      margin: 16px 0 0;
+      padding-left: 1.25em;
+    }
+
+    .sources li { margin: 9px 0; }
+    .source-note { color: var(--muted); font-size: .84rem; }
+
+    footer {
+      padding: 24px 4px 0;
+      color: var(--muted);
+      font-size: .78rem;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      body { font-size: .94rem; }
+      .page { width: min(100% - 20px, 1120px); padding-top: 10px; }
+      .hero { border-radius: 20px; }
+      section { padding: 20px 16px; }
+      .split { grid-template-columns: 1fr; }
+      .contents { grid-template-columns: 1fr; gap: 10px; }
+      .contents ol { grid-template-columns: 1fr; }
+      .shift-grid { grid-template-columns: 1fr; }
+      .two-layer { grid-template-columns: 1fr; }
+      .concept-bundle { grid-template-columns: 1fr; }
+      .protection-flow { grid-template-columns: 1fr; }
+      .protection-step:not(:last-child)::after {
+        top: auto;
+        right: 50%;
+        bottom: -17px;
+        transform: translateX(50%) rotate(90deg);
+      }
+      .parallel-item { grid-template-columns: 1fr; gap: 4px; }
+      .arrow { transform: rotate(90deg); min-height: 36px; }
+      .history-item { grid-template-columns: 76px 24px 1fr; gap: 8px; }
+      .year { font-size: .95rem; }
+      .rail::before { left: 11px; }
+      .dot { left: 5px; }
+      .table-wrap { overflow: visible; border: 0; }
+      .logic-table,
+      .analysis-table {
+        display: block;
+        min-width: 0;
+        font-size: .81rem;
+        line-height: 1.5;
+      }
+      .logic-table thead,
+      .analysis-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .logic-table tbody,
+      .analysis-table tbody { display: grid; gap: 12px; }
+      .logic-table tr,
+      .analysis-table tr {
+        display: block;
+        overflow: hidden;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      .logic-table td,
+      .analysis-table td {
+        display: grid;
+        grid-template-columns: 7.2rem minmax(0, 1fr);
+        gap: 10px;
+        width: auto !important;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      .logic-table tbody th,
+      .analysis-table tbody th {
+        display: block;
+        width: auto;
+        padding: 11px 12px;
+        border-bottom: 1px solid #bfd5e0;
+        text-align: left;
+        font-size: .9rem;
+        line-height: 1.4;
+      }
+      .logic-table tbody th::before,
+      .analysis-table tbody th::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 2px;
+        color: var(--muted);
+        font-size: .68rem;
+        font-weight: 750;
+        letter-spacing: .06em;
+      }
+      .logic-table td::before,
+      .analysis-table td::before {
+        content: attr(data-label);
+        color: var(--navy);
+        font-weight: 850;
+      }
+      .logic-table tr:last-child td,
+      .analysis-table tr:last-child td { border-bottom: 1px solid var(--line); }
+      .logic-table td:last-child,
+      .analysis-table td:last-child { border-bottom: 0; }
+      .basis-badge { font-size: .75rem; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 13mm; }
+      body { background: white; font-size: 10.5pt; }
+      .page { width: 100%; padding: 0; }
+      .hero, section, .intro-panel { box-shadow: none; }
+      .hero { border-radius: 14px; padding: 28px; }
+      h1 { font-size: 29pt; }
+      section { break-inside: avoid; margin-top: 12px; padding: 22px; }
+      .intro-panel { margin-top: 12px; padding: 18px 22px; }
+      .contents { margin-top: 14px; padding-top: 12px; }
+      .timeline-wrap { overflow: visible; }
+      .timeline-svg { min-width: 0; }
+      section[aria-labelledby="logic-title"] { break-inside: auto; }
+      section[aria-labelledby="protection-title"] { break-inside: auto; }
+      .table-wrap { overflow: visible; }
+      .logic-table { min-width: 0; font-size: 7.2pt; }
+      .logic-table th, .logic-table td { padding: 6px 7px; }
+      .analysis-table { min-width: 0; font-size: 7.2pt; }
+      .analysis-table th, .analysis-table td { padding: 6px 7px; }
+      .logic-table tbody th, .analysis-table tbody th { font-size: 7.2pt; }
+      .protection-flow { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .protection-step { padding: 9px; }
+      .protection-step h3 { font-size: 8pt; }
+      .protection-step p { font-size: 7pt; }
+      .protection-step:not(:last-child)::after { top: 50%; right: -12px; bottom: auto; transform: translateY(-50%); }
+      .basis-badge { padding: 2px 5px; font-size: 6.6pt; }
+      a { color: inherit; text-decoration: none; }
+      footer { padding-top: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Legal history visual brief</p>
+      <h1>児童の性的画像をめぐる規制の変遷</h1>
+      <p class="lead">なぜ規制は、製造・流通から私的所持、さらに未成年者のアクセス遮断まで広がったのか。</p>
+      <div class="hero-note">比較法上の概略。個別事件への法的助言ではありません</div>
+    </header>
+
+    <aside class="intro-panel" aria-label="この資料の問いと目次">
+      <p class="intro-label">SHORT ANSWER</p>
+      <p class="intro-answer">規制は、製造時の直接被害と画像の流通が生む被害への対応から、需要を抑える私的所持規制、さらに閲覧者本人を性的情報から遠ざけるアクセス規制へと拡大した。後二者では、既に生じた実害への責任より、将来の害を防ぐ予防が中心になる。</p>
+      <nav class="contents" aria-label="目次">
+        <h2>目次</h2>
+        <ol>
+          <li><a href="#overview-title">規制拡大の全体像</a></li>
+          <li><a href="#history-title">各国の制度・判例</a></li>
+          <li><a href="#shift-title">保護利益の変化</a></li>
+          <li><a href="#logic-title">製造からアクセスへ拡大した理由</a></li>
+          <li><a href="#preventive-turn-title">刑法全体の予防化とジェンダー</a></li>
+          <li><a href="#distinction-title">実在画像とCG・AIの違い</a></li>
+          <li><a href="#protection-title">「保護」の意味と棲み分け</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <section aria-labelledby="overview-title">
+      <p class="section-kicker">Historical map</p>
+      <h2 class="section-title" id="overview-title">規制が拡大してきた順序</h2>
+      <p class="thesis">以下は比較法上の典型的な順序を示す。各国で時期や構成要件は異なるが、一般的なわいせつ物規制から、児童を対象とする製造・頒布規制、私的所持規制へと対象が広がった。</p>
+
+      <div class="timeline-wrap" aria-label="規制の変遷を示す図">
+        <svg class="timeline-svg" viewBox="0 0 1200 390" role="img" aria-labelledby="svg-title svg-desc">
+          <title id="svg-title">児童の性的画像に対する規制の変遷</title>
+          <desc id="svg-desc">一般的なわいせつ物規制から、製造、頒布、所持、CG・AI規制へと対象が広がる過程。</desc>
+          <defs>
+            <linearGradient id="timelineLine" x1="0" x2="1">
+              <stop offset="0" stop-color="#8d98a6"/>
+              <stop offset=".45" stop-color="#246a8f"/>
+              <stop offset="1" stop-color="#178174"/>
+            </linearGradient>
+            <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+              <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#17213a" flood-opacity=".12"/>
+            </filter>
+            <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8 Z" fill="#178174"/>
+            </marker>
+          </defs>
+
+          <line x1="105" y1="188" x2="1098" y2="188" stroke="url(#timelineLine)" stroke-width="8" stroke-linecap="round" marker-end="url(#arrowhead)"/>
+
+          <g filter="url(#softShadow)">
+            <rect x="24" y="38" width="205" height="122" rx="18" fill="#f0f1f3" stroke="#cbd1d8"/>
+            <text x="44" y="68" fill="#5d6880" font-size="15" font-weight="700">〜1960年代</text>
+            <text x="44" y="98" fill="#17213a" font-size="21" font-weight="800">わいせつ物規制</text>
+            <text x="44" y="126" fill="#5d6880" font-size="15">中心：公衆道徳・性風俗</text>
+          </g>
+          <circle cx="126" cy="188" r="16" fill="#7c8796" stroke="white" stroke-width="6"/>
+
+          <g filter="url(#softShadow)">
+            <rect x="257" y="216" width="205" height="132" rx="18" fill="#e8f1f6" stroke="#b8d2df"/>
+            <text x="277" y="246" fill="#246a8f" font-size="15" font-weight="700">1970年代</text>
+            <text x="277" y="276" fill="#17213a" font-size="21" font-weight="800">製造・頒布規制</text>
+            <text x="277" y="304" fill="#5d6880" font-size="15">撮影時の性的搾取と</text>
+            <text x="277" y="327" fill="#5d6880" font-size="15">商業流通を直接規制</text>
+          </g>
+          <circle cx="359" cy="188" r="16" fill="#246a8f" stroke="white" stroke-width="6"/>
+
+          <g filter="url(#softShadow)">
+            <rect x="490" y="38" width="205" height="122" rx="18" fill="#e7f4f0" stroke="#b8dacf"/>
+            <text x="510" y="68" fill="#178174" font-size="15" font-weight="700">1980年代</text>
+            <text x="510" y="98" fill="#17213a" font-size="21" font-weight="800">被害記録の法理</text>
+            <text x="510" y="126" fill="#5d6880" font-size="15">児童の権利・継続被害へ</text>
+          </g>
+          <circle cx="592" cy="188" r="16" fill="#178174" stroke="white" stroke-width="6"/>
+
+          <g filter="url(#softShadow)">
+            <rect x="723" y="216" width="205" height="132" rx="18" fill="#fff1d9" stroke="#efd19f"/>
+            <text x="743" y="246" fill="#b66e16" font-size="15" font-weight="700">1988〜1990年代</text>
+            <text x="743" y="276" fill="#17213a" font-size="21" font-weight="800">私的所持も規制</text>
+            <text x="743" y="304" fill="#5d6880" font-size="15">需要を抑制して</text>
+            <text x="743" y="327" fill="#5d6880" font-size="15">将来の製造被害を予防</text>
+          </g>
+          <circle cx="825" cy="188" r="16" fill="#d98a24" stroke="white" stroke-width="6"/>
+
+          <g filter="url(#softShadow)">
+            <rect x="956" y="38" width="220" height="122" rx="18" fill="#faeaea" stroke="#e8c3c3"/>
+            <text x="976" y="68" fill="#b94c4c" font-size="15" font-weight="700">2000年代〜</text>
+            <text x="976" y="98" fill="#17213a" font-size="21" font-weight="800">CG・AI等への拡張</text>
+            <text x="976" y="126" fill="#5d6880" font-size="15">予防論と表現の自由が衝突</text>
+          </g>
+          <circle cx="1066" cy="188" r="16" fill="#b94c4c" stroke="white" stroke-width="6"/>
+        </svg>
+      </div>
+      <p class="timeline-caption">図は比較法上の典型的な流れを示す。各国の制定年・要件・例外は一致しない。</p>
+    </section>
+
+    <section aria-labelledby="history-title">
+      <p class="section-kicker">Milestones</p>
+      <h2 class="section-title" id="history-title">主要な制度・判例の流れ</h2>
+      <div class="history">
+        <article class="history-item">
+          <div class="year">〜1960年代</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>各国：一般のわいせつ物規制</h3>
+            <p>児童の性的画像も、当初は成人向け表現と同じく、頒布・販売・公然陳列などを対象とする一般のわいせつ物規制の中で扱われた。中心にあったのは、撮影された児童への被害ではなく、公衆道徳・性風俗や、望まない者の目に触れない環境の維持だった。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">1978</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>米国：製造・輸送・頒布を児童保護の独立規制へ</h3>
+            <p>「Protection of Children Against Sexual Exploitation Act of 1977」が1978年に成立。一般のわいせつ規制とは別に、実在する児童を性的画像の製造に使用する行為を捉えた。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">1978</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>英国：撮影・作成・頒布・頒布目的所持を規制</h3>
+            <p>Protection of Children Act 1978が、児童のわいせつな写真の作成や流通を対象化。当初は私的鑑賞目的の単純所持より、製造・流通への関与が中心だった。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">1982</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>米国：Ferber判決で「虐待の記録」という法理が確立</h3>
+            <p>製造過程の害、画像が残り続けることによる継続被害に加え、販売が新たな製造の動機になるとして、需要を抑える予防目的から、一般のわいせつ基準とは別の強い規制を認めた。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">1988</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>英国：私的所持を犯罪化</h3>
+            <p>Criminal Justice Act 1988により、児童のわいせつな写真の単純所持も処罰対象になった。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">1990</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>米国：連邦所持罪とOsborne判決</h3>
+            <p>連邦法が単純所持を対象に追加。同年のOsborne判決は、需要を減らすこと、地下化した流通網の全段階を断つこと、被害記録の廃棄を促すことを根拠として所持規制を認めた。所持者本人による新たな暴力の予測ではなく、需要側から将来の製造被害を減らす予防が中心にある。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">1999</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>日本：児童買春・児童ポルノ禁止法</h3>
+            <p>従来の刑法175条によるわいせつ物規制とは別に、提供、公然陳列、提供目的の製造・所持・運搬、輸出入などを規制。私的鑑賞だけを目的とする所持は、当初は処罰対象外だった。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">2001</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>サイバー犯罪条約：デジタル所持を国際的な規制対象へ</h3>
+            <p>コンピューター上または記憶媒体上の故意の所持を犯罪化の対象にした。ただし、取得・所持や仮想画像に関する留保を認め、各国差も残した。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">2002</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>米国：Ashcroft判決が仮想画像の広範な禁止を違憲と判断</h3>
+            <p>実在児童を使用しない画像は、製造時に児童を害した記録ではない。「将来の虐待を誘発する可能性」だけでは因果関係が間接的すぎるとして、広い禁止を退けた。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">2011</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>EU：取得・所持・意図的アクセスを共通規制へ</h3>
+            <p>EU指令2011/93/EUが、正当な理由のない故意の取得・所持と、情報通信技術による意図的アクセスの処罰を加盟国に求めた。</p>
+          </div>
+        </article>
+
+        <article class="history-item">
+          <div class="year">2014</div>
+          <div class="rail"><span class="dot"></span></div>
+          <div class="history-copy">
+            <h3>日本：性的好奇心を満たす目的での単純所持を犯罪化</h3>
+            <p>インターネットによる複製・交換の拡大や国際的な制度との差を背景に、自己の性的好奇心を満たす目的での所持を処罰対象に追加した。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="shift-title">
+      <p class="section-kicker">Conceptual shift</p>
+      <h2 class="section-title" id="shift-title">何を守る法律なのかが変わった</h2>
+      <p class="parallel-intro">前章の制度史を、法律が何を保護すると説明してきたかという観点から整理する。規制対象が製造、流通、所持、アクセスへ広がるにつれて、「保護」の内容も、現に生じた被害への対応から将来被害の予防、さらに閲覧者本人の管理へと変化した。</p>
+      <div class="shift-grid">
+        <article class="shift-card old">
+          <h3>旧来：わいせつ物規制</h3>
+          <p>画像が社会にとって「わいせつ」かを中心に判断する。</p>
+          <ul>
+            <li>保護対象：公衆道徳・性風俗</li>
+            <li>児童画像も成人画像と同じ枠組み</li>
+            <li>わいせつ性が弱いと規制しにくい</li>
+          </ul>
+        </article>
+        <div class="arrow" aria-hidden="true">→</div>
+        <article class="shift-card new">
+          <h3>現代：児童の性的搾取規制</h3>
+          <p>「性的搾取」を総括概念として、実害への処罰と将来の被害を防ぐ予防的な処罰を扱う。</p>
+          <ul>
+            <li>実害：強制・虐待等を伴う製造時の被害</li>
+            <li>実害：流通・再拡散によるプライバシー侵害等</li>
+            <li>予防：需要を抑えて将来の製造被害を防ぐ</li>
+          </ul>
+        </article>
+      </div>
+
+      <aside class="term-note" aria-labelledby="exploitation-term-title">
+        <h3 id="exploitation-term-title">「性的搾取」が総括概念になった</h3>
+        <p>1978年の米国連邦法は、法律名に「児童を性的搾取から保護する」という表現を掲げた。ただし、「性的搾取」自体を一つの犯罪要件として定義したのではなく、製造・輸送・頒布などの具体的行為を個別に規定した。ここで「児童の性的搾取」は、異なる根拠を持つ規制をまとめる法政策上の総括概念として採用された。</p>
+        <div class="concept-bundle" aria-label="性的搾取という概念に束ねられた三つの規制根拠">
+          <article class="bundle-item">
+            <h4>実害①　製造時の被害</h4>
+            <p>強制・虐待等を伴う撮影によって、被写体となった児童に直接生じる被害への責任。</p>
+          </article>
+          <article class="bundle-item">
+            <h4>実害②　流通による被害</h4>
+            <p>完成した画像の拡散・再拡散による、プライバシー侵害や被害記録の継続。</p>
+          </article>
+          <article class="bundle-item preventive">
+            <h4>予防　将来の製造抑制</h4>
+            <p>需要を減らすことで、まだ生じていない将来の製造時被害を防ごうとする規制。</p>
+          </article>
+        </div>
+        <p class="bundle-conclusion">一つの強い概念で束ねると、既に生じた害への責任と、将来の害を防ぐための規制との違いや限界が見えにくくなる。</p>
+      </aside>
+
+      <div class="protection-flow" aria-label="規制の拡大に伴う保護利益の変化">
+        <article class="protection-step">
+          <h3>わいせつ物規制</h3>
+          <p>公衆道徳・性風俗を守る。</p>
+        </article>
+        <article class="protection-step">
+          <h3>製造規制</h3>
+          <p>撮影時に強制・虐待等を受ける児童を守る。</p>
+        </article>
+        <article class="protection-step">
+          <h3>流通規制</h3>
+          <p>被害記録の拡散と継続的被害を抑える。</p>
+        </article>
+        <article class="protection-step">
+          <h3>私的所持規制</h3>
+          <p>需要を抑え、将来の製造時被害を予防する。</p>
+        </article>
+        <article class="protection-step">
+          <h3>アクセス規制</h3>
+          <p>閲覧する未成年者を性的情報から遠ざける。</p>
+        </article>
+      </div>
+      <p class="timeline-caption">「保護」は同じ意味のまま対象だけを広げたのではない。現に被害を受けた児童の救済から、将来の製造の予防、さらに閲覧者本人の心理・発達の保護へと、保護利益の内容も変化している。</p>
+    </section>
+
+    <section aria-labelledby="logic-title">
+      <p class="section-kicker">Expansion logic</p>
+      <h2 class="section-title" id="logic-title">なぜ製造からアクセス規制まで拡大したのか</h2>
+      <p class="basis-key"><span><span class="basis-badge basis-harm">実害中心</span> 既に生じた被害への責任</span><span><span class="basis-badge basis-prevent">予防中心</span> 将来の害を防ぐための規制</span></p>
+      <div class="table-wrap">
+        <table class="logic-table">
+          <thead>
+            <tr>
+              <th>規制段階</th>
+              <th>直接の対象</th>
+              <th>中心的な理由</th>
+              <th>根拠の性格</th>
+              <th>批判点</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" data-label="規制段階">わいせつ物規制</th>
+              <td data-label="直接の対象">わいせつと判断された表現の頒布・販売・公然陳列</td>
+              <td data-label="中心的な理由">公衆道徳・性風俗を維持し、性的表現が望まない者の目に触れることを防ぐ。</td>
+              <td data-label="根拠の性格"><span class="basis-badge basis-morality">社会秩序・道徳</span></td>
+              <td data-label="批判点">表現の不快性や道徳評価が中心であり、製造過程の被害や具体的な被害者の有無を直接の基準にしていない。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="規制段階">撮影・製造</th>
+              <td data-label="直接の対象">児童を性的な画像の被写体として利用する行為</td>
+              <td data-label="中心的な理由">強制・虐待等による直接被害に加え、児童を性的表現の製造手段として扱うこと自体を性的搾取と捉える。</td>
+              <td data-label="根拠の性格"><span class="basis-badge basis-harm">実害中心</span></td>
+              <td data-label="批判点">既存の強制・虐待に対する犯罪と、画像製造それ自体を独立して処罰する根拠を分けて示す必要がある。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="規制段階">販売・頒布</th>
+              <td data-label="直接の対象">画像を市場に出し、他者へ広げる行為</td>
+              <td data-label="中心的な理由">画像の拡散によるプライバシー侵害等を抑え、利益や需要を断って新たな製造を防ぐ。</td>
+              <td data-label="根拠の性格"><span class="basis-badge basis-mixed">実害＋予防</span></td>
+              <td data-label="批判点">流通による現在の被害と、需要抑制による将来被害の予防は別の根拠であり、一方から他方は自動的に導けない。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="規制段階">頒布目的所持</th>
+              <td data-label="直接の対象">販売・提供に向けた準備段階</td>
+              <td data-label="中心的な理由">実際の頒布を待たず、流通への具体的関与を処罰して拡散を防ぐ。</td>
+              <td data-label="根拠の性格"><span class="basis-badge basis-prevent">予防中心</span></td>
+              <td data-label="批判点">まだ頒布による実害が生じていないため、頒布目的と具体的危険をどこまで要求するかが重要になる。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="規制段階">私的所持</th>
+              <td data-label="直接の対象">個人的な収集・鑑賞を目的とする保有</td>
+              <td data-label="中心的な理由">需要や交換網を抑えて将来の製造時被害を防ぎ、被害記録の廃棄を促す。</td>
+              <td data-label="根拠の性格"><span class="basis-badge basis-prevent">予防中心</span></td>
+              <td data-label="批判点">無償で孤立した個人所持が市場や新規製造へ与える因果的寄与は弱い。集合的な需要論だけで個人の処罰を正当化できるか、対象への嫌悪感が因果関係や比例性の検討に置き換わっていないかが問われる。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="規制段階">未成年者のアクセス</th>
+              <td data-label="直接の対象">未成年者による閲覧と、事業者が提供するアクセス経路</td>
+              <td data-label="中心的な理由">望まない偶発的露出を防ぎ、性的情報が心理・発達・性に関する認識へ与えるとされる影響を先回りして避ける。</td>
+              <td data-label="根拠の性格"><span class="basis-badge basis-prevent">予防中心</span></td>
+              <td data-label="批判点">偶発的露出と自発的・私的な閲覧を区別せず、アクセス遮断そのものを福祉の改善とみなしてよいか。事業者に義務を課す形式であっても、結果として、製造者や頒布者という加害側から最も遠い未成年者本人の自由と私的領域を規制する構造になる。年齢、成熟度、内容、匿名性への負担を含めた比例性が問われる。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="preventive-turn-title">
+      <p class="section-kicker">Broader preventive turn</p>
+      <h2 class="section-title" id="preventive-turn-title">児童画像規制だけではない「刑法の予防化」</h2>
+      <p class="parallel-intro">犯罪が完成して実害が生じた後に責任を問うだけでなく、準備、所持、資金、危険状態などを先に規制する傾向は、性犯罪に限らない。法学では、20世紀末以降の英米を中心に「刑法の予防化（preventive turn）」が進んだと整理されている。</p>
+
+      <div class="parallel-timeline" aria-label="性犯罪以外に見られる予防化の歴史例">
+        <article class="parallel-item">
+          <div class="parallel-year">1988年</div>
+          <div>
+            <h3>マネーロンダリング規制</h3>
+            <p>国連のウィーン条約が犯罪収益の転換・移転・隠匿等の犯罪化を求めた。元の犯罪だけでなく、資金の処理過程を断つことで犯罪組織の活動を抑える発想である。</p>
+          </div>
+        </article>
+        <article class="parallel-item">
+          <div class="parallel-year">1998年</div>
+          <div>
+            <h3>英国の反社会的行動命令（ASBO）</h3>
+            <p>将来の反社会的行動を防ぐため、裁判所が行動を禁止できる制度が導入された。命令は民事的でも、その違反には刑事罰が結びついた。</p>
+          </div>
+        </article>
+        <article class="parallel-item">
+          <div class="parallel-year">2000年</div>
+          <div>
+            <h3>テロ関連情報の所持規制</h3>
+            <p>英国テロリズム法58条は、テロ行為の準備等に有用と思われる情報を収集・所持する行為を対象化した。攻撃という実害より前の段階へ刑罰が移動している。</p>
+          </div>
+        </article>
+        <article class="parallel-item">
+          <div class="parallel-year">2000年代〜</div>
+          <div>
+            <h3>治安政策全体のリスク管理化</h3>
+            <p>テロ事件後の欧州では、緊急対応やリスク管理を理由とする措置が相次いだ。研究上も、個人の過去の行為への責任から、危険性の管理へ重心が移る傾向が指摘されている。</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="two-layer">
+        <article class="layer-card general">
+          <h3>一般的な基盤：危険を先回りする刑法</h3>
+          <p>児童画像の所持規制は、性犯罪だけに固有の突然の変化ではなく、重大な被害を理由に準備・所持・周辺行為まで規制する広い潮流の中に位置づけられる。</p>
+        </article>
+        <article class="layer-card gender">
+          <h3>性的領域で重なる層：男性の性への危険視</h3>
+          <p>男性の性的関心を、具体的な加害行為ではなく「不快・異常・危険」と評価する言説は、広い意味で男性嫌悪的なジェンダー・バイアスと評価し得る。それが予防的規制の因果関係や比例性を問いにくくする可能性がある。</p>
+        </article>
+      </div>
+      <p class="caution-note">ただし、SNS上の嫌悪表現が社会全体の多数意見であることや、男性嫌悪が各法律の直接的な成立原因であることまでは、この資料の根拠から確認できない。ここでは、一般的な予防化とは別に、規制を社会的に受け入れやすくする要因となり得るという仮説として区別する。</p>
+    </section>
+
+    <section aria-labelledby="distinction-title">
+      <p class="section-kicker">Critical distinction</p>
+      <h2 class="section-title" id="distinction-title">「実在児童の画像」と「完全な仮想画像」は根拠が違う</h2>
+      <p class="parallel-intro">先に確認した画像規制の根拠は、画像の成立過程に実在する被害者がいるかによって強さが変わる。ここを区別しなければ、過去の実害への責任と、将来の害を防ぐための予防論が混同される。</p>
+      <div class="split">
+        <article class="case actual">
+          <h3>実在する児童の画像</h3>
+          <p>所持より前に、撮影・性的利用という出来事が存在する。</p>
+          <ul>
+            <li>製造時の性的搾取</li>
+            <li>被害を固定した記録</li>
+            <li>流通・再拡散によるプライバシー侵害等</li>
+            <li>需要抑制によって将来の製造時被害を予防する</li>
+          </ul>
+        </article>
+        <article class="case synthetic">
+          <h3>完全なCG・AI画像</h3>
+          <p>製造時に実在する児童が使われていない場合、直接の被写体被害は存在しない。</p>
+          <ul>
+            <li>将来の犯罪を促進する可能性</li>
+            <li>グルーミングへの利用</li>
+            <li>実在画像との識別困難</li>
+            <li>表現の自由との衝突</li>
+          </ul>
+        </article>
+      </div>
+      <div class="verdict">実在児童の画像をめぐる規制にも、実害への処罰と予防的な処罰が併存する。製造・流通では実害を根拠にしやすい一方、頒布目的所持、さらに私的所持へ進むほど、需要や流通網を抑えて将来の被害を防ぐ予防的性格が強くなる。所持罪は所持者本人の将来の暴力を個別に予測する制度ではないが、現在の所持を処罰することで将来の製造被害を防ごうとする制度である。完全な仮想画像への規制では、この予防的根拠がさらに間接的になる。この拡大には刑法全体の予防化という一般的な基盤があり、性的領域では男性の性を不快・異常・危険とみなす言説が、規制を受け入れやすくする層として重なり得る。後者を各法律の成立原因と断定するには、別途証拠が必要である。</div>
+    </section>
+
+    <section aria-labelledby="protection-title">
+      <p class="section-kicker">Protection examined</p>
+      <h2 class="section-title" id="protection-title">「未成年者の保護」という説明を分解する</h2>
+      <p class="parallel-intro">最後に、現在の年齢確認とアクセス遮断を、それまでの製造・流通・所持規制から区別して検討する。規制推進側は、未成年者を加害者として処罰するのではなく、事業者に保護義務を課していると説明する。しかし、法的義務を負う主体と、行動・アクセスを制限される客体は別である。以下では、規制推進側の回答と、その回答が前提にしている判断を分ける。</p>
+
+      <div class="table-wrap">
+        <table class="analysis-table">
+          <thead>
+            <tr>
+              <th>批判</th>
+              <th>規制推進側の回答</th>
+              <th>回答の前提</th>
+              <th>残る批判</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" data-label="批判">未成年者が規制対象になっている</th>
+              <td data-label="規制推進側の回答">義務を課されるのはプラットフォームや成人向けサイトであり、未成年者は「規制対象」ではなく「保護対象」である。</td>
+              <td data-label="回答の前提">法的義務の主体を規制対象と呼び、アクセスを制限される側は規制対象に数えない。</td>
+              <td data-label="残る批判">未成年者は処罰対象ではないが、行動とアクセスを制限される規制の客体である。「保護対象」と「規制対象」は両立する。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="批判">加害者から遠い未成年者を規制している</th>
+              <td data-label="規制推進側の回答">未成年者による閲覧、とくに望まない偶発的接触自体が害または重大なリスクであり、遮断は直接の保護である。</td>
+              <td data-label="回答の前提">性的情報との接触を減らすほど、未成年者の心理・発達上の利益が増える。</td>
+              <td data-label="残る批判">偶発的な露出と自発的・私的な閲覧、年齢や成熟度、内容の差を一括して扱ってよいかが残る。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="批判">アクセス遮断が目的化している</th>
+              <td data-label="規制推進側の回答">子どもが性的コンテンツに接触しないこと自体が保護の成果である。</td>
+              <td data-label="回答の前提">非接触それ自体を福祉の改善とみなす。</td>
+              <td data-label="残る批判">遮断件数や年齢確認の導入ではなく、心理・発達・福祉が実際に改善したかを検証する必要がある。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="批判">年齢確認が私的領域を侵害する</th>
+              <td data-label="規制推進側の回答">身元を特定せず、年齢条件を満たすかだけを証明する技術を使えばよい。</td>
+              <td data-label="回答の前提">問題は確認方法であり、確認と遮断そのものではない。</td>
+              <td data-label="残る批判">個人情報の保持を減らしても、匿名性、自己決定、私的な情報アクセスへの介入は残る。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="interpretation-box">
+        <h3>実際には何を保護しているのか</h3>
+        <p>政策が直接確認できるのは、年齢確認を導入したこと、アクセスを遮断したこと、性的コンテンツとの接触を減らしたことまでである。それだけでは、未成年者本人の福祉が改善したことを意味しない。</p>
+        <p><strong>具体的な害や福祉の改善を示さず、性的コンテンツから隔離した事実だけを「保護」と呼ぶなら、制度が実際に維持しているのは、未成年者本人の利益というより、「未成年者は性的なものに触れるべきではない」という大人の価値観ではないか。</strong></p>
+        <p>これは規制推進者の内心を断定する主張ではなく、規制の成果指標が誰の利益を表しているかを問う制度上の批判である。</p>
+      </div>
+
+      <h3>なぜ喫煙のような棲み分けにならないのか</h3>
+      <div class="table-wrap">
+        <table class="analysis-table">
+          <thead>
+            <tr>
+              <th>観点</th>
+              <th>喫煙</th>
+              <th>性的コンテンツ</th>
+              <th>相違がもたらす結果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" data-label="観点">害の捉え方</th>
+              <td data-label="喫煙">煙が周囲の人へ到達する物理的な曝露。</td>
+              <td data-label="性的コンテンツ">閲覧者本人の心理・発達・価値観への影響。</td>
+              <td data-label="相違がもたらす結果">性的コンテンツでは、他者へ影響を及ぼさない私的閲覧も規制理由が消えない。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="観点">境界の設定</th>
+              <td data-label="喫煙">煙の届く空間を区切り、非喫煙者と分離できる。</td>
+              <td data-label="性的コンテンツ">接触それ自体を害と定義すると、場所を分けても閲覧者本人が接触する。</td>
+              <td data-label="相違がもたらす結果">空間的な隔離ではなく、本人へのアクセス遮断が必要とされる。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="観点">許容領域</th>
+              <td data-label="喫煙">成人には、喫煙区域内で行為を許容する領域がある。</td>
+              <td data-label="性的コンテンツ">未成年者については、性的コンテンツを閲覧してよい私的領域自体が想定されにくい。</td>
+              <td data-label="相違がもたらす結果">棲み分けではなく、接触ゼロが政策目標になりやすい。</td>
+            </tr>
+            <tr>
+              <th scope="row" data-label="観点">価値判断</th>
+              <td data-label="喫煙">限定された場所なら許容するという合意が成立している。</td>
+              <td data-label="性的コンテンツ">未成年者と性的表現の接触自体を道徳的・発達的に許容できないと評価する。</td>
+              <td data-label="相違がもたらす結果">私的領域を設けることも「保護の放棄」と理解され、全面的な遮断へ向かいやすい。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="comparison-note"><strong>比較の限界：</strong>未成年者の喫煙も原則として禁止されているため、喫煙者と未成年者を直接比較するものではない。比較の核心は、他者に届く物理的な害なら許容領域を設定できるのに対し、本人の私的な接触自体を害と定義すると、他者への実害がなくても許容領域が成立しない点にある。</p>
+
+      <div class="verdict">「子どもの保護」は、強制撮影による現実の被害、被害記録の拡散防止、需要を抑える将来被害の予防、閲覧者本人のアクセス遮断を一つに束ねている。しかし、これらは実害との距離も、規制される主体も異なる。とりわけアクセス規制では、未成年者の福祉が改善したかではなく、性的コンテンツから隔離できたかが成果になりやすい。そこで保護されているものが、未成年者本人の利益なのか、「未成年者は性的なものに触れるべきではない」という大人の価値観なのかを区別する必要がある。</div>
+    </section>
+
+    <section aria-labelledby="sources-title">
+      <p class="section-kicker">Sources</p>
+      <h2 class="section-title" id="sources-title">主要資料</h2>
+      <ol class="sources">
+        <li><a href="https://www.law.cornell.edu/uscode/text/18/2251">18 U.S.C. §2251 — Sexual exploitation of children</a> <span class="source-note">米国の製造罪と改正沿革</span></li>
+        <li><a href="https://www.law.cornell.edu/uscode/text/18/2252">18 U.S.C. §2252 — Material involving the sexual exploitation of minors</a> <span class="source-note">頒布・受領・所持罪と1990年改正</span></li>
+        <li><a href="https://www.law.cornell.edu/supremecourt/text/458/747">New York v. Ferber, 458 U.S. 747 (1982)</a> <span class="source-note">製造被害・恒久的記録・流通市場</span></li>
+        <li><a href="https://www.law.cornell.edu/supremecourt/text/495/103">Osborne v. Ohio, 495 U.S. 103 (1990)</a> <span class="source-note">私的所持規制の合憲性</span></li>
+        <li><a href="https://www.law.cornell.edu/supct/html/00-795.ZS.html">Ashcroft v. Free Speech Coalition, 535 U.S. 234 (2002)</a> <span class="source-note">実在児童を使わない仮想画像と表現の自由</span></li>
+        <li><a href="https://www.cps.gov.uk/prosecution-guidance/indecent-and-prohibited-images-children">UK Crown Prosecution Service — Indecent and Prohibited Images of Children</a> <span class="source-note">英国法の対象・所持・疑似写真等</span></li>
+        <li><a href="https://rm.coe.int/1680081561">Convention on Cybercrime, Article 9</a> <span class="source-note">コンピューター上の取得・所持と留保</span></li>
+        <li><a href="https://eur-lex.europa.eu/eli/dir/2011/93/oj/eng">Directive 2011/93/EU</a> <span class="source-note">EUにおける取得・所持・アクセス規制</span></li>
+        <li><a href="https://laws.e-gov.go.jp/law/411AC0100000052">児童買春・児童ポルノ禁止法（e-Gov法令検索）</a> <span class="source-note">日本の現行法</span></li>
+        <li><a href="https://laws.e-gov.go.jp/law/140AC0000000045#Mp-At_175">刑法175条（e-Gov法令検索）</a> <span class="source-note">わいせつ物の頒布・公然陳列等に関する一般規定</span></li>
+        <li><a href="https://www.unodc.org/pdf/convention_1988_en.pdf">United Nations Convention against Illicit Traffic in Narcotic Drugs and Psychotropic Substances (1988)</a> <span class="source-note">犯罪収益の転換・移転・隠匿等の犯罪化</span></li>
+        <li><a href="https://www.legislation.gov.uk/ukpga/1998/37/section/1/enacted">Crime and Disorder Act 1998, section 1</a> <span class="source-note">英国の反社会的行動命令</span></li>
+        <li><a href="https://www.legislation.gov.uk/ukpga/2000/11/section/58/enacted">Terrorism Act 2000, section 58</a> <span class="source-note">テロ関連情報の収集・所持</span></li>
+        <li><a href="https://academic.oup.com/book/5604">Henrique Carvalho, The Preventive Turn in Criminal Law</a> <span class="source-note">20世紀末以降の刑法の予防化</span></li>
+        <li><a href="https://www.cambridge.org/core/books/abs/eu-law-in-populist-times/preventive-turn-in-european-security-policy/5B401282DAA24DDA531EFA1B5618D3A4">The Preventive Turn in European Security Policy</a> <span class="source-note">欧州治安政策と基本権への批判</span></li>
+        <li><a href="https://www.childrenscommissioner.gov.uk/resource/sex-is-kind-of-broken-now-children-and-pornography/">Children’s Commissioner for England — Children and pornography</a> <span class="source-note">未成年者の偶発的接触、プラットフォーム設計、アクセス防止を保護とする立場</span></li>
+        <li><a href="https://digital-strategy.ec.europa.eu/en/policies/digital-services-act">European Commission — Digital Services Act</a> <span class="source-note">プラットフォームの義務、未成年者保護、基本権と比例性</span></li>
+        <li><a href="https://www.reuters.com/legal/litigation/how-eus-age-verification-app-for-children-would-work-2026-09-18/">Reuters — How the EU’s age-verification app would work</a> <span class="source-note">身元を開示しない年齢証明と、プライバシー・比例性をめぐる論点</span></li>
+      </ol>
+      <p class="source-note">注：「児童ポルノ」は法令・判例名に合わせた表現。被害の性格を明確にするため、国際的な実務では “child sexual abuse material（CSAM）” という表現も広く用いられる。</p>
+    </section>
+
+    <footer>作成日：2026年9月19日　｜　単一HTMLファイル・インラインSVG</footer>
+  </main>
+</body>
+</html>
