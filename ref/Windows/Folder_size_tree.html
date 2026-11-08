@@ -1,0 +1,1428 @@
+<meta charset="utf-8">
+<title>フォルダーサイズツリー</title>
+<style>
+    /* レイアウト: 左にツリー、各行の右端に棒グラフを並べる1カラム構成 */
+    :root {
+        /* 名前列と棒グラフ列の幅(ヘッダーのドラッグで書き換える) */
+        --name-width: 220px;
+        --bar-width: 140px;
+
+        --bg: #faf9f6;
+        --surface: #ffffff;
+        --border: #e2dfd6;
+        --text: #2a2822;
+        --text-muted: #8a8477;
+        --accent: #3f6e52;
+        --accent-soft: #c9ddc9;
+        --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+        --sans: "IBM Plex Sans", system-ui, "Segoe UI", sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+            --bg: #1b1a16;
+            --surface: #242319;
+            --border: #3a3829;
+            --text: #e9e6db;
+            --text-muted: #938d7c;
+            --accent: #7fb393;
+            --accent-soft: #2e4036;
+            color-scheme: dark;
+        }
+    }
+
+    :root[data-theme="dark"] {
+        --bg: #1b1a16;
+        --surface: #242319;
+        --border: #3a3829;
+        --text: #e9e6db;
+        --text-muted: #938d7c;
+        --accent: #7fb393;
+        --accent-soft: #2e4036;
+        color-scheme: dark;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding-inline: 20px;
+        padding-block: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    h1 {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 16px 0;
+    }
+
+    #panel {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 760px;
+        margin-bottom: 20px;
+    }
+
+    #dropZone {
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        background: var(--surface);
+        color: var(--text-muted);
+        font-size: 13px;
+        text-align: center;
+    }
+
+    #dropZone.drag-over {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    #textInput {
+        width: 100%;
+        height: 100px;
+        font-family: var(--mono);
+        font-size: 12px;
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        resize: vertical;
+    }
+
+    #buttonRow,
+    #treeControlRow {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    button {
+        font-family: var(--sans);
+        font-size: 13px;
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+    }
+
+    button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    #sortSelect {
+        font-family: var(--sans);
+        font-size: 13px;
+        padding: 7px 10px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+    }
+
+    #fileInput {
+        display: none;
+    }
+
+    #scriptOverlay[hidden] {
+        display: none;
+    }
+
+    #scriptOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 10;
+    }
+
+    #scriptModal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        width: 100%;
+        max-width: 760px;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #scriptModalHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    #scriptModalHeader h2 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    #scriptModalBody {
+        padding: 16px 18px 20px 18px;
+        overflow-y: auto;
+    }
+
+    #scriptModalBody h3 {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        color: var(--text-muted);
+        margin: 18px 0 6px 0;
+    }
+
+    #scriptModalBody h3:first-child {
+        margin-top: 0;
+    }
+
+    #scriptModalBody p {
+        margin: 0 0 8px 0;
+    }
+
+    #scriptModalBody code {
+        font-family: var(--mono);
+        font-size: 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+    }
+
+    .scriptKindRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 14px 0;
+    }
+
+    #scriptModalBody .scriptKindButton.is-selected {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        font-weight: 600;
+    }
+
+    .scriptPanel[hidden] {
+        display: none;
+    }
+
+    #scriptModalBody .exampleCommand {
+        display: block;
+        font-family: var(--mono);
+        font-size: 14px;
+        background: var(--accent-soft);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        overflow-x: auto;
+        white-space: pre;
+    }
+
+    #scriptModalBody .scriptSourceCode {
+        display: block;
+        font-family: var(--mono);
+        font-size: 11px;
+        line-height: 1.6;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        overflow-x: auto;
+        white-space: pre;
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    /* コピー ボタンは、ソースをスクロールしても枠の右上から動かない */
+    .scriptSourceBox {
+        position: relative;
+    }
+
+    .copyScriptButton {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    #treeContainer {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0 14px 10px 14px;
+        max-width: 920px;
+        overflow-x: auto;
+    }
+
+    #emptyState {
+        color: var(--text-muted);
+        font-size: 13px;
+        padding: 10px 2px;
+    }
+
+    #treeHeader {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 4px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 11px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .header-name,
+    .header-bar {
+        position: relative;
+        flex: 0 0 auto;
+    }
+
+    .header-name {
+        width: var(--name-width);
+    }
+
+    .header-bar {
+        width: var(--bar-width);
+    }
+
+    .resizer {
+        position: absolute;
+        top: -8px;
+        bottom: -8px;
+        right: -9px;
+        width: 10px;
+        cursor: col-resize;
+        touch-action: none;
+    }
+
+    .resizer::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 4px;
+        width: 2px;
+        background: var(--border);
+    }
+
+    .resizer:hover::after,
+    .resizer.resizing::after {
+        background: var(--accent);
+    }
+
+    .children {
+        margin-left: 18px;
+        border-left: 1px solid var(--border);
+        padding-left: 10px;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 4px;
+        border-radius: 5px;
+    }
+
+    .row.has-children {
+        cursor: pointer;
+    }
+
+    .row:hover {
+        background: var(--accent-soft);
+    }
+
+    .toggle {
+        width: 1em;
+        flex: 0 0 auto;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 10px;
+    }
+
+    .name {
+        flex: 0 0 auto;
+        width: var(--name-width);
+        overflow-wrap: anywhere;
+    }
+
+    .size {
+        flex: 0 0 auto;
+        width: 96px;
+        text-align: right;
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+    .percentage {
+        flex: 0 0 auto;
+        width: 46px;
+        text-align: right;
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .bar-outer {
+        flex: 0 0 auto;
+        width: var(--bar-width);
+        height: 8px;
+        background: var(--accent-soft);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .bar-inner {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+    }
+</style>
+
+<h1>フォルダーサイズツリー</h1>
+
+<div id="panel">
+    <div id="dropZone">ここに YAML ファイルをドラッグ、またはクリックして選択</div>
+    <input type="file" id="fileInput" accept=".yaml,.yml,.txt">
+    <textarea id="textInput" placeholder="スクリプトの出力をここに貼り付け"></textarea>
+    <div id="buttonRow">
+        <button id="showScriptButton" type="button">スクリプトを表示</button>
+        <button id="parseButton">読み込む</button>
+    </div>
+    <div id="treeControlRow">
+        <select id="sortSelect">
+            <option value="size-desc" selected>サイズ (大きい順)</option>
+            <option value="size-asc">サイズ (小さい順)</option>
+            <option value="name-asc">名前 (昇順)</option>
+            <option value="name-desc">名前 (降順)</option>
+            <option value="name-case-asc">名前 (昇順、大文字・小文字を区別)</option>
+            <option value="name-case-desc">名前 (降順、大文字・小文字を区別)</option>
+        </select>
+        <button id="collapseAllButton">すべて折りたたむ</button>
+        <button id="expandAllButton">すべて展開</button>
+    </div>
+</div>
+
+<div id="scriptOverlay" hidden>
+    <div id="scriptModal" role="dialog" aria-labelledby="scriptModalTitle">
+        <div id="scriptModalHeader">
+            <h2 id="scriptModalTitle">Folder_size_tree.ps1</h2>
+            <button id="closeScriptButton" type="button">閉じる</button>
+        </div>
+        <div id="scriptModalBody">
+            <div class="scriptKindRow" role="tablist">
+                <button class="scriptKindButton is-selected" type="button" data-script-kind="powerShell">PowerShell</button>
+                <button class="scriptKindButton" type="button" data-script-kind="shellScript">シェルスクリプト</button>
+            </div>
+
+            <div class="scriptPanel" data-script-kind="powerShell" data-file-name="Folder_size_tree.ps1">
+                <h3>使い方</h3>
+                <p>
+                    Windows の PowerShell で実行します(Windows PowerShell 5.1 以降)。
+                    指定したフォルダー配下を再帰的に走査し、フォルダーごとの合計サイズを
+                    インデント付きの一覧としてファイルへ書き出します。隠しファイルも数えます。
+                    <code>-Root</code> には走査の起点とするフォルダーのパスを指定します。
+                    <code>-OutFile</code> を省略した場合、走査対象のフォルダーではなく、
+                    <code>Folder_size_tree.ps1</code> 自身が置かれているフォルダーの
+                    <code>Folder_size_tree_out.yaml</code> に出力されます。
+                </p>
+
+                <h3>コマンドの例</h3>
+                <code class="exampleCommand">${HOME}\bin\Folder_size_tree.ps1  "C:\Users\me\Projects"</code>
+                <p>
+                    上記のように実行すると、<code>${HOME}\bin\Folder_size_tree_out.yaml</code> に
+                    結果が書き出されます。別の場所に出力したい場合は
+                    <code>-OutFile "パス"</code> を追加してください。
+                    出力したファイルの内容を、このページ上部のテキストエリアに貼り付けるか、
+                    ファイルとしてドラッグ&ドロップしてください。
+                </p>
+
+                <h3>ソース</h3>
+                <div class="scriptSourceBox">
+                    <code class="scriptSourceCode" id="powerShellSourceCode"></code>
+                    <button class="copyScriptButton" type="button" data-source-id="scriptSourceRaw">コピー</button>
+                </div>
+            </div>
+
+            <div class="scriptPanel" data-script-kind="shellScript" data-file-name="folder-size-tree.sh" hidden>
+                <h3>使い方</h3>
+                <p>
+                    Linux や macOS の bash で実行します(zsh や sh ではなく bash で実行してください)。
+                    find に -printf がない macOS などでは、ファイルのサイズを stat で読むので、Linux より遅くなります。
+                    PowerShell 版と同じ形式で、フォルダーごとの合計サイズをファイルへ書き出します。
+                    隠しファイルも数えます。第1引数には走査の起点とするフォルダーのパスを指定します。
+                    <code>--out-file</code> を省略した場合、走査対象のフォルダーではなく、
+                    <code>folder-size-tree.sh</code> 自身が置かれているフォルダーの
+                    <code>Folder_size_tree_out.yaml</code> に出力されます。
+                    保存したあと <code>chmod +x</code> で実行権限を付けてください。
+                </p>
+
+                <h3>コマンドの例</h3>
+                <code class="exampleCommand">${HOME}/bin/folder-size-tree.sh  "/home/me/projects"</code>
+                <p>
+                    上記のように実行すると、<code>${HOME}/bin/Folder_size_tree_out.yaml</code> に
+                    結果が書き出されます。別の場所に出力したい場合は
+                    <code>--out-file "パス"</code> を追加してください。
+                    出力したファイルを手元のパソコンに持ってきて、このページで読み込んでください。
+                </p>
+
+                <h3>ソース</h3>
+                <div class="scriptSourceBox">
+                    <code class="scriptSourceCode" id="shellScriptSourceCode"></code>
+                    <button class="copyScriptButton" type="button" data-source-id="shellScriptSourceRaw">コピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/plain" id="scriptSourceRaw">param (
+    [string]$Root = "C:\Users\me\Projects",
+
+    # 出力先。既定では、このスクリプトファイル自身があるフォルダー($PSScriptRoot)の
+    # Folder_size_tree_out.yaml に書き出す(-Root で指定した走査対象のフォルダーではない)
+    [string]$OutFile = (Join-Path $PSScriptRoot "Folder_size_tree_out.yaml")
+)
+
+# 走査対象のフォルダーがなければ、出力ファイルを作らずにエラーで止める
+# If the folder to scan does not exist, stop with an error without creating the output file.
+if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
+    Write-Error "Folder not found: $Root" -ErrorAction Continue
+    exit 1
+}
+
+$rootPath = (Resolve-Path -LiteralPath $Root).Path.TrimEnd('\')
+
+# フォルダーごとの合計サイズ
+$sizes = @{}
+
+Write-Host "Scanning directories..."
+
+# 先に全フォルダーを登録
+$directories = @(
+    Get-Item -LiteralPath $rootPath -Force
+    Get-ChildItem -LiteralPath $rootPath -Directory -Recurse -Force -ErrorAction SilentlyContinue
+)
+
+foreach ($dir in $directories) {
+    $sizes[$dir.FullName.TrimEnd('\')] = [Int64]0
+}
+
+Write-Host "Directories: $($directories.Count)"
+Write-Host "Scanning files..."
+
+$fileCount = [Int64]0
+$totalBytes = [Int64]0
+
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+$lastProgressTime = 0.0
+
+# 全ファイルを1回だけ走査
+Get-ChildItem -LiteralPath $rootPath -File -Recurse -Force -ErrorAction SilentlyContinue |
+    ForEach-Object {
+
+        $fileCount++
+        $size = $_.Length
+        $totalBytes += $size
+
+        $current = $_.Directory.FullName.TrimEnd('\')
+
+        # ファイルサイズを親フォルダーへ積み上げる
+        while ($current.StartsWith(
+            $rootPath,
+            [System.StringComparison]::OrdinalIgnoreCase
+        )) {
+            if ($sizes.ContainsKey($current)) {
+                $sizes[$current] += $size
+            }
+
+            if ($current -eq $rootPath) {
+                break
+            }
+
+            $parent = [System.IO.Directory]::GetParent($current)
+
+            if ($null -eq $parent) {
+                break
+            }
+
+            $current = $parent.FullName.TrimEnd('\')
+        }
+
+        # 前回の進捗表示から2秒以上経過した場合だけ更新
+        if (($stopwatch.Elapsed.TotalSeconds - $lastProgressTime) -ge 2) {
+
+            $elapsed = $stopwatch.Elapsed
+
+            Write-Progress `
+                -Activity "Scanning files" `
+                -Status (
+                    "{0:N0} files / {1:N0} bytes / {2:hh\:mm\:ss}" -f `
+                        $fileCount,
+                        $totalBytes,
+                        $elapsed
+                ) `
+                -CurrentOperation $_.FullName
+
+            $lastProgressTime = $stopwatch.Elapsed.TotalSeconds
+        }
+    }
+
+$stopwatch.Stop()
+
+Write-Progress -Activity "Scanning files" -Completed
+
+Write-Host (
+    "Scan completed: {0:N0} files, {1:N0} bytes, {2:hh\:mm\:ss}" -f `
+        $fileCount,
+        $totalBytes,
+        $stopwatch.Elapsed
+)
+
+function Write-FolderTree {
+    param (
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [int]$Depth = 0
+    )
+
+    $item = Get-Item -LiteralPath $Path -Force
+    $indent = "    " * $Depth
+    $size = $sizes[$item.FullName.TrimEnd('\')]
+
+    Write-Output "$indent$($item.Name)`:  #// $($size.ToString('N0'))"
+
+    Get-ChildItem -LiteralPath $Path -Directory -Force -ErrorAction SilentlyContinue |
+        Sort-Object Name |
+        ForEach-Object {
+            Write-FolderTree -Path $_.FullName -Depth ($Depth + 1)
+        }
+}
+
+Write-FolderTree -Path $rootPath | Out-File -LiteralPath $OutFile -Encoding utf8
+
+Write-Host "Output written to: $OutFile"
+</script>
+
+<script type="text/plain" id="shellScriptSourceRaw">#!/bin/bash
+#// AI-generated code
+
+function  ShowHelp() {
+    cat  <<_HERE_DOCUMENT
+folder-size-tree.sh - フォルダーごとの合計サイズを、Folder_size_tree.html で読み込める形式で出力します
+folder-size-tree.sh - Writes the total size of each folder in the format that Folder_size_tree.html can load.
+
+使い方:
+Usage:
+    folder-size-tree.sh  [__RootFolderPath__]  [--out-file __OutFilePath__]
+
+    __RootFolderPath__  走査するフォルダー。省略すると、このスクリプトの DefaultRootPath
+                        Folder to scan. If omitted, DefaultRootPath in this script is used.
+    --out-file, -o      出力先。省略すると、このスクリプトファイル自身があるフォルダーの
+                        Folder_size_tree_out.yaml (走査対象のフォルダーではない)
+                        Output file. If omitted, Folder_size_tree_out.yaml in the folder that
+                        contains this script file (not the folder to scan).
+    --help, -h          このヘルプを表示する
+                        Show this help.
+
+例:
+Example:
+    \${HOME}/bin/folder-size-tree.sh  "/home/me/projects"
+
+前提: bash、find、awk、sort があるホスト。Linux と macOS で動きます。zsh や sh ではなく bash で実行してください
+Requires: a host with bash, find, awk and sort. Works on Linux and macOS. Run it with bash, not zsh or sh.
+    find に -printf がない(GNU 版でない)ホストでは、ファイルのサイズを stat で読むので遅くなります
+    On hosts whose find has no -printf (not the GNU version), file sizes are read with stat, which is slower.
+_HERE_DOCUMENT
+}
+
+#region: GlobalVariables
+
+#// フォルダーを指定しなかったときに走査するフォルダー。自分の環境に合わせて書き換えてください
+#// Folder to scan when no folder is specified. Edit this to match your environment.
+DefaultRootPath="/home/me/projects"
+
+#// 出力先を指定しなかったときのファイル名
+#// File name used when no output file is specified.
+DefaultOutFileName="Folder_size_tree_out.yaml"
+
+#endregion:
+
+#region: CommandLineOptions
+
+Options_OutFile=""
+Options_Help=""
+PositionalArgs=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -o|--out-file)  Options_OutFile="$2"; shift; shift;;  #search: bash default values
+        -h|--help)  Options_Help="yes"; shift;;
+        -*) echo "Unknown option $1"; exit 1;;
+        *) PositionalArgs+=("$1"); shift;;
+    esac
+done
+set -- "${PositionalArgs[@]}"  #// set $1, $2, ...
+unset PositionalArgs
+
+#endregion:
+
+#region: Main
+
+function  Main() {
+    #// 指定したフォルダーを走査し、フォルダーごとの合計サイズをファイルに書き出す
+    #// Scans the specified folder and writes the total size of each folder to a file.
+    local  rootPath="${1-""}"
+    local  outFile="${Options_OutFile}"
+    local  scriptFolderPath=""
+    local  startSeconds=0
+    local  listingMode=""
+    local  treeText=""
+    if [ "${Options_Help}" == "yes" ]; then
+        ShowHelp
+        exit  0
+    fi
+    if [ "${rootPath}" == "" ]; then
+        rootPath="${DefaultRootPath}"
+    fi
+    if [ ! -d "${rootPath}" ]; then
+        Error  "ERROR: フォルダーが見つかりません (folder not found): ${rootPath}"
+    fi
+    rootPath="$( cd  "${rootPath}"  &&  pwd -P )"  ||  Error  "ERROR: パスを解決できません (cannot resolve path): ${rootPath}"
+    listingMode="$( GetFileListingMode  "${rootPath}" )"  ||  Error
+    if [ "${outFile}" == "" ]; then
+        scriptFolderPath="$( cd  "$( dirname  "${BASH_SOURCE[0]}" )"  &&  pwd )"  ||  Error
+        outFile="${scriptFolderPath}/${DefaultOutFileName}"
+    fi
+    startSeconds="${SECONDS}"
+
+    treeText="$( ListFolderAndFileEntries  "${rootPath}"  "${listingMode}"  |  GetFolderSizeTree  "${rootPath}" )"  ||  Error  "ERROR: 走査に失敗しました (scan failed): ${rootPath}"
+
+    echo  "Elapsed: $( FormatElapsedSeconds  "$(( SECONDS - startSeconds ))" )"  >&2
+
+    echo  "${treeText}"  >  "${outFile}"  ||  Error  "ERROR: 書き込めません (cannot write): ${outFile}"
+
+    echo  "Output written to: ${outFile}"
+}
+
+#endregion:
+
+#region: FileSystem
+
+function  GetFileListingMode() {
+    #// このホストで、ファイルのサイズを読む方法を返す
+    #// Returns how file sizes can be read on this host.
+    #//     find-printf: GNU find の -printf (Linux の多く)
+    #//     stat-c:      stat -c (GNU coreutils、BusyBox)
+    #//     stat-f:      stat -f (macOS、BSD)
+    #// どれも使えなければエラーで止める。確かめずに走査すると、find がエラーになってもサイズ 0 の結果が書き出される
+    #// Stops with an error if none is available. Scanning without this check writes a result with size 0 when find fails.
+    local  folderPath="$1"
+    if find  "${folderPath}"  -maxdepth 0  -printf ''  > /dev/null  2>&1; then
+
+        echo  "find-printf"
+    elif stat  -c '%s'  "${folderPath}"  > /dev/null  2>&1; then
+
+        echo  "stat-c"
+    elif stat  -f '%z'  "${folderPath}"  > /dev/null  2>&1; then
+
+        echo  "stat-f"
+    else
+        Error  "ERROR: ファイルのサイズを読めません。GNU find の -printf か、stat -c か stat -f が必要です (cannot read file sizes: needs GNU find -printf, stat -c or stat -f)"
+    fi
+}
+
+function  ListFolderAndFileEntries() {
+    #// 引数のフォルダー以下のフォルダーとファイルを、1行に1つずつ返す
+    #// Returns the folders and files under the given folder, one per line.
+    #//     フォルダーの行: D<タブ>フォルダーのパス
+    #//     Folder line:    D<tab>FolderPath
+    #//     ファイルの行:   F<タブ>サイズ(バイト)<タブ>親フォルダーのパス
+    #//     File line:      F<tab>Size (bytes)<tab>ParentFolderPath
+    #// サイズは、ファイルの見かけのサイズ。シンボリックリンクはたどらない。隠しファイル(名前が . で始まるもの)も含める。
+    #// 読めないフォルダーの中身は含めない(そのエラーは表示しない)
+    #// Size is the apparent file size. Symbolic links are not followed. Hidden files (names starting with .) are included.
+    #// Contents of unreadable folders are not included (those errors are not shown).
+    local  rootPath="$1"
+    local  listingMode="$2"  #// GetFileListingMode の出力 (output of GetFileListingMode)
+
+    {
+        if [ "${listingMode}" == "find-printf" ]; then
+
+            find  "${rootPath}"  -type d  -printf 'D\t%p\n'
+            find  "${rootPath}"  -type f  -printf 'F\t%s\t%h\n'
+        else
+            find  "${rootPath}"  -type d  |  awk  '{ print "D\t" $0 }'
+            {
+                if [ "${listingMode}" == "stat-c" ]; then
+
+                    find  "${rootPath}"  -type f  -exec stat  -c $'%s\t%n'  {}  +
+                else
+
+                    find  "${rootPath}"  -type f  -exec stat  -f '%z%t%N'  {}  +
+                fi
+            }  |
+                awk  -F '\t'  '
+                    #// 「サイズ<タブ>パス」を「F<タブ>サイズ<タブ>親フォルダーのパス」にする
+                    {
+                        parentPath = $2
+                        sub(/\/[^\/]*$/, "", parentPath)
+                        if (parentPath == "") {
+                            parentPath = "/"
+                        }
+                        printf("F\t%s\t%s\n", $1, parentPath)
+                    }
+                '
+        fi
+    }  2>  /dev/null
+}
+
+function  GetFolderSizeTree() {
+    #// stdin の ListFolderAndFileEntries の出力から、フォルダーごとの合計サイズ(バイト)をツリー形式の YAML で返す
+    #// From the output of ListFolderAndFileEntries on stdin, returns the total size (bytes) of each folder as a YAML tree.
+    #//     出力の行: (深さ×空白4つ)フォルダー名:  #// 3桁区切りのサイズ
+    #//     Output line: (depth x 4 spaces)FolderName:  #// size with thousands separators
+    #// 引数は、ListFolderAndFileEntries に渡した走査対象のフォルダーのパス
+    #// The argument is the path of the folder to scan that was passed to ListFolderAndFileEntries.
+    #// 名前にタブや改行を含むフォルダーやファイルは、正しく扱えない
+    #// Folders and files whose names contain a tab or a newline are not handled correctly.
+    #// 進捗と走査結果の概要は stderr に出す
+    #// Progress and the scan summary are written to stderr.
+    local  rootPath="$1"
+
+    awk  -F '\t'  -v rootPath="${rootPath}"  '  #// function stdin
+        #// 1パス目: 全フォルダーを登録し、ファイルのサイズを親フォルダーへ積み上げる
+        $1 == "D" {
+            folderSize[$2] = 0
+            next
+        }
+        $1 == "F" {
+            fileCount++
+            totalBytes += $2
+            current = $3
+            while (1) {
+                if (current in folderSize) {
+                    folderSize[current] += $2
+                }
+                if (current == rootPath  ||  current == "/"  ||  current == "") {
+                    break
+                }
+                sub(/\/[^\/]*$/, "", current)
+                #// "/x" の親は "/"(sub の結果は空になる)
+                if (current == "") {
+                    current = "/"
+                }
+            }
+            if (fileCount % 10000 == 0) {
+                printf("\rFiles: %s / Bytes: %s", AddCommas(fileCount), AddCommas(totalBytes))  >  "/dev/stderr"
+            }
+            next
+        }
+        END {
+            printf("\rScan completed: %s files, %s bytes\n", AddCommas(fileCount), AddCommas(totalBytes))  >  "/dev/stderr"
+            #// 並べ替え用のキー: "/" を \001 に置き換えると、親の直後に子が並び、兄弟は名前順になる
+            for (path in folderSize) {
+                #// 走査対象が "/" のときは、パスそのものがルートからの相対パス(先頭の "/" を残す)
+                if (rootPath == "/") {
+                    relativePath = (path == "/") ? "" : path
+                } else {
+                    relativePath = substr(path, length(rootPath) + 1)
+                }
+                depth = gsub(/\//, "/", relativePath)
+                sortKey = relativePath
+                gsub(/\//, "\001", sortKey)
+                name = path
+                sub(/^.*\//, "", name)
+                if (name == "") {
+                    name = "/"
+                }
+                printf("%s\t%d\t%s\t%s\n", sortKey, depth, name, AddCommas(folderSize[path]))
+            }
+        }
+        function AddCommas(number,    text, result) {
+            text = sprintf("%.0f", number)
+            result = ""
+            while (length(text) > 3) {
+                result = "," substr(text, length(text) - 2) result
+                text = substr(text, 1, length(text) - 3)
+            }
+            return text result
+        }
+    '  |
+    LC_ALL=C  sort  -t $'\t'  -k 1,1  |
+    awk  -F '\t'  '
+        {
+            indent = ""
+            for (i = 0;  i < $2;  i++) {
+                indent = indent "    "
+            }
+            printf("%s%s:  #// %s\n", indent, $3, $4)
+        }
+    '
+}
+
+#endregion:
+
+#region: TimeFormat
+
+function  FormatElapsedSeconds() {
+    #// 秒数を hh:mm:ss 形式の文字列にする
+    #// Formats a number of seconds as hh:mm:ss.
+    local  seconds="$1"
+
+    printf  '%02d:%02d:%02d'  "$(( seconds / 3600 ))"  "$(( seconds % 3600 / 60 ))"  "$(( seconds % 60 ))"
+}
+
+#endregion:
+
+#region: Error
+
+function  Error() {
+    local  errorMessage="${1-""}"  #// "${1-""}" means that "$1" default is "".
+    if [ "${errorMessage}" == "" ]; then
+        errorMessage="ERROR"
+    fi
+
+    echo  "${errorMessage}"  >&2
+    exit  1
+}
+
+#endregion:
+
+Main  "$@"
+</script>
+
+<div id="treeContainer">
+    <div id="treeHeader">
+        <span class="toggle"></span>
+        <span class="header-name">名前<span class="resizer" id="nameResizer"></span></span>
+        <span class="size">サイズ</span>
+        <span class="percentage">割合</span>
+        <span class="header-bar">使用量<span class="resizer" id="barResizer"></span></span>
+    </div>
+    <div id="treeBody"></div>
+</div>
+
+<script>
+
+    // 1階層分のインデント幅(PowerShell スクリプト側の `"    " * $Depth` と合わせる)
+    // Indent width for one depth level (must match `"    " * $Depth` on the PowerShell side).
+    const INDENT_SPACE_COUNT = 4;
+
+    // 直近に解析したツリー(ソート順を変えるたびに、この木を並べ替えて再描画する)
+    let  LastParsedRootNodes = [ ];
+
+    function  Main() {
+        // ファイル選択・ドラッグ&ドロップ・テキスト貼り付け・展開ボタンの各操作にイベントを登録する
+        // Register event listeners for file selection, drag-and-drop, pasted text, and the expand/collapse buttons.
+
+        const dropZoneElement = document.getElementById("dropZone");
+        const fileInputElement = document.getElementById("fileInput");
+        const textInputElement = document.getElementById("textInput");
+        const parseButtonElement = document.getElementById("parseButton");
+        const expandAllButtonElement = document.getElementById("expandAllButton");
+        const collapseAllButtonElement = document.getElementById("collapseAllButton");
+        const sortSelectElement = document.getElementById("sortSelect");
+
+        dropZoneElement.addEventListener("click", function () {
+            fileInputElement.click();
+        });
+
+        dropZoneElement.addEventListener("dragover", function (dragOverEvent) {
+            dragOverEvent.preventDefault();
+            dropZoneElement.classList.add("drag-over");
+        });
+
+        dropZoneElement.addEventListener("dragleave", function () {
+            dropZoneElement.classList.remove("drag-over");
+        });
+
+        dropZoneElement.addEventListener("drop", function (dropEvent) {
+            dropEvent.preventDefault();
+            dropZoneElement.classList.remove("drag-over");
+
+            const droppedFile = dropEvent.dataTransfer.files[0];
+
+            if (droppedFile !== undefined) {
+                ReadFileIntoTextArea(droppedFile, textInputElement);
+            }
+        });
+
+        fileInputElement.addEventListener("change", function (changeEvent) {
+            const selectedFile = changeEvent.target.files[0];
+
+            if (selectedFile !== undefined) {
+                ReadFileIntoTextArea(selectedFile, textInputElement);
+            }
+        });
+
+        parseButtonElement.addEventListener("click", function () {
+            ParseAndRender(textInputElement.value);
+        });
+
+        expandAllButtonElement.addEventListener("click", ExpandAllNodes);
+        collapseAllButtonElement.addEventListener("click", CollapseAllNodes);
+
+        sortSelectElement.addEventListener("change", function () {
+            RenderTree(sortSelectElement.value);
+        });
+
+        const nameResizerElement = document.getElementById("nameResizer");
+        const barResizerElement = document.getElementById("barResizer");
+
+        MakeColumnResizable(nameResizerElement, "--name-width", 100, 480);
+        MakeColumnResizable(barResizerElement, "--bar-width", 60, 320);
+
+        SetUpScriptModal();
+
+        RenderTree(sortSelectElement.value);
+    }
+
+    function  SetUpScriptModal() {
+        // 埋め込んだ PowerShell とシェルスクリプトのソースをポップアップに表示し、開閉と切り替えのイベントを登録する
+        // Load the embedded PowerShell and shell script sources into the popup, and register its open/close and switch events.
+
+        document.getElementById("powerShellSourceCode").textContent =
+            document.getElementById("scriptSourceRaw").textContent;
+        document.getElementById("shellScriptSourceCode").textContent =
+            document.getElementById("shellScriptSourceRaw").textContent;
+
+        for (const copyScriptButtonElement of document.querySelectorAll(".copyScriptButton")) {
+            copyScriptButtonElement.addEventListener("click", function () {
+                const sourceText = document.getElementById(copyScriptButtonElement.dataset.sourceId).textContent;
+                CopyTextToClipboard(sourceText).then(function () {
+                    ShowButtonFeedback(copyScriptButtonElement, "コピーしました");
+                }, function () {
+                    ShowButtonFeedback(copyScriptButtonElement, "コピーできません");
+                });
+            });
+        }
+
+        for (const scriptKindButtonElement of document.querySelectorAll(".scriptKindButton")) {
+            scriptKindButtonElement.addEventListener("click", function () {
+                ShowScriptPanel(scriptKindButtonElement.dataset.scriptKind);
+            });
+        }
+
+        const showScriptButtonElement = document.getElementById("showScriptButton");
+        const closeScriptButtonElement = document.getElementById("closeScriptButton");
+        const scriptOverlayElement = document.getElementById("scriptOverlay");
+
+        showScriptButtonElement.addEventListener("click", function () {
+            scriptOverlayElement.hidden = false;
+        });
+
+        closeScriptButtonElement.addEventListener("click", function () {
+            scriptOverlayElement.hidden = true;
+        });
+
+        scriptOverlayElement.addEventListener("click", function (clickEvent) {
+            if (clickEvent.target === scriptOverlayElement) {
+                scriptOverlayElement.hidden = true;
+            }
+        });
+
+        document.addEventListener("keydown", function (keyDownEvent) {
+            if (keyDownEvent.key === "Escape" && scriptOverlayElement.hidden === false) {
+                scriptOverlayElement.hidden = true;
+            }
+        });
+    }
+
+    function  CopyTextToClipboard(text) {
+        // 文字列をクリップボードにコピーする。成功すると解決し、失敗すると拒否される Promise を返す
+        // Copies text to the clipboard. Returns a Promise that resolves on success and rejects on failure.
+        // Clipboard API が使えないとき(ブラウザーが file:// を安全なページとみなさないときなど)は、execCommand("copy") を使う
+        // Falls back to execCommand("copy") when the Clipboard API is unavailable (e.g. the browser does not treat file:// as secure).
+        if (navigator.clipboard !== undefined && window.isSecureContext) {
+            return navigator.clipboard.writeText(text).catch(function () {
+                return CopyTextWithExecCommand(text);
+            });
+        } else {
+            return CopyTextWithExecCommand(text);
+        }
+    }
+
+    function  CopyTextWithExecCommand(text) {
+        // 見えないテキストエリアに文字列を入れて選択し、execCommand("copy") でコピーする
+        // Puts the text in a hidden textarea, selects it, and copies it with execCommand("copy").
+        const textAreaElement = document.createElement("textarea");
+        textAreaElement.value = text;
+        textAreaElement.setAttribute("readonly", "");
+        textAreaElement.style.position = "fixed";
+        textAreaElement.style.opacity = "0";
+        document.body.appendChild(textAreaElement);
+        textAreaElement.select();
+        const isCopied = document.execCommand("copy");
+        textAreaElement.remove();
+
+        return isCopied ? Promise.resolve() : Promise.reject(new Error("execCommand copy failed"));
+    }
+
+    function  ShowButtonFeedback(buttonElement, feedbackText) {
+        // ボタンの文字を 1.5 秒だけ feedbackText に変えて、元に戻す
+        // Changes the button label to feedbackText for 1.5 seconds, then restores it.
+        if (buttonElement.dataset.originalText === undefined) {
+            buttonElement.dataset.originalText = buttonElement.textContent;
+        }
+        buttonElement.textContent = feedbackText;
+        clearTimeout(Number(buttonElement.dataset.feedbackTimer || 0));
+
+        buttonElement.dataset.feedbackTimer = String(setTimeout(function () {
+            buttonElement.textContent = buttonElement.dataset.originalText;
+        }, 1500));
+    }
+
+    function  ShowScriptPanel(scriptKind) {
+        // ポップアップの中で、指定した種類(powerShell または shellScript)のスクリプトだけを表示する
+        // In the popup, show only the script of the given kind (powerShell or shellScript).
+
+        for (const scriptKindButtonElement of document.querySelectorAll(".scriptKindButton")) {
+            const isSelected = (scriptKindButtonElement.dataset.scriptKind === scriptKind);
+            scriptKindButtonElement.classList.toggle("is-selected", isSelected);
+        }
+
+        for (const scriptPanelElement of document.querySelectorAll(".scriptPanel")) {
+            const isSelected = (scriptPanelElement.dataset.scriptKind === scriptKind);
+            scriptPanelElement.hidden = !isSelected;
+            if (isSelected) {
+                document.getElementById("scriptModalTitle").textContent = scriptPanelElement.dataset.fileName;
+            }
+        }
+    }
+
+    function  MakeColumnResizable(resizerElement, cssVariableName, minWidthPixel, maxWidthPixel) {
+        // ヘッダーのつまみをドラッグしている間、対応する CSS 変数(列幅)をポインター移動量に応じて更新する
+        // While the header handle is dragged, update the corresponding CSS variable (column width) by the pointer movement.
+
+        resizerElement.addEventListener("pointerdown", function (pointerDownEvent) {
+            pointerDownEvent.preventDefault();
+
+            const startPointerX = pointerDownEvent.clientX;
+            const startWidthPixel = parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(cssVariableName)
+            );
+
+            resizerElement.classList.add("resizing");
+            resizerElement.setPointerCapture(pointerDownEvent.pointerId);
+
+            const handlePointerMove = function (pointerMoveEvent) {
+                const movedPixel = pointerMoveEvent.clientX - startPointerX;
+                const newWidthPixel = Math.min(
+                    Math.max(startWidthPixel + movedPixel, minWidthPixel),
+                    maxWidthPixel
+                );
+
+                document.documentElement.style.setProperty(cssVariableName, newWidthPixel + "px");
+            };
+
+            const handlePointerUp = function (pointerUpEvent) {
+                resizerElement.classList.remove("resizing");
+                resizerElement.releasePointerCapture(pointerUpEvent.pointerId);
+                resizerElement.removeEventListener("pointermove", handlePointerMove);
+                resizerElement.removeEventListener("pointerup", handlePointerUp);
+            };
+
+            resizerElement.addEventListener("pointermove", handlePointerMove);
+            resizerElement.addEventListener("pointerup", handlePointerUp);
+        });
+    }
+
+    function  ReadFileIntoTextArea(selectedFile, textInputElement) {
+        // 選択・ドロップされたファイルを読み込み、テキストエリアに反映してから解析する
+        // Read the selected or dropped file, put its content into the textarea, then parse it.
+
+        const fileReader = new FileReader();
+
+        fileReader.addEventListener("load", function () {
+            textInputElement.value = fileReader.result;
+            ParseAndRender(fileReader.result);
+        });
+
+        fileReader.readAsText(selectedFile);
+    }
+
+    function  ParseAndRender(text) {
+        // テキストを解析してツリー構造を作り、現在のソート順でコンテナーへ描画する
+        // Parse the text into a tree structure and render it into the container, using the current sort order.
+
+        LastParsedRootNodes = ParseLines(text);
+
+        const sortSelectElement = document.getElementById("sortSelect");
+        RenderTree(sortSelectElement.value);
+    }
+
+    function  RenderTree(sortOrder) {
+        // 直近に解析したツリーを指定のソート順で並べ替え、コンテナーへ描画する
+        // Sort the most recently parsed tree by the given order and render it into the container.
+
+        const treeBodyElement = document.getElementById("treeBody");
+        treeBodyElement.textContent = "";
+
+        if (LastParsedRootNodes.length === 0) {
+            const emptyStateElement = document.createElement("div");
+            emptyStateElement.id = "emptyState";
+            emptyStateElement.textContent = "YAML を貼り付けるかファイルを選ぶと、ここにツリーが表示されます。";
+            treeBodyElement.appendChild(emptyStateElement);
+            return;
+        }
+
+        SortNodesRecursively(LastParsedRootNodes, sortOrder);
+
+        for (const rootNode of LastParsedRootNodes) {
+            const rootElement = CreateNodeElement(rootNode, rootNode.size);
+            treeBodyElement.appendChild(rootElement);
+
+            // ルートは最初から1階層分だけ開いた状態にする
+            // Start with the root's own children expanded by one level.
+            const rootToggleElement = rootElement.querySelector(":scope > .row > .toggle");
+            const rootChildrenContainerElement = rootElement.querySelector(":scope > .children");
+
+            if (rootNode.children.length > 0) {
+                ToggleNode(rootToggleElement, rootChildrenContainerElement);
+            }
+        }
+    }
+
+    function  SortNodesRecursively(nodes, sortOrder) {
+        // 兄弟フォルダー同士を指定のソート順で並べ替え、子フォルダーにも同じ順序を適用する
+        // Sort sibling folders by the given order, and apply the same order to their children.
+
+        if (sortOrder === "name-asc") {
+            nodes.sort(function (nodeA, nodeB) {
+                return nodeA.name.localeCompare(nodeB.name, "ja");
+            });
+        } else if (sortOrder === "name-desc") {
+            nodes.sort(function (nodeA, nodeB) {
+                return nodeB.name.localeCompare(nodeA.name, "ja");
+            });
+        } else if (sortOrder === "name-case-asc") {
+            nodes.sort(function (nodeA, nodeB) {
+                return CompareByCodeUnit(nodeA.name, nodeB.name);
+            });
+        } else if (sortOrder === "name-case-desc") {
+            nodes.sort(function (nodeA, nodeB) {
+                return CompareByCodeUnit(nodeB.name, nodeA.name);
+            });
+        } else if (sortOrder === "size-desc") {
+            nodes.sort(function (nodeA, nodeB) {
+                return nodeB.size - nodeA.size;
+            });
+        } else if (sortOrder === "size-asc") {
+            nodes.sort(function (nodeA, nodeB) {
+                return nodeA.size - nodeB.size;
+            });
+        }
+
+        for (const node of nodes) {
+            SortNodesRecursively(node.children, sortOrder);
+        }
+    }
+
+    function  CompareByCodeUnit(textA, textB) {
+        // 文字コードの順で比べる(大文字が小文字より先になる)。sort() の比較関数として使う
+        // Compare by character code order (uppercase comes before lowercase). Used as a comparator for sort().
+
+        if (textA < textB) {
+            return -1;
+        } else if (textA > textB) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    function  ParseLines(text) {
+        // 各行をインデント幅・名前・サイズに分解し、インデントに基づいてツリー構造を組み立てる
+        // Split each line into indent width, name and size, and build a tree from the indentation.
+
+        const lines = text.split(/\r\n|\r|\n/);
+        const rootNodes = [ ];
+        const nodeAtDepth = [ ];  // 深さごとの直近のノードを覚えておくスタック
+
+        for (const line of lines) {
+            if (line.trim() === "") {
+                continue;
+            }
+
+            const match = line.match(/^( *)(.+?):\s*#\/\/\s*([\d,]+)\s*$/);
+
+            if (match === null) {
+                continue;
+            }
+
+            const indentSpaceCount = match[1].length;
+            const depth = Math.floor(indentSpaceCount / INDENT_SPACE_COUNT);
+            const name = match[2];
+            const size = Number(match[3].replace(/,/g, ""));
+
+            const node = {
+                name: name,
+                size: size,
+                children: [ ],
+            };
+
+            if (depth === 0) {
+                rootNodes.push(node);
+            } else {
+                const parentNode = nodeAtDepth[depth - 1];
+                parentNode.children.push(node);
+            }
+
+            nodeAtDepth[depth] = node;
+            nodeAtDepth.length = depth + 1;
+        }
+
+        return rootNodes;
+    }
+
+    function  CreateNodeElement(node, parentSize) {
+        // 1つのフォルダー行の DOM 要素(トグル・名前・サイズ・割合・棒グラフ)を作成する
+        // Create the DOM element for a single folder row (toggle, name, size, percentage and bar).
+
+        const hasChildren = node.children.length > 0;
+
+        const toggleElement = document.createElement("span");
+        toggleElement.className = "toggle";
+        toggleElement.textContent = hasChildren ? "▶" : "";
+
+        const nameElement = document.createElement("span");
+        nameElement.className = "name";
+        nameElement.textContent = node.name;
+
+        const sizeElement = document.createElement("span");
+        sizeElement.className = "size";
+        sizeElement.textContent = FormatNumber(node.size);
+
+        // 親フォルダー自身のサイズに対する割合(同じ階層の兄弟フォルダー同士で比較できる)
+        // Share of the parent folder's own size (comparable across sibling folders at the same level).
+        const rawPercentage = (parentSize === 0) ? 0 : (node.size / parentSize * 100);
+        const clampedPercentage = Math.min(rawPercentage, 100);  // 計測中のサイズ変動などで100%を超えないようにする
+
+        const percentageElement = document.createElement("span");
+        percentageElement.className = "percentage";
+        percentageElement.textContent = clampedPercentage.toFixed(1) + "%";
+
+        const barInnerElement = document.createElement("span");
+        barInnerElement.className = "bar-inner";
+        barInnerElement.style.width = clampedPercentage + "%";
+
+        const barOuterElement = document.createElement("span");
+        barOuterElement.className = "bar-outer";
+        barOuterElement.appendChild(barInnerElement);
+
+        const rowElement = document.createElement("div");
+        rowElement.className = hasChildren ? "row has-children" : "row";
+        rowElement.appendChild(toggleElement);
+        rowElement.appendChild(nameElement);
+        rowElement.appendChild(sizeElement);
+        rowElement.appendChild(percentageElement);
+        rowElement.appendChild(barOuterElement);
+
+        const childrenContainerElement = document.createElement("div");
+        childrenContainerElement.className = "children";
+        childrenContainerElement.hidden = true;
+
+        for (const childNode of node.children) {
+            childrenContainerElement.appendChild(
+                CreateNodeElement(childNode, node.size)
+            );
+        }
+
+        if (hasChildren) {
+            rowElement.addEventListener("click", function () {
+                ToggleNode(toggleElement, childrenContainerElement);
+            });
+        }
+
+        const wrapperElement = document.createElement("div");
+        wrapperElement.className = "node";
+        wrapperElement.appendChild(rowElement);
+        wrapperElement.appendChild(childrenContainerElement);
+
+        return wrapperElement;
+    }
+
+    function  ToggleNode(toggleElement, childrenContainerElement) {
+        // 子要素の表示・非表示を切り替え、矢印アイコンの向きを更新する
+        // Toggle the visibility of the children container and update the arrow icon.
+
+        childrenContainerElement.hidden = !childrenContainerElement.hidden;
+        toggleElement.textContent = childrenContainerElement.hidden ? "▶" : "▼";
+    }
+
+    function  ExpandAllNodes() {
+        // ツリー内のすべてのフォルダーを展開する
+        // Expand every folder in the tree.
+
+        const childrenContainerElements = document.querySelectorAll(".children");
+        const toggleElements = document.querySelectorAll(".toggle");
+
+        for (const childrenContainerElement of childrenContainerElements) {
+            childrenContainerElement.hidden = false;
+        }
+
+        for (const toggleElement of toggleElements) {
+            if (toggleElement.textContent !== "") {
+                toggleElement.textContent = "▼";
+            }
+        }
+    }
+
+    function  CollapseAllNodes() {
+        // ツリー内のすべてのフォルダーを折りたたむ
+        // Collapse every folder in the tree.
+
+        const childrenContainerElements = document.querySelectorAll(".children");
+        const toggleElements = document.querySelectorAll(".toggle");
+
+        for (const childrenContainerElement of childrenContainerElements) {
+            childrenContainerElement.hidden = true;
+        }
+
+        for (const toggleElement of toggleElements) {
+            if (toggleElement.textContent !== "") {
+                toggleElement.textContent = "▶";
+            }
+        }
+    }
+
+    function  FormatNumber(numberValue) {
+        // 3桁区切りのカンマを付けて数値を文字列化する
+        // Format a number as a string with thousands-separating commas.
+
+        return numberValue.toLocaleString("en-US");
+    }
+
+    window.addEventListener("DOMContentLoaded", Main);
+
+</script>
